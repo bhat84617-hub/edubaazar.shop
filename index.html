@@ -322,14 +322,18 @@
         </div>
     </section>
 
-    <!-- Stats Section -->
-    <section class="stats-section" id="stats">
+    <!-- Search Bar Section -->
+    <section style="padding:40px 0;background:white">
         <div class="container">
-            <div class="stats-grid">
-                <div class="stat-box" data-aos="fade-up"><div class="stat-icon"><i class="fas fa-users"></i></div><div class="stat-number counter" id="counter-students" data-count="50000">0</div><div class="stat-label">Active Students</div></div>
-                <div class="stat-box" data-aos="fade-up" data-aos-delay="100"><div class="stat-icon"><i class="fas fa-book-open"></i></div><div class="stat-number counter" id="counter-courses" data-count="500">0</div><div class="stat-label">Online Courses</div></div>
-                <div class="stat-box" data-aos="fade-up" data-aos-delay="200"><div class="stat-icon"><i class="fas fa-chalkboard-teacher"></i></div><div class="stat-number counter" id="counter-instructors" data-count="200">0</div><div class="stat-label">Expert Instructors</div></div>
-                <div class="stat-box" data-aos="fade-up" data-aos-delay="300"><div class="stat-icon"><i class="fas fa-award"></i></div><div class="stat-number counter" id="counter-success" data-count="95">0</div><div class="stat-label">% Success Rate</div></div>
+            <div style="max-width:700px;margin:0 auto;text-align:center" data-aos="fade-up">
+                <h2 style="font-size:1.5rem;font-weight:700;margin-bottom:8px">Find Your <span class="gradient-text">Perfect Course</span></h2>
+                <p style="color:#636e72;margin-bottom:20px;font-size:0.95rem">Search from 76+ premium courses in hacking, programming, trading & more</p>
+                <div style="display:flex;gap:10px;max-width:600px;margin:0 auto;position:relative">
+                    <input type="text" id="searchInput" placeholder="Search courses... (e.g. Python, Hacking, Trading)" style="flex:1;padding:16px 20px 16px 50px;border:2px solid #e9ecef;border-radius:14px;font-size:1rem;font-family:'Inter',sans-serif;transition:all 0.3s ease;box-shadow:0 4px 20px rgba(0,0,0,0.06)" onfocus="this.style.borderColor='#6c5ce7';this.style.boxShadow='0 4px 30px rgba(108,92,231,0.15)'" onblur="this.style.borderColor='#e9ecef';this.style.boxShadow='0 4px 20px rgba(0,0,0,0.06)'">
+                    <i class="fas fa-search" style="position:absolute;left:18px;top:50%;transform:translateY(-50%);color:#636e72;font-size:1.1rem"></i>
+                    <button onclick="searchCourses()" style="padding:16px 30px;background:linear-gradient(135deg,#6c5ce7,#a29bfe);color:white;border:none;border-radius:14px;font-weight:700;font-size:1rem;cursor:pointer;transition:all 0.3s ease;box-shadow:0 4px 20px rgba(108,92,231,0.3);white-space:nowrap" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''"><i class="fas fa-search"></i> Search</button>
+                </div>
+                <div id="searchResults" style="margin-top:15px;text-align:left"></div>
             </div>
         </div>
     </section>

@@ -3171,31 +3171,164 @@ body {
         display: none;
     }
 
+    .nav-links.mobile-active {
+        display: flex !important;
+        flex-direction: column;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100vh;
+        background: white;
+        padding: 80px 30px 30px;
+        z-index: 999;
+        gap: 0;
+        overflow-y: auto;
+    }
+
+    .nav-links.mobile-active li {
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .nav-links.mobile-active li a {
+        display: block;
+        padding: 16px 0;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #2d3436;
+        text-decoration: none;
+    }
+
+    .nav-links.mobile-active .dropdown-menu {
+        position: static !important;
+        box-shadow: none;
+        border: none;
+        padding-left: 15px;
+        opacity: 1;
+        visibility: visible;
+        transform: none;
+        display: block !important;
+        background: #f8f9fa;
+        border-radius: 10px;
+        margin: 5px 0 10px;
+    }
+
+    .nav-links.mobile-active .dropdown-menu li a {
+        padding: 12px 15px;
+        font-size: 0.95rem;
+        font-weight: 500;
+        color: #636e72;
+    }
+
+    .nav-buttons.mobile-active {
+        display: flex !important;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background: white;
+        padding: 15px 30px;
+        justify-content: center;
+        gap: 10px;
+        box-shadow: 0 -5px 20px rgba(0,0,0,0.1);
+        z-index: 1000;
+    }
+
+    .hamburger.active span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
+    .hamburger.active span:nth-child(2) { opacity: 0; }
+    .hamburger.active span:nth-child(3) { transform: rotate(-45deg) translate(7px, -6px); }
+
     .hamburger {
-        display: flex;
+        z-index: 1001;
     }
 
     .hero-text h1 {
-        font-size: 2.5rem;
+        font-size: 2rem;
+    }
+
+    .hero-text p {
+        font-size: 0.9rem;
+    }
+
+    .hero-image {
+        display: none;
+    }
+
+    .hero-content {
+        padding-top: 20px;
     }
 
     .section-header h2 {
-        font-size: 2rem;
+        font-size: 1.8rem;
     }
 
-    .stats-grid,
-    .courses-grid,
-    .categories-grid,
-    .footer-grid {
+    .courses-grid {
         grid-template-columns: 1fr;
     }
 
-    .cta-content h2 {
-        font-size: 2rem;
+    .courses-filter {
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        padding-bottom: 10px;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
     }
 
-    .cta-form input {
+    .courses-filter::-webkit-scrollbar {
+        display: none;
+    }
+
+    .courses-filter .filter-btn {
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+
+    .course-overlay {
+        opacity: 1 !important;
+        background: rgba(0, 0, 0, 0.4);
+    }
+
+    .course-overlay button {
+        transform: translateY(0) !important;
+        width: 42px;
+        height: 42px;
+        font-size: 0.95rem;
+    }
+
+    .course-card:hover {
+        transform: none;
+    }
+
+    .deal-card {
+        flex-direction: column-reverse;
+        padding: 25px;
+        text-align: center;
+    }
+
+    .deal-image {
+        flex: none;
         width: 100%;
+    }
+
+    .deal-image img {
+        height: 180px;
+    }
+
+    .deal-content h3 {
+        font-size: 1.3rem;
+    }
+
+    .cart-sidebar {
+        width: 100%;
+    }
+
+    .modal {
+        padding: 20px;
+        margin: 10px;
+    }
+
+    .checkout-modal {
+        padding: 20px;
     }
 
     .cursor,
@@ -3203,24 +3336,34 @@ body {
         display: none;
     }
 
-    .checkout-modal {
-        padding: 25px;
+    .back-to-top {
+        bottom: 20px;
+        right: 20px;
     }
 
-    .stats-section {
-        margin-top: 0;
-        border-radius: 0;
+    .deals-banner .swiper-slide > div {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .full-deals-slider .swiper-slide > div {
+        padding: 25px;
+        min-height: auto;
     }
 }
 
 @media (max-width: 480px) {
     .hero-text h1 {
-        font-size: 2rem;
+        font-size: 1.6rem;
     }
 
     .hero-buttons {
         flex-direction: column;
-        align-items: center;
+        align-items: stretch;
+    }
+
+    .hero-buttons a {
+        justify-content: center;
     }
 
     .cart-sidebar {
@@ -3234,19 +3377,28 @@ body {
     }
 
     .section-header h2 {
-        font-size: 1.6rem;
+        font-size: 1.5rem;
     }
 
     .courses-grid {
         grid-template-columns: 1fr;
     }
 
-    .categories-grid {
-        grid-template-columns: 1fr 1fr;
+    .modal {
+        padding: 15px;
+        margin: 5px;
     }
 
-    .modal {
-        padding: 25px;
-        margin: 15px;
+    .nav-links.mobile-active {
+        padding: 70px 20px 20px;
+    }
+
+    .full-deals-slider .swiper-slide > div {
+        padding: 20px;
+        border-radius: 16px;
+    }
+
+    .full-deals-slider .swiper-slide h3 {
+        font-size: 1.2rem;
     }
 }

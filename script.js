@@ -54,19 +54,16 @@ window.addEventListener('scroll', () => {
     navLinksAll.forEach(l => { l.classList.remove('active'); if (l.getAttribute('href') === `#${current}`) l.classList.add('active'); });
 });
 
-// ==================== STATS COUNTER ====================
-let statsAnimated = false;
-const animateStats = () => {
-    document.querySelectorAll('.stat-number').forEach(stat => {
-        const target = parseInt(stat.getAttribute('data-count'));
-        const increment = target / 125;
-        let current = 0;
-        const update = () => { current += increment; if (current < target) { stat.textContent = Math.floor(current).toLocaleString(); requestAnimationFrame(update); } else { stat.textContent = target.toLocaleString() + '+'; } };
-        update();
-    });
-};
-const statsObserver = new IntersectionObserver((entries) => { if (entries[0].isIntersecting && !statsAnimated) { animateStats(); statsAnimated = true; } }, { threshold: 0.5 });
-// statsSection observer removed (duplicated below)
+// ==================== SEARCH BAR ====================
+function searchCourses() {
+    const query = document.getElementById('searchInput').value.trim().toLowerCase();
+    const resultsEl = document.getElementById('searchResults');
+    if (!query || !resultsEl) { if(resultsEl) resultsEl.innerHTML = ''; return; }
+    const results = Object.entries(courseData).filter(([id, c]) => c.title.toLowerCase().includes(query) || c.category.toLowerCase().includes(query) || c.desc.toLowerCase().includes(query));
+    if (results.length === 0) { resultsEl.innerHTML = '<p style="color:#636e72;padding:10px">No courses found. Try different keywords.</p>'; return; }
+    resultsEl.innerHTML = results.slice(0, 5).map(([id, c]) => `<div onclick="document.getElementById('searchInput').value='';document.getElementById('searchResults').innerHTML='';document.querySelector('[data-id=${id}]')?.scrollIntoView({behavior:'smooth',block:'center'});document.querySelector('[data-id=${id}]')?.style.setProperty('box-shadow','0 0 0 3px #6c5ce7');setTimeout(()=>document.querySelector('[data-id=${id}]')?.style.removeProperty('box-shadow'),2000)" style="display:flex;align-items:center;gap:12px;padding:12px;background:white;border:1px solid #e9ecef;border-radius:12px;margin-bottom:8px;cursor:pointer;transition:all 0.2s" onmouseover="this.style.borderColor='#6c5ce7';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='#e9ecef';this.style.transform=''"><img src="${c.img}" style="width:50px;height:40px;object-fit:cover;border-radius:8px"><div style="flex:1"><h4 style="font-size:0.9rem;font-weight:600;margin:0">${c.title}</h4><p style="font-size:0.75rem;color:#636e72;margin:2px 0 0">${c.category} • ${c.duration}</p></div><span style="font-weight:700;color:#6c5ce7;white-space:nowrap">₹${c.price}</span></div>`).join('');
+}
+document.getElementById('searchInput')?.addEventListener('keyup', (e) => { if (e.key === 'Enter') searchCourses(); else { const q = e.target.value.trim().toLowerCase(); if (q.length >= 2) searchCourses(); else document.getElementById('searchResults').innerHTML = ''; } });
 
 // ==================== COURSE FILTER ====================
 document.querySelectorAll('.filter-btn').forEach(btn => {
