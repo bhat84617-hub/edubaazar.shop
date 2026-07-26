@@ -1474,6 +1474,7 @@ body {
     overflow: hidden;
     transition: var(--transition);
     box-shadow: var(--shadow);
+    position: relative;
 }
 
 .course-card:hover {
@@ -1538,6 +1539,7 @@ body {
     gap: 15px;
     opacity: 0;
     transition: var(--transition);
+    z-index: 2;
 }
 
 .course-card:hover .course-overlay {
@@ -1556,6 +1558,9 @@ body {
     transform: translateY(20px);
     transition: var(--transition);
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    position: relative;
+    z-index: 3;
+    touch-action: manipulation;
 }
 
 .course-card:hover .course-overlay button {
@@ -3166,9 +3171,50 @@ body {
 }
 
 @media (max-width: 768px) {
-    .nav-links,
-    .nav-buttons {
+    .nav-links {
         display: none;
+    }
+
+    .nav-buttons {
+        display: flex;
+        position: static;
+        background: none;
+        box-shadow: none;
+        padding: 0;
+        gap: 0;
+    }
+
+    .nav-buttons .btn-login,
+    .nav-buttons .btn-signup {
+        display: none;
+    }
+
+    .nav-buttons .btn-cart {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: var(--primary);
+        color: white;
+        font-size: 1.1rem;
+        position: relative;
+    }
+
+    .nav-buttons .btn-cart .cart-count {
+        position: absolute;
+        top: -2px;
+        right: -2px;
+        background: var(--accent-pink);
+        color: white;
+        font-size: 0.65rem;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     .nav-links.mobile-active {
@@ -3220,25 +3266,12 @@ body {
         color: #636e72;
     }
 
-    .nav-buttons.mobile-active {
-        display: flex !important;
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        background: white;
-        padding: 15px 30px;
-        justify-content: center;
-        gap: 10px;
-        box-shadow: 0 -5px 20px rgba(0,0,0,0.1);
-        z-index: 1000;
-    }
-
     .hamburger.active span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
     .hamburger.active span:nth-child(2) { opacity: 0; }
     .hamburger.active span:nth-child(3) { transform: rotate(-45deg) translate(7px, -6px); }
 
     .hamburger {
+        display: flex;
         z-index: 1001;
     }
 

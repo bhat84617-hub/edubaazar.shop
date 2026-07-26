@@ -17,9 +17,9 @@ document.querySelectorAll('a, button').forEach(el => {
 AOS.init({ duration: 800, easing: 'ease-in-out', once: true });
 
 // ==================== SLIDERS ====================
-new Swiper('.hero-slider', { loop: true, autoplay: { delay: 5000, disableOnInteraction: false }, pagination: { el: '.hero .swiper-pagination', clickable: true }, effect: 'fade', fadeEffect: { crossFade: true }, speed: 1000 });
-new Swiper('.deals-banner-slider', { loop: true, autoplay: { delay: 3000, disableOnInteraction: false }, slidesPerView: 1, spaceBetween: 15, breakpoints: { 640: { slidesPerView: 2 }, 1024: { slidesPerView: 3 } } });
-new Swiper('.full-deals-slider', { loop: true, autoplay: { delay: 4000, disableOnInteraction: false }, pagination: { el: '.full-deals-slider .swiper-pagination', clickable: true }, slidesPerView: 1, spaceBetween: 25, breakpoints: { 640: { slidesPerView: 1.2 }, 1024: { slidesPerView: 2.2 } } });
+if (document.querySelector('.hero-slider')) { new Swiper('.hero-slider', { loop: true, autoplay: { delay: 5000, disableOnInteraction: false }, pagination: { el: '.hero .swiper-pagination', clickable: true }, effect: 'fade', fadeEffect: { crossFade: true }, speed: 1000 }); }
+if (document.querySelector('.deals-banner-slider')) { new Swiper('.deals-banner-slider', { loop: true, autoplay: { delay: 3000, disableOnInteraction: false }, slidesPerView: 1, spaceBetween: 15, breakpoints: { 640: { slidesPerView: 2 }, 1024: { slidesPerView: 3 } } }); }
+if (document.querySelector('.full-deals-slider')) { new Swiper('.full-deals-slider', { loop: true, autoplay: { delay: 4000, disableOnInteraction: false }, pagination: { el: '.full-deals-slider .swiper-pagination', clickable: true }, slidesPerView: 1, spaceBetween: 25, breakpoints: { 640: { slidesPerView: 1.2 }, 1024: { slidesPerView: 2.2 } } }); }
 
 // ==================== NAVBAR ====================
 const navbar = document.getElementById('navbar');
@@ -160,7 +160,7 @@ function flyToCart(imgSrc) {
     flyEl.className = 'fly-to-cart';
     flyEl.innerHTML = `<img src="${imgSrc}" alt="">`;
     document.body.appendChild(flyEl);
-    const cartRect = cartBtn.getBoundingClientRect();
+    const cartRect = cartBtn ? cartBtn.getBoundingClientRect() : { left: window.innerWidth - 50, top: 50 };
     flyEl.style.left = '50%';
     flyEl.style.top = '50%';
     flyEl.style.transform = 'translate(-50%, -50%) scale(1)';
@@ -171,9 +171,10 @@ function flyToCart(imgSrc) {
         flyEl.style.opacity = '0';
     }, 50);
     setTimeout(() => flyEl.remove(), 900);
-    // bounce cart icon
-    cartBtn.style.animation = 'cartBounce 0.5s ease';
-    setTimeout(() => cartBtn.style.animation = '', 500);
+    if (cartBtn) {
+        cartBtn.style.animation = 'cartBounce 0.5s ease';
+        setTimeout(() => cartBtn.style.animation = '', 500);
+    }
 }
 
 function removeFromCart(id) {
@@ -616,17 +617,12 @@ backToTop.addEventListener('click', () => { window.scrollTo({ top: 0, behavior: 
 // ==================== MOBILE MENU ====================
 const hamburger = document.getElementById('hamburger');
 const navLinksEl = document.querySelector('.nav-links');
-const navButtonsEl = document.querySelector('.nav-buttons');
-hamburger.addEventListener('click', () => { hamburger.classList.toggle('active'); navLinksEl.classList.toggle('mobile-active'); navButtonsEl.classList.toggle('mobile-active'); });
-
-// Dynamic styles for mobile menu and slideOut
-const style = document.createElement('style');
-style.textContent = `
-.nav-links.mobile-active{display:flex !important;flex-direction:column;position:absolute;top:100%;left:0;width:100%;background:white;padding:20px;box-shadow:0 10px 30px rgba(0,0,0,0.1);gap:15px;z-index:100}
-.nav-buttons.mobile-active{display:flex !important;position:absolute;top:calc(100% + 250px);left:0;width:100%;background:white;padding:20px;justify-content:center;gap:10px;z-index:100}
-@keyframes slideOut{to{opacity:0;transform:translateX(100px);height:0;padding:0;margin:0;overflow:hidden}}
-`;
-document.head.appendChild(style);
+if (hamburger && navLinksEl) {
+    hamburger.addEventListener('click', () => {
+        hamburger.classList.toggle('active');
+        navLinksEl.classList.toggle('mobile-active');
+    });
+}
 
 // ==================== SCROLL REVEAL ====================
 const revealElements = document.querySelectorAll('.course-card, .category-card, .section-header, .testimonial-card');
