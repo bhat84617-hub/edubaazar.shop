@@ -1,0 +1,65 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - EduBazar.shop</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Inter',sans-serif;background:linear-gradient(135deg,#f8f9fa 0%,#e8e0ff 50%,#f8f9fa 100%);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+        .login-container{background:white;border-radius:20px;padding:50px 40px;max-width:420px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.08);text-align:center}
+        .login-logo{font-size:2.5rem;margin-bottom:10px}
+        .login-logo span{font-size:1.8rem;font-weight:800;background:linear-gradient(135deg,#6c5ce7,#a29bfe);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+        .login-subtitle{color:#636e72;margin-bottom:30px;font-size:0.95rem}
+        .form-group{margin-bottom:20px;text-align:left}
+        .form-group label{display:block;font-weight:600;margin-bottom:8px;color:#2d3436;font-size:0.9rem}
+        .form-group input{width:100%;padding:14px 18px;border:2px solid #e9ecef;border-radius:12px;font-size:1rem;font-family:'Inter',sans-serif;transition:all 0.3s ease}
+        .form-group input:focus{border-color:#6c5ce7;outline:none;box-shadow:0 0 0 4px rgba(108,92,231,0.1)}
+        .btn-login{width:100%;padding:16px;background:linear-gradient(135deg,#6c5ce7,#a29bfe);color:white;border:none;border-radius:12px;font-size:1.1rem;font-weight:700;cursor:pointer;transition:all 0.3s ease;font-family:'Inter',sans-serif;margin-top:10px}
+        .btn-login:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(108,92,231,0.3)}
+        .login-footer{margin-top:25px;color:#636e72;font-size:0.85rem}
+        .login-footer a{color:#6c5ce7;text-decoration:none;font-weight:600}
+        .error-msg{color:#e74c3c;font-size:0.85rem;margin-top:10px;display:none}
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-logo"><i class="fas fa-graduation-cap"></i><br><span>EduBazar</span></div>
+        <p class="login-subtitle">Enter your order ID to access your dashboard</p>
+        <form id="loginForm">
+            <div class="form-group">
+                <label><i class="fas fa-envelope"></i> Email Address</label>
+                <input type="email" id="email" placeholder="Enter your email" required>
+            </div>
+            <div class="form-group">
+                <label><i class="fas fa-lock"></i> Order ID</label>
+                <input type="text" id="orderId" placeholder="Enter your order ID (e.g. EB-001)" required>
+            </div>
+            <div class="error-msg" id="errorMsg">No order found with this email and order ID. Please check and try again.</div>
+            <button type="submit" class="btn-login"><i class="fas fa-sign-in-alt"></i> Access Dashboard</button>
+        </form>
+        <div class="login-footer">
+            <p>Don't have an order? <a href="index.html">Browse Courses</a></p>
+        </div>
+    </div>
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = document.getElementById('email').value.trim().toLowerCase();
+            const orderId = document.getElementById('orderId').value.trim();
+            const orders = JSON.parse(localStorage.getItem('edubazar_orders')) || [];
+            const found = orders.find(o => o.email && o.email.toLowerCase() === email && o.orderId === orderId);
+            if (found) {
+                sessionStorage.setItem('edubazar_user_auth', JSON.stringify({email: email, orderId: orderId}));
+                window.location.href = 'user-dashboard.html';
+            } else {
+                document.getElementById('errorMsg').style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>

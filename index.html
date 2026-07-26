@@ -1,0 +1,2117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduBazar.shop - Learn. Grow. Succeed.</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Preloader -->
+    <div class="preloader" id="preloader">
+        <div class="preloader-inner">
+            <div class="preloader-spinner"></div>
+            <p style="color:#6c5ce7;font-weight:600;margin-top:15px">Loading EduBazar...</p>
+        </div>
+    </div>
+
+    <!-- Cursor -->
+    <div class="cursor"></div>
+    <div class="cursor-follower"></div>
+
+    <!-- Toast Notification -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Navbar -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">
+                <i class="fas fa-graduation-cap"></i>
+                <span>EduBazar</span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="index.html" class="active">Home</a></li>
+                <li class="nav-dropdown">
+                    <a href="#">Courses <i class="fas fa-chevron-down"></i></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="hacking.html"><i class="fas fa-user-secret"></i> Hacking</a></li>
+                        <li><a href="programming.html"><i class="fas fa-code"></i> Programming</a></li>
+                        <li><a href="trading.html"><i class="fas fa-chart-line"></i> Trading</a></li>
+                        <li><a href="books.html"><i class="fas fa-book-open"></i> Books</a></li>
+                        <li><a href="tools.html"><i class="fas fa-wrench"></i> Software & Tools</a></li>
+                    </ul>
+                </li>
+                <li><a href="user-dashboard.html">Dashboard</a></li>
+            </ul>
+            <div class="nav-buttons">
+                <a href="user-login.html" class="btn-login">Login</a>
+                <a href="user-login.html" class="btn-signup">Sign Up</a>
+                <button class="btn-cart" id="cartBtn">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span class="cart-count" id="cartCount">0</span>
+                </button>
+            </div>
+            <div class="hamburger" id="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Cart Sidebar -->
+    <div class="cart-overlay" id="cartOverlay"></div>
+    <div class="cart-sidebar" id="cartSidebar">
+        <div class="cart-header">
+            <h3><i class="fas fa-shopping-cart"></i> Your Cart</h3>
+            <button class="cart-close" id="cartClose"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="cart-items" id="cartItems">
+            <div class="cart-empty">
+                <i class="fas fa-shopping-basket"></i>
+                <p>Your cart is empty</p>
+            </div>
+        </div>
+        <div class="cart-footer" id="cartFooter" style="display:none;">
+            <div class="cart-total">
+                <span>Total:</span>
+                <span id="cartTotal">?0</span>
+            </div>
+            <button class="btn-checkout" id="checkoutBtn">
+                <i class="fas fa-lock"></i> Proceed to Checkout
+            </button>
+        </div>
+    </div>
+
+    <!-- Checkout Modal -->
+    <div class="modal-overlay" id="checkoutModal">
+        <div class="modal checkout-modal">
+            <button class="modal-close" id="checkoutClose"><i class="fas fa-times"></i></button>
+            <div class="checkout-steps">
+                <div class="step active" data-step="1"><span>1</span> Details</div>
+                <div class="step" data-step="2"><span>2</span> Payment</div>
+                <div class="step" data-step="3"><span>3</span> Done</div>
+            </div>
+            <!-- Step 1: Details -->
+            <div class="checkout-step-content active" id="step1">
+                <h3>Your Details</h3>
+                <form id="checkoutForm">
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" id="custName" placeholder="John Doe" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Email Address</label>
+                        <input type="email" id="custEmail" placeholder="john@example.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Phone Number</label>
+                        <input type="tel" id="custPhone" placeholder="+91 98765 43210" required>
+                    </div>
+                    <button type="submit" class="btn-primary btn-full">
+                        <span>Continue to Payment</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
+                </form>
+            </div>
+            <!-- Step 2: Payment -->
+            <div class="checkout-step-content" id="step2">
+                <h3>Payment Method</h3>
+                <div class="payment-methods">
+                    <label class="payment-option active">
+                        <input type="radio" name="payment" value="upi" checked>
+                        <div class="payment-card">
+                            <i class="fas fa-mobile-alt"></i>
+                            <span>UPI / GPay / PhonePe</span>
+                        </div>
+                    </label>
+                    <label class="payment-option">
+                        <input type="radio" name="payment" value="card">
+                        <div class="payment-card">
+                            <i class="fas fa-credit-card"></i>
+                            <span>Credit / Debit Card</span>
+                        </div>
+                    </label>
+                    <label class="payment-option">
+                        <input type="radio" name="payment" value="netbanking">
+                        <div class="payment-card">
+                            <i class="fas fa-university"></i>
+                            <span>Net Banking</span>
+                        </div>
+                    </label>
+                </div>
+                <div class="payment-summary">
+                    <div class="summary-row"><span>Subtotal</span><span id="summarySubtotal">?0</span></div>
+                    <div class="summary-row"><span>Discount</span><span class="text-green">-?0</span></div>
+                    <div class="summary-row total"><span>Total</span><span id="summaryTotal">?0</span></div>
+                </div>
+                <button class="btn-primary btn-full" id="payBtn">
+                    <i class="fas fa-lock"></i> Pay Now
+                </button>
+            </div>
+            <!-- Step 3: Success -->
+            <div class="checkout-step-content" id="step3">
+                <div class="success-animation">
+                    <div class="success-circle">
+                        <svg class="checkmark" viewBox="0 0 52 52">
+                            <circle class="checkmark-circle" cx="26" cy="26" r="25" fill="none"/>
+                            <path class="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+                        </svg>
+                    </div>
+                    <h2>Payment Successful!</h2>
+                    <p>Order ID: <strong id="orderIdDisplay"></strong></p>
+                    <p class="text-gray">A confirmation email has been sent to <strong id="emailDisplay"></strong></p>
+                    <div class="success-actions">
+                        <a href="user-dashboard.html" class="btn-primary"><i class="fas fa-tachometer-alt"></i> Go to Dashboard</a>
+                        <button class="btn-secondary" id="continueShopping">Continue Shopping</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Course Preview Modal -->
+    <div class="modal-overlay" id="previewModal">
+        <div class="modal preview-modal">
+            <button class="modal-close" id="previewClose"><i class="fas fa-times"></i></button>
+            <div class="preview-content" id="previewContent"></div>
+        </div>
+    </div>
+
+    <!-- UPI Payment Modal -->
+    <div class="modal-overlay" id="upiModal">
+        <div class="modal upi-modal">
+            <button class="modal-close" id="upiClose"><i class="fas fa-times"></i></button>
+            <div class="upi-content">
+                <h3><i class="fas fa-shield-alt"></i> Complete Payment</h3>
+                <p class="upi-amount">Amount: <strong id="upiAmount">?0</strong></p>
+                
+                <!-- Payment Tabs -->
+                <div class="upi-tabs">
+                    <button class="upi-tab active" data-tab="qr"><i class="fas fa-qrcode"></i> QR Code</button>
+                    <button class="upi-tab" data-tab="upid"><i class="fas fa-copy"></i> UPI ID</button>
+                    <button class="upi-tab" data-tab="link"><i class="fas fa-link"></i> Payment Link</button>
+                </div>
+
+                <!-- QR Code Tab -->
+                <div class="upi-tab-content active" id="tabQr">
+                    <div class="qr-container">
+                        <div class="qr-box" id="qrCode"></div>
+                        <p>Scan with any UPI app</p>
+                        <div class="upi-apps">
+                            <span><i class="fab fa-google-pay"></i> GPay</span>
+                            <span><i class="fas fa-mobile-alt"></i> PhonePe</span>
+                            <span><i class="fas fa-wallet"></i> Paytm</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- UPI ID Tab -->
+                <div class="upi-tab-content" id="tabUpiId">
+                    <div class="upi-id-box">
+                        <label>Send payment to this UPI ID:</label>
+                        <div class="upi-copy-row">
+                            <input type="text" value="edubazar@upi" id="upiIdField" readonly>
+                            <button class="btn-copy" onclick="copyUpiId()"><i class="fas fa-copy"></i> Copy</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment Link Tab -->
+                <div class="upi-tab-content" id="tabLink">
+                    <div class="upi-id-box">
+                        <label>Or click the link to pay:</label>
+                        <a href="#" class="payment-link" id="paymentLink" onclick="return false;">
+                            <i class="fas fa-external-link-alt"></i> Click to Pay
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Timer -->
+                <div class="payment-timer">
+                    <i class="fas fa-clock"></i> Payment expires in: <strong id="paymentTimer">15:00</strong>
+                </div>
+
+                <button class="btn-primary btn-full" id="confirmPayment">
+                    <i class="fas fa-check-circle"></i> I've Completed Payment
+                </button>
+                <p class="upi-note">After payment, your download link will be generated automatically.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="hero-bg-shapes">
+            <div class="shape shape-1"></div>
+            <div class="shape shape-2"></div>
+            <div class="shape shape-3"></div>
+            <div class="shape shape-4"></div>
+        </div>
+        <div class="swiper hero-slider">
+            <div class="swiper-wrapper">
+                <div class="swiper-slide">
+                    <div class="hero-content">
+                        <div class="hero-text" data-aos="fade-right" data-aos-delay="100">
+                            <span class="hero-badge">Welcome to EduBazar</span>
+                            <h1>Master New Skills <br><span class="gradient-text">Online Today</span></h1>
+                            <p>Join over 50,000+ students learning from world-class instructors. Get access to 500+ courses in tech, hacking, trading, and creative skills.</p>
+                            <div class="hero-buttons">
+                                <a href="#courses" class="btn-primary"><span>Explore Courses</span><i class="fas fa-arrow-right"></i></a>
+                                <a href="#categories" class="btn-secondary"><i class="fas fa-play-circle"></i><span>Browse Categories</span></a>
+                            </div>
+                            <div class="hero-stats">
+                                <div class="stat-item">
+                                    <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Student" class="stat-avatar">
+                                    <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Student" class="stat-avatar">
+                                    <img src="https://randomuser.me/api/portraits/women/68.jpg" alt="Student" class="stat-avatar">
+                                    <img src="https://randomuser.me/api/portraits/men/75.jpg" alt="Student" class="stat-avatar">
+                                    <span>50K+ Students</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="hero-image" data-aos="fade-left" data-aos-delay="300">
+                            <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=600&h=500&fit=crop" alt="Students Learning">
+                            <div class="floating-card card-1"><i class="fas fa-certificate"></i><div><h4>Certified</h4><p>Get Certified</p></div></div>
+                            <div class="floating-card card-2"><div class="rating"><i class="fas fa-star"></i><span>4.9</span></div><p>Top Rated Courses</p></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="swiper-slide">
+                    <div class="hero-content">
+                        <div class="hero-text">
+                            <span class="hero-badge">New: Hacking Courses</span>
+                            <h1>Learn <span class="gradient-text">Cyber Security</span> <br>& Ethical Hacking</h1>
+                            <p>Master penetration testing, network security, and become a certified ethical hacker. Industry-leading courses.</p>
+                            <div class="hero-buttons">
+                                <a href="#courses" class="btn-primary"><span>Hacking Courses</span><i class="fas fa-arrow-right"></i></a>
+                                <a href="#courses" class="btn-secondary"><i class="fas fa-shield-alt"></i><span>View Courses</span></a>
+                            </div>
+                        </div>
+                        <div class="hero-image">
+                            <img src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=600&h=500&fit=crop" alt="Hacking">
+                            <div class="floating-card card-1"><i class="fas fa-user-secret"></i><div><h4>Pro Hacking</h4><p>Learn & Earn</p></div></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="swiper-slide">
+                    <div class="hero-content">
+                        <div class="hero-text">
+                            <span class="hero-badge">Trading Masterclass</span>
+                            <h1>Master <span class="gradient-text">Stock Trading</span> <br>& Crypto</h1>
+                            <p>Learn technical analysis, candlestick patterns, and build profitable trading strategies. Start earning from markets.</p>
+                            <div class="hero-buttons">
+                                <a href="#courses" class="btn-primary"><span>Start Trading</span><i class="fas fa-arrow-right"></i></a>
+                                <a href="#courses" class="btn-secondary"><i class="fas fa-chart-line"></i><span>View Courses</span></a>
+                            </div>
+                        </div>
+                        <div class="hero-image">
+                            <img src="https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&h=500&fit=crop" alt="Trading">
+                            <div class="floating-card card-1"><i class="fas fa-chart-bar"></i><div><h4>95% Profit</h4><p>Win Rate</p></div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="swiper-pagination"></div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats-section" id="stats">
+        <div class="container">
+            <div class="stats-grid">
+                <div class="stat-box" data-aos="fade-up"><div class="stat-icon"><i class="fas fa-users"></i></div><div class="stat-number counter" id="counter-students" data-count="50000">0</div><div class="stat-label">Active Students</div></div>
+                <div class="stat-box" data-aos="fade-up" data-aos-delay="100"><div class="stat-icon"><i class="fas fa-book-open"></i></div><div class="stat-number counter" id="counter-courses" data-count="500">0</div><div class="stat-label">Online Courses</div></div>
+                <div class="stat-box" data-aos="fade-up" data-aos-delay="200"><div class="stat-icon"><i class="fas fa-chalkboard-teacher"></i></div><div class="stat-number counter" id="counter-instructors" data-count="200">0</div><div class="stat-label">Expert Instructors</div></div>
+                <div class="stat-box" data-aos="fade-up" data-aos-delay="300"><div class="stat-icon"><i class="fas fa-award"></i></div><div class="stat-number counter" id="counter-success" data-count="95">0</div><div class="stat-label">% Success Rate</div></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Best Deals Banner -->
+<section class="deals-banner" style="padding:40px 0;background:white">
+    <div class="container">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+            <h3 style="font-size:1.2rem;font-weight:700"><i class="fas fa-fire" style="color:#e74c3c"></i> Best Deals - Limited Time!</h3>
+            <a href="#courses" style="color:#6c5ce7;text-decoration:none;font-weight:600;font-size:0.9rem">View All <i class="fas fa-arrow-right"></i></a>
+        </div>
+        <div class="swiper deals-banner-slider">
+            <div class="swiper-wrapper">
+                <div class="swiper-slide">
+                    <a href="#courses" style="text-decoration:none" onclick="event.preventDefault();document.querySelector('[data-id=h1]').scrollIntoView({behavior:'smooth',block:'center'});document.querySelector('[data-id=h1]').style.boxShadow='0 0 0 3px #6c5ce7';setTimeout(()=>document.querySelector('[data-id=h1]').style.boxShadow='',2000)">
+                    <div style="background:linear-gradient(135deg,#6c5ce7,#a29bfe);border-radius:14px;padding:20px 25px;color:white;display:flex;align-items:center;justify-content:space-between;gap:15px;cursor:pointer;transition:transform 0.3s" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform=''">
+                        <div><span style="background:rgba(255,255,255,0.2);padding:4px 12px;border-radius:20px;font-size:0.75rem;font-weight:600">HACKING</span><h4 style="margin:8px 0 4px;font-size:1rem">Ethical Hacking Bundle</h4><p style="font-size:0.8rem;opacity:0.85">Lifetime Access + Certificate</p></div>
+                        <div style="text-align:right;white-space:nowrap"><span style="text-decoration:line-through;opacity:0.6;font-size:0.85rem">₹1499</span><br><span style="font-size:1.5rem;font-weight:800;color:#fdcb6e">₹449</span></div>
+                    </div></a>
+                </div>
+                <div class="swiper-slide">
+                    <a href="#courses" style="text-decoration:none" onclick="event.preventDefault();document.querySelector('[data-id=p1]').scrollIntoView({behavior:'smooth',block:'center'});document.querySelector('[data-id=p1]').style.boxShadow='0 0 0 3px #00b894';setTimeout(()=>document.querySelector('[data-id=p1]').style.boxShadow='',2000)">
+                    <div style="background:linear-gradient(135deg,#00b894,#55efc4);border-radius:14px;padding:20px 25px;color:white;display:flex;align-items:center;justify-content:space-between;gap:15px;cursor:pointer;transition:transform 0.3s" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform=''">
+                        <div><span style="background:rgba(255,255,255,0.2);padding:4px 12px;border-radius:20px;font-size:0.75rem;font-weight:600">PROGRAMMING</span><h4 style="margin:8px 0 4px;font-size:1rem">Python Masterclass</h4><p style="font-size:0.8rem;opacity:0.85">200+ Exercises + Projects</p></div>
+                        <div style="text-align:right;white-space:nowrap"><span style="text-decoration:line-through;opacity:0.6;font-size:0.85rem">₹999</span><br><span style="font-size:1.5rem;font-weight:800;color:#fdcb6e">₹199</span></div>
+                    </div></a>
+                </div>
+                <div class="swiper-slide">
+                    <a href="#courses" style="text-decoration:none" onclick="event.preventDefault();document.querySelector('[data-id=t1]').scrollIntoView({behavior:'smooth',block:'center'});document.querySelector('[data-id=t1]').style.boxShadow='0 0 0 3px #e17055';setTimeout(()=>document.querySelector('[data-id=t1]').style.boxShadow='',2000)">
+                    <div style="background:linear-gradient(135deg,#e17055,#fab1a0);border-radius:14px;padding:20px 25px;color:white;display:flex;align-items:center;justify-content:space-between;gap:15px;cursor:pointer;transition:transform 0.3s" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform=''">
+                        <div><span style="background:rgba(255,255,255,0.2);padding:4px 12px;border-radius:20px;font-size:0.75rem;font-weight:600">TRADING</span><h4 style="margin:8px 0 4px;font-size:1rem">Stock Market Pro</h4><p style="font-size:0.8rem;opacity:0.85">Live Trading + Strategies</p></div>
+                        <div style="text-align:right;white-space:nowrap"><span style="text-decoration:line-through;opacity:0.6;font-size:0.85rem">₹699</span><br><span style="font-size:1.5rem;font-weight:800;color:#fdcb6e">₹299</span></div>
+                    </div></a>
+                </div>
+                <div class="swiper-slide">
+                    <a href="#courses" style="text-decoration:none" onclick="event.preventDefault();document.querySelector('[data-id=m1]').scrollIntoView({behavior:'smooth',block:'center'});document.querySelector('[data-id=m1]').style.boxShadow='0 0 0 3px #fd79a8';setTimeout(()=>document.querySelector('[data-id=m1]').style.boxShadow='',2000)">
+                    <div style="background:linear-gradient(135deg,#fd79a8,#e84393);border-radius:14px;padding:20px 25px;color:white;display:flex;align-items:center;justify-content:space-between;gap:15px;cursor:pointer;transition:transform 0.3s" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform=''">
+                        <div><span style="background:rgba(255,255,255,0.2);padding:4px 12px;border-radius:20px;font-size:0.75rem;font-weight:600">MARKETING</span><h4 style="margin:8px 0 4px;font-size:1rem">Digital Marketing Full</h4><p style="font-size:0.8rem;opacity:0.85">SEO + Ads + Analytics</p></div>
+                        <div style="text-align:right;white-space:nowrap"><span style="text-decoration:line-through;opacity:0.6;font-size:0.85rem">₹599</span><br><span style="font-size:1.5rem;font-weight:800;color:#fdcb6e">₹199</span></div>
+                    </div></a>
+                </div>
+                <div class="swiper-slide">
+                    <a href="#courses" style="text-decoration:none" onclick="event.preventDefault();document.querySelector('[data-id=g1]').scrollIntoView({behavior:'smooth',block:'center'});document.querySelector('[data-id=g1]').style.boxShadow='0 0 0 3px #0984e3';setTimeout(()=>document.querySelector('[data-id=g1]').style.boxShadow='',2000)">
+                    <div style="background:linear-gradient(135deg,#0984e3,#74b9ff);border-radius:14px;padding:20px 25px;color:white;display:flex;align-items:center;justify-content:space-between;gap:15px;cursor:pointer;transition:transform 0.3s" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform=''">
+                        <div><span style="background:rgba(255,255,255,0.2);padding:4px 12px;border-radius:20px;font-size:0.75rem;font-weight:600">BUNDLE</span><h4 style="margin:8px 0 4px;font-size:1rem">Complete Course Pack</h4><p style="font-size:0.8rem;opacity:0.85">All Courses in One Deal</p></div>
+                        <div style="text-align:right;white-space:nowrap"><span style="text-decoration:line-through;opacity:0.6;font-size:0.85rem">₹2999</span><br><span style="font-size:1.5rem;font-weight:800;color:#fdcb6e">₹199</span></div>
+                    </div></a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Benefits Bar -->
+<section style="padding:30px 0;background:#f8f9fa;border-top:1px solid #e9ecef;border-bottom:1px solid #e9ecef">
+    <div class="container">
+        <div style="display:flex;justify-content:center;gap:40px;flex-wrap:wrap">
+            <div style="display:flex;align-items:center;gap:10px"><i class="fas fa-certificate" style="color:#6c5ce7;font-size:1.2rem"></i><span style="font-weight:600;font-size:0.9rem">Certificate Included</span></div>
+            <div style="display:flex;align-items:center;gap:10px"><i class="fas fa-infinity" style="color:#00b894;font-size:1.2rem"></i><span style="font-weight:600;font-size:0.9rem">Lifetime Access</span></div>
+            <div style="display:flex;align-items:center;gap:10px"><i class="fas fa-download" style="color:#e17055;font-size:1.2rem"></i><span style="font-weight:600;font-size:0.9rem">Instant Download</span></div>
+            <div style="display:flex;align-items:center;gap:10px"><i class="fas fa-headset" style="color:#fd79a8;font-size:1.2rem"></i><span style="font-weight:600;font-size:0.9rem">24/7 Support</span></div>
+        </div>
+    </div>
+</section>
+
+    <!-- Full Size Deals Slider -->
+<section style="padding:80px 0;background:linear-gradient(135deg,#f8f9fa 0%,#e8e0ff 50%,#f8f9fa 100%);overflow:hidden">
+    <div class="container">
+        <div class="section-header" data-aos="fade-up" style="text-align:center;margin-bottom:40px">
+            <span class="section-tag"><i class="fas fa-fire" style="color:#e74c3c"></i> Hot Deals</span>
+            <h2>Grab <span class="gradient-text">Best Offers</span> Before They Expire!</h2>
+            <p>Limited time deals on our top courses. Don't miss out!</p>
+        </div>
+    </div>
+    <div class="swiper full-deals-slider" data-aos="fade-up">
+        <div class="swiper-wrapper">
+            <!-- Deal 1 -->
+            <div class="swiper-slide">
+                <div style="background:linear-gradient(135deg,#2d1b69,#11998e);border-radius:20px;padding:35px;color:white;position:relative;overflow:hidden;min-height:380px;display:flex;flex-direction:column;justify-content:space-between">
+                    <div style="position:absolute;top:-30px;right:-30px;width:150px;height:150px;background:rgba(255,255,255,0.08);border-radius:50%"></div>
+                    <div style="position:absolute;bottom:-40px;left:-20px;width:120px;height:120px;background:rgba(255,255,255,0.05);border-radius:50%"></div>
+                    <div style="position:relative;z-index:1">
+                        <span style="background:#ff4757;padding:6px 16px;border-radius:20px;font-size:0.75rem;font-weight:700;animation:pulse 2s infinite">70% OFF</span>
+                        <h3 style="font-size:1.6rem;font-weight:800;margin:15px 0 8px;line-height:1.3">Complete Ethical Hacking Bundle</h3>
+                        <p style="font-size:0.9rem;opacity:0.9;margin-bottom:15px">Master penetration testing, network security & become a certified ethical hacker. 48+ hours of content.</p>
+                        <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:15px">
+                            <span style="display:flex;align-items:center;gap:5px;font-size:0.8rem;opacity:0.85"><i class="fas fa-check-circle"></i> Certificate</span>
+                            <span style="display:flex;align-items:center;gap:5px;font-size:0.8rem;opacity:0.85"><i class="fas fa-check-circle"></i> Lifetime Access</span>
+                            <span style="display:flex;align-items:center;gap:5px;font-size:0.8rem;opacity:0.85"><i class="fas fa-check-circle"></i> 35+ Labs</span>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:15px"><span style="text-decoration:line-through;opacity:0.5;font-size:1rem">₹1499</span><span style="font-size:2rem;font-weight:800;color:#fdcb6e">₹449</span></div>
+                    </div>
+                    <button onclick="addToCart('h1','Complete Ethical Hacking Bundle',449,'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=100&h=80&fit=crop')" style="background:white;color:#2d3436;border:none;padding:14px 30px;border-radius:50px;font-weight:700;font-size:1rem;cursor:pointer;transition:all 0.3s;display:flex;align-items:center;gap:10px;width:fit-content;box-shadow:0 4px 20px rgba(0,0,0,0.2)" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform=''"><i class="fas fa-cart-plus"></i> Grab This Deal</button>
+                </div>
+            </div>
+            <!-- Deal 2 -->
+            <div class="swiper-slide">
+                <div style="background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);border-radius:20px;padding:35px;color:white;position:relative;overflow:hidden;min-height:380px;display:flex;flex-direction:column;justify-content:space-between">
+                    <div style="position:absolute;top:-30px;right:-30px;width:150px;height:150px;background:rgba(255,255,255,0.08);border-radius:50%"></div>
+                    <div style="position:relative;z-index:1">
+                        <span style="background:#00b894;padding:6px 16px;border-radius:20px;font-size:0.75rem;font-weight:700;animation:pulse 2s infinite">60% OFF</span>
+                        <h3 style="font-size:1.6rem;font-weight:800;margin:15px 0 8px;line-height:1.3">Python Complete Masterclass</h3>
+                        <p style="font-size:0.9rem;opacity:0.9;margin-bottom:15px">From zero to hero in Python. 200+ exercises, 10+ real projects. Data structures, OOP & automation.</p>
+                        <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:15px">
+                            <span style="display:flex;align-items:center;gap:5px;font-size:0.8rem;opacity:0.85"><i class="fas fa-check-circle"></i> Certificate</span>
+                            <span style="display:flex;align-items:center;gap:5px;font-size:0.8rem;opacity:0.85"><i class="fas fa-check-circle"></i> 42 Hours</span>
+                            <span style="display:flex;align-items:center;gap:5px;font-size:0.8rem;opacity:0.85"><i class="fas fa-check-circle"></i> Projects</span>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:15px"><span style="text-decoration:line-through;opacity:0.5;font-size:1rem">₹499</span><span style="font-size:2rem;font-weight:800;color:#fdcb6e">₹199</span></div>
+                    </div>
+                    <button onclick="addToCart('p1','Python Complete Masterclass',199,'https://images.unsplash.com/photo-1526379095098-d400fd0bf935?w=100&h=80&fit=crop')" style="background:white;color:#2d3436;border:none;padding:14px 30px;border-radius:50px;font-weight:700;font-size:1rem;cursor:pointer;transition:all 0.3s;display:flex;align-items:center;gap:10px;width:fit-content;box-shadow:0 4px 20px rgba(0,0,0,0.2)" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform=''"><i class="fas fa-cart-plus"></i> Grab This Deal</button>
+                </div>
+            </div>
+            <!-- Deal 3 -->
+            <div class="swiper-slide">
+                <div style="background:linear-gradient(135deg,#e44d26,#f16529);border-radius:20px;padding:35px;color:white;position:relative;overflow:hidden;min-height:380px;display:flex;flex-direction:column;justify-content:space-between">
+                    <div style="position:absolute;top:-30px;right:-30px;width:150px;height:150px;background:rgba(255,255,255,0.08);border-radius:50%"></div>
+                    <div style="position:relative;z-index:1">
+                        <span style="background:#fdcb6e;padding:6px 16px;border-radius:20px;font-size:0.75rem;font-weight:700;color:#2d3436;animation:pulse 2s infinite">50% OFF</span>
+                        <h3 style="font-size:1.6rem;font-weight:800;margin:15px 0 8px;line-height:1.3">Stock Market Zero to Pro</h3>
+                        <p style="font-size:0.9rem;opacity:0.9;margin-bottom:15px">Learn swing trading, intraday strategies & options. Start earning from stock markets today.</p>
+                        <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:15px">
+                            <span style="display:flex;align-items:center;gap:5px;font-size:0.8rem;opacity:0.85"><i class="fas fa-check-circle"></i> Live Trading</span>
+                            <span style="display:flex;align-items:center;gap:5px;font-size:0.8rem;opacity:0.85"><i class="fas fa-check-circle"></i> 35 Hours</span>
+                            <span style="display:flex;align-items:center;gap:5px;font-size:0.8rem;opacity:0.85"><i class="fas fa-check-circle"></i> Strategies</span>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:15px"><span style="text-decoration:line-through;opacity:0.5;font-size:1rem">₹599</span><span style="font-size:2rem;font-weight:800;color:#fdcb6e">₹299</span></div>
+                    </div>
+                    <button onclick="addToCart('t1','Stock Market Zero to Pro',299,'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=100&h=80&fit=crop')" style="background:white;color:#2d3436;border:none;padding:14px 30px;border-radius:50px;font-weight:700;font-size:1rem;cursor:pointer;transition:all 0.3s;display:flex;align-items:center;gap:10px;width:fit-content;box-shadow:0 4px 20px rgba(0,0,0,0.2)" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform=''"><i class="fas fa-cart-plus"></i> Grab This Deal</button>
+                </div>
+            </div>
+            <!-- Deal 4 -->
+            <div class="swiper-slide">
+                <div style="background:linear-gradient(135deg,#667eea,#764ba2);border-radius:20px;padding:35px;color:white;position:relative;overflow:hidden;min-height:380px;display:flex;flex-direction:column;justify-content:space-between">
+                    <div style="position:absolute;top:-30px;right:-30px;width:150px;height:150px;background:rgba(255,255,255,0.08);border-radius:50%"></div>
+                    <div style="position:relative;z-index:1">
+                        <span style="background:#e84393;padding:6px 16px;border-radius:20px;font-size:0.75rem;font-weight:700;animation:pulse 2s infinite">60% OFF</span>
+                        <h3 style="font-size:1.6rem;font-weight:800;margin:15px 0 8px;line-height:1.3">Digital Marketing Masterclass</h3>
+                        <p style="font-size:0.9rem;opacity:0.9;margin-bottom:15px">SEO, Google Ads, Facebook Ads, email marketing & analytics. Grow any business online.</p>
+                        <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:15px">
+                            <span style="display:flex;align-items:center;gap:5px;font-size:0.8rem;opacity:0.85"><i class="fas fa-check-circle"></i> Certificate</span>
+                            <span style="display:flex;align-items:center;gap:5px;font-size:0.8rem;opacity:0.85"><i class="fas fa-check-circle"></i> 35 Hours</span>
+                            <span style="display:flex;align-items:center;gap:5px;font-size:0.8rem;opacity:0.85"><i class="fas fa-check-circle"></i> Templates</span>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:15px"><span style="text-decoration:line-through;opacity:0.5;font-size:1rem">₹499</span><span style="font-size:2rem;font-weight:800;color:#fdcb6e">₹199</span></div>
+                    </div>
+                    <button onclick="addToCart('m1','Digital Marketing Masterclass',199,'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=100&h=80&fit=crop')" style="background:white;color:#2d3436;border:none;padding:14px 30px;border-radius:50px;font-weight:700;font-size:1rem;cursor:pointer;transition:all 0.3s;display:flex;align-items:center;gap:10px;width:fit-content;box-shadow:0 4px 20px rgba(0,0,0,0.2)" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform=''"><i class="fas fa-cart-plus"></i> Grab This Deal</button>
+                </div>
+            </div>
+            <!-- Deal 5 -->
+            <div class="swiper-slide">
+                <div style="background:linear-gradient(135deg,#f093fb,#f5576c);border-radius:20px;padding:35px;color:white;position:relative;overflow:hidden;min-height:380px;display:flex;flex-direction:column;justify-content:space-between">
+                    <div style="position:absolute;top:-30px;right:-30px;width:150px;height:150px;background:rgba(255,255,255,0.08);border-radius:50%"></div>
+                    <div style="position:relative;z-index:1">
+                        <span style="background:#fdcb6e;padding:6px 16px;border-radius:20px;font-size:0.75rem;font-weight:700;color:#2d3436;animation:pulse 2s infinite">BEST VALUE</span>
+                        <h3 style="font-size:1.6rem;font-weight:800;margin:15px 0 8px;line-height:1.3">Complete Course Bundle</h3>
+                        <p style="font-size:0.9rem;opacity:0.9;margin-bottom:15px">All courses in one pack. Hacking, programming, trading & marketing. Best value deal!</p>
+                        <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:15px">
+                            <span style="display:flex;align-items:center;gap:5px;font-size:0.8rem;opacity:0.85"><i class="fas fa-check-circle"></i> All Courses</span>
+                            <span style="display:flex;align-items:center;gap:5px;font-size:0.8rem;opacity:0.85"><i class="fas fa-check-circle"></i> Lifetime</span>
+                            <span style="display:flex;align-items:center;gap:5px;font-size:0.8rem;opacity:0.85"><i class="fas fa-check-circle"></i> 500+ Hours</span>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:15px"><span style="text-decoration:line-through;opacity:0.5;font-size:1rem">₹2999</span><span style="font-size:2rem;font-weight:800;color:#fdcb6e">₹199</span></div>
+                    </div>
+                    <button onclick="addToCart('g1','Complete Course Bundle',199,'https://images.unsplash.com/photo-1501504905252-473c47e087f8?w=100&h=80&fit=crop')" style="background:white;color:#2d3436;border:none;padding:14px 30px;border-radius:50px;font-weight:700;font-size:1rem;cursor:pointer;transition:all 0.3s;display:flex;align-items:center;gap:10px;width:fit-content;box-shadow:0 4px 20px rgba(0,0,0,0.2)" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform=''"><i class="fas fa-cart-plus"></i> Grab This Deal</button>
+                </div>
+            </div>
+        </div>
+        <div class="swiper-pagination" style="margin-top:30px"></div>
+    </div>
+</section>
+
+    <!-- Courses Section -->
+    <section class="courses-section" id="courses">
+        <div class="container">
+            <div class="section-header" data-aos="fade-up">
+                <span class="section-tag">Popular Courses</span>
+                <h2>Explore Our <span class="gradient-text">Top Courses</span></h2>
+                <p>Discover courses taught by industry experts to help you achieve your goals</p>
+            </div>
+            <div class="courses-filter" data-aos="fade-up">
+                <a href="index.html" class="filter-btn active">All Courses</a>
+                <a href="hacking.html" class="filter-btn">Hacking</a>
+                <a href="programming.html" class="filter-btn">Programming</a>
+                <a href="trading.html" class="filter-btn">Trading</a>
+                <a href="books.html" class="filter-btn">Books</a>
+                <a href="tools.html" class="filter-btn">Tools</a>
+            </div>
+            <div class="courses-grid" id="coursesGrid">
+                <!-- Hacking Courses -->
+                <div class="course-card" data-aos="fade-up" data-category="hacking" data-id="h1" data-name="Complete Ethical Hacking" data-price="199" data-old="499">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=400&h=250&fit=crop" alt="Ethical Hacking">
+                        <span class="course-badge hot">Hot</span>
+                        <div class="course-overlay">
+                            <button class="btn-preview"><i class="fas fa-eye"></i></button>
+                            <button class="btn-add-cart" data-id="h1" data-name="Complete Ethical Hacking" data-price="199" data-img="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button>
+                        </div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-user-secret"></i> Hacking</div>
+                        <h3>Complete Ethical Hacking & Penetration Testing</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> 48 hours</span><span><i class="fas fa-signal"></i> Advanced</span></div>
+                        <div class="course-footer">
+                            <div class="course-price"><span class="price-old">&#8377;499</span><span class="price-new">&#8377;199</span></div>
+                            <div class="course-rating"><i class="fas fa-star"></i><span>4.9 (3.2k)</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="course-card" data-aos="fade-up" data-category="hacking" data-id="h2" data-name="Web App Hacking" data-price="249" data-old="599">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=400&h=250&fit=crop" alt="Web Hacking">
+                        <span class="course-badge bestseller">Bestseller</span>
+                        <div class="course-overlay">
+                            <button class="btn-preview"><i class="fas fa-eye"></i></button>
+                            <button class="btn-add-cart" data-id="h2" data-name="Web App Hacking" data-price="249" data-img="https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button>
+                        </div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-user-secret"></i> Hacking</div>
+                        <h3>Web Application Hacking & Security</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> 35 hours</span><span><i class="fas fa-signal"></i> Intermediate</span></div>
+                        <div class="course-footer">
+                            <div class="course-price"><span class="price-old">&#8377;599</span><span class="price-new">&#8377;249</span></div>
+                            <div class="course-rating"><i class="fas fa-star"></i><span>4.8 (2.1k)</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="course-card" data-aos="fade-up" data-category="hacking" data-id="h3" data-name="Advanced Ethical Hacking Keylogger" data-price="199" data-old="499">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=400&h=250&fit=crop" alt="Keylogger Hacking">
+                        <span class="course-badge hot">Hot</span>
+                        <div class="course-overlay">
+                            <button class="btn-preview"><i class="fas fa-eye"></i></button>
+                            <button class="btn-add-cart" data-id="h3" data-name="Advanced Ethical Hacking Keylogger" data-price="199" data-img="https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button>
+                        </div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-user-secret"></i> Hacking</div>
+                        <h3>Advanced Ethical Hacking: Keylogger Mastery</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> 18 hours</span><span><i class="fas fa-signal"></i> Advanced</span></div>
+                        <div class="course-footer">
+                            <div class="course-price"><span class="price-old">&#8377;499</span><span class="price-new">&#8377;199</span></div>
+                            <div class="course-rating"><i class="fas fa-star"></i><span>4.8 (1.2k)</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="course-card" data-aos="fade-up" data-category="hacking" data-id="h4" data-name="Reverse Engineering Cracking" data-price="249" data-old="599">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=400&h=250&fit=crop" alt="Reverse Engineering">
+                        <span class="course-badge bestseller">Bestseller</span>
+                        <div class="course-overlay">
+                            <button class="btn-preview"><i class="fas fa-eye"></i></button>
+                            <button class="btn-add-cart" data-id="h4" data-name="Reverse Engineering Cracking" data-price="249" data-img="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button>
+                        </div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-user-secret"></i> Hacking</div>
+                        <h3>Reverse Engineering: The Hacks Behind Cracking</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> 22 hours</span><span><i class="fas fa-signal"></i> Advanced</span></div>
+                        <div class="course-footer">
+                            <div class="course-price"><span class="price-old">&#8377;599</span><span class="price-new">&#8377;249</span></div>
+                            <div class="course-rating"><i class="fas fa-star"></i><span>4.9 (980)</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="course-card" data-aos="fade-up" data-category="hacking" data-id="h5" data-name="Complete Hacking Course" data-price="199" data-old="499">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1504639725590-34d0984388bd?w=400&h=250&fit=crop" alt="Complete Hacking">
+                        <span class="course-badge new">New</span>
+                        <div class="course-overlay">
+                            <button class="btn-preview"><i class="fas fa-eye"></i></button>
+                            <button class="btn-add-cart" data-id="h5" data-name="Complete Hacking Course" data-price="199" data-img="https://images.unsplash.com/photo-1504639725590-34d0984388bd?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button>
+                        </div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-user-secret"></i> Hacking</div>
+                        <h3>Complete Hacking Course: Beginner to Pro</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> 40 hours</span><span><i class="fas fa-signal"></i> Beginner</span></div>
+                        <div class="course-footer">
+                            <div class="course-price"><span class="price-old">&#8377;499</span><span class="price-new">&#8377;199</span></div>
+                            <div class="course-rating"><i class="fas fa-star"></i><span>4.7 (2.8k)</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="course-card" data-aos="fade-up" data-category="hacking" data-id="h6" data-name="Masters Ethical Hacking" data-price="249" data-old="599">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1563206767-5b18f218e8de?w=400&h=250&fit=crop" alt="Masters Hacking">
+                        <span class="course-badge hot">Hot</span>
+                        <div class="course-overlay">
+                            <button class="btn-preview"><i class="fas fa-eye"></i></button>
+                            <button class="btn-add-cart" data-id="h6" data-name="Masters Ethical Hacking" data-price="249" data-img="https://images.unsplash.com/photo-1563206767-5b18f218e8de?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button>
+                        </div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-user-secret"></i> Hacking</div>
+                        <h3>Masters in Ethical Hacking: Course 2</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> 36 hours</span><span><i class="fas fa-signal"></i> Advanced</span></div>
+                        <div class="course-footer">
+                            <div class="course-price"><span class="price-old">&#8377;599</span><span class="price-new">&#8377;249</span></div>
+                            <div class="course-rating"><i class="fas fa-star"></i><span>4.8 (1.6k)</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Programming Courses -->
+                <div class="course-card" data-aos="fade-up" data-category="programming" data-id="p1" data-name="Python Complete Course" data-price="199" data-old="499">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1526379095098-d400fd0bf935?w=400&h=250&fit=crop" alt="Python">
+                        <span class="course-badge bestseller">Bestseller</span>
+                        <div class="course-overlay">
+                            <button class="btn-preview"><i class="fas fa-eye"></i></button>
+                            <button class="btn-add-cart" data-id="p1" data-name="Python Complete Course" data-price="199" data-img="https://images.unsplash.com/photo-1526379095098-d400fd0bf935?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button>
+                        </div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-code"></i> Programming</div>
+                        <h3>Python Complete Course: Beginner to Advanced</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> 42 hours</span><span><i class="fas fa-signal"></i> All Levels</span></div>
+                        <div class="course-footer">
+                            <div class="course-price"><span class="price-old">&#8377;499</span><span class="price-new">&#8377;199</span></div>
+                            <div class="course-rating"><i class="fas fa-star"></i><span>4.9 (5.1k)</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="course-card" data-aos="fade-up" data-category="programming" data-id="p2" data-name="JavaScript Mastery" data-price="249" data-old="599">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1627398242454-45a1465c2479?w=400&h=250&fit=crop" alt="JavaScript">
+                        <span class="course-badge hot">Hot</span>
+                        <div class="course-overlay">
+                            <button class="btn-preview"><i class="fas fa-eye"></i></button>
+                            <button class="btn-add-cart" data-id="p2" data-name="JavaScript Mastery" data-price="249" data-img="https://images.unsplash.com/photo-1627398242454-45a1465c2479?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button>
+                        </div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-code"></i> Programming</div>
+                        <h3>Complete JavaScript Mastery 2024</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> 45 hours</span><span><i class="fas fa-signal"></i> Advanced</span></div>
+                        <div class="course-footer">
+                            <div class="course-price"><span class="price-old">&#8377;599</span><span class="price-new">&#8377;249</span></div>
+                            <div class="course-rating"><i class="fas fa-star"></i><span>4.9 (2.5k)</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="course-card" data-aos="fade-up" data-category="programming" data-id="p3" data-name="React & Next.js Guide" data-price="199" data-old="499">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=400&h=250&fit=crop" alt="React">
+                        <span class="course-badge new">New</span>
+                        <div class="course-overlay">
+                            <button class="btn-preview"><i class="fas fa-eye"></i></button>
+                            <button class="btn-add-cart" data-id="p3" data-name="React & Next.js Guide" data-price="199" data-img="https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button>
+                        </div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-code"></i> Programming</div>
+                        <h3>React & Next.js Developer Guide</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> 50 hours</span><span><i class="fas fa-signal"></i> Intermediate</span></div>
+                        <div class="course-footer">
+                            <div class="course-price"><span class="price-old">&#8377;499</span><span class="price-new">&#8377;199</span></div>
+                            <div class="course-rating"><i class="fas fa-star"></i><span>4.8 (4.1k)</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Trading Courses -->
+                <div class="course-card" data-aos="fade-up" data-category="trading" data-id="t1" data-name="Stock Market Mastery" data-price="0" data-old="0">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=400&h=250&fit=crop" alt="Trading">
+                        <span class="course-badge hot">Hot</span>
+                        <div class="course-overlay">
+                            <button class="btn-preview"><i class="fas fa-eye"></i></button>
+                            <button class="btn-add-cart" data-id="t1" data-name="Stock Market Mastery" data-price="0" data-img="https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button>
+                        </div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-chart-line"></i> Trading</div>
+                        <h3>Stock Market Mastery: Zero to Pro</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> 38 hours</span><span><i class="fas fa-signal"></i> All Levels</span></div>
+                        <div class="course-footer">
+                            <div class="course-price"><span class="price-old" style="display:none">&#8377;0</span><span class="price-new" style="color:#10b981;font-weight:bold">FREE</span></div>
+                            <div class="course-rating"><i class="fas fa-star"></i><span>4.7 (2.8k)</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="course-card" data-aos="fade-up" data-category="trading" data-id="t2" data-name="Crypto Trading Pro" data-price="249" data-old="599">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1621761191319-c6fb62004040?w=400&h=250&fit=crop" alt="Crypto">
+                        <span class="course-badge bestseller">Bestseller</span>
+                        <div class="course-overlay">
+                            <button class="btn-preview"><i class="fas fa-eye"></i></button>
+                            <button class="btn-add-cart" data-id="t2" data-name="Crypto Trading Pro" data-price="249" data-img="https://images.unsplash.com/photo-1621761191319-c6fb62004040?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button>
+                        </div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-chart-line"></i> Trading</div>
+                        <h3>Crypto Trading Pro: Bitcoin & Altcoins</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> 30 hours</span><span><i class="fas fa-signal"></i> Intermediate</span></div>
+                        <div class="course-footer">
+                            <div class="course-price"><span class="price-old">&#8377;599</span><span class="price-new">&#8377;249</span></div>
+                            <div class="course-rating"><i class="fas fa-star"></i><span>4.8 (3.5k)</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="course-card" data-aos="fade-up" data-category="trading" data-id="t3" data-name="Forex Trading Course" data-price="199" data-old="499">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1535320903710-d993d3d77d29?w=400&h=250&fit=crop" alt="Forex">
+                        <div class="course-overlay">
+                            <button class="btn-preview"><i class="fas fa-eye"></i></button>
+                            <button class="btn-add-cart" data-id="t3" data-name="Forex Trading Course" data-price="199" data-img="https://images.unsplash.com/photo-1535320903710-d993d3d77d29?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button>
+                        </div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-chart-line"></i> Trading</div>
+                        <h3>Forex Trading: Complete Beginners Guide</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> 25 hours</span><span><i class="fas fa-signal"></i> Beginner</span></div>
+                        <div class="course-footer">
+                            <div class="course-price"><span class="price-old">&#8377;499</span><span class="price-new">&#8377;199</span></div>
+                            <div class="course-rating"><i class="fas fa-star"></i><span>4.6 (1.9k)</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="course-card" data-aos="fade-up" data-category="trading" data-id="t4" data-name="Complete Stock Market Course" data-price="249" data-old="599">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=400&h=250&fit=crop" alt="Stock Market">
+                        <span class="course-badge bestseller">Bestseller</span>
+                        <div class="course-overlay">
+                            <button class="btn-preview"><i class="fas fa-eye"></i></button>
+                            <button class="btn-add-cart" data-id="t4" data-name="Complete Stock Market Course" data-price="249" data-img="https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button>
+                        </div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-chart-line"></i> Trading</div>
+                        <h3>Complete Stock Market Course</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> 32 hours</span><span><i class="fas fa-signal"></i> All Levels</span></div>
+                        <div class="course-footer">
+                            <div class="course-price"><span class="price-old">&#8377;599</span><span class="price-new">&#8377;249</span></div>
+                            <div class="course-rating"><i class="fas fa-star"></i><span>4.7 (3.4k)</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Books -->
+                <div class="course-card" data-aos="fade-up" data-category="books" data-id="b1" data-name="Hacking Bible Book" data-price="0" data-old="0">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400&h=250&fit=crop" alt="Hacking Book">
+                        <span class="course-badge new">New</span>
+                        <div class="course-overlay">
+                            <button class="btn-preview"><i class="fas fa-eye"></i></button>
+                            <button class="btn-add-cart" data-id="b1" data-name="Hacking Bible Book" data-price="0" data-img="https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button>
+                        </div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-book"></i> Hacking Book</div>
+                        <h3>The Hacking Bible: Complete Guide</h3>
+                        <div class="course-meta"><span><i class="fas fa-book-open"></i> PDF</span><span><i class="fas fa-signal"></i> Advanced</span></div>
+                        <div class="course-footer">
+                            <div class="course-price"><span class="price-old" style="display:none">&#8377;0</span><span class="price-new" style="color:#10b981;font-weight:bold">FREE</span></div>
+                            <div class="course-rating"><i class="fas fa-star"></i><span>4.8 (890)</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="course-card" data-aos="fade-up" data-category="books" data-id="b2" data-name="Trading psychology Book" data-price="0" data-old="0">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1512820790803-83ca734da794?w=400&h=250&fit=crop" alt="Trading Book">
+                        <div class="course-overlay">
+                            <button class="btn-preview"><i class="fas fa-eye"></i></button>
+                            <button class="btn-add-cart" data-id="b2" data-name="Trading Psychology Book" data-price="0" data-img="https://images.unsplash.com/photo-1512820790803-83ca734da794?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button>
+                        </div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-book"></i> Trading Book</div>
+                        <h3>Trading Psychology: Master Your Mind</h3>
+                        <div class="course-meta"><span><i class="fas fa-book-open"></i> PDF</span><span><i class="fas fa-signal"></i> All Levels</span></div>
+                        <div class="course-footer">
+                            <div class="course-price"><span class="price-old" style="display:none">&#8377;0</span><span class="price-new" style="color:#10b981;font-weight:bold">FREE</span></div>
+                            <div class="course-rating"><i class="fas fa-star"></i><span>4.7 (650)</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="course-card" data-aos="fade-up" data-category="books" data-id="b3" data-name="Python Crash Course Book" data-price="0" data-old="0">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1532012197267-da84d127e765?w=400&h=250&fit=crop" alt="Programming Book">
+                        <span class="course-badge bestseller">Bestseller</span>
+                        <div class="course-overlay">
+                            <button class="btn-preview"><i class="fas fa-eye"></i></button>
+                            <button class="btn-add-cart" data-id="b3" data-name="Python Crash Course Book" data-price="0" data-img="https://images.unsplash.com/photo-1532012197267-da84d127e765?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button>
+                        </div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-book"></i> Programming Book</div>
+                        <h3>Python Crash Course: Complete Guide</h3>
+                        <div class="course-meta"><span><i class="fas fa-book-open"></i> PDF</span><span><i class="fas fa-signal"></i> Beginner</span></div>
+                        <div class="course-footer">
+                            <div class="course-price"><span class="price-old" style="display:none">&#8377;0</span><span class="price-new" style="color:#10b981;font-weight:bold">FREE</span></div>
+                            <div class="course-rating"><i class="fas fa-star"></i><span>4.9 (2.1k)</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="course-card" data-aos="fade-up" data-category="books" data-id="t5" data-name="Mindfluential Trading Book" data-price="199" data-old="499">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=400&h=250&fit=crop" alt="Trading Psychology Book">
+                        <span class="course-badge new">New</span>
+                        <div class="course-overlay">
+                            <button class="btn-preview"><i class="fas fa-eye"></i></button>
+                            <button class="btn-add-cart" data-id="t5" data-name="Mindfluential Trading Book" data-price="199" data-img="https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button>
+                        </div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-book"></i> Trading Book</div>
+                        <h3>Mindfluential Trading: Psychology & Strategy</h3>
+                        <div class="course-meta"><span><i class="fas fa-book-open"></i> PDF</span><span><i class="fas fa-signal"></i> All Levels</span></div>
+                        <div class="course-footer">
+                            <div class="course-price"><span class="price-old">&#8377;499</span><span class="price-new">&#8377;199</span></div>
+                            <div class="course-rating"><i class="fas fa-star"></i><span>4.8 (780)</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Design -->
+                <div class="course-card" data-aos="fade-up" data-category="design" data-id="d1" data-name="UI/UX Design Course" data-price="199" data-old="499">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1561070791-2526d30994b5?w=400&h=250&fit=crop" alt="UI/UX">
+                        <span class="course-badge hot">Hot</span>
+                        <div class="course-overlay">
+                            <button class="btn-preview"><i class="fas fa-eye"></i></button>
+                            <button class="btn-add-cart" data-id="d1" data-name="UI/UX Design Course" data-price="199" data-img="https://images.unsplash.com/photo-1561070791-2526d30994b5?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button>
+                        </div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-palette"></i> Design</div>
+                        <h3>UI/UX Design Complete Course</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> 38 hours</span><span><i class="fas fa-signal"></i> Beginner</span></div>
+                        <div class="course-footer">
+                            <div class="course-price"><span class="price-old">&#8377;499</span><span class="price-new">&#8377;199</span></div>
+                            <div class="course-rating"><i class="fas fa-star"></i><span>4.8 (1.8k)</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Marketing -->
+                <div class="course-card" data-aos="fade-up" data-category="marketing" data-id="m1" data-name="Digital Marketing Masterclass" data-price="199" data-old="499">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=250&fit=crop" alt="Marketing">
+                        <span class="course-badge new">New</span>
+                        <div class="course-overlay">
+                            <button class="btn-preview"><i class="fas fa-eye"></i></button>
+                            <button class="btn-add-cart" data-id="m1" data-name="Digital Marketing Masterclass" data-price="199" data-img="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button>
+                        </div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-bullhorn"></i> Marketing</div>
+                        <h3>Digital Marketing Masterclass</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> 35 hours</span><span><i class="fas fa-signal"></i> All Levels</span></div>
+                        <div class="course-footer">
+                            <div class="course-price"><span class="price-old">&#8377;499</span><span class="price-new">&#8377;199</span></div>
+                            <div class="course-rating"><i class="fas fa-star"></i><span>4.7 (3.2k)</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="course-card" data-aos="fade-up" data-category="marketing" data-id="m2" data-name="Social Media Marketing" data-price="249" data-old="599">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=400&h=250&fit=crop" alt="Social Media">
+                        <div class="course-overlay">
+                            <button class="btn-preview"><i class="fas fa-eye"></i></button>
+                            <button class="btn-add-cart" data-id="m2" data-name="Social Media Marketing" data-price="249" data-img="https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button>
+                        </div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-bullhorn"></i> Marketing</div>
+                        <h3>Social Media Marketing Mastery</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> 28 hours</span><span><i class="fas fa-signal"></i> Beginner</span></div>
+                        <div class="course-footer">
+                            <div class="course-price"><span class="price-old">&#8377;599</span><span class="price-new">&#8377;249</span></div>
+                            <div class="course-rating"><i class="fas fa-star"></i><span>4.6 (1.5k)</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="course-card" data-aos="fade-up" data-category="marketing" data-id="m3" data-name="Digital Marketing Video Course" data-price="199" data-old="499">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1533750349088-cd871a92f312?w=400&h=250&fit=crop" alt="Digital Marketing Video">
+                        <span class="course-badge bestseller">Bestseller</span>
+                        <div class="course-overlay">
+                            <button class="btn-preview"><i class="fas fa-eye"></i></button>
+                            <button class="btn-add-cart" data-id="m3" data-name="Digital Marketing Video Course" data-price="199" data-img="https://images.unsplash.com/photo-1533750349088-cd871a92f312?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button>
+                        </div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-bullhorn"></i> Marketing</div>
+                        <h3>Digital Marketing Video Course</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> 30 hours</span><span><i class="fas fa-signal"></i> Beginner</span></div>
+                        <div class="course-footer">
+                            <div class="course-price"><span class="price-old">&#8377;499</span><span class="price-new">&#8377;199</span></div>
+                            <div class="course-rating"><i class="fas fa-star"></i><span>4.7 (2.6k)</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="course-card" data-aos="fade-up" data-category="hacking" data-id="h7" data-name="Dedsec Facebook Instagram Hacking" data-price="199" data-old="499">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?w=400&h=250&fit=crop" alt="Dedsec Facebook Instagram Hacking">
+                        <span class="course-badge bestseller">Bestseller</span>
+                        <div class="course-overlay">
+                            <button class="btn-preview"><i class="fas fa-eye"></i></button>
+                            <button class="btn-add-cart" data-id="h7" data-name="Dedsec Facebook Instagram Hacking" data-price="199" data-img="https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button>
+                        </div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-user-secret"></i> Hacking</div>
+                        <h3>Dedsec Facebook & Instagram Hacking Course</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> 20 hours</span><span><i class="fas fa-signal"></i> Intermediate</span></div>
+                        <div class="course-footer">
+                            <div class="course-price"><span class="price-old">&#8377;499</span><span class="price-new">&#8377;199</span></div>
+                            <div class="course-rating"><i class="fas fa-star"></i><span>4.7 (1.1k)</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="course-card" data-aos="fade-up" data-category="hacking" data-id="h8" data-name="Dedsec Antivirus Evasion" data-price="249" data-old="599">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=400&h=250&fit=crop" alt="Dedsec Antivirus Evasion">
+                        <span class="course-badge hot">Hot</span>
+                        <div class="course-overlay">
+                            <button class="btn-preview"><i class="fas fa-eye"></i></button>
+                            <button class="btn-add-cart" data-id="h8" data-name="Dedsec Antivirus Evasion" data-price="249" data-img="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button>
+                        </div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-user-secret"></i> Hacking</div>
+                        <h3>Dedsec Antivirus Evasion Course</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> 18 hours</span><span><i class="fas fa-signal"></i> Advanced</span></div>
+                        <div class="course-footer">
+                            <div class="course-price"><span class="price-old">&#8377;599</span><span class="price-new">&#8377;249</span></div>
+                            <div class="course-rating"><i class="fas fa-star"></i><span>4.8 (890)</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="course-card" data-aos="fade-up" data-category="hacking" data-id="h9" data-name="Dedsec WiFi Hacking 2" data-price="199" data-old="499">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=400&h=250&fit=crop" alt="Dedsec Complete WiFi Hacking 2">
+                        <span class="course-badge new">New</span>
+                        <div class="course-overlay">
+                            <button class="btn-preview"><i class="fas fa-eye"></i></button>
+                            <button class="btn-add-cart" data-id="h9" data-name="Dedsec WiFi Hacking 2" data-price="199" data-img="https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button>
+                        </div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-user-secret"></i> Hacking</div>
+                        <h3>Dedsec Complete WiFi Hacking Course 2</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> 22 hours</span><span><i class="fas fa-signal"></i> Advanced</span></div>
+                        <div class="course-footer">
+                            <div class="course-price"><span class="price-old">&#8377;499</span><span class="price-new">&#8377;199</span></div>
+                            <div class="course-rating"><i class="fas fa-star"></i><span>4.8 (1.4k)</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="course-card" data-aos="fade-up" data-category="hacking" data-id="h10" data-name="Dedsec ERC Course" data-price="249" data-old="599">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=400&h=250&fit=crop" alt="Dedsec ERC Course">
+                        <span class="course-badge hot">Hot</span>
+                        <div class="course-overlay">
+                            <button class="btn-preview"><i class="fas fa-eye"></i></button>
+                            <button class="btn-add-cart" data-id="h10" data-name="Dedsec ERC Course" data-price="249" data-img="https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button>
+                        </div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-user-secret"></i> Hacking</div>
+                        <h3>Dedsec ERC Course (Blockchain Security)</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> 24 hours</span><span><i class="fas fa-signal"></i> Advanced</span></div>
+                        <div class="course-footer">
+                            <div class="course-price"><span class="price-old">&#8377;599</span><span class="price-new">&#8377;249</span></div>
+                            <div class="course-rating"><i class="fas fa-star"></i><span>4.9 (720)</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="course-card" data-aos="fade-up" data-category="hacking" data-id="h11" data-name="Dedsec WiFi Hacking 1" data-price="199" data-old="499">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=250&fit=crop" alt="Dedsec Complete WiFi Hacking 1">
+                        <span class="course-badge bestseller">Bestseller</span>
+                        <div class="course-overlay">
+                            <button class="btn-preview"><i class="fas fa-eye"></i></button>
+                            <button class="btn-add-cart" data-id="h11" data-name="Dedsec WiFi Hacking 1" data-price="199" data-img="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button>
+                        </div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-user-secret"></i> Hacking</div>
+                        <h3>Dedsec Complete WiFi Hacking Course 1</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> 18 hours</span><span><i class="fas fa-signal"></i> Beginner</span></div>
+                        <div class="course-footer">
+                            <div class="course-price"><span class="price-old">&#8377;499</span><span class="price-new">&#8377;199</span></div>
+                            <div class="course-rating"><i class="fas fa-star"></i><span>4.7 (2.2k)</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="course-card" data-aos="fade-up" data-category="hacking" data-id="h12" data-name="Dedsec Reverse Engineering 1" data-price="249" data-old="599">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=400&h=250&fit=crop" alt="Dedsec Reverse Engineering 1">
+                        <span class="course-badge bestseller">Bestseller</span>
+                        <div class="course-overlay">
+                            <button class="btn-preview"><i class="fas fa-eye"></i></button>
+                            <button class="btn-add-cart" data-id="h12" data-name="Dedsec Reverse Engineering 1" data-price="249" data-img="https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button>
+                        </div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-user-secret"></i> Hacking</div>
+                        <h3>Dedsec Reverse Engineering Course 1</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> 25 hours</span><span><i class="fas fa-signal"></i> Intermediate</span></div>
+                        <div class="course-footer">
+                            <div class="course-price"><span class="price-old">&#8377;599</span><span class="price-new">&#8377;249</span></div>
+                            <div class="course-rating"><i class="fas fa-star"></i><span>4.8 (1.1k)</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="course-card" data-aos="fade-up" data-category="hacking" data-id="h13" data-name="Advanced Hacking Android" data-price="199" data-old="499">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1612178991541-b48cc8e92a4e?w=400&h=250&fit=crop" alt="Advanced Hacking Android Devices">
+                        <span class="course-badge hot">Hot</span>
+                        <div class="course-overlay">
+                            <button class="btn-preview"><i class="fas fa-eye"></i></button>
+                            <button class="btn-add-cart" data-id="h13" data-name="Advanced Hacking Android" data-price="199" data-img="https://images.unsplash.com/photo-1612178991541-b48cc8e92a4e?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button>
+                        </div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-user-secret"></i> Hacking</div>
+                        <h3>Advanced Hacking Android Devices</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> 28 hours</span><span><i class="fas fa-signal"></i> Advanced</span></div>
+                        <div class="course-footer">
+                            <div class="course-price"><span class="price-old">&#8377;499</span><span class="price-new">&#8377;199</span></div>
+                            <div class="course-rating"><i class="fas fa-star"></i><span>4.7 (1.6k)</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="course-card" data-aos="fade-up" data-category="hacking" data-id="h14" data-name="Advanced Web Hacking" data-price="249" data-old="599">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=400&h=250&fit=crop" alt="Advanced Web Hacking">
+                        <span class="course-badge bestseller">Bestseller</span>
+                        <div class="course-overlay">
+                            <button class="btn-preview"><i class="fas fa-eye"></i></button>
+                            <button class="btn-add-cart" data-id="h14" data-name="Advanced Web Hacking" data-price="249" data-img="https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button>
+                        </div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-user-secret"></i> Hacking</div>
+                        <h3>Advanced Web Hacking</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> 30 hours</span><span><i class="fas fa-signal"></i> Advanced</span></div>
+                        <div class="course-footer">
+                            <div class="course-price"><span class="price-old">&#8377;599</span><span class="price-new">&#8377;249</span></div>
+                            <div class="course-rating"><i class="fas fa-star"></i><span>4.9 (2.1k)</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="course-card" data-aos="fade-up" data-category="hacking" data-id="h15" data-name="Advanced Keylogger Tutorial" data-price="199" data-old="499">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=400&h=250&fit=crop" alt="Advanced Ethical Hacking Keylogger">
+                        <span class="course-badge new">New</span>
+                        <div class="course-overlay">
+                            <button class="btn-preview"><i class="fas fa-eye"></i></button>
+                            <button class="btn-add-cart" data-id="h15" data-name="Advanced Keylogger Tutorial" data-price="199" data-img="https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button>
+                        </div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-user-secret"></i> Hacking</div>
+                        <h3>Advanced Ethical Hacking Keylogger Tutorial</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> 15 hours</span><span><i class="fas fa-signal"></i> Advanced</span></div>
+                        <div class="course-footer">
+                            <div class="course-price"><span class="price-old">&#8377;499</span><span class="price-new">&#8377;199</span></div>
+                            <div class="course-rating"><i class="fas fa-star"></i><span>4.7 (950)</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="course-card" data-aos="fade-up" data-category="hacking" data-id="h16" data-name="BlackHat Cracking Course" data-price="249" data-old="599">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=400&h=250&fit=crop" alt="BlackHat Cracking Course">
+                        <span class="course-badge hot">Hot</span>
+                        <div class="course-overlay">
+                            <button class="btn-preview"><i class="fas fa-eye"></i></button>
+                            <button class="btn-add-cart" data-id="h16" data-name="BlackHat Cracking Course" data-price="249" data-img="https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button>
+                        </div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-user-secret"></i> Hacking</div>
+                        <h3>BlackHat Cracking Course</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> 35 hours</span><span><i class="fas fa-signal"></i> Advanced</span></div>
+                        <div class="course-footer">
+                            <div class="course-price"><span class="price-old">&#8377;599</span><span class="price-new">&#8377;249</span></div>
+                            <div class="course-rating"><i class="fas fa-star"></i><span>4.8 (1.8k)</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="course-card" data-aos="fade-up" data-category="hacking" data-id="h17" data-name="Intro Ethical Hacking" data-price="199" data-old="499">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1504639725590-34d0984388bd?w=400&h=250&fit=crop" alt="Introduction to Ethical Hacking">
+                        <span class="course-badge bestseller">Bestseller</span>
+                        <div class="course-overlay">
+                            <button class="btn-preview"><i class="fas fa-eye"></i></button>
+                            <button class="btn-add-cart" data-id="h17" data-name="Intro Ethical Hacking" data-price="199" data-img="https://images.unsplash.com/photo-1504639725590-34d0984388bd?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button>
+                        </div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-user-secret"></i> Hacking</div>
+                        <h3>Introduction to Ethical Hacking</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> 20 hours</span><span><i class="fas fa-signal"></i> Beginner</span></div>
+                        <div class="course-footer">
+                            <div class="course-price"><span class="price-old">&#8377;499</span><span class="price-new">&#8377;199</span></div>
+                            <div class="course-rating"><i class="fas fa-star"></i><span>4.6 (3.4k)</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="course-card" data-aos="fade-up" data-category="hacking" data-id="h18" data-name="Hacking Lab Setup" data-price="249" data-old="599">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=400&h=250&fit=crop" alt="Setting Up a Hacking Lab">
+                        <span class="course-badge new">New</span>
+                        <div class="course-overlay">
+                            <button class="btn-preview"><i class="fas fa-eye"></i></button>
+                            <button class="btn-add-cart" data-id="h18" data-name="Hacking Lab Setup" data-price="249" data-img="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button>
+                        </div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-user-secret"></i> Hacking</div>
+                        <h3>Setting Up a Hacking Lab</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> 12 hours</span><span><i class="fas fa-signal"></i> Beginner</span></div>
+                        <div class="course-footer">
+                            <div class="course-price"><span class="price-old">&#8377;599</span><span class="price-new">&#8377;249</span></div>
+                            <div class="course-rating"><i class="fas fa-star"></i><span>4.7 (2.5k)</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="course-card" data-aos="fade-up" data-category="hacking" data-id="h19" data-name="Advanced API Security" data-price="199" data-old="499">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=400&h=250&fit=crop" alt="Advanced API Security OAuth 2.0">
+                        <span class="course-badge hot">Hot</span>
+                        <div class="course-overlay">
+                            <button class="btn-preview"><i class="fas fa-eye"></i></button>
+                            <button class="btn-add-cart" data-id="h19" data-name="Advanced API Security" data-price="199" data-img="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button>
+                        </div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-user-secret"></i> Hacking</div>
+                        <h3>Advanced API Security OAuth 2.0 and Beyond</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> 22 hours</span><span><i class="fas fa-signal"></i> Advanced</span></div>
+                        <div class="course-footer">
+                            <div class="course-price"><span class="price-old">&#8377;499</span><span class="price-new">&#8377;199</span></div>
+                            <div class="course-rating"><i class="fas fa-star"></i><span>4.9 (1.0k)</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="course-card" data-aos="fade-up" data-category="hacking" data-id="h20" data-name="Android Security Attacks" data-price="249" data-old="599">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1612178991541-b48cc8e92a4e?w=400&h=250&fit=crop" alt="Android Security Attacks">
+                        <span class="course-badge new">New</span>
+                        <div class="course-overlay">
+                            <button class="btn-preview"><i class="fas fa-eye"></i></button>
+                            <button class="btn-add-cart" data-id="h20" data-name="Android Security Attacks" data-price="249" data-img="https://images.unsplash.com/photo-1612178991541-b48cc8e92a4e?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button>
+                        </div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-user-secret"></i> Hacking</div>
+                        <h3>Android Security Attacks and Defenses</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> 24 hours</span><span><i class="fas fa-signal"></i> Intermediate</span></div>
+                        <div class="course-footer">
+                            <div class="course-price"><span class="price-old">&#8377;599</span><span class="price-new">&#8377;249</span></div>
+                            <div class="course-rating"><i class="fas fa-star"></i><span>4.7 (1.3k)</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="course-card" data-aos="fade-up" data-category="hacking" data-id="h21" data-name="Malware Dev Ethical Hacking" data-price="199" data-old="499">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1563206767-5b18f218e8de?w=400&h=250&fit=crop" alt="Malware Development for Ethical Hacking">
+                        <span class="course-badge hot">Hot</span>
+                        <div class="course-overlay">
+                            <button class="btn-preview"><i class="fas fa-eye"></i></button>
+                            <button class="btn-add-cart" data-id="h21" data-name="Malware Dev Ethical Hacking" data-price="199" data-img="https://images.unsplash.com/photo-1563206767-5b18f218e8de?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button>
+                        </div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-user-secret"></i> Hacking</div>
+                        <h3>Malware Development for Ethical Hacking</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> 26 hours</span><span><i class="fas fa-signal"></i> Advanced</span></div>
+                        <div class="course-footer">
+                            <div class="course-price"><span class="price-old">&#8377;499</span><span class="price-new">&#8377;199</span></div>
+                            <div class="course-rating"><i class="fas fa-star"></i><span>4.8 (980)</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="course-card" data-aos="fade-up" data-category="hacking" data-id="h22" data-name="Linux Basics Hackers" data-price="249" data-old="599">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1629654297299-c8506221ca97?w=400&h=250&fit=crop" alt="Linux Basics for Hackers">
+                        <span class="course-badge bestseller">Bestseller</span>
+                        <div class="course-overlay">
+                            <button class="btn-preview"><i class="fas fa-eye"></i></button>
+                            <button class="btn-add-cart" data-id="h22" data-name="Linux Basics Hackers" data-price="249" data-img="https://images.unsplash.com/photo-1629654297299-c8506221ca97?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button>
+                        </div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-user-secret"></i> Hacking</div>
+                        <h3>Linux Basics for Hackers</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> 16 hours</span><span><i class="fas fa-signal"></i> Beginner</span></div>
+                        <div class="course-footer">
+                            <div class="course-price"><span class="price-old">&#8377;599</span><span class="price-new">&#8377;249</span></div>
+                            <div class="course-rating"><i class="fas fa-star"></i><span>4.6 (4.1k)</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="course-card" data-aos="fade-up" data-category="hacking" data-id="h23" data-name="Practical API Hacking" data-price="299" data-old="699">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=400&h=250&fit=crop" alt="Practical API Hacking">
+                        <span class="course-badge bestseller">Bestseller</span>
+                        <div class="course-overlay">
+                            <button class="btn-preview"><i class="fas fa-eye"></i></button>
+                            <button class="btn-add-cart" data-id="h23" data-name="Practical API Hacking" data-price="299" data-img="https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button>
+                        </div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-user-secret"></i> Hacking</div>
+                        <h3>Practical API Hacking</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> 20 hours</span><span><i class="fas fa-signal"></i> Intermediate</span></div>
+                        <div class="course-footer">
+                            <div class="course-price"><span class="price-old">&#8377;699</span><span class="price-new">&#8377;299</span></div>
+                            <div class="course-rating"><i class="fas fa-star"></i><span>4.8 (1.2k)</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="course-card" data-aos="fade-up" data-category="trading" data-id="t6" data-name="Complete Stock Market" data-price="249" data-old="599">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=400&h=250&fit=crop" alt="Complete Stock Market Course">
+                        <span class="course-badge new">New</span>
+                        <div class="course-overlay">
+                            <button class="btn-preview"><i class="fas fa-eye"></i></button>
+                            <button class="btn-add-cart" data-id="t6" data-name="Complete Stock Market" data-price="249" data-img="https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button>
+                        </div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-chart-line"></i> Trading</div>
+                        <h3>Complete Stock Market Course</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> 30 hours</span><span><i class="fas fa-signal"></i> All Levels</span></div>
+                        <div class="course-footer">
+                            <div class="course-price"><span class="price-old">&#8377;599</span><span class="price-new">&#8377;249</span></div>
+                            <div class="course-rating"><i class="fas fa-star"></i><span>4.6 (2.8k)</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="course-card" data-aos="fade-up" data-category="trading" data-id="t7" data-name="Stock Market Zero to Pro" data-price="299" data-old="699">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=400&h=250&fit=crop" alt="Stock Market Zero to Pro">
+                        <span class="course-badge bestseller">Bestseller</span>
+                        <div class="course-overlay">
+                            <button class="btn-preview"><i class="fas fa-eye"></i></button>
+                            <button class="btn-add-cart" data-id="t7" data-name="Stock Market Zero to Pro" data-price="299" data-img="https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button>
+                        </div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-chart-line"></i> Trading</div>
+                        <h3>Stock Market Zero to Pro Course</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> 35 hours</span><span><i class="fas fa-signal"></i> All Levels</span></div>
+                        <div class="course-footer">
+                            <div class="course-price"><span class="price-old">&#8377;699</span><span class="price-new">&#8377;299</span></div>
+                            <div class="course-rating"><i class="fas fa-star"></i><span>4.7 (3.2k)</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="course-card" data-aos="fade-up" data-category="marketing" data-id="m4" data-name="Digital Marketing Complete" data-price="249" data-old="599">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=250&fit=crop" alt="Digital Marketing Complete">
+                        <span class="course-badge bestseller">Bestseller</span>
+                        <div class="course-overlay">
+                            <button class="btn-preview"><i class="fas fa-eye"></i></button>
+                            <button class="btn-add-cart" data-id="m4" data-name="Digital Marketing Complete" data-price="249" data-img="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button>
+                        </div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-bullhorn"></i> Marketing</div>
+                        <h3>Digital Marketing Complete Course</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> 32 hours</span><span><i class="fas fa-signal"></i> Beginner</span></div>
+                        <div class="course-footer">
+                            <div class="course-price"><span class="price-old">&#8377;599</span><span class="price-new">&#8377;249</span></div>
+                            <div class="course-rating"><i class="fas fa-star"></i><span>4.7 (3.5k)</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="course-card" data-aos="fade-up" data-category="marketing" data-id="m5" data-name="Google AdWords Course" data-price="199" data-old="499">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1573164713714-d95e436ab8d6?w=400&h=250&fit=crop" alt="Google AdWords Course">
+                        <span class="course-badge new">New</span>
+                        <div class="course-overlay">
+                            <button class="btn-preview"><i class="fas fa-eye"></i></button>
+                            <button class="btn-add-cart" data-id="m5" data-name="Google AdWords Course" data-price="199" data-img="https://images.unsplash.com/photo-1573164713714-d95e436ab8d6?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button>
+                        </div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-bullhorn"></i> Marketing</div>
+                        <h3>Google AdWords Course</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> 22 hours</span><span><i class="fas fa-signal"></i> Beginner</span></div>
+                        <div class="course-footer">
+                            <div class="course-price"><span class="price-old">&#8377;499</span><span class="price-new">&#8377;199</span></div>
+                            <div class="course-rating"><i class="fas fa-star"></i><span>4.6 (2.1k)</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="course-card" data-aos="fade-up" data-category="marketing" data-id="m6" data-name="SEO Advanced Course" data-price="249" data-old="599">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1562577309-4932fdd64cd1?w=400&h=250&fit=crop" alt="SEO Full Advanced Course">
+                        <span class="course-badge hot">Hot</span>
+                        <div class="course-overlay">
+                            <button class="btn-preview"><i class="fas fa-eye"></i></button>
+                            <button class="btn-add-cart" data-id="m6" data-name="SEO Advanced Course" data-price="249" data-img="https://images.unsplash.com/photo-1562577309-4932fdd64cd1?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button>
+                        </div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-bullhorn"></i> Marketing</div>
+                        <h3>SEO Full Advanced Course</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> 28 hours</span><span><i class="fas fa-signal"></i> Advanced</span></div>
+                        <div class="course-footer">
+                            <div class="course-price"><span class="price-old">&#8377;599</span><span class="price-new">&#8377;249</span></div>
+                            <div class="course-rating"><i class="fas fa-star"></i><span>4.8 (2.7k)</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="course-card" data-aos="fade-up" data-category="books" data-id="b4" data-name="Burp Suite Guide" data-price="0" data-old="0">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400&h=250&fit=crop" alt="Complete Guide to Burp Suite">
+                        <span class="course-badge bestseller">Bestseller</span>
+                        <div class="course-overlay">
+                            <button class="btn-preview"><i class="fas fa-eye"></i></button>
+                            <button class="btn-add-cart" data-id="b4" data-name="Burp Suite Guide" data-price="0" data-img="https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button>
+                        </div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-book"></i> Hacking Book</div>
+                        <h3>Complete Guide to Burp Suite</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> PDF</span><span><i class="fas fa-signal"></i> Intermediate</span></div>
+                        <div class="course-footer">
+                            <div class="course-price"><span class="price-old" style="display:none">&#8377;0</span><span class="price-new" style="color:#10b981;font-weight:bold">FREE</span></div>
+                            <div class="course-rating"><i class="fas fa-star"></i><span>4.8 (1.4k)</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="course-card" data-aos="fade-up" data-category="books" data-id="b5" data-name="Pentesting Android Book" data-price="0" data-old="0">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400&h=250&fit=crop" alt="Learning Pentesting for Android">
+                        <span class="course-badge new">New</span>
+                        <div class="course-overlay">
+                            <button class="btn-preview"><i class="fas fa-eye"></i></button>
+                            <button class="btn-add-cart" data-id="b5" data-name="Pentesting Android Book" data-price="0" data-img="https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button>
+                        </div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-book"></i> Hacking Book</div>
+                        <h3>Learning Pentesting for Android Devices</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> PDF</span><span><i class="fas fa-signal"></i> Intermediate</span></div>
+                        <div class="course-footer">
+                            <div class="course-price"><span class="price-old" style="display:none">&#8377;0</span><span class="price-new" style="color:#10b981;font-weight:bold">FREE</span></div>
+                            <div class="course-rating"><i class="fas fa-star"></i><span>4.7 (980)</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="course-card" data-aos="fade-up" data-category="books" data-id="b6" data-name="Linux Security Hardening" data-price="0" data-old="0">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400&h=250&fit=crop" alt="Mastering Linux Security">
+                        <span class="course-badge hot">Hot</span>
+                        <div class="course-overlay">
+                            <button class="btn-preview"><i class="fas fa-eye"></i></button>
+                            <button class="btn-add-cart" data-id="b6" data-name="Linux Security Hardening" data-price="0" data-img="https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button>
+                        </div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-book"></i> Hacking Book</div>
+                        <h3>Mastering Linux Security and Hardening</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> PDF</span><span><i class="fas fa-signal"></i> Intermediate</span></div>
+                        <div class="course-footer">
+                            <div class="course-price"><span class="price-old" style="display:none">&#8377;0</span><span class="price-new" style="color:#10b981;font-weight:bold">FREE</span></div>
+                            <div class="course-rating"><i class="fas fa-star"></i><span>4.8 (1.3k)</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="course-card" data-aos="fade-up" data-category="books" data-id="b7" data-name="Art of Exploitation" data-price="0" data-old="0">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400&h=250&fit=crop" alt="Hacking Art of Exploitation">
+                        <span class="course-badge bestseller">Bestseller</span>
+                        <div class="course-overlay">
+                            <button class="btn-preview"><i class="fas fa-eye"></i></button>
+                            <button class="btn-add-cart" data-id="b7" data-name="Art of Exploitation" data-price="0" data-img="https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button>
+                        </div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-book"></i> Hacking Book</div>
+                        <h3>Hacking: The Art of Exploitation 2nd Edition</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> PDF</span><span><i class="fas fa-signal"></i> Advanced</span></div>
+                        <div class="course-footer">
+                            <div class="course-price"><span class="price-old" style="display:none">&#8377;0</span><span class="price-new" style="color:#10b981;font-weight:bold">FREE</span></div>
+                            <div class="course-rating"><i class="fas fa-star"></i><span>4.9 (3.2k)</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="course-card" data-aos="fade-up" data-category="books" data-id="b8" data-name="Ransomware Detection" data-price="0" data-old="0">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400&h=250&fit=crop" alt="Windows Ransomware Detection">
+                        <span class="course-badge new">New</span>
+                        <div class="course-overlay">
+                            <button class="btn-preview"><i class="fas fa-eye"></i></button>
+                            <button class="btn-add-cart" data-id="b8" data-name="Ransomware Detection" data-price="0" data-img="https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button>
+                        </div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-book"></i> Hacking Book</div>
+                        <h3>Windows Ransomware Detection and Protection</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> PDF</span><span><i class="fas fa-signal"></i> Intermediate</span></div>
+                        <div class="course-footer">
+                            <div class="course-price"><span class="price-old" style="display:none">&#8377;0</span><span class="price-new" style="color:#10b981;font-weight:bold">FREE</span></div>
+                            <div class="course-rating"><i class="fas fa-star"></i><span>4.7 (870)</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="course-card" data-aos="fade-up" data-category="books" data-id="b9" data-name="Apple Debugging RE" data-price="0" data-old="0">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400&h=250&fit=crop" alt="Advanced Apple Debugging">
+                        <span class="course-badge hot">Hot</span>
+                        <div class="course-overlay">
+                            <button class="btn-preview"><i class="fas fa-eye"></i></button>
+                            <button class="btn-add-cart" data-id="b9" data-name="Apple Debugging RE" data-price="0" data-img="https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button>
+                        </div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-book"></i> Hacking Book</div>
+                        <h3>2023 Advanced Apple Debugging & Reverse Engineering</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> PDF</span><span><i class="fas fa-signal"></i> Advanced</span></div>
+                        <div class="course-footer">
+                            <div class="course-price"><span class="price-old" style="display:none">&#8377;0</span><span class="price-new" style="color:#10b981;font-weight:bold">FREE</span></div>
+                            <div class="course-rating"><i class="fas fa-star"></i><span>4.9 (680)</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="course-card" data-aos="fade-up" data-category="books" data-id="b10" data-name="WooCommerce Tutorial" data-price="0" data-old="0">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1532012197267-da84d127e765?w=400&h=250&fit=crop" alt="WooCommerce WordPress Tutorial">
+                        <span class="course-badge new">New</span>
+                        <div class="course-overlay">
+                            <button class="btn-preview"><i class="fas fa-eye"></i></button>
+                            <button class="btn-add-cart" data-id="b10" data-name="WooCommerce Tutorial" data-price="0" data-img="https://images.unsplash.com/photo-1532012197267-da84d127e765?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button>
+                        </div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-book"></i> Programming Book</div>
+                        <h3>WooCommerce WordPress Tutorial (Hindi)</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> PDF</span><span><i class="fas fa-signal"></i> Beginner</span></div>
+                        <div class="course-footer">
+                            <div class="course-price"><span class="price-old" style="display:none">&#8377;0</span><span class="price-new" style="color:#10b981;font-weight:bold">FREE</span></div>
+                            <div class="course-rating"><i class="fas fa-star"></i><span>4.6 (1.9k)</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="course-card" data-aos="fade-up" data-category="design" data-id="d2" data-name="UI UX Design Fundamentals" data-price="249" data-old="599">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1561070791-2526d30994b5?w=400&h=250&fit=crop" alt="UI/UX Design Fundamentals">
+                        <span class="course-badge new">New</span>
+                        <div class="course-overlay">
+                            <button class="btn-preview"><i class="fas fa-eye"></i></button>
+                            <button class="btn-add-cart" data-id="d2" data-name="UI UX Design Fundamentals" data-price="249" data-img="https://images.unsplash.com/photo-1561070791-2526d30994b5?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button>
+                        </div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-palette"></i> Design</div>
+                        <h3>UI/UX Design Fundamentals</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> 30 hours</span><span><i class="fas fa-signal"></i> Beginner</span></div>
+                        <div class="course-footer">
+                            <div class="course-price"><span class="price-old">&#8377;599</span><span class="price-new">&#8377;249</span></div>
+                            <div class="course-rating"><i class="fas fa-star"></i><span>4.7 (2.4k)</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RAT Tools -->
+                <div class="course-card" data-aos="fade-up" data-category="tools" data-id="h24" data-name="888RAT Remote Access" data-price="399" data-old="999">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1563206767-5b18f218e8de?w=400&h=250&fit=crop" alt="888RAT 1.1.1 Remote Access Tool">
+                        <span class="course-badge hot">Hot</span>
+                        <div class="course-overlay">
+                            <button class="btn-preview"><i class="fas fa-eye"></i></button>
+                            <button class="btn-add-cart" data-id="h24" data-name="888RAT Remote Access" data-price="399" data-img="https://images.unsplash.com/photo-1563206767-5b18f218e8de?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button>
+                        </div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-wrench"></i> Software & Tools</div>
+                        <h3>888RAT 1.1.1 Remote Access Tool</h3>
+                        <div class="course-meta"><span><i class="fas fa-wrench"></i> Tool</span><span><i class="fas fa-signal"></i> Advanced</span></div>
+                        <div class="course-footer">
+                            <div class="course-price"><span class="price-old">&#8377;999</span><span class="price-new">&#8377;399</span></div>
+                            <div class="course-rating"><i class="fas fa-star"></i><span>4.5 (580)</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="course-card" data-aos="fade-up" data-category="tools" data-id="h25" data-name="AhMyth Win32 RAT" data-price="0" data-old="0">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=400&h=250&fit=crop" alt="AhMyth Win32 Hacking RAT">
+                        <span class="course-badge bestseller">Bestseller</span>
+                        <div class="course-overlay">
+                            <button class="btn-preview"><i class="fas fa-eye"></i></button>
+                            <button class="btn-add-cart" data-id="h25" data-name="AhMyth Win32 RAT" data-price="0" data-img="https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button>
+                        </div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-wrench"></i> Software & Tools</div>
+                        <h3>AhMyth Win32 Hacking RAT</h3>
+                        <div class="course-meta"><span><i class="fas fa-wrench"></i> Tool</span><span><i class="fas fa-signal"></i> Intermediate</span></div>
+                        <div class="course-footer">
+                            <div class="course-price"><span class="price-old" style="display:none">&#8377;0</span><span class="price-new" style="color:#10b981;font-weight:bold">FREE</span></div>
+                            <div class="course-rating"><i class="fas fa-star"></i><span>4.6 (780)</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="course-card" data-aos="fade-up" data-category="tools" data-id="h26" data-name="AhMyth Win64 RAT" data-price="0" data-old="0">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=400&h=250&fit=crop" alt="AhMyth Win64 Hacking RAT">
+                        <span class="course-badge new">New</span>
+                        <div class="course-overlay">
+                            <button class="btn-preview"><i class="fas fa-eye"></i></button>
+                            <button class="btn-add-cart" data-id="h26" data-name="AhMyth Win64 RAT" data-price="0" data-img="https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button>
+                        </div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-wrench"></i> Software & Tools</div>
+                        <h3>AhMyth Win64 Hacking RAT</h3>
+                        <div class="course-meta"><span><i class="fas fa-wrench"></i> Tool</span><span><i class="fas fa-signal"></i> Intermediate</span></div>
+                        <div class="course-footer">
+                            <div class="course-price"><span class="price-old" style="display:none">&#8377;0</span><span class="price-new" style="color:#10b981;font-weight:bold">FREE</span></div>
+                            <div class="course-rating"><i class="fas fa-star"></i><span>4.6 (720)</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="course-card" data-aos="fade-up" data-category="tools" data-id="h27" data-name="AndroRAT Android RAT" data-price="0" data-old="0">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1612178991541-b48cc8e92a4e?w=400&h=250&fit=crop" alt="AndroRAT Android Remote Administration Tool">
+                        <span class="course-badge bestseller">Bestseller</span>
+                        <div class="course-overlay">
+                            <button class="btn-preview"><i class="fas fa-eye"></i></button>
+                            <button class="btn-add-cart" data-id="h27" data-name="AndroRAT Android RAT" data-price="0" data-img="https://images.unsplash.com/photo-1612178991541-b48cc8e92a4e?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button>
+                        </div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-wrench"></i> Software & Tools</div>
+                        <h3>AndroRAT - Android Remote Administration Tool</h3>
+                        <div class="course-meta"><span><i class="fas fa-wrench"></i> Tool</span><span><i class="fas fa-signal"></i> Intermediate</span></div>
+                        <div class="course-footer">
+                            <div class="course-price"><span class="price-old" style="display:none">&#8377;0</span><span class="price-new" style="color:#10b981;font-weight:bold">FREE</span></div>
+                            <div class="course-rating"><i class="fas fa-star"></i><span>4.7 (950)</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="course-card" data-aos="fade-up" data-category="tools" data-id="h28" data-name="Cerberus RAT" data-price="0" data-old="0">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1563206767-5b18f218e8de?w=400&h=250&fit=crop" alt="Cerberus RAT 1.0 Beta">
+                        <span class="course-badge hot">Hot</span>
+                        <div class="course-overlay">
+                            <button class="btn-preview"><i class="fas fa-eye"></i></button>
+                            <button class="btn-add-cart" data-id="h28" data-name="Cerberus RAT" data-price="0" data-img="https://images.unsplash.com/photo-1563206767-5b18f218e8de?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button>
+                        </div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-wrench"></i> Software & Tools</div>
+                        <h3>Cerberus RAT 1.0 Beta</h3>
+                        <div class="course-meta"><span><i class="fas fa-wrench"></i> Tool</span><span><i class="fas fa-signal"></i> Advanced</span></div>
+                        <div class="course-footer">
+                            <div class="course-price"><span class="price-old" style="display:none">&#8377;0</span><span class="price-new" style="color:#10b981;font-weight:bold">FREE</span></div>
+                            <div class="course-rating"><i class="fas fa-star"></i><span>4.5 (510)</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="course-card" data-aos="fade-up" data-category="tools" data-id="h29" data-name="DroidJack RAT" data-price="0" data-old="0">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1612178991541-b48cc8e92a4e?w=400&h=250&fit=crop" alt="DroidJack Complete Setup">
+                        <span class="course-badge bestseller">Bestseller</span>
+                        <div class="course-overlay">
+                            <button class="btn-preview"><i class="fas fa-eye"></i></button>
+                            <button class="btn-add-cart" data-id="h29" data-name="DroidJack RAT" data-price="0" data-img="https://images.unsplash.com/photo-1612178991541-b48cc8e92a4e?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button>
+                        </div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-wrench"></i> Software & Tools</div>
+                        <h3>DroidJack Complete Setup Hacking RAT</h3>
+                        <div class="course-meta"><span><i class="fas fa-wrench"></i> Tool</span><span><i class="fas fa-signal"></i> Advanced</span></div>
+                        <div class="course-footer">
+                            <div class="course-price"><span class="price-old" style="display:none">&#8377;0</span><span class="price-new" style="color:#10b981;font-weight:bold">FREE</span></div>
+                            <div class="course-rating"><i class="fas fa-star"></i><span>4.7 (1.0k)</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="course-card" data-aos="fade-up" data-category="tools" data-id="h30" data-name="NanoCore RAT" data-price="0" data-old="0">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1563206767-5b18f218e8de?w=400&h=250&fit=crop" alt="NanoCore RAT 1.2.2.0">
+                        <span class="course-badge hot">Hot</span>
+                        <div class="course-overlay">
+                            <button class="btn-preview"><i class="fas fa-eye"></i></button>
+                            <button class="btn-add-cart" data-id="h30" data-name="NanoCore RAT" data-price="0" data-img="https://images.unsplash.com/photo-1563206767-5b18f218e8de?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button>
+                        </div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-wrench"></i> Software & Tools</div>
+                        <h3>NanoCore RAT 1.2.2.0 Cracked</h3>
+                        <div class="course-meta"><span><i class="fas fa-wrench"></i> Tool</span><span><i class="fas fa-signal"></i> Advanced</span></div>
+                        <div class="course-footer">
+                            <div class="course-price"><span class="price-old" style="display:none">&#8377;0</span><span class="price-new" style="color:#10b981;font-weight:bold">FREE</span></div>
+                            <div class="course-rating"><i class="fas fa-star"></i><span>4.8 (1.3k)</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="course-card" data-aos="fade-up" data-category="tools" data-id="h31" data-name="spy4 RAT" data-price="0" data-old="0">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=400&h=250&fit=crop" alt="spy4 Hacking RAT">
+                        <span class="course-badge new">New</span>
+                        <div class="course-overlay">
+                            <button class="btn-preview"><i class="fas fa-eye"></i></button>
+                            <button class="btn-add-cart" data-id="h31" data-name="spy4 RAT" data-price="0" data-img="https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button>
+                        </div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-wrench"></i> Software & Tools</div>
+                        <h3>spy4 Hacking RAT</h3>
+                        <div class="course-meta"><span><i class="fas fa-wrench"></i> Tool</span><span><i class="fas fa-signal"></i> Intermediate</span></div>
+                        <div class="course-footer">
+                            <div class="course-price"><span class="price-old" style="display:none">&#8377;0</span><span class="price-new" style="color:#10b981;font-weight:bold">FREE</span></div>
+                            <div class="course-rating"><i class="fas fa-star"></i><span>4.5 (650)</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="course-card" data-aos="fade-up" data-category="tools" data-id="h32" data-name="SpyNote v8.6 RAT" data-price="0" data-old="0">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1563206767-5b18f218e8de?w=400&h=250&fit=crop" alt="SpyNote v8.6 G RAT">
+                        <span class="course-badge bestseller">Bestseller</span>
+                        <div class="course-overlay">
+                            <button class="btn-preview"><i class="fas fa-eye"></i></button>
+                            <button class="btn-add-cart" data-id="h32" data-name="SpyNote v8.6 RAT" data-price="0" data-img="https://images.unsplash.com/photo-1563206767-5b18f218e8de?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button>
+                        </div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-wrench"></i> Software & Tools</div>
+                        <h3>SpyNote v8.6 G RAT Cracked</h3>
+                        <div class="course-meta"><span><i class="fas fa-wrench"></i> Tool</span><span><i class="fas fa-signal"></i> Advanced</span></div>
+                        <div class="course-footer">
+                            <div class="course-price"><span class="price-old" style="display:none">&#8377;0</span><span class="price-new" style="color:#10b981;font-weight:bold">FREE</span></div>
+                            <div class="course-rating"><i class="fas fa-star"></i><span>4.7 (920)</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="course-card" data-aos="fade-up" data-category="tools" data-id="h33" data-name="SpyNote v5.0 RAT" data-price="0" data-old="0">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1563206767-5b18f218e8de?w=400&h=250&fit=crop" alt="SpyNote v5.0 Cracked">
+                        <span class="course-badge new">New</span>
+                        <div class="course-overlay">
+                            <button class="btn-preview"><i class="fas fa-eye"></i></button>
+                            <button class="btn-add-cart" data-id="h33" data-name="SpyNote v5.0 RAT" data-price="0" data-img="https://images.unsplash.com/photo-1563206767-5b18f218e8de?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button>
+                        </div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-wrench"></i> Software & Tools</div>
+                        <h3>SpyNote v5.0 Cracked</h3>
+                        <div class="course-meta"><span><i class="fas fa-wrench"></i> Tool</span><span><i class="fas fa-signal"></i> Intermediate</span></div>
+                        <div class="course-footer">
+                            <div class="course-price"><span class="price-old" style="display:none">&#8377;0</span><span class="price-new" style="color:#10b981;font-weight:bold">FREE</span></div>
+                            <div class="course-rating"><i class="fas fa-star"></i><span>4.6 (740)</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hacking Courses h34-h38 -->
+                <div class="course-card" data-aos="fade-up" data-category="hacking" data-id="h34" data-name="Practical Phishing" data-price="299" data-old="699">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1504639725590-34d0984388bd?w=400&h=250&fit=crop" alt="Advance Practical Phishing Course">
+                        <span class="course-badge hot">Hot</span>
+                        <div class="course-overlay">
+                            <button class="btn-preview"><i class="fas fa-eye"></i></button>
+                            <button class="btn-add-cart" data-id="h34" data-name="Practical Phishing" data-price="299" data-img="https://images.unsplash.com/photo-1504639725590-34d0984388bd?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button>
+                        </div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-user-secret"></i> Hacking</div>
+                        <h3>Advance Practical Phishing Course</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> 20 hours</span><span><i class="fas fa-signal"></i> Advanced</span></div>
+                        <div class="course-footer">
+                            <div class="course-price"><span class="price-old">&#8377;699</span><span class="price-new">&#8377;299</span></div>
+                            <div class="course-rating"><i class="fas fa-star"></i><span>4.8 (1.5k)</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="course-card" data-aos="fade-up" data-category="hacking" data-id="h35" data-name="Android Hacking Scratch" data-price="299" data-old="699">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1612178991541-b48cc8e92a4e?w=400&h=250&fit=crop" alt="Hacking Using Android From Scratch">
+                        <span class="course-badge bestseller">Bestseller</span>
+                        <div class="course-overlay">
+                            <button class="btn-preview"><i class="fas fa-eye"></i></button>
+                            <button class="btn-add-cart" data-id="h35" data-name="Android Hacking Scratch" data-price="299" data-img="https://images.unsplash.com/photo-1612178991541-b48cc8e92a4e?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button>
+                        </div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-user-secret"></i> Hacking</div>
+                        <h3>Hacking Using Android From Scratch</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> 25 hours</span><span><i class="fas fa-signal"></i> Beginner</span></div>
+                        <div class="course-footer">
+                            <div class="course-price"><span class="price-old">&#8377;699</span><span class="price-new">&#8377;299</span></div>
+                            <div class="course-rating"><i class="fas fa-star"></i><span>4.7 (2.1k)</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="course-card" data-aos="fade-up" data-category="hacking" data-id="h36" data-name="Payment Gateway Bypass" data-price="299" data-old="699">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=400&h=250&fit=crop" alt="Payment Gateway Bypass Course">
+                        <span class="course-badge hot">Hot</span>
+                        <div class="course-overlay">
+                            <button class="btn-preview"><i class="fas fa-eye"></i></button>
+                            <button class="btn-add-cart" data-id="h36" data-name="Payment Gateway Bypass" data-price="299" data-img="https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button>
+                        </div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-user-secret"></i> Hacking</div>
+                        <h3>Payment Gateway Bypass Course</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> 15 hours</span><span><i class="fas fa-signal"></i> Advanced</span></div>
+                        <div class="course-footer">
+                            <div class="course-price"><span class="price-old">&#8377;699</span><span class="price-new">&#8377;299</span></div>
+                            <div class="course-rating"><i class="fas fa-star"></i><span>4.8 (1.2k)</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="course-card" data-aos="fade-up" data-category="hacking" data-id="h37" data-name="SS7 Attack Hacking" data-price="299" data-old="699">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=400&h=250&fit=crop" alt="SS7 Attack Hacking Course">
+                        <span class="course-badge new">New</span>
+                        <div class="course-overlay">
+                            <button class="btn-preview"><i class="fas fa-eye"></i></button>
+                            <button class="btn-add-cart" data-id="h37" data-name="SS7 Attack Hacking" data-price="299" data-img="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button>
+                        </div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-user-secret"></i> Hacking</div>
+                        <h3>SS7 Attack & Hacking Course</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> 18 hours</span><span><i class="fas fa-signal"></i> Advanced</span></div>
+                        <div class="course-footer">
+                            <div class="course-price"><span class="price-old">&#8377;699</span><span class="price-new">&#8377;299</span></div>
+                            <div class="course-rating"><i class="fas fa-star"></i><span>4.9 (890)</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="course-card" data-aos="fade-up" data-category="hacking" data-id="h38" data-name="Windows Hacking Complete" data-price="299" data-old="699">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1563206767-5b18f218e8de?w=400&h=250&fit=crop" alt="Windows Hacking Complete">
+                        <span class="course-badge bestseller">Bestseller</span>
+                        <div class="course-overlay">
+                            <button class="btn-preview"><i class="fas fa-eye"></i></button>
+                            <button class="btn-add-cart" data-id="h38" data-name="Windows Hacking Complete" data-price="299" data-img="https://images.unsplash.com/photo-1563206767-5b18f218e8de?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button>
+                        </div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-user-secret"></i> Hacking</div>
+                        <h3>Windows Hacking Complete Course</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> 28 hours</span><span><i class="fas fa-signal"></i> Intermediate</span></div>
+                        <div class="course-footer">
+                            <div class="course-price"><span class="price-old">&#8377;699</span><span class="price-new">&#8377;299</span></div>
+                            <div class="course-rating"><i class="fas fa-star"></i><span>4.7 (1.8k)</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Programming Course p4 -->
+                <div class="course-card" data-aos="fade-up" data-category="programming" data-id="p4" data-name="Java Coding Course" data-price="249" data-old="599">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=400&h=250&fit=crop" alt="Complete Java Coding Course">
+                        <span class="course-badge bestseller">Bestseller</span>
+                        <div class="course-overlay">
+                            <button class="btn-preview"><i class="fas fa-eye"></i></button>
+                            <button class="btn-add-cart" data-id="p4" data-name="Java Coding Course" data-price="249" data-img="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button>
+                        </div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-code"></i> Programming</div>
+                        <h3>Complete Java Coding Course</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> 40 hours</span><span><i class="fas fa-signal"></i> Beginner</span></div>
+                        <div class="course-footer">
+                            <div class="course-price"><span class="price-old">&#8377;599</span><span class="price-new">&#8377;249</span></div>
+                            <div class="course-rating"><i class="fas fa-star"></i><span>4.8 (4.5k)</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Malware Tools h39-h41 -->
+                <div class="course-card" data-aos="fade-up" data-category="tools" data-id="h39" data-name="InPayload Generator" data-price="0" data-old="0">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1563206767-5b18f218e8de?w=400&h=250&fit=crop" alt="InPayload Android Payload Generator">
+                        <span class="course-badge new">New</span>
+                        <div class="course-overlay">
+                            <button class="btn-preview"><i class="fas fa-eye"></i></button>
+                            <button class="btn-add-cart" data-id="h39" data-name="InPayload Generator" data-price="0" data-img="https://images.unsplash.com/photo-1563206767-5b18f218e8de?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button>
+                        </div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-wrench"></i> Software & Tools</div>
+                        <h3>InPayload Android Payload Generator</h3>
+                        <div class="course-meta"><span><i class="fas fa-wrench"></i> Tool</span><span><i class="fas fa-signal"></i> Advanced</span></div>
+                        <div class="course-footer">
+                            <div class="course-price"><span class="price-old" style="display:none">&#8377;0</span><span class="price-new" style="color:#10b981;font-weight:bold">FREE</span></div>
+                            <div class="course-rating"><i class="fas fa-star"></i><span>4.6 (780)</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="course-card" data-aos="fade-up" data-category="tools" data-id="h40" data-name="Malcat Analysis Tool" data-price="0" data-old="0">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=400&h=250&fit=crop" alt="Malcat Malware Analysis Tool">
+                        <span class="course-badge hot">Hot</span>
+                        <div class="course-overlay">
+                            <button class="btn-preview"><i class="fas fa-eye"></i></button>
+                            <button class="btn-add-cart" data-id="h40" data-name="Malcat Analysis Tool" data-price="0" data-img="https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button>
+                        </div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-wrench"></i> Software & Tools</div>
+                        <h3>Malcat Malware Analysis Tool</h3>
+                        <div class="course-meta"><span><i class="fas fa-wrench"></i> Tool</span><span><i class="fas fa-signal"></i> Advanced</span></div>
+                        <div class="course-footer">
+                            <div class="course-price"><span class="price-old" style="display:none">&#8377;0</span><span class="price-new" style="color:#10b981;font-weight:bold">FREE</span></div>
+                            <div class="course-rating"><i class="fas fa-star"></i><span>4.7 (650)</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="course-card" data-aos="fade-up" data-category="tools" data-id="h41" data-name="Ransomware Tools" data-price="0" data-old="0">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1563206767-5b18f218e8de?w=400&h=250&fit=crop" alt="Ransomware Tool Pack">
+                        <span class="course-badge new">New</span>
+                        <div class="course-overlay">
+                            <button class="btn-preview"><i class="fas fa-eye"></i></button>
+                            <button class="btn-add-cart" data-id="h41" data-name="Ransomware Tools" data-price="0" data-img="https://images.unsplash.com/photo-1563206767-5b18f218e8de?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button>
+                        </div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-wrench"></i> Software & Tools</div>
+                        <h3>Ransomware Tool Pack</h3>
+                        <div class="course-meta"><span><i class="fas fa-wrench"></i> Tool</span><span><i class="fas fa-signal"></i> Advanced</span></div>
+                        <div class="course-footer">
+                            <div class="course-price"><span class="price-old" style="display:none">&#8377;0</span><span class="price-new" style="color:#10b981;font-weight:bold">FREE</span></div>
+                            <div class="course-rating"><i class="fas fa-star"></i><span>4.5 (480)</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Marketing Courses m7-m10 -->
+                <div class="course-card" data-aos="fade-up" data-category="marketing" data-id="m7" data-name="ChatGPT Prompt Engineering" data-price="199" data-old="499">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1677442136019-21780ecad995?w=400&h=250&fit=crop" alt="ChatGPT Prompt Engineering BootCamp">
+                        <span class="course-badge bestseller">Bestseller</span>
+                        <div class="course-overlay">
+                            <button class="btn-preview"><i class="fas fa-eye"></i></button>
+                            <button class="btn-add-cart" data-id="m7" data-name="ChatGPT Prompt Engineering" data-price="199" data-img="https://images.unsplash.com/photo-1677442136019-21780ecad995?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button>
+                        </div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-bullhorn"></i> Marketing</div>
+                        <h3>ChatGPT Prompt Engineering BootCamp</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> 15 hours</span><span><i class="fas fa-signal"></i> Beginner</span></div>
+                        <div class="course-footer">
+                            <div class="course-price"><span class="price-old">&#8377;499</span><span class="price-new">&#8377;199</span></div>
+                            <div class="course-rating"><i class="fas fa-star"></i><span>4.8 (6.2k)</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="course-card" data-aos="fade-up" data-category="marketing" data-id="m8" data-name="Adsterra Earning" data-price="249" data-old="599">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=250&fit=crop" alt="Adsterra Earning Method">
+                        <span class="course-badge new">New</span>
+                        <div class="course-overlay">
+                            <button class="btn-preview"><i class="fas fa-eye"></i></button>
+                            <button class="btn-add-cart" data-id="m8" data-name="Adsterra Earning" data-price="249" data-img="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button>
+                        </div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-bullhorn"></i> Marketing</div>
+                        <h3>Adsterra Earning Method</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> 10 hours</span><span><i class="fas fa-signal"></i> Beginner</span></div>
+                        <div class="course-footer">
+                            <div class="course-price"><span class="price-old">&#8377;599</span><span class="price-new">&#8377;249</span></div>
+                            <div class="course-rating"><i class="fas fa-star"></i><span>4.5 (1.4k)</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="course-card" data-aos="fade-up" data-category="marketing" data-id="m9" data-name="NonDrop Watchtime" data-price="199" data-old="499">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=400&h=250&fit=crop" alt="NonDrop Watchtime Method">
+                        <span class="course-badge new">New</span>
+                        <div class="course-overlay">
+                            <button class="btn-preview"><i class="fas fa-eye"></i></button>
+                            <button class="btn-add-cart" data-id="m9" data-name="NonDrop Watchtime" data-price="199" data-img="https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button>
+                        </div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-bullhorn"></i> Marketing</div>
+                        <h3>NonDrop Watchtime Method</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> 8 hours</span><span><i class="fas fa-signal"></i> Beginner</span></div>
+                        <div class="course-footer">
+                            <div class="course-price"><span class="price-old">&#8377;499</span><span class="price-new">&#8377;199</span></div>
+                            <div class="course-rating"><i class="fas fa-star"></i><span>4.6 (2.1k)</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="course-card" data-aos="fade-up" data-category="marketing" data-id="m10" data-name="Website Traffic Software" data-price="249" data-old="599">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=250&fit=crop" alt="Website Traffic Software">
+                        <span class="course-badge bestseller">Bestseller</span>
+                        <div class="course-overlay">
+                            <button class="btn-preview"><i class="fas fa-eye"></i></button>
+                            <button class="btn-add-cart" data-id="m10" data-name="Website Traffic Software" data-price="249" data-img="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button>
+                        </div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-bullhorn"></i> Marketing</div>
+                        <h3>Website Traffic Software</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> 12 hours</span><span><i class="fas fa-signal"></i> Beginner</span></div>
+                        <div class="course-footer">
+                            <div class="course-price"><span class="price-old">&#8377;599</span><span class="price-new">&#8377;249</span></div>
+                            <div class="course-rating"><i class="fas fa-star"></i><span>4.5 (1.6k)</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Trading Course t8 -->
+                <div class="course-card" data-aos="fade-up" data-category="tools" data-id="t8" data-name="Trend Trader PRO" data-price="0" data-old="0">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=400&h=250&fit=crop" alt="Trend Trader PRO Suite 2023">
+                        <span class="course-badge hot">Hot</span>
+                        <div class="course-overlay">
+                            <button class="btn-preview"><i class="fas fa-eye"></i></button>
+                            <button class="btn-add-cart" data-id="t8" data-name="Trend Trader PRO" data-price="0" data-img="https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button>
+                        </div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-wrench"></i> Software & Tools</div>
+                        <h3>Trend Trader PRO Suite 2023</h3>
+                        <div class="course-meta"><span><i class="fas fa-wrench"></i> Tool</span><span><i class="fas fa-signal"></i> Advanced</span></div>
+                        <div class="course-footer">
+                            <div class="course-price"><span class="price-old" style="display:none">&#8377;0</span><span class="price-new" style="color:#10b981;font-weight:bold">FREE</span></div>
+                            <div class="course-rating"><i class="fas fa-star"></i><span>4.7 (950)</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- General Bundle g1 -->
+                <div class="course-card" data-aos="fade-up" data-category="programming" data-id="g1" data-name="Course Bundle Collection" data-price="199" data-old="499">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1501504905252-473c47e087f8?w=400&h=250&fit=crop" alt="Complete Course Bundle Collection">
+                        <span class="course-badge bestseller">Bestseller</span>
+                        <div class="course-overlay">
+                            <button class="btn-preview"><i class="fas fa-eye"></i></button>
+                            <button class="btn-add-cart" data-id="g1" data-name="Course Bundle Collection" data-price="199" data-img="https://images.unsplash.com/photo-1501504905252-473c47e087f8?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button>
+                        </div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-code"></i> Programming</div>
+                        <h3>Complete Course Bundle Collection</h3>
+                        <div class="course-meta"><span><i class="fas fa-layer-group"></i> Bundle</span><span><i class="fas fa-signal"></i> All Levels</span></div>
+                        <div class="course-footer">
+                            <div class="course-price"><span class="price-old">&#8377;499</span><span class="price-new">&#8377;199</span></div>
+                            <div class="course-rating"><i class="fas fa-star"></i><span>4.7 (2.8k)</span></div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer" id="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <a href="#" class="footer-logo"><i class="fas fa-graduation-cap"></i><span>EduBazar</span></a>
+                    <p>Empowering millions of learners worldwide with world-class education and skills training.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="#">About Us</a></li>
+                        <li><a href="user-dashboard.html">My Dashboard</a></li>
+                        <li><a href="#">Pricing</a></li>
+                        <li><a href="#">Blog</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Categories</h4>
+                    <ul>
+                        <li><a href="#courses">Hacking Courses</a></li>
+                        <li><a href="#courses">Programming Courses</a></li>
+                        <li><a href="#courses">Trading Courses</a></li>
+                        <li><a href="#courses">Digital Books</a></li>
+                        <li><a href="#courses">Design Courses</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Contact Info</h4>
+                    <ul class="contact-info">
+                        <li><i class="fas fa-map-marker-alt"></i> 123 Education St, NYC</li>
+                        <li><i class="fas fa-phone"></i> +1 (555) 123-4567</li>
+                        <li><i class="fas fa-envelope"></i> edubazarshop@gmail.com</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 EduBazar.shop. All rights reserved.</p>
+                <div class="footer-links">
+                    <a href="#">Privacy Policy</a>
+                    <a href="#">Terms of Service</a>
+                    <a href="#">Refund Policy</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Back to Top -->
+    <button class="back-to-top" id="backToTop"><i class="fas fa-arrow-up"></i></button>
+
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

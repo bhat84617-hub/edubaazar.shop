@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduBazar.shop - Trading Courses</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="preloader" id="preloader">
+        <div class="preloader-inner">
+            <div class="preloader-spinner"></div>
+            <p style="color:#6c5ce7;font-weight:600;margin-top:15px">Loading EduBazar...</p>
+        </div>
+    </div>
+    <div class="cursor"></div>
+    <div class="cursor-follower"></div>
+    <div class="toast-container" id="toastContainer"></div>
+
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo"><i class="fas fa-graduation-cap"></i><span>EduBazar</span></a>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li class="nav-dropdown">
+                    <a href="#">Courses <i class="fas fa-chevron-down"></i></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="hacking.html"><i class="fas fa-user-secret"></i> Hacking</a></li>
+                        <li><a href="programming.html"><i class="fas fa-code"></i> Programming</a></li>
+                        <li><a href="trading.html"><i class="fas fa-chart-line"></i> Trading</a></li>
+                        <li><a href="books.html"><i class="fas fa-book-open"></i> Books</a></li>
+                        <li><a href="tools.html"><i class="fas fa-wrench"></i> Software & Tools</a></li>
+                    </ul>
+                </li>
+            </ul>
+            <div class="nav-buttons">
+                <button class="btn-cart" id="cartBtn"><i class="fas fa-shopping-cart"></i><span class="cart-count" id="cartCount">0</span></button>
+            </div>
+            <div class="hamburger" id="hamburger"><span></span><span></span><span></span></div>
+        </div>
+    </nav>
+
+    <div class="cart-overlay" id="cartOverlay"></div>
+    <div class="cart-sidebar" id="cartSidebar">
+        <div class="cart-header">
+            <h3><i class="fas fa-shopping-cart"></i> Your Cart</h3>
+            <button class="cart-close" id="cartClose"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="cart-items" id="cartItems">
+            <div class="cart-empty"><i class="fas fa-shopping-basket"></i><p>Your cart is empty</p></div>
+        </div>
+        <div class="cart-footer" id="cartFooter" style="display:none;">
+            <div class="cart-total"><span>Total:</span><span id="cartTotal">₹0</span></div>
+            <button class="btn-checkout" id="checkoutBtn"><i class="fas fa-lock"></i> Proceed to Checkout</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="checkoutModal">
+        <div class="modal checkout-modal">
+            <button class="modal-close" id="checkoutClose"><i class="fas fa-times"></i></button>
+            <div class="checkout-steps">
+                <div class="step active" data-step="1"><span>1</span> Details</div>
+                <div class="step" data-step="2"><span>2</span> Payment</div>
+                <div class="step" data-step="3"><span>3</span> Done</div>
+            </div>
+            <div class="checkout-step-content active" id="step1">
+                <h3>Your Details</h3>
+                <form id="checkoutForm">
+                    <div class="form-group"><label>Full Name</label><input type="text" id="custName" placeholder="John Doe" required></div>
+                    <div class="form-group"><label>Email Address</label><input type="email" id="custEmail" placeholder="john@example.com" required></div>
+                    <div class="form-group"><label>Phone Number</label><input type="tel" id="custPhone" placeholder="+91 98765 43210" required></div>
+                    <button type="submit" class="btn-primary btn-full"><span>Continue to Payment</span><i class="fas fa-arrow-right"></i></button>
+                </form>
+            </div>
+            <div class="checkout-step-content" id="step2">
+                <h3>Payment Method</h3>
+                <div class="payment-methods">
+                    <label class="payment-option active"><input type="radio" name="payment" value="upi" checked><div class="payment-card"><i class="fas fa-mobile-alt"></i><span>UPI / GPay / PhonePe</span></div></label>
+                    <label class="payment-option"><input type="radio" name="payment" value="card"><div class="payment-card"><i class="fas fa-credit-card"></i><span>Credit / Debit Card</span></div></label>
+                    <label class="payment-option"><input type="radio" name="payment" value="netbanking"><div class="payment-card"><i class="fas fa-university"></i><span>Net Banking</span></div></label>
+                </div>
+                <div class="payment-summary">
+                    <div class="summary-row"><span>Subtotal</span><span id="summarySubtotal">₹0</span></div>
+                    <div class="summary-row"><span>Discount</span><span class="text-green">-₹0</span></div>
+                    <div class="summary-row total"><span>Total</span><span id="summaryTotal">₹0</span></div>
+                </div>
+                <button class="btn-primary btn-full" id="payBtn"><i class="fas fa-lock"></i> Pay Now</button>
+            </div>
+            <div class="checkout-step-content" id="step3">
+                <div class="success-animation">
+                    <div class="success-circle">
+                        <svg class="checkmark" viewBox="0 0 52 52"><circle class="checkmark-circle" cx="26" cy="26" r="25" fill="none"/><path class="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/></svg>
+                    </div>
+                    <h2>Payment Successful!</h2>
+                    <p>Order ID: <strong id="orderIdDisplay"></strong></p>
+                    <p class="text-gray">A confirmation email has been sent to <strong id="emailDisplay"></strong></p>
+                    <div class="success-actions">
+                        <a href="user-dashboard.html" class="btn-primary"><i class="fas fa-tachometer-alt"></i> Go to Dashboard</a>
+                        <button class="btn-secondary" id="continueShopping">Continue Shopping</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="previewModal">
+        <div class="modal preview-modal">
+            <button class="modal-close" id="previewClose"><i class="fas fa-times"></i></button>
+            <div class="preview-content" id="previewContent"></div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="upiModal">
+        <div class="modal upi-modal">
+            <button class="modal-close" id="upiClose"><i class="fas fa-times"></i></button>
+            <div class="upi-content">
+                <h3><i class="fas fa-shield-alt"></i> Complete Payment</h3>
+                <p class="upi-amount">Amount: <strong id="upiAmount">₹0</strong></p>
+                <div class="upi-tabs">
+                    <button class="upi-tab active" data-tab="qr"><i class="fas fa-qrcode"></i> QR Code</button>
+                    <button class="upi-tab" data-tab="upid"><i class="fas fa-copy"></i> UPI ID</button>
+                    <button class="upi-tab" data-tab="link"><i class="fas fa-link"></i> Payment Link</button>
+                </div>
+                <div class="upi-tab-content active" id="tabQr">
+                    <div class="qr-container"><div class="qr-box" id="qrCode"></div><p>Scan with any UPI app</p><div class="upi-apps"><span><i class="fab fa-google-pay"></i> GPay</span><span><i class="fas fa-mobile-alt"></i> PhonePe</span><span><i class="fas fa-wallet"></i> Paytm</span></div></div>
+                </div>
+                <div class="upi-tab-content" id="tabUpiId">
+                    <div class="upi-id-box"><label>Send payment to this UPI ID:</label><div class="upi-copy-row"><input type="text" value="edubazar@upi" id="upiIdField" readonly><button class="btn-copy" onclick="copyUpiId()"><i class="fas fa-copy"></i> Copy</button></div></div>
+                </div>
+                <div class="upi-tab-content" id="tabLink">
+                    <div class="upi-id-box"><label>Or click the link to pay:</label><a href="#" class="payment-link" id="paymentLink" onclick="return false;"><i class="fas fa-external-link-alt"></i> Click to Pay</a></div>
+                </div>
+                <div class="payment-timer"><i class="fas fa-clock"></i> Payment expires in: <strong id="paymentTimer">15:00</strong></div>
+                <button class="btn-primary btn-full" id="confirmPayment"><i class="fas fa-check-circle"></i> I've Completed Payment</button>
+                <p class="upi-note">After payment, your download link will be generated automatically.</p>
+            </div>
+        </div>
+    </div>
+
+    <section class="hero" id="home" style="min-height:35vh;padding-top:120px">
+        <div class="hero-bg-shapes"><div class="shape shape-1"></div><div class="shape shape-2"></div></div>
+        <div class="container" style="text-align:center;position:relative;z-index:1">
+            <span class="hero-badge"><i class="fas fa-chart-line"></i> Trading</span>
+            <h1 style="font-size:2.5rem;font-weight:800;margin:15px 0">Trading <span class="gradient-text">Courses</span></h1>
+            <p style="color:#636e72;max-width:600px;margin:0 auto">Master stock markets, crypto, forex & build profitable strategies</p>
+        </div>
+    </section>
+
+    <section class="courses-section" id="courses">
+        <div class="container">
+            <div class="section-header" data-aos="fade-up">
+                <span class="section-tag">Trading Courses</span>
+                <h2>Explore <span class="gradient-text">Trading</span> Courses</h2>
+                <p>Learn technical analysis and build winning trading strategies</p>
+            </div>
+            <div class="courses-filter" data-aos="fade-up">
+                <a href="index.html" class="filter-btn">All Courses</a>
+                <a href="hacking.html" class="filter-btn">Hacking</a>
+                <a href="programming.html" class="filter-btn">Programming</a>
+                <a href="trading.html" class="filter-btn active">Trading</a>
+                <a href="books.html" class="filter-btn">Books</a>
+                <a href="tools.html" class="filter-btn">Tools</a>
+            </div>
+            <div class="courses-grid" id="coursesGrid">
+                <div class="course-card" data-aos="fade-up" data-category="trading" data-id="t1" data-name="Stock Market Mastery" data-price="0" data-old="0">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=400&h=250&fit=crop" alt="Trading">
+                        <span class="course-badge hot">Hot</span>
+                        <div class="course-overlay"><button class="btn-preview"><i class="fas fa-eye"></i></button><button class="btn-add-cart" data-id="t1" data-name="Stock Market Mastery" data-price="0" data-img="https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button></div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-chart-line"></i> Trading</div>
+                        <h3>Stock Market Mastery: Zero to Pro</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> 38 hours</span><span><i class="fas fa-signal"></i> All Levels</span></div>
+                        <div class="course-footer"><div class="course-price"><span class="price-old" style="display:none">&#8377;0</span><span class="price-new" style="color:#10b981;font-weight:bold">FREE</span></div><div class="course-rating"><i class="fas fa-star"></i><span>4.7 (2.8k)</span></div></div>
+                    </div>
+                </div>
+                <div class="course-card" data-aos="fade-up" data-category="trading" data-id="t2" data-name="Crypto Trading Pro" data-price="249" data-old="599">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1621761191319-c6fb62004040?w=400&h=250&fit=crop" alt="Crypto">
+                        <span class="course-badge bestseller">Bestseller</span>
+                        <div class="course-overlay"><button class="btn-preview"><i class="fas fa-eye"></i></button><button class="btn-add-cart" data-id="t2" data-name="Crypto Trading Pro" data-price="249" data-img="https://images.unsplash.com/photo-1621761191319-c6fb62004040?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button></div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-chart-line"></i> Trading</div>
+                        <h3>Crypto Trading Pro: Bitcoin & Altcoins</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> 30 hours</span><span><i class="fas fa-signal"></i> Intermediate</span></div>
+                        <div class="course-footer"><div class="course-price"><span class="price-old">&#8377;599</span><span class="price-new">&#8377;249</span></div><div class="course-rating"><i class="fas fa-star"></i><span>4.8 (3.5k)</span></div></div>
+                    </div>
+                </div>
+                <div class="course-card" data-aos="fade-up" data-category="trading" data-id="t3" data-name="Forex Trading Course" data-price="199" data-old="499">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1535320903710-d993d3d77d29?w=400&h=250&fit=crop" alt="Forex">
+                        <div class="course-overlay"><button class="btn-preview"><i class="fas fa-eye"></i></button><button class="btn-add-cart" data-id="t3" data-name="Forex Trading Course" data-price="199" data-img="https://images.unsplash.com/photo-1535320903710-d993d3d77d29?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button></div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-chart-line"></i> Trading</div>
+                        <h3>Forex Trading: Complete Beginners Guide</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> 25 hours</span><span><i class="fas fa-signal"></i> Beginner</span></div>
+                        <div class="course-footer"><div class="course-price"><span class="price-old">&#8377;499</span><span class="price-new">&#8377;199</span></div><div class="course-rating"><i class="fas fa-star"></i><span>4.6 (1.9k)</span></div></div>
+                    </div>
+                </div>
+                <div class="course-card" data-aos="fade-up" data-category="trading" data-id="t4" data-name="Complete Stock Market Course" data-price="249" data-old="599">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=400&h=250&fit=crop" alt="Stock Market">
+                        <span class="course-badge bestseller">Bestseller</span>
+                        <div class="course-overlay"><button class="btn-preview"><i class="fas fa-eye"></i></button><button class="btn-add-cart" data-id="t4" data-name="Complete Stock Market Course" data-price="249" data-img="https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button></div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-chart-line"></i> Trading</div>
+                        <h3>Complete Stock Market Course</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> 32 hours</span><span><i class="fas fa-signal"></i> All Levels</span></div>
+                        <div class="course-footer"><div class="course-price"><span class="price-old">&#8377;599</span><span class="price-new">&#8377;249</span></div><div class="course-rating"><i class="fas fa-star"></i><span>4.7 (3.4k)</span></div></div>
+                    </div>
+                </div>
+                <div class="course-card" data-aos="fade-up" data-category="trading" data-id="t6" data-name="Complete Stock Market" data-price="249" data-old="599">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=400&h=250&fit=crop" alt="Complete Stock Market Course">
+                        <span class="course-badge new">New</span>
+                        <div class="course-overlay"><button class="btn-preview"><i class="fas fa-eye"></i></button><button class="btn-add-cart" data-id="t6" data-name="Complete Stock Market" data-price="249" data-img="https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button></div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-chart-line"></i> Trading</div>
+                        <h3>Complete Stock Market Course</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> 30 hours</span><span><i class="fas fa-signal"></i> All Levels</span></div>
+                        <div class="course-footer"><div class="course-price"><span class="price-old">&#8377;599</span><span class="price-new">&#8377;249</span></div><div class="course-rating"><i class="fas fa-star"></i><span>4.6 (2.8k)</span></div></div>
+                    </div>
+                </div>
+                <div class="course-card" data-aos="fade-up" data-category="trading" data-id="t7" data-name="Stock Market Zero to Pro" data-price="299" data-old="699">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=400&h=250&fit=crop" alt="Stock Market Zero to Pro">
+                        <span class="course-badge bestseller">Bestseller</span>
+                        <div class="course-overlay"><button class="btn-preview"><i class="fas fa-eye"></i></button><button class="btn-add-cart" data-id="t7" data-name="Stock Market Zero to Pro" data-price="299" data-img="https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button></div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-chart-line"></i> Trading</div>
+                        <h3>Stock Market Zero to Pro Course</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> 35 hours</span><span><i class="fas fa-signal"></i> All Levels</span></div>
+                        <div class="course-footer"><div class="course-price"><span class="price-old">&#8377;699</span><span class="price-new">&#8377;299</span></div><div class="course-rating"><i class="fas fa-star"></i><span>4.7 (3.2k)</span></div></div>
+                    </div>
+                </div>
+                <div class="course-card" data-aos="fade-up" data-category="trading" data-id="t8" data-name="Trend Trader PRO" data-price="0" data-old="0">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=400&h=250&fit=crop" alt="Trend Trader PRO Suite 2023">
+                        <span class="course-badge hot">Hot</span>
+                        <div class="course-overlay"><button class="btn-preview"><i class="fas fa-eye"></i></button><button class="btn-add-cart" data-id="t8" data-name="Trend Trader PRO" data-price="0" data-img="https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button></div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-wrench"></i> Software & Tools</div>
+                        <h3>Trend Trader PRO Suite 2023</h3>
+                        <div class="course-meta"><span><i class="fas fa-wrench"></i> Tool</span><span><i class="fas fa-signal"></i> Advanced</span></div>
+                        <div class="course-footer"><div class="course-price"><span class="price-old" style="display:none">&#8377;0</span><span class="price-new" style="color:#10b981;font-weight:bold">FREE</span></div><div class="course-rating"><i class="fas fa-star"></i><span>4.7 (950)</span></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer" id="footer" style="padding:40px 0">
+        <div class="container">
+            <div class="footer-bottom" style="border-top:none;padding-top:0">
+                <p>&copy; 2024 EduBazar.shop. All rights reserved.</p>
+                <div class="footer-links"><a href="index.html">Back to Home</a></div>
+            </div>
+        </div>
+    </footer>
+
+    <button class="back-to-top" id="backToTop"><i class="fas fa-arrow-up"></i></button>
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
