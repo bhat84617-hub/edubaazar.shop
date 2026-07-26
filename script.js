@@ -617,11 +617,29 @@ backToTop.addEventListener('click', () => { window.scrollTo({ top: 0, behavior: 
 // ==================== MOBILE MENU ====================
 const hamburger = document.getElementById('hamburger');
 const navLinksEl = document.querySelector('.nav-links');
+const mobileCloseBtn = document.getElementById('mobileClose');
+
+function closeMobileMenu() {
+    hamburger.classList.remove('active');
+    navLinksEl.classList.remove('mobile-active');
+    document.body.style.overflow = '';
+}
+
 if (hamburger && navLinksEl) {
     hamburger.addEventListener('click', () => {
-        hamburger.classList.toggle('active');
-        navLinksEl.classList.toggle('mobile-active');
+        const isOpen = navLinksEl.classList.contains('mobile-active');
+        if (isOpen) {
+            closeMobileMenu();
+        } else {
+            hamburger.classList.add('active');
+            navLinksEl.classList.add('mobile-active');
+            document.body.style.overflow = 'hidden';
+        }
     });
+}
+
+if (mobileCloseBtn) {
+    mobileCloseBtn.addEventListener('click', closeMobileMenu);
 }
 
 // ==================== SCROLL REVEAL ====================
