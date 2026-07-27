@@ -6,7 +6,7 @@
     <title>EduBazar.shop - Hacking Courses</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
     <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css">
@@ -19,31 +19,49 @@
             <p style="color:#6c5ce7;font-weight:600;margin-top:15px">Loading EduBazar...</p>
         </div>
     </div>
-    <div class="cursor"></div>
-    <div class="cursor-follower"></div>
     <div class="toast-container" id="toastContainer"></div>
 
-    <nav class="navbar" id="navbar">
-        <div class="nav-container">
+    <header class="header" id="header">
+        <div class="container">
             <a href="index.html" class="logo"><i class="fas fa-graduation-cap"></i><span>EduBazar</span></a>
-            <ul class="nav-links">
-                <button class="mobile-close" id="mobileClose"><i class="fas fa-times"></i></button>
-                <li><a href="index.html">Home</a></li>
-                <li class="nav-dropdown">
-                    <a href="#">Courses <i class="fas fa-chevron-down"></i></a>
-                    <ul class="dropdown-menu">
-                        <li><a href="hacking.html"><i class="fas fa-user-secret"></i> Hacking</a></li>
-                        <li><a href="programming.html"><i class="fas fa-code"></i> Programming</a></li>
-                        <li><a href="trading.html"><i class="fas fa-chart-line"></i> Trading</a></li>
-                        <li><a href="books.html"><i class="fas fa-book-open"></i> Books</a></li>
-                        <li><a href="tools.html"><i class="fas fa-wrench"></i> Software & Tools</a></li>
-                    </ul>
-                </li>
-            </ul>
-            <div class="nav-buttons">
+            <div class="search-bar">
+                <input type="text" id="searchInput" placeholder="Search courses...">
+                <button onclick="searchCourses()"><i class="fas fa-search"></i></button>
+            </div>
+            <div id="searchResults" class="search-results"></div>
+            <div class="header-actions">
                 <button class="btn-cart" id="cartBtn"><i class="fas fa-shopping-cart"></i><span class="cart-count" id="cartCount">0</span></button>
             </div>
             <div class="hamburger" id="hamburger"><span></span><span></span><span></span></div>
+        </div>
+    </header>
+
+    <div class="mobile-nav" id="mobileNav"></div>
+    <div class="mobile-menu" id="mobileMenu">
+        <div class="mobile-menu-header">
+            <h3>EduBazar</h3>
+            <button class="mobile-close" id="mobileClose"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="mobile-menu-links">
+            <a href="index.html"><i class="fas fa-home"></i> Home</a>
+            <button class="mobile-menu-toggle">Courses <i class="fas fa-chevron-down"></i></button>
+            <div class="mobile-sub-links">
+                <a href="hacking.html">Hacking</a>
+                <a href="programming.html">Programming</a>
+                <a href="trading.html">Trading</a>
+                <a href="books.html">Books</a>
+                <a href="tools.html">Software & Tools</a>
+            </div>
+        </div>
+    </div>
+
+    <nav class="cat-nav">
+        <div class="container">
+            <a href="hacking.html" class="cat-nav-btn active" data-filter="hacking">Hacking</a>
+            <a href="programming.html" class="cat-nav-btn" data-filter="programming">Programming</a>
+            <a href="trading.html" class="cat-nav-btn" data-filter="trading">Trading</a>
+            <a href="books.html" class="cat-nav-btn" data-filter="books">Books</a>
+            <a href="tools.html" class="cat-nav-btn" data-filter="tools">Software & Tools</a>
         </div>
     </nav>
 
@@ -144,29 +162,39 @@
         </div>
     </div>
 
-    <section class="hero" id="home" style="min-height:35vh;padding-top:120px">
+    <section class="hero" id="home">
         <div class="hero-bg-shapes"><div class="shape shape-1"></div><div class="shape shape-2"></div></div>
-        <div class="container" style="text-align:center;position:relative;z-index:1">
-            <span class="hero-badge"><i class="fas fa-user-secret"></i> Hacking</span>
-            <h1 style="font-size:2.5rem;font-weight:800;margin:15px 0">Ethical Hacking <span class="gradient-text">Courses</span></h1>
-            <p style="color:#636e72;max-width:600px;margin:0 auto">Master penetration testing, network security & cybersecurity</p>
+        <div class="container">
+            <div class="hero-content">
+                <span class="section-tag">Hacking Courses</span>
+                <h1>Ethical Hacking <span class="gradient-text">Courses</span></h1>
+                <p>Master penetration testing, network security & cybersecurity with 28+ expert-led courses</p>
+                <div class="hero-buttons">
+                    <a href="#courses" class="btn-primary"><i class="fas fa-play-circle"></i> Browse Courses</a>
+                </div>
+            </div>
+            <div class="hero-stats">
+                <div class="hero-stat"><h3>28+</h3><p>Courses</p></div>
+                <div class="hero-stat"><h3>15K+</h3><p>Students</p></div>
+                <div class="hero-stat"><h3>4.8</h3><p>Rating</p></div>
+            </div>
         </div>
     </section>
 
-    <section class="courses-section" id="courses">
+    <section class="section" id="courses">
         <div class="container">
             <div class="section-header" data-aos="fade-up">
                 <span class="section-tag">Hacking Courses</span>
                 <h2>Explore <span class="gradient-text">Hacking</span> Courses</h2>
                 <p>Become a certified ethical hacker with our comprehensive courses</p>
             </div>
-            <div class="courses-filter" data-aos="fade-up">
-                <a href="index.html" class="filter-btn">All Courses</a>
+            <div class="filter-row" data-aos="fade-up">
                 <a href="hacking.html" class="filter-btn active">Hacking</a>
                 <a href="programming.html" class="filter-btn">Programming</a>
                 <a href="trading.html" class="filter-btn">Trading</a>
                 <a href="books.html" class="filter-btn">Books</a>
                 <a href="tools.html" class="filter-btn">Tools</a>
+                <a href="index.html" class="filter-btn">All Courses</a>
             </div>
             <div class="courses-grid" id="coursesGrid">
                 <div class="course-card" data-aos="fade-up" data-category="hacking" data-id="h1" data-name="Complete Ethical Hacking" data-price="199" data-old="499">

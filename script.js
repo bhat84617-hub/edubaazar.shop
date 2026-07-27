@@ -478,3 +478,17 @@ if (backToTop) {
     window.addEventListener('scroll', () => { backToTop.classList.toggle('visible', window.scrollY > 500); });
     backToTop.addEventListener('click', () => { window.scrollTo({ top: 0, behavior: 'smooth' }); });
 }
+
+// ==================== HERO SLIDER ====================
+const heroSwiperEl = document.querySelector('.hero-swiper');
+if (heroSwiperEl && typeof Swiper !== 'undefined') {
+    new Swiper('.hero-swiper', {
+        loop: true,
+        autoplay: { delay: 5000, disableOnInteraction: false },
+        effect: 'fade',
+        fadeEffect: { crossFade: true },
+        speed: 800,
+        pagination: { el: '.hero-pagination', clickable: true },
+        navigation: { nextEl: '.hero-next', prevEl: '.hero-prev' }
+    });
+}

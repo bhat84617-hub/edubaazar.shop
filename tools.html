@@ -6,7 +6,7 @@
     <title>EduBazar.shop - Software &amp; Tools</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
     <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css">
@@ -14,17 +14,93 @@
 </head>
 <body>
     <div class="preloader" id="preloader"><div class="preloader-inner"><div class="preloader-spinner"></div><p style="color:#6c5ce7;font-weight:600;margin-top:15px">Loading EduBazar...</p></div></div>
-    <div class="cursor"></div><div class="cursor-follower"></div><div class="toast-container" id="toastContainer"></div>
-    <nav class="navbar" id="navbar"><div class="nav-container"><a href="index.html" class="logo"><i class="fas fa-graduation-cap"></i><span>EduBazar</span></a><ul class="nav-links"><button class="mobile-close" id="mobileClose"><i class="fas fa-times"></i></button><li><a href="index.html">Home</a></li><li class="nav-dropdown"><a href="#">Courses <i class="fas fa-chevron-down"></i></a><ul class="dropdown-menu"><li><a href="hacking.html"><i class="fas fa-user-secret"></i> Hacking</a></li><li><a href="programming.html"><i class="fas fa-code"></i> Programming</a></li><li><a href="trading.html"><i class="fas fa-chart-line"></i> Trading</a></li><li><a href="books.html"><i class="fas fa-book-open"></i> Books</a></li><li><a href="tools.html"><i class="fas fa-wrench"></i> Software &amp; Tools</a></li></ul></li></ul><div class="nav-buttons"><button class="btn-cart" id="cartBtn"><i class="fas fa-shopping-cart"></i><span class="cart-count" id="cartCount">0</span></button></div><div class="hamburger" id="hamburger"><span></span><span></span><span></span></div></div></nav>
+    <div class="toast-container" id="toastContainer"></div>
+
+    <header class="header" id="header">
+        <div class="container">
+            <a href="index.html" class="logo"><i class="fas fa-graduation-cap"></i><span>EduBazar</span></a>
+            <div class="search-bar">
+                <input type="text" id="searchInput" placeholder="Search courses...">
+                <button onclick="searchCourses()"><i class="fas fa-search"></i></button>
+            </div>
+            <div id="searchResults" class="search-results"></div>
+            <div class="header-actions">
+                <button class="btn-cart" id="cartBtn"><i class="fas fa-shopping-cart"></i><span class="cart-count" id="cartCount">0</span></button>
+            </div>
+            <div class="hamburger" id="hamburger"><span></span><span></span><span></span></div>
+        </div>
+    </header>
+
+    <div class="mobile-nav" id="mobileNav"></div>
+    <div class="mobile-menu" id="mobileMenu">
+        <div class="mobile-menu-header">
+            <h3>EduBazar</h3>
+            <button class="mobile-close" id="mobileClose"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="mobile-menu-links">
+            <a href="index.html"><i class="fas fa-home"></i> Home</a>
+            <button class="mobile-menu-toggle">Courses <i class="fas fa-chevron-down"></i></button>
+            <div class="mobile-sub-links">
+                <a href="hacking.html">Hacking</a>
+                <a href="programming.html">Programming</a>
+                <a href="trading.html">Trading</a>
+                <a href="books.html">Books</a>
+                <a href="tools.html">Software & Tools</a>
+            </div>
+        </div>
+    </div>
+
+    <nav class="cat-nav">
+        <div class="container">
+            <a href="hacking.html" class="cat-nav-btn" data-filter="hacking">Hacking</a>
+            <a href="programming.html" class="cat-nav-btn" data-filter="programming">Programming</a>
+            <a href="trading.html" class="cat-nav-btn" data-filter="trading">Trading</a>
+            <a href="books.html" class="cat-nav-btn" data-filter="books">Books</a>
+            <a href="tools.html" class="cat-nav-btn active" data-filter="tools">Software & Tools</a>
+        </div>
+    </nav>
+
     <div class="cart-overlay" id="cartOverlay"></div>
     <div class="cart-sidebar" id="cartSidebar"><div class="cart-header"><h3><i class="fas fa-shopping-cart"></i> Your Cart</h3><button class="cart-close" id="cartClose"><i class="fas fa-times"></i></button></div><div class="cart-items" id="cartItems"><div class="cart-empty"><i class="fas fa-shopping-basket"></i><p>Your cart is empty</p></div></div><div class="cart-footer" id="cartFooter" style="display:none;"><div class="cart-total"><span>Total:</span><span id="cartTotal">&#8377;0</span></div><button class="btn-checkout" id="checkoutBtn"><i class="fas fa-lock"></i> Proceed to Checkout</button></div></div>
-    <div class="modal-overlay" id="checkoutModal"><div class="modal checkout-modal"><button class="modal-close" id="checkoutClose"><i class="fas fa-times"></i></button><div class="checkout-steps"><div class="step active" data-step="1"><span>1</span> Details</div><div class="step" data-step="2"><span>2</span> Payment</div><div class="step" data-step="3"><span>3</span> Done</div></div><div class="checkout-step-content active" id="step1"><h3>Your Details</h3><form id="checkoutForm"><div class="form-group"><label>Full Name</label><input type="text" id="custName" placeholder="John Doe" required></div><div class="form-group"><label>Email Address</label><input type="email" id="custEmail" placeholder="john@example.com" required></div><div class="form-group"><label>Phone Number</label><input type="tel" id="custPhone" placeholder="+91 98765 43210" required></div><button type="submit" class="btn-primary btn-full"><span>Continue to Payment</span><i class="fas fa-arrow-right"></i></button></form></div><div class="checkout-step-content" id="step2"><h3>Payment Method</h3><div class="payment-methods"><label class="payment-option active"><input type="radio" name="payment" value="upi" checked><div class="payment-card"><i class="fas fa-mobile-alt"></i><span>UPI / GPay / PhonePe</span></div></label><label class="payment-option"><input type="radio" name="payment" value="card"><div class="payment-card"><i class="fas fa-credit-card"></i><span>Credit / Debit Card</span></div></label><label class="payment-option"><input type="radio" name="payment" value="netbanking"><div class="payment-card"><i class="fas fa-university"></i><span>Net Banking</span></div></label></div><div class="payment-summary"><div class="summary-row"><span>Subtotal</span><span id="summarySubtotal">&#8377;0</span></div><div class="summary-row"><span>Discount</span><span class="text-green">-&#8377;0</span></div><div class="summary-row total"><span>Total</span><span id="summaryTotal">&#8377;0</span></div></div><button class="btn-primary btn-full" id="payBtn"><i class="fas fa-lock"></i> Pay Now</button></div><div class="checkout-step-content" id="step3"><div class="success-animation"><div class="success-circle"><svg class="checkmark" viewBox="0 0 52 52"><circle class="checkmark-circle" cx="26" cy="26" r="25" fill="none"/><path class="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/></svg></div><h2>Payment Successful!</h2><p>Order ID: <strong id="orderIdDisplay"></strong></p><p class="text-gray">A confirmation email has been sent to <strong id="emailDisplay"></strong></p><div class="success-actions"><a href="user-dashboard.html" class="btn-primary"><i class="fas fa-tachometer-alt"></i> Go to Dashboard</a><button class="btn-secondary" id="continueShopping">Continue Shopping</button></div></div></div></div></div>
+    <div class="modal-overlay" id="checkoutModal"><div class="modal checkout-modal"><button class="modal-close" id="checkoutClose"><i class="fas fa-times"></i></button><div class="checkout-steps"><div class="step active" data-step="1"><span>1</span> Details</div><div class="step" data-step="2"><span>2</span> Payment</div><div class="step" data-step="3"><span>3</span> Done</div></div><div class="checkout-step-content active" id="step1"><h3>Your Details</h3><form id="checkoutForm"><div class="form-group"><label>Full Name</label><input type="text" id="custName" placeholder="John Doe" required></div><div class="form-group"><label>Email Address</label><input type="email" id="custEmail" placeholder="john@example.com" required></div><div class="form-group"><label>Phone Number</label><input type="tel" id="custPhone" placeholder="+91 98765 43210" required></div><button type="submit" class="btn-primary btn-full"><span>Continue to Payment</span><i class="fas fa-arrow-right"></i></button></form></div><div class="checkout-step-content" id="step2"><h3>Payment Method</h3><div class="payment-methods"><label class="payment-option active"><input type="radio" name="payment" value="upi" checked><div class="payment-card"><i class="fas fa-mobile-alt"></i><span>UPI / GPay / PhonePe</span></div></label><label class="payment-option"><input type="radio" name="payment" value="card"><div class="payment-card"><i class="fas fa-credit-card"></i><span>Credit / Debit Card</span></div></label><label class="payment-option"><input type="radio" name="payment" value="netbanking"><div class="payment-card"><i class="fas fa-university"></i><span>Net Banking</span></div></label></div><div class="payment-summary"><div class="summary-row"><span>Subtotal</span><span id="summarySubtotal">&#8377;0</span></div><div class="summary-row"><span>Discount</span><span class="text-green">-&#8377;0</span></div><div class="summary-row total"><span>Total</span><span id="summaryTotal">&#8377;0</span></div></div><button class="btn-primary btn-full" id="payNowBtn"><i class="fas fa-lock"></i> Pay Now</button></div><div class="checkout-step-content" id="step3"><div class="success-animation"><i class="fas fa-check-circle"></i></div><h3>Payment Successful!</h3><p>Check your email for download links</p><button class="btn-primary" onclick="closeCheckout()">Continue Shopping</button></div></div></div>
     <div class="modal-overlay" id="previewModal"><div class="modal preview-modal"><button class="modal-close" id="previewClose"><i class="fas fa-times"></i></button><div class="preview-content" id="previewContent"></div></div></div>
     <div class="modal-overlay" id="upiModal"><div class="modal upi-modal"><button class="modal-close" id="upiClose"><i class="fas fa-times"></i></button><div class="upi-content"><h3><i class="fas fa-shield-alt"></i> Complete Payment</h3><p class="upi-amount">Amount: <strong id="upiAmount">&#8377;0</strong></p><div class="upi-tabs"><button class="upi-tab active" data-tab="qr"><i class="fas fa-qrcode"></i> QR Code</button><button class="upi-tab" data-tab="upid"><i class="fas fa-copy"></i> UPI ID</button><button class="upi-tab" data-tab="link"><i class="fas fa-link"></i> Payment Link</button></div><div class="upi-tab-content active" id="tabQr"><div class="qr-container"><div class="qr-box" id="qrCode"></div><p>Scan with any UPI app</p><div class="upi-apps"><span><i class="fab fa-google-pay"></i> GPay</span><span><i class="fas fa-mobile-alt"></i> PhonePe</span><span><i class="fas fa-wallet"></i> Paytm</span></div></div></div><div class="upi-tab-content" id="tabUpiId"><div class="upi-id-box"><label>Send payment to this UPI ID:</label><div class="upi-copy-row"><input type="text" value="edubazar@upi" id="upiIdField" readonly><button class="btn-copy" onclick="copyUpiId()"><i class="fas fa-copy"></i> Copy</button></div></div></div><div class="upi-tab-content" id="tabLink"><div class="upi-id-box"><label>Or click the link to pay:</label><a href="#" class="payment-link" id="paymentLink" onclick="return false;"><i class="fas fa-external-link-alt"></i> Click to Pay</a></div></div><div class="payment-timer"><i class="fas fa-clock"></i> Payment expires in: <strong id="paymentTimer">15:00</strong></div><button class="btn-primary btn-full" id="confirmPayment"><i class="fas fa-check-circle"></i> I've Completed Payment</button><p class="upi-note">After payment, your download link will be generated automatically.</p></div></div></div>
-    <section class="hero" id="home" style="min-height:35vh;padding-top:120px"><div class="hero-bg-shapes"><div class="shape shape-1"></div><div class="shape shape-2"></div></div><div class="container" style="text-align:center;position:relative;z-index:1"><span class="hero-badge"><i class="fas fa-wrench"></i> Software &amp; Tools</span><h1 style="font-size:2.5rem;font-weight:800;margin:15px 0">Software &amp; <span class="gradient-text">Tools</span></h1><p style="color:#636e72;max-width:600px;margin:0 auto">RAT tools, payload generators, malware analysis &amp; trading software</p></div></section>
-    <section class="courses-section" id="courses"><div class="container"><div class="section-header" data-aos="fade-up"><span class="section-tag">Software &amp; Tools</span><h2>Explore <span class="gradient-text">Software &amp; Tools</span></h2><p>Professional hacking tools and trading software</p></div>
-    <div class="courses-filter" data-aos="fade-up"><a href="index.html" class="filter-btn">All Courses</a><a href="hacking.html" class="filter-btn">Hacking</a><a href="programming.html" class="filter-btn">Programming</a><a href="trading.html" class="filter-btn">Trading</a><a href="books.html" class="filter-btn">Books</a><a href="tools.html" class="filter-btn active">Tools</a></div>
-    <div class="courses-grid" id="coursesGrid">
+
+    <section class="hero" id="home">
+        <div class="hero-bg-shapes"><div class="shape shape-1"></div><div class="shape shape-2"></div></div>
+        <div class="container">
+            <div class="hero-content">
+                <span class="section-tag">Software & Tools</span>
+                <h1>Software & <span class="gradient-text">Tools</span></h1>
+                <p>Premium RAT tools, payload generators, malware analysis & trading software</p>
+                <div class="hero-buttons">
+                    <a href="#courses" class="btn-primary"><i class="fas fa-play-circle"></i> Browse Tools</a>
+                </div>
+            </div>
+            <div class="hero-stats">
+                <div class="hero-stat"><h3>15+</h3><p>Tools</p></div>
+                <div class="hero-stat"><h3>30K+</h3><p>Downloads</p></div>
+                <div class="hero-stat"><h3>4.7</h3><p>Rating</p></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="courses">
+        <div class="container">
+            <div class="section-header" data-aos="fade-up">
+                <span class="section-tag">Software & Tools</span>
+                <h2>Explore <span class="gradient-text">Software & Tools</span></h2>
+                <p>Professional hacking tools and trading software</p>
+            </div>
+            <div class="filter-row" data-aos="fade-up">
+                <a href="hacking.html" class="filter-btn">Hacking</a>
+                <a href="programming.html" class="filter-btn">Programming</a>
+                <a href="trading.html" class="filter-btn">Trading</a>
+                <a href="books.html" class="filter-btn">Books</a>
+                <a href="tools.html" class="filter-btn active">Tools</a>
+                <a href="index.html" class="filter-btn">All Courses</a>
+            </div>
+            <div class="courses-grid" id="coursesGrid">
         <div class="course-card" data-aos="fade-up" data-category="tools" data-id="h24" data-name="888RAT Remote Access" data-price="399" data-old="999"><div class="course-image"><img src="https://images.unsplash.com/photo-1563206767-5b18f218e8de?w=400&h=250&fit=crop" alt="888RAT"><span class="course-badge hot">Hot</span><div class="course-overlay"><button class="btn-preview"><i class="fas fa-eye"></i></button><button class="btn-add-cart" data-id="h24" data-name="888RAT Remote Access" data-price="399" data-img="https://images.unsplash.com/photo-1563206767-5b18f218e8de?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button></div></div><div class="course-content"><div class="course-category"><i class="fas fa-wrench"></i> Software &amp; Tools</div><h3>888RAT 1.1.1 Remote Access Tool</h3><div class="course-meta"><span><i class="fas fa-wrench"></i> Tool</span><span><i class="fas fa-signal"></i> Advanced</span></div><div class="course-footer"><div class="course-price"><span class="price-old">&#8377;999</span><span class="price-new">&#8377;399</span></div><div class="course-rating"><i class="fas fa-star"></i><span>4.5 (580)</span></div></div></div></div>
         <div class="course-card" data-aos="fade-up" data-category="tools" data-id="h25" data-name="AhMyth Win32 RAT" data-price="0" data-old="0"><div class="course-image"><img src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=400&h=250&fit=crop" alt="AhMyth Win32"><span class="course-badge bestseller">Bestseller</span><div class="course-overlay"><button class="btn-preview"><i class="fas fa-eye"></i></button><button class="btn-add-cart" data-id="h25" data-name="AhMyth Win32 RAT" data-price="0" data-img="https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button></div></div><div class="course-content"><div class="course-category"><i class="fas fa-wrench"></i> Software &amp; Tools</div><h3>AhMyth Win32 Hacking RAT</h3><div class="course-meta"><span><i class="fas fa-wrench"></i> Tool</span><span><i class="fas fa-signal"></i> Intermediate</span></div><div class="course-footer"><div class="course-price"><span class="price-old" style="display:none">&#8377;0</span><span class="price-new" style="color:#10b981;font-weight:bold">FREE</span></div><div class="course-rating"><i class="fas fa-star"></i><span>4.6 (780)</span></div></div></div></div>
         <div class="course-card" data-aos="fade-up" data-category="tools" data-id="h26" data-name="AhMyth Win64 RAT" data-price="0" data-old="0"><div class="course-image"><img src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=400&h=250&fit=crop" alt="AhMyth Win64"><span class="course-badge new">New</span><div class="course-overlay"><button class="btn-preview"><i class="fas fa-eye"></i></button><button class="btn-add-cart" data-id="h26" data-name="AhMyth Win64 RAT" data-price="0" data-img="https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button></div></div><div class="course-content"><div class="course-category"><i class="fas fa-wrench"></i> Software &amp; Tools</div><h3>AhMyth Win64 Hacking RAT</h3><div class="course-meta"><span><i class="fas fa-wrench"></i> Tool</span><span><i class="fas fa-signal"></i> Intermediate</span></div><div class="course-footer"><div class="course-price"><span class="price-old" style="display:none">&#8377;0</span><span class="price-new" style="color:#10b981;font-weight:bold">FREE</span></div><div class="course-rating"><i class="fas fa-star"></i><span>4.6 (720)</span></div></div></div></div>
