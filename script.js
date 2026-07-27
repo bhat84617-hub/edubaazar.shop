@@ -488,7 +488,14 @@ if (heroSwiperEl && typeof Swiper !== 'undefined') {
         effect: 'fade',
         fadeEffect: { crossFade: true },
         speed: 800,
+        touchRatio: 1,
+        simulateTouch: true,
+        allowTouchMove: true,
         pagination: { el: '.hero-pagination', clickable: true },
-        navigation: { nextEl: '.hero-next', prevEl: '.hero-prev' }
+        navigation: { nextEl: '.hero-next', prevEl: '.hero-prev' },
+        breakpoints: {
+            0: { slidesPerView: 1, spaceBetween: 0 },
+            768: { slidesPerView: 1, spaceBetween: 0 }
+        }
     });
 }
