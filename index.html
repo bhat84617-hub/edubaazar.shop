@@ -3,301 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EduBazar.shop - Learn. Grow. Succeed.</title>
+    <meta name="description" content="EduBazar.shop - Learn Hacking, Programming, Trading & more with expert courses. Premium courses at affordable prices. India's top online learning platform.">
+    <meta name="keywords" content="hacking courses, programming courses, trading courses, online education, ethical hacking, python, javascript">
+    <meta name="theme-color" content="#6366f1">
+    <title>EduBazar.shop — Learn. Grow. Succeed.</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
     <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css">
     <link rel="stylesheet" href="styles.css">
-    <style>
-        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; background: #fff; color: #333; line-height: 1.6; overflow-x: hidden; }
-        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
-        a { text-decoration: none; color: inherit; }
-        img { max-width: 100%; height: auto; }
-
-        .top-bar { background: #222; color: rgba(255,255,255,0.7); font-size: 0.78rem; padding: 7px 0; }
-        .top-bar .container { display: flex; justify-content: space-between; align-items: center; }
-        .top-bar-left { display: flex; align-items: center; gap: 6px; }
-        .top-bar-left i { color: #fbbc34; }
-        .top-bar-right { display: flex; gap: 18px; }
-        .top-bar-right a { color: rgba(255,255,255,0.7); transition: color 0.2s; font-weight: 500; }
-        .top-bar-right a:hover { color: #fff; }
-
-        .site-header { background: #fff; border-bottom: 1px solid #f0f0f0; position: sticky; top: 0; z-index: 1000; transition: box-shadow 0.3s; }
-        .site-header.scrolled { box-shadow: 0 2px 20px rgba(0,0,0,0.06); }
-        .header-inner { display: flex; align-items: center; justify-content: space-between; padding: 14px 0; gap: 24px; }
-        .header-logo { display: flex; align-items: center; gap: 10px; font-size: 1.5rem; font-weight: 800; color: #222; white-space: nowrap; }
-        .header-logo i { color: #6c5ce7; font-size: 1.7rem; }
-        .header-search { flex: 1; max-width: 520px; position: relative; }
-        .header-search input { width: 100%; padding: 11px 48px 11px 18px; border: 2px solid #e8e8e8; border-radius: 8px; font-size: 0.9rem; font-family: 'Inter', sans-serif; transition: border-color 0.3s; background: #fafafa; }
-        .header-search input:focus { border-color: #6c5ce7; outline: none; background: #fff; }
-        .header-search button { position: absolute; right: 4px; top: 50%; transform: translateY(-50%); background: #6c5ce7; color: #fff; border: none; width: 38px; height: 38px; border-radius: 6px; cursor: pointer; font-size: 0.9rem; transition: background 0.3s; }
-        .header-search button:hover { background: #5a4bd1; }
-        .search-results { position: absolute; top: 100%; left: 0; right: 0; background: #fff; border: 1px solid #e8e8e8; border-radius: 8px; box-shadow: 0 8px 30px rgba(0,0,0,0.12); z-index: 100; display: none; max-height: 400px; overflow-y: auto; margin-top: 4px; }
-        .search-results.active { display: block; }
-        .header-actions { display: flex; align-items: center; gap: 14px; }
-        .header-cart { position: relative; background: none; border: none; cursor: pointer; font-size: 1.3rem; color: #333; padding: 8px; transition: color 0.3s; }
-        .header-cart:hover { color: #6c5ce7; }
-        .header-cart .cart-count { position: absolute; top: 0; right: 0; background: #e74c3c; color: #fff; font-size: 0.65rem; font-weight: 700; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
-        .hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 8px; background: none; border: none; }
-        .hamburger span { display: block; width: 24px; height: 2px; background: #333; border-radius: 2px; transition: all 0.3s; }
-
-        .cat-nav { background: #fff; border-bottom: 1px solid #f0f0f0; overflow-x: auto; }
-        .cat-nav .container { display: flex; gap: 0; }
-        .cat-nav-btn { padding: 14px 22px; font-size: 0.88rem; font-weight: 600; color: #666; border-bottom: 3px solid transparent; transition: all 0.3s; white-space: nowrap; }
-        .cat-nav-btn:hover { color: #333; }
-        .cat-nav-btn.active { color: #6c5ce7; border-bottom-color: #6c5ce7; }
-
-        .mobile-nav { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 9998; opacity: 0; visibility: hidden; transition: all 0.3s; backdrop-filter: blur(4px); }
-        .mobile-nav.active { opacity: 1; visibility: visible; }
-        .mobile-menu { position: fixed; top: 0; right: -320px; width: 300px; height: 100vh; background: #fff; z-index: 9999; transition: right 0.3s ease; overflow-y: auto; box-shadow: -5px 0 30px rgba(0,0,0,0.1); }
-        .mobile-menu.active { right: 0; }
-        .mobile-menu-header { display: flex; align-items: center; justify-content: space-between; padding: 20px; border-bottom: 1px solid #f0f0f0; }
-        .mobile-menu-header h3 { font-size: 1.1rem; font-weight: 700; color: #222; }
-        .mobile-close { width: 36px; height: 36px; border-radius: 50%; background: #f5f5f5; display: flex; align-items: center; justify-content: center; font-size: 1rem; transition: background 0.3s; border: none; cursor: pointer; color: #333; }
-        .mobile-close:hover { background: #eee; }
-        .mobile-menu-links { padding: 10px 0; }
-        .mobile-menu-links a { display: block; padding: 13px 20px; font-size: 0.95rem; font-weight: 600; color: #333; border-bottom: 1px solid #f5f5f5; transition: all 0.3s; }
-        .mobile-menu-links a:hover { color: #6c5ce7; background: #fafafa; }
-        .mobile-menu-toggle { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 13px 20px; font-size: 0.95rem; font-weight: 600; color: #333; border-bottom: 1px solid #f5f5f5; background: none; border-left: none; border-right: none; border-top: none; cursor: pointer; font-family: 'Inter', sans-serif; }
-        .mobile-menu-toggle i { font-size: 12px; transition: transform 0.3s; }
-        .mobile-menu-toggle.active i { transform: rotate(180deg); }
-        .mobile-sub-links { padding-left: 20px; display: none; }
-        .mobile-sub-links.active { display: block; }
-        .mobile-sub-links a { font-weight: 400 !important; font-size: 0.88rem !important; color: #666 !important; padding: 11px 20px !important; }
-
-        .hero-slider { position: relative; }
-        .hero-swiper { width: 100%; }
-        .hero-slide { min-height: 520px; display: flex; align-items: center; padding: 60px 0; }
-        .hero-slide-content { max-width: 650px; color: #fff; }
-        .hero-badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 16px; border-radius: 50px; background: #e74c3c; color: #fff; font-size: 0.78rem; font-weight: 700; margin-bottom: 20px; letter-spacing: 0.3px; }
-        .hero-slide-content h1 { font-size: 3.2rem; font-weight: 800; line-height: 1.12; margin-bottom: 16px; }
-        .hero-slide-content p { font-size: 1.05rem; opacity: 0.9; margin-bottom: 28px; line-height: 1.7; max-width: 500px; }
-        .hero-slide-btns { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 36px; }
-        .btn-hero-primary { display: inline-flex; align-items: center; gap: 8px; padding: 14px 32px; border-radius: 50px; background: #e74c3c; color: #fff; font-weight: 700; font-size: 0.95rem; transition: transform 0.3s, box-shadow 0.3s; }
-        .btn-hero-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,0,0,0.25); }
-        .btn-hero-outline { display: inline-flex; align-items: center; gap: 8px; padding: 14px 32px; border-radius: 50px; border: 2px solid rgba(255,255,255,0.4); color: #fff; font-weight: 700; font-size: 0.95rem; transition: all 0.3s; }
-        .btn-hero-outline:hover { background: rgba(255,255,255,0.1); border-color: #fff; }
-        .hero-slide-stats { display: flex; gap: 36px; }
-        .hero-slide-stats div { text-align: left; }
-        .hero-slide-stats strong { display: block; font-size: 1.5rem; font-weight: 800; }
-        .hero-slide-stats span { font-size: 0.8rem; opacity: 0.7; }
-        .hero-pagination .swiper-pagination-bullet { width: 12px; height: 12px; background: rgba(255,255,255,0.5); opacity: 1; transition: all 0.3s; }
-        .hero-pagination .swiper-pagination-bullet-active { background: #fff; width: 32px; border-radius: 6px; }
-        .hero-prev, .hero-next { color: #fff !important; width: 44px !important; height: 44px !important; background: rgba(0,0,0,0.3); border-radius: 50% !important; transition: background 0.3s; }
-        .hero-prev:hover, .hero-next:hover { background: rgba(0,0,0,0.6); }
-        .hero-prev::after, .hero-next::after { font-size: 16px !important; }
-
-        .categories-section { padding: 70px 0; background: #fafafa; }
-        .section-title { text-align: center; margin-bottom: 40px; }
-        .section-title h2 { font-size: 1.8rem; font-weight: 800; color: #222; }
-        .section-title p { color: #888; margin-top: 8px; font-size: 0.95rem; }
-        .categories-grid { display: flex; justify-content: center; gap: 28px; flex-wrap: wrap; }
-        .category-card { text-align: center; cursor: pointer; transition: transform 0.3s; }
-        .category-card:hover { transform: translateY(-6px); }
-        .category-icon { width: 88px; height: 88px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; color: #fff; margin: 0 auto 12px; transition: transform 0.3s; }
-        .category-card:hover .category-icon { transform: scale(1.08); }
-        .category-card span { font-weight: 600; font-size: 0.88rem; color: #444; }
-        .cat-hacking .category-icon { background: linear-gradient(135deg, #6c5ce7, #a29bfe); }
-        .cat-programming .category-icon { background: linear-gradient(135deg, #00b894, #55efc4); }
-        .cat-trading .category-icon { background: linear-gradient(135deg, #e17055, #fab1a0); }
-        .cat-books .category-icon { background: linear-gradient(135deg, #0984e3, #74b9ff); }
-        .cat-tools .category-icon { background: linear-gradient(135deg, #fd79a8, #e84393); }
-
-        .featured-section { padding: 70px 0; }
-        .courses-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
-        .course-card { background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 8px rgba(0,0,0,0.05); transition: transform 0.3s, box-shadow 0.3s; position: relative; border: 1px solid #f0f0f0; }
-        .course-card:hover { transform: translateY(-6px); box-shadow: 0 12px 32px rgba(0,0,0,0.1); }
-        .course-image { position: relative; overflow: hidden; height: 180px; }
-        .course-image img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s; }
-        .course-card:hover .course-image img { transform: scale(1.06); }
-        .course-badge { position: absolute; top: 12px; left: 12px; background: #6c5ce7; color: #fff; padding: 4px 12px; border-radius: 4px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; z-index: 2; letter-spacing: 0.3px; }
-        .course-badge.hot { background: #e74c3c; }
-        .course-badge.bestseller { background: #f39c12; }
-        .course-badge.new { background: #27ae60; }
-        .course-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.35); display: flex; align-items: center; justify-content: center; gap: 12px; opacity: 0; transition: opacity 0.3s; }
-        .course-card:hover .course-overlay { opacity: 1; }
-        .course-overlay button { width: 42px; height: 42px; border-radius: 50%; border: none; background: #fff; color: #333; font-size: 0.95rem; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; transform: translateY(8px); }
-        .course-card:hover .course-overlay button { transform: translateY(0); }
-        .course-overlay button:hover { background: #6c5ce7; color: #fff; }
-        .course-content { padding: 16px; }
-        .course-category { font-size: 0.72rem; font-weight: 600; color: #6c5ce7; text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.3px; }
-        .course-content h3 { font-size: 0.95rem; font-weight: 700; color: #222; margin-bottom: 8px; line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-        .course-meta { display: flex; gap: 14px; font-size: 0.78rem; color: #999; margin-bottom: 12px; }
-        .course-meta span { display: flex; align-items: center; gap: 4px; }
-        .course-footer { display: flex; justify-content: space-between; align-items: center; padding-top: 12px; border-top: 1px solid #f5f5f5; }
-        .course-price { display: flex; align-items: center; gap: 8px; }
-        .price-old { text-decoration: line-through; color: #bbb; font-size: 0.85rem; }
-        .price-new { font-weight: 800; font-size: 1.05rem; color: #222; }
-        .course-rating { display: flex; align-items: center; gap: 4px; font-size: 0.82rem; color: #f39c12; font-weight: 600; }
-
-        .promo-banner { padding: 60px 0; background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%); color: #fff; text-align: center; }
-        .promo-banner h2 { font-size: 2.2rem; font-weight: 800; margin-bottom: 8px; }
-        .promo-banner p { font-size: 1rem; opacity: 0.9; margin-bottom: 24px; }
-        .promo-banner .btn-promo { display: inline-flex; align-items: center; gap: 8px; background: #fff; color: #e74c3c; padding: 14px 36px; border-radius: 50px; font-weight: 700; transition: transform 0.3s, box-shadow 0.3s; }
-        .promo-banner .btn-promo:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,0,0,0.2); }
-
-        .all-courses-section { padding: 70px 0; background: #fafafa; }
-        .filter-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 30px; justify-content: center; }
-        .filter-btn { padding: 8px 22px; border: 2px solid #e0e0e0; border-radius: 50px; background: #fff; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.3s; color: #666; font-family: 'Inter', sans-serif; }
-        .filter-btn:hover { border-color: #6c5ce7; color: #6c5ce7; }
-        .filter-btn.active { background: #6c5ce7; color: #fff; border-color: #6c5ce7; }
-
-        .features-section { padding: 60px 0; background: #fff; }
-        .features-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 30px; }
-        .feature-box { text-align: center; padding: 30px 20px; }
-        .feature-icon { width: 64px; height: 64px; border-radius: 50%; background: #f0edff; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; font-size: 1.4rem; color: #6c5ce7; transition: all 0.3s; }
-        .feature-box:hover .feature-icon { background: #6c5ce7; color: #fff; transform: scale(1.1); }
-        .feature-box h4 { font-size: 1rem; font-weight: 700; margin-bottom: 8px; color: #222; }
-        .feature-box p { font-size: 0.85rem; color: #888; line-height: 1.6; }
-
-        .newsletter-section { padding: 60px 0; background: #fafafa; }
-        .newsletter-box { max-width: 600px; margin: 0 auto; text-align: center; }
-        .newsletter-box h2 { font-size: 1.6rem; font-weight: 800; margin-bottom: 8px; color: #222; }
-        .newsletter-box p { color: #888; margin-bottom: 24px; font-size: 0.95rem; }
-        .newsletter-form { display: flex; gap: 10px; }
-        .newsletter-form input { flex: 1; padding: 14px 18px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 0.9rem; font-family: 'Inter', sans-serif; transition: border-color 0.3s; }
-        .newsletter-form input:focus { border-color: #6c5ce7; outline: none; }
-        .newsletter-form button { padding: 14px 28px; background: #6c5ce7; color: #fff; border: none; border-radius: 8px; font-weight: 700; font-size: 0.9rem; cursor: pointer; transition: background 0.3s; white-space: nowrap; }
-        .newsletter-form button:hover { background: #5a4bd1; }
-
-        .site-footer { background: #1a1a2e; color: #ccc; padding: 60px 0 0; }
-        .footer-grid { display: grid; grid-template-columns: 1.5fr 1fr 1fr 1.2fr; gap: 40px; padding-bottom: 40px; }
-        .footer-logo { display: flex; align-items: center; gap: 10px; font-size: 1.3rem; font-weight: 800; color: #fff; margin-bottom: 14px; }
-        .footer-logo i { color: #6c5ce7; }
-        .site-footer p { font-size: 0.88rem; line-height: 1.7; }
-        .social-links { display: flex; gap: 10px; margin-top: 18px; }
-        .social-links a { width: 38px; height: 38px; border-radius: 50%; background: rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center; color: #ccc; transition: all 0.3s; }
-        .social-links a:hover { background: #6c5ce7; color: #fff; }
-        .site-footer h4 { color: #fff; font-size: 1rem; font-weight: 700; margin-bottom: 20px; }
-        .site-footer ul { list-style: none; }
-        .site-footer ul li { margin-bottom: 10px; }
-        .site-footer ul li a { font-size: 0.88rem; color: #aaa; transition: color 0.3s; }
-        .site-footer ul li a:hover { color: #6c5ce7; }
-        .contact-info li { display: flex; align-items: center; gap: 10px; font-size: 0.88rem; color: #aaa; }
-        .contact-info li i { color: #6c5ce7; width: 18px; }
-        .footer-bottom { border-top: 1px solid rgba(255,255,255,0.08); padding: 20px 0; display: flex; justify-content: space-between; align-items: center; font-size: 0.82rem; color: #888; }
-        .footer-links { display: flex; gap: 20px; }
-        .footer-links a { color: #aaa; transition: color 0.3s; }
-        .footer-links a:hover { color: #6c5ce7; }
-
-        .back-to-top { position: fixed; bottom: 30px; right: 30px; width: 46px; height: 46px; background: #6c5ce7; color: #fff; border: none; border-radius: 50%; font-size: 1.1rem; cursor: pointer; box-shadow: 0 4px 15px rgba(108,92,231,0.4); display: none; z-index: 999; transition: all 0.3s; }
-        .back-to-top:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(108,92,231,0.5); }
-        .back-to-top.visible { display: flex; align-items: center; justify-content: center; }
-
-        .preloader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 9999; display: flex; align-items: center; justify-content: center; transition: opacity 0.5s; }
-        .preloader.loaded { opacity: 0; visibility: hidden; pointer-events: none; }
-        .preloader-inner { text-align: center; }
-        .preloader-spinner { width: 40px; height: 40px; border: 3px solid #eee; border-top-color: #6c5ce7; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-
-        .toast-container { position: fixed; bottom: 30px; right: 30px; z-index: 3000; display: flex; flex-direction: column; gap: 10px; }
-
-        @media (max-width: 1024px) {
-            .courses-grid { grid-template-columns: repeat(3, 1fr); }
-            .features-grid { grid-template-columns: repeat(2, 1fr); }
-            .footer-grid { grid-template-columns: repeat(2, 1fr); }
-            .hero-slide { min-height: 460px; }
-            .hero-slide-content h1 { font-size: 2.6rem; }
-        }
-        @media (max-width: 768px) {
-            .top-bar { display: none; }
-            .header-search { display: none; }
-            .hamburger { display: flex; }
-            .header-inner { padding: 10px 0; }
-            .header-logo { font-size: 1.3rem; }
-            .header-logo i { font-size: 1.4rem; }
-
-            .cat-nav .container { overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
-            .cat-nav .container::-webkit-scrollbar { display: none; }
-            .cat-nav-btn { padding: 12px 16px; font-size: 0.82rem; }
-
-            .hero-slide { min-height: 380px; padding: 40px 0; }
-            .hero-slide-content h1 { font-size: 1.8rem; margin-bottom: 10px; }
-            .hero-slide-content p { font-size: 0.88rem; margin-bottom: 20px; line-height: 1.5; }
-            .hero-slide-btns { flex-direction: column; gap: 10px; margin-bottom: 24px; }
-            .hero-slide-btns a { width: 100%; justify-content: center; padding: 12px 24px; font-size: 0.88rem; }
-            .hero-slide-stats { gap: 20px; }
-            .hero-slide-stats strong { font-size: 1.2rem; }
-            .hero-slide-stats span { font-size: 0.72rem; }
-            .hero-badge { font-size: 0.7rem; padding: 5px 12px; margin-bottom: 14px; }
-            .hero-prev, .hero-next { display: none !important; }
-            .hero-pagination { bottom: 16px !important; }
-
-            .categories-section { padding: 40px 0; }
-            .section-title h2 { font-size: 1.4rem; }
-            .section-title p { font-size: 0.85rem; }
-            .categories-grid { gap: 14px; }
-            .category-icon { width: 64px; height: 64px; font-size: 1.4rem; }
-            .category-card span { font-size: 0.78rem; }
-
-            .featured-section { padding: 40px 0; }
-            .courses-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
-            .course-image { height: 140px; }
-            .course-content { padding: 12px; }
-            .course-content h3 { font-size: 0.85rem; margin-bottom: 6px; }
-            .course-meta { font-size: 0.72rem; gap: 10px; margin-bottom: 8px; }
-            .price-new { font-size: 0.95rem; }
-            .price-old { font-size: 0.78rem; }
-            .course-footer { padding-top: 8px; }
-
-            .promo-banner { padding: 40px 20px; }
-            .promo-banner h2 { font-size: 1.4rem; }
-            .promo-banner p { font-size: 0.88rem; margin-bottom: 16px; }
-            .btn-promo { padding: 12px 28px; font-size: 0.88rem; }
-
-            .features-section { padding: 40px 0; }
-            .features-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
-            .feature-box { padding: 20px 12px; }
-            .feature-icon { width: 52px; height: 52px; font-size: 1.2rem; }
-            .feature-box h4 { font-size: 0.88rem; margin-bottom: 6px; }
-            .feature-box p { font-size: 0.78rem; }
-
-            .all-courses-section { padding: 40px 0; }
-            .filter-row { gap: 6px; margin-bottom: 20px; }
-            .filter-btn { padding: 6px 16px; font-size: 0.78rem; }
-
-            .newsletter-section { padding: 40px 20px; }
-            .newsletter-box h2 { font-size: 1.3rem; }
-            .newsletter-box p { font-size: 0.85rem; margin-bottom: 16px; }
-            .newsletter-form { flex-direction: column; gap: 8px; }
-            .newsletter-form input { padding: 12px 16px; }
-            .newsletter-form button { width: 100%; padding: 12px; }
-
-            .site-footer { padding: 40px 0 0; }
-            .footer-grid { grid-template-columns: 1fr; gap: 24px; padding-bottom: 24px; }
-            .footer-col h4 { font-size: 0.92rem; margin-bottom: 14px; }
-            .footer-col p, .footer-col a { font-size: 0.82rem; }
-            .footer-bottom { flex-direction: column; gap: 10px; text-align: center; padding: 16px 0; }
-            .footer-links { gap: 14px; }
-
-            .back-to-top { bottom: 20px; right: 20px; width: 40px; height: 40px; font-size: 0.95rem; }
-            .toast-container { bottom: 16px; right: 16px; left: 16px; }
-        }
-        @media (max-width: 480px) {
-            .courses-grid { grid-template-columns: 1fr; max-width: 340px; margin: 0 auto; gap: 14px; }
-            .course-image { height: 180px; }
-
-            .categories-grid { gap: 12px; flex-wrap: wrap; justify-content: center; }
-            .category-icon { width: 56px; height: 56px; font-size: 1.2rem; }
-            .category-card span { font-size: 0.72rem; }
-
-            .features-grid { grid-template-columns: 1fr; gap: 0; }
-            .feature-box { padding: 16px 20px; display: flex; align-items: center; gap: 14px; text-align: left; }
-            .feature-icon { margin: 0; flex-shrink: 0; width: 48px; height: 48px; font-size: 1.1rem; }
-            .feature-box h4 { font-size: 0.85rem; margin-bottom: 2px; }
-            .feature-box p { font-size: 0.75rem; margin: 0; }
-
-            .hero-slide { min-height: 340px; padding: 30px 0; }
-            .hero-slide-content h1 { font-size: 1.5rem; }
-            .hero-slide-content p { font-size: 0.82rem; }
-
-            .mobile-menu { width: 280px; }
-        }
-    </style>
 </head>
 <body>
     <!-- Preloader -->
@@ -326,63 +42,89 @@
     </div>
 
     <!-- Header -->
-    <header class="site-header header" id="header">
+    <header class="header" id="header">
         <div class="container">
-            <div class="header-inner">
-                <a href="index.html" class="header-logo">
-                    <i class="fas fa-graduation-cap"></i>
-                    <span>EduBazar</span>
-                </a>
-                <div class="header-search">
-                    <input type="text" id="searchInput" placeholder="Search courses... (e.g. Python, Hacking, Trading)">
-                    <button onclick="searchCourses()"><i class="fas fa-search"></i></button>
-                </div>
+            <a href="index.html" class="logo">
+                <i class="fas fa-graduation-cap"></i>
+                <span>EduBazar</span>
+            </a>
+            <div class="search-bar">
+                <input type="text" id="searchInput" placeholder="Search courses... Python, Hacking, Trading...">
+                <button onclick="searchCourses()"><i class="fas fa-search"></i></button>
                 <div id="searchResults" class="search-results"></div>
-                <div class="header-actions">
-                    <button class="header-cart" id="cartBtn">
-                        <i class="fas fa-shopping-cart"></i>
-                        <span class="cart-count" id="cartCount">0</span>
-                    </button>
-                    <button class="hamburger" id="hamburger">
-                        <span></span>
-                        <span></span>
-                        <span></span>
-                    </button>
-                </div>
+            </div>
+            <div class="header-actions">
+                <a href="user-login.html" class="btn-login"><i class="fas fa-user"></i> Login</a>
+                <a href="user-login.html" class="btn-signup"><i class="fas fa-rocket"></i> Sign Up</a>
+                <button class="btn-cart" id="cartBtn">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span class="cart-count" id="cartCount">0</span>
+                </button>
+                <button class="hamburger" id="hamburger" aria-label="Open Menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
             </div>
         </div>
     </header>
 
-    <!-- Mobile Nav -->
+    <!-- Mobile Nav Overlay -->
     <div class="mobile-nav" id="mobileNav"></div>
+
+    <!-- Mobile Menu Drawer -->
     <div class="mobile-menu" id="mobileMenu">
+        <!-- Header -->
         <div class="mobile-menu-header">
-            <h3>EduBazar</h3>
+            <h3><i class="fas fa-graduation-cap" style="margin-right:8px"></i>EduBazar</h3>
             <button class="mobile-close" id="mobileClose"><i class="fas fa-times"></i></button>
         </div>
+
+        <!-- Search -->
+        <div class="mobile-search">
+            <div class="mobile-search-inner">
+                <input type="text" placeholder="Search courses..." id="mobileSearchInput">
+                <i class="fas fa-search"></i>
+            </div>
+        </div>
+
+        <!-- Navigation Links -->
         <div class="mobile-menu-links">
             <a href="index.html"><i class="fas fa-home"></i> Home</a>
-            <button class="mobile-menu-toggle">Courses <i class="fas fa-chevron-down"></i></button>
-            <div class="mobile-sub-links">
-                <a href="hacking.html">Hacking</a>
-                <a href="programming.html">Programming</a>
-                <a href="trading.html">Trading</a>
-                <a href="books.html">Books</a>
-                <a href="tools.html">Software & Tools</a>
+
+            <!-- Courses Dropdown -->
+            <button class="mobile-menu-toggle" id="mobileMenuToggle">
+                <span class="toggle-left"><i class="fas fa-book-open"></i> Courses</span>
+                <i class="fas fa-chevron-down toggle-arrow"></i>
+            </button>
+            <div class="mobile-sub-links" id="mobileSubLinks">
+                <a href="hacking.html"><i class="fas fa-user-secret"></i> Hacking</a>
+                <a href="programming.html"><i class="fas fa-code"></i> Programming</a>
+                <a href="trading.html"><i class="fas fa-chart-line"></i> Trading</a>
+                <a href="books.html"><i class="fas fa-book"></i> Books</a>
+                <a href="tools.html"><i class="fas fa-tools"></i> Software &amp; Tools</a>
             </div>
-            <a href="user-dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
-            <a href="user-login.html"><i class="fas fa-user"></i> Login / Sign Up</a>
+
+            <a href="user-dashboard.html"><i class="fas fa-tachometer-alt"></i> My Dashboard</a>
+            <a href="admin-login.html"><i class="fas fa-shield-alt"></i> Admin Panel</a>
+        </div>
+
+        <!-- Footer Buttons -->
+        <div class="mobile-menu-footer">
+            <a href="user-login.html" class="mobile-btn-login"><i class="fas fa-sign-in-alt"></i> Login</a>
+            <a href="user-login.html" class="mobile-btn-signup"><i class="fas fa-rocket"></i> Get Started Free</a>
         </div>
     </div>
 
+    <!-- Category Navigation -->
     <nav class="cat-nav">
         <div class="container">
             <a href="#courses" class="cat-nav-btn active" data-filter="all">All</a>
-            <a href="#courses" class="cat-nav-btn" data-filter="Hacking">Hacking</a>
-            <a href="#courses" class="cat-nav-btn" data-filter="Programming">Programming</a>
-            <a href="#courses" class="cat-nav-btn" data-filter="Trading">Trading</a>
-            <a href="#courses" class="cat-nav-btn" data-filter="Hacking Book">Books</a>
-            <a href="#courses" class="cat-nav-btn" data-filter="Software & Tools">Software & Tools</a>
+            <a href="hacking.html" class="cat-nav-btn" data-filter="Hacking"><i class="fas fa-user-secret"></i> Hacking</a>
+            <a href="programming.html" class="cat-nav-btn" data-filter="Programming"><i class="fas fa-code"></i> Programming</a>
+            <a href="trading.html" class="cat-nav-btn" data-filter="Trading"><i class="fas fa-chart-line"></i> Trading</a>
+            <a href="books.html" class="cat-nav-btn" data-filter="Hacking Book"><i class="fas fa-book"></i> Books</a>
+            <a href="tools.html" class="cat-nav-btn" data-filter="Software &amp; Tools"><i class="fas fa-tools"></i> Tools</a>
         </div>
     </nav>
 

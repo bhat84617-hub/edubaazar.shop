@@ -15,32 +15,65 @@ if (header) {
 
 // ==================== MOBILE MENU ====================
 const hamburger = document.getElementById('hamburger');
-const mobileNav = document.querySelector('.mobile-nav');
-const mobileMenu = document.querySelector('.mobile-menu');
+const mobileNav = document.getElementById('mobileNav');
+const mobileMenu = document.getElementById('mobileMenu');
 const mobileClose = document.getElementById('mobileClose');
-const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
-const mobileSubLinks = document.querySelector('.mobile-sub-links');
+const mobileMenuToggleBtn = document.getElementById('mobileMenuToggle');
+const mobileSubLinksEl = document.getElementById('mobileSubLinks');
 
 function openMobileMenu() {
+    if (!hamburger || !mobileNav || !mobileMenu) return;
     hamburger.classList.add('active');
     mobileNav.classList.add('active');
     mobileMenu.classList.add('active');
     document.body.style.overflow = 'hidden';
 }
+
 function closeMobileMenu() {
+    if (!hamburger || !mobileNav || !mobileMenu) return;
     hamburger.classList.remove('active');
     mobileNav.classList.remove('active');
     mobileMenu.classList.remove('active');
     document.body.style.overflow = '';
 }
-if (hamburger) hamburger.addEventListener('click', () => {
-    mobileMenu.classList.contains('active') ? closeMobileMenu() : openMobileMenu();
-});
+
+if (hamburger) {
+    hamburger.addEventListener('click', () => {
+        mobileMenu && mobileMenu.classList.contains('active') ? closeMobileMenu() : openMobileMenu();
+    });
+}
 if (mobileNav) mobileNav.addEventListener('click', closeMobileMenu);
 if (mobileClose) mobileClose.addEventListener('click', closeMobileMenu);
-if (mobileMenuToggle) mobileMenuToggle.addEventListener('click', () => {
-    mobileMenuToggle.classList.toggle('active');
-    mobileSubLinks.classList.toggle('active');
+
+// Courses sub-menu toggle
+if (mobileMenuToggleBtn && mobileSubLinksEl) {
+    mobileMenuToggleBtn.addEventListener('click', () => {
+        mobileMenuToggleBtn.classList.toggle('active');
+        mobileSubLinksEl.classList.toggle('active');
+    });
+}
+
+// Mobile search functionality
+const mobileSearchInput = document.getElementById('mobileSearchInput');
+if (mobileSearchInput) {
+    mobileSearchInput.addEventListener('keyup', (e) => {
+        if (e.key === 'Enter' && mobileSearchInput.value.trim()) {
+            // Close menu and trigger search
+            closeMobileMenu();
+            const mainSearch = document.getElementById('searchInput');
+            if (mainSearch) {
+                mainSearch.value = mobileSearchInput.value;
+                searchCourses();
+                const section = document.getElementById('courses');
+                if (section) section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+    });
+}
+
+// ESC key closes mobile menu
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeMobileMenu();
 });
 
 // ==================== SEARCH ====================
