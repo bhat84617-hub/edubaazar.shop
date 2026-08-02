@@ -31,12 +31,15 @@
     <div class="top-bar">
         <div class="container">
             <div class="top-bar-left">
-                <i class="fas fa-truck"></i>
-                <span>Free shipping on orders over &#8377;500 | 24/7 Support</span>
+                <span class="top-bar-tag"><i class="fas fa-bolt"></i> New</span>
+                <span><i class="fas fa-truck"></i> Free shipping on orders over &#8377;500</span>
+                <span><i class="fas fa-headset"></i> 24/7 Support</span>
             </div>
             <div class="top-bar-right">
-                <a href="user-login.html"><i class="fas fa-user"></i> Login</a>
-                <a href="user-login.html"><i class="fas fa-user-plus"></i> Sign Up</a>
+                <a href="user-login.html" class="top-link"><i class="fas fa-envelope"></i> support@edubazar.shop</a>
+                <a href="#" class="top-social" aria-label="Telegram"><i class="fab fa-telegram"></i></a>
+                <a href="#" class="top-social" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                <a href="#" class="top-social" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
             </div>
         </div>
     </div>
@@ -44,10 +47,30 @@
     <!-- Header -->
     <header class="header" id="header">
         <div class="container">
-            <a href="index.html" class="logo">
-                <i class="fas fa-graduation-cap"></i>
-                <span>EduBazar</span>
-            </a>
+            <div class="header-left">
+                <a href="index.html" class="logo">
+                    <span class="logo-icon"><i class="fas fa-graduation-cap"></i></span>
+                    <span class="logo-text">
+                        <span class="logo-name">EduBazar</span>
+                        <span class="logo-tag">Learn. Grow. Succeed.</span>
+                    </span>
+                </a>
+                <nav class="main-nav">
+                    <a href="index.html" class="main-nav-link active">Home</a>
+                    <div class="nav-dropdown">
+                        <a href="#courses" class="main-nav-link">Courses <i class="fas fa-chevron-down" style="font-size:9px;margin-left:3px"></i></a>
+                        <div class="dropdown-menu">
+                            <a href="hacking.html"><i class="fas fa-user-secret"></i> Hacking</a>
+                            <a href="programming.html"><i class="fas fa-code"></i> Programming</a>
+                            <a href="trading.html"><i class="fas fa-chart-line"></i> Trading</a>
+                            <a href="books.html"><i class="fas fa-book-open"></i> Books</a>
+                            <a href="tools.html"><i class="fas fa-tools"></i> Software &amp; Tools</a>
+                        </div>
+                    </div>
+                    <a href="#categories" class="main-nav-link">Categories</a>
+                    <a href="#courses" class="main-nav-link">All Courses</a>
+                </nav>
+            </div>
             <div class="search-bar">
                 <input type="text" id="searchInput" placeholder="Search courses... Python, Hacking, Trading...">
                 <button onclick="searchCourses()"><i class="fas fa-search"></i></button>
@@ -119,7 +142,7 @@
     <!-- Category Navigation -->
     <nav class="cat-nav">
         <div class="container">
-            <a href="#courses" class="cat-nav-btn active" data-filter="all">All</a>
+            <a href="#courses" class="cat-nav-btn active" data-filter="all"><i class="fas fa-th-large"></i> All Courses</a>
             <a href="hacking.html" class="cat-nav-btn" data-filter="Hacking"><i class="fas fa-user-secret"></i> Hacking</a>
             <a href="programming.html" class="cat-nav-btn" data-filter="Programming"><i class="fas fa-code"></i> Programming</a>
             <a href="trading.html" class="cat-nav-btn" data-filter="Trading"><i class="fas fa-chart-line"></i> Trading</a>
