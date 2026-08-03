@@ -8,12 +8,12 @@
    CSS CUSTOM PROPERTIES
    ================================================================ */
 :root {
-    --primary: #3d9e9e;
-    --primary-dark: #2d8585;
-    --primary-light: rgba(61,158,158,0.1);
-    --primary-glow: rgba(61,158,158,0.25);
-    --secondary: #06d6a0;
-    --accent: #f59e0b;
+    --primary: #1a1a2e;
+    --primary-dark: #0f3460;
+    --primary-light: rgba(26,26,46,0.1);
+    --primary-glow: rgba(26,26,46,0.25);
+    --secondary: #e94560;
+    --accent: #e94560;
     --danger: #ef4444;
     --text: #0f172a;
     --text-light: #64748b;
@@ -27,7 +27,7 @@
     --shadow-sm: 0 4px 12px rgba(0,0,0,0.08);
     --shadow-md: 0 8px 25px rgba(0,0,0,0.10);
     --shadow-lg: 0 16px 40px rgba(0,0,0,0.12);
-    --shadow-primary: 0 8px 25px rgba(61,158,158,0.35);
+    --shadow-primary: 0 8px 25px rgba(26,26,46,0.25);
     --shadow-card: 0 2px 8px rgba(15,23,42,0.06), 0 0 1px rgba(15,23,42,0.04);
     --radius-xs: 4px;
     --radius-sm: 8px;
@@ -38,8 +38,8 @@
     --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-fast: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-slow: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-    --gradient-primary: linear-gradient(135deg, #3d9e9e 0%, #5fbfbf 100%);
-    --gradient-hero: linear-gradient(135deg, #1a3a3a 0%, #2d5f5f 50%, #3d9e9e 100%);
+    --gradient-primary: linear-gradient(135deg, #e94560 0%, #dc3545 100%);
+    --gradient-hero: linear-gradient(135deg, #1a1a2e 0%, #0f3460 50%, #16213e 100%);
 }
 
 /* ================================================================
