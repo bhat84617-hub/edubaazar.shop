@@ -169,6 +169,11 @@ input, textarea { font-family: inherit; }
 /* Logo */
 .logo { display: inline-flex; align-items: center; gap: 11px; white-space: nowrap; flex-shrink: 0; transition: var(--transition-fast); }
 .logo:hover { opacity: 0.92; }
+.logo-img {
+    height: 47px; width: auto; border-radius: 14px;
+    box-shadow: var(--shadow-primary);
+    will-change: transform; animation: logoFloat 4s ease-in-out infinite;
+}
 .logo-icon {
     width: 47px; height: 47px; border-radius: 14px;
     background: var(--gradient-primary); color: #fff;
