@@ -838,6 +838,23 @@ input, textarea { font-family: inherit; }
 .back-to-top { position: fixed; bottom: 28px; right: 28px; width: 46px; height: 46px; border-radius: 50%; background: var(--gradient-primary); color: var(--white); display: flex; align-items: center; justify-content: center; font-size: 1rem; opacity: 0; visibility: hidden; transform: translateY(20px); transition: var(--transition); z-index: 999; box-shadow: var(--shadow-primary); }
 .back-to-top.visible { opacity: 1; visibility: visible; transform: translateY(0); }
 .back-to-top:hover { transform: translateY(-4px); box-shadow: 0 10px 28px rgba(99,102,241,0.5); }
+
+/* WhatsApp Floating Button */
+.whatsapp-float {
+    position: fixed; bottom: 28px; left: 28px; width: 56px; height: 56px;
+    border-radius: 50%; background: #25D366; color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.8rem; z-index: 999;
+    box-shadow: 0 4px 20px rgba(37,211,102,0.45);
+    transition: var(--transition); text-decoration: none;
+    animation: whatsappPulse 2s infinite;
+}
+.whatsapp-float:hover { transform: scale(1.1) translateY(-3px); box-shadow: 0 8px 28px rgba(37,211,102,0.55); background: #20bd5a; }
+@keyframes whatsappPulse {
+    0% { box-shadow: 0 0 0 0 rgba(37,211,102,0.5); }
+    70% { box-shadow: 0 0 0 16px rgba(37,211,102,0); }
+    100% { box-shadow: 0 0 0 0 rgba(37,211,102,0); }
+}
 .fly-to-cart { position: fixed; z-index: 99999; width: 60px; height: 60px; border-radius: 50%; overflow: hidden; box-shadow: 0 8px 24px rgba(233,69,96,0.5); transition: all 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94); pointer-events: none; border: 3px solid var(--accent); }
 .fly-to-cart img { width: 100%; height: 100%; object-fit: cover; }
 
@@ -947,6 +964,7 @@ input, textarea { font-family: inherit; }
     .newsletter-form button { width: 100%; }
 
     .back-to-top { bottom: 22px; right: 22px; }
+    .whatsapp-float { bottom: 22px; left: 22px; width: 50px; height: 50px; font-size: 1.5rem; }
     .toast-container { bottom: 16px; left: 16px; right: 16px; }
     .toast { max-width: 100%; }
 
