@@ -971,11 +971,11 @@ input, textarea { font-family: inherit; }
 
     .cart-sidebar { width: 100%; max-width: 100%; right: -100%; }
     .cart-sidebar.active { right: 0; }
-    .cart-header { padding: 16px; }
-    .cart-items { padding: 12px 16px; }
-    .cart-footer { padding: 12px 16px; }
-    .cart-total { font-size: 1rem; }
-    .btn-checkout { height: 44px; font-size: 14px; }
+    .cart-header { padding: 16px; flex-shrink: 0; }
+    .cart-items { padding: 12px 16px; flex: 1 1 0%; min-height: 0; overflow-y: auto; }
+    .cart-footer { padding: 14px 16px; flex-shrink: 0; background: var(--white); position: sticky; bottom: 0; z-index: 1; border-top: 1px solid var(--border); }
+    .cart-total { font-size: 1rem; margin-bottom: 10px; }
+    .btn-checkout { height: 46px; font-size: 14px; }
 }
 
 /* ================================================================
@@ -1014,6 +1014,8 @@ input, textarea { font-family: inherit; }
     .section-title h2, .section-header h2 { font-size: 1.5rem; }
 
     .cart-sidebar { width: 100%; right: -100%; max-width: 100%; }
+    .cart-sidebar.active { right: 0; }
+    .cart-footer { flex-shrink: 0; background: var(--white); position: sticky; bottom: 0; z-index: 1; }
     .mobile-menu { width: 100%; right: -100%; }
 
     .modal-overlay { padding: 10px; }

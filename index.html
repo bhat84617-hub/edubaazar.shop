@@ -234,16 +234,16 @@
         .btn-secondary:hover{background:var(--border)}
 .cart-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9998;display:none}
 .cart-overlay.active{display:block}
-.cart-sidebar{position:fixed;top:0;right:-420px;width:400px;max-width:90vw;height:100vh;background:#fff;z-index:9999;display:flex;flex-direction:column;transition:right .35s cubic-bezier(.4,0,.2,1);box-shadow:-4px 0 24px rgba(0,0,0,.1)}
+.cart-sidebar{position:fixed;top:0;right:-420px;width:400px;max-width:90vw;height:100vh;height:100dvh;background:#fff;z-index:9999;display:flex;flex-direction:column;transition:right .35s cubic-bezier(.4,0,.2,1);box-shadow:-4px 0 24px rgba(0,0,0,.1)}
 .cart-sidebar.active{right:0}
-.cart-header{display:flex;align-items:center;justify-content:space-between;padding:20px 24px;border-bottom:1px solid var(--border)}
+.cart-header{display:flex;align-items:center;justify-content:space-between;padding:20px 24px;border-bottom:1px solid var(--border);flex-shrink:0}
 .cart-header h3{font-size:1.1rem;font-weight:700;display:flex;align-items:center;gap:8px}
 .cart-close{width:36px;height:36px;border-radius:50%;background:var(--bg);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text-secondary);transition:all .25s}
 .cart-close:hover{background:var(--primary-accent);color:#fff}
-.cart-items{flex:1;overflow-y:auto;padding:16px 24px}
+.cart-items{flex:1;1 1 0%;overflow-y:auto;padding:16px 24px;min-height:0}
 .cart-empty{text-align:center;padding:48px 0;color:var(--text-light)}
 .cart-empty i{font-size:2.5rem;margin-bottom:12px}
-.cart-footer{padding:16px 24px;border-top:1px solid var(--border)}
+.cart-footer{padding:16px 24px;border-top:1px solid var(--border);flex-shrink:0;background:#fff}
 .cart-total{display:flex;justify-content:space-between;font-size:1.1rem;font-weight:700;margin-bottom:12px}
 .btn-checkout{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;height:48px;background:var(--primary-accent);color:#fff;border:none;border-radius:12px;font-size:.9rem;font-weight:600;font-family:inherit;cursor:pointer;transition:transform .25s,box-shadow .25s}
 .btn-checkout:hover{transform:scale(1.01);box-shadow:0 4px 12px rgba(233,69,96,.3)}
