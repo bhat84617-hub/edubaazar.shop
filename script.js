@@ -197,22 +197,55 @@ function addToCart(id, name, price, img) {
 function flyToCart(imgSrc) {
     const flyEl = document.createElement('div');
     flyEl.className = 'fly-to-cart';
-    flyEl.innerHTML = `<img src="${imgSrc}" alt="">`;
+    flyEl.innerHTML = '<img src="' + imgSrc + '" alt="">';
     document.body.appendChild(flyEl);
-    const cartRect = cartBtn ? cartBtn.getBoundingClientRect() : { left: window.innerWidth - 50, top: 50 };
-    flyEl.style.left = '50%';
-    flyEl.style.top = '50%';
+
+    let startX = window.innerWidth / 2;
+    let startY = window.innerHeight / 2;
+    const lastClicked = document.querySelector('.btn-add-cart.last-clicked');
+    if (lastClicked) {
+        const card = lastClicked.closest('.course-card');
+        if (card) {
+            const imgEl = card.querySelector('.course-image img');
+            if (imgEl) {
+                const r = imgEl.getBoundingClientRect();
+                startX = r.left + r.width / 2;
+                startY = r.top + r.height / 2;
+            }
+        }
+        lastClicked.classList.remove('last-clicked');
+    }
+
+    const cartRect = cartBtn ? cartBtn.getBoundingClientRect() : { left: window.innerWidth - 60, top: 10 };
+    const endX = cartRect.left + cartRect.width / 2;
+    const endY = cartRect.top + cartRect.height / 2;
+
+    flyEl.style.left = startX + 'px';
+    flyEl.style.top = startY + 'px';
     flyEl.style.transform = 'translate(-50%, -50%) scale(1)';
-    setTimeout(() => {
-        flyEl.style.left = cartRect.left + 'px';
-        flyEl.style.top = cartRect.top + 'px';
-        flyEl.style.transform = 'translate(0, 0) scale(0.2)';
-        flyEl.style.opacity = '0';
-    }, 50);
-    setTimeout(() => flyEl.remove(), 900);
+    flyEl.style.opacity = '1';
+
+    requestAnimationFrame(() => {
+        setTimeout(() => {
+            flyEl.style.left = endX + 'px';
+            flyEl.style.top = endY + 'px';
+            flyEl.style.transform = 'translate(-50%, -50%) scale(0.1)';
+            flyEl.style.opacity = '0.5';
+        }, 60);
+        setTimeout(() => {
+            flyEl.style.transform = 'translate(-50%, -50%) scale(0)';
+            flyEl.style.opacity = '0';
+        }, 600);
+        setTimeout(() => flyEl.remove(), 900);
+    });
+
     if (cartBtn) {
-        cartBtn.style.animation = 'cartBounce 0.5s ease';
-        setTimeout(() => cartBtn.style.animation = '', 500);
+        cartBtn.classList.add('cart-bounce');
+        setTimeout(() => cartBtn.classList.remove('cart-bounce'), 700);
+    }
+    if (cartCountEl) {
+        cartCountEl.classList.add('count-pop');
+        setTimeout(() => cartCountEl.classList.remove('count-pop'), 500);
     }
 }
 
@@ -239,8 +272,10 @@ function changeQty(id, delta) {
 document.querySelectorAll('.btn-add-cart').forEach(btn => {
     btn.addEventListener('click', (e) => {
         e.stopPropagation();
+        btn.classList.add('last-clicked');
         const { id, name, price, img } = btn.dataset;
         addToCart(id, name, price, img);
+        setTimeout(() => btn.classList.remove('last-clicked'), 1000);
     });
 });
 
@@ -497,7 +532,12 @@ if (confirmPaymentBtn) confirmPaymentBtn.addEventListener('click', () => {
 if (checkoutBtn) checkoutBtn.addEventListener('click', () => {
     if (cart.length === 0) return;
     closeCart();
-    setTimeout(() => { checkoutModal.classList.add('active'); showStep(1); }, 300);
+    setTimeout(() => {
+        checkoutModal.classList.add('active');
+        checkoutModal.style.zIndex = '10002';
+        document.body.style.overflow = 'hidden';
+        showStep(1);
+    }, 400);
 });
 if (checkoutClose) checkoutClose.addEventListener('click', () => { checkoutModal.classList.remove('active'); document.body.style.overflow = ''; });
 if (checkoutModal) checkoutModal.addEventListener('click', (e) => { if (e.target === checkoutModal) { checkoutModal.classList.remove('active'); document.body.style.overflow = ''; } });
