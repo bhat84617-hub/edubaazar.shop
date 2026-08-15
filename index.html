@@ -491,37 +491,25 @@
                 </form>
             </div>
             <div class="checkout-step-content" id="step2">
-                <h3>Payment Method</h3>
-                <div class="payment-methods">
-                    <label class="payment-option active">
-                        <input type="radio" name="payment" value="upi" checked>
-                        <div class="payment-card">
-                            <i class="fas fa-mobile-alt"></i>
-                            <span>UPI / GPay / PhonePe</span>
-                        </div>
-                    </label>
-                    <label class="payment-option">
-                        <input type="radio" name="payment" value="card">
-                        <div class="payment-card">
-                            <i class="fas fa-credit-card"></i>
-                            <span>Credit / Debit Card</span>
-                        </div>
-                    </label>
-                    <label class="payment-option">
-                        <input type="radio" name="payment" value="netbanking">
-                        <div class="payment-card">
-                            <i class="fas fa-university"></i>
-                            <span>Net Banking</span>
-                        </div>
-                    </label>
-                </div>
+                <h3>Payment Summary</h3>
                 <div class="payment-summary">
                     <div class="summary-row"><span>Subtotal</span><span id="summarySubtotal">₹0</span></div>
                     <div class="summary-row"><span>Discount</span><span class="text-green">-₹0</span></div>
                     <div class="summary-row total"><span>Total</span><span id="summaryTotal">₹0</span></div>
                 </div>
-                <button class="btn-primary btn-full" id="payBtn">
-                    <i class="fas fa-lock"></i> Pay Now
+                <div style="margin-bottom:16px">
+                    <p style="font-size:13px;color:var(--text-secondary);text-align:center;margin-bottom:12px">
+                        <i class="fas fa-shield-alt" style="color:var(--success)"></i> Secure payment powered by Razorpay
+                    </p>
+                    <div style="display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;opacity:0.7">
+                        <span style="font-size:12px;color:var(--text-secondary)"><i class="fas fa-mobile-alt"></i> UPI</span>
+                        <span style="font-size:12px;color:var(--text-secondary)"><i class="fas fa-credit-card"></i> Cards</span>
+                        <span style="font-size:12px;color:var(--text-secondary)"><i class="fas fa-university"></i> NetBanking</span>
+                        <span style="font-size:12px;color:var(--text-secondary)"><i class="fas fa-wallet"></i> Wallets</span>
+                    </div>
+                </div>
+                <button class="btn-primary btn-full" id="payBtn" style="background:linear-gradient(135deg,#072654 0%,#2b5ea7 100%);">
+                    <i class="fas fa-lock"></i> Pay Securely with Razorpay
                 </button>
             </div>
             <div class="checkout-step-content" id="step3">
@@ -549,57 +537,6 @@
         <div class="modal preview-modal">
             <button class="modal-close" id="previewClose"><i class="fas fa-times"></i></button>
             <div class="preview-content" id="previewContent"></div>
-        </div>
-    </div>
-
-    <!-- UPI Payment Modal -->
-    <div class="modal-overlay" id="upiModal">
-        <div class="modal upi-modal">
-            <button class="modal-close" id="upiClose"><i class="fas fa-times"></i></button>
-            <div class="upi-content">
-                <h3><i class="fas fa-shield-alt"></i> Complete Payment</h3>
-                <p class="upi-amount">Amount: <strong id="upiAmount">₹0</strong></p>
-                <div class="upi-tabs">
-                    <button class="upi-tab active" data-tab="qr"><i class="fas fa-qrcode"></i> QR Code</button>
-                    <button class="upi-tab" data-tab="upid"><i class="fas fa-copy"></i> UPI ID</button>
-                    <button class="upi-tab" data-tab="link"><i class="fas fa-link"></i> Payment Link</button>
-                </div>
-                <div class="upi-tab-content active" id="tabQr">
-                    <div class="qr-container">
-                        <div class="qr-box" id="qrCode"></div>
-                        <p>Scan with any UPI app</p>
-                        <div class="upi-apps">
-                            <span><i class="fab fa-google-pay"></i> GPay</span>
-                            <span><i class="fas fa-mobile-alt"></i> PhonePe</span>
-                            <span><i class="fas fa-wallet"></i> Paytm</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="upi-tab-content" id="tabUpiId">
-                    <div class="upi-id-box">
-                        <label>Send payment to this UPI ID:</label>
-                        <div class="upi-copy-row">
-                            <input type="text" value="edubazar@upi" id="upiIdField" readonly>
-                            <button class="btn-copy" onclick="copyUpiId()"><i class="fas fa-copy"></i> Copy</button>
-                        </div>
-                    </div>
-                </div>
-                <div class="upi-tab-content" id="tabLink">
-                    <div class="upi-id-box">
-                        <label>Or click the link to pay:</label>
-                        <a href="#" class="payment-link" id="paymentLink" onclick="return false;">
-                            <i class="fas fa-external-link-alt"></i> Click to Pay
-                        </a>
-                    </div>
-                </div>
-                <div class="payment-timer">
-                    <i class="fas fa-clock"></i> Payment expires in: <strong id="paymentTimer">15:00</strong>
-                </div>
-                <button class="btn-primary btn-full" id="confirmPayment">
-                    <i class="fas fa-check-circle"></i> I've Completed Payment
-                </button>
-                <p class="upi-note">After payment, your download link will be generated automatically.</p>
-            </div>
         </div>
     </div>
 
@@ -1705,6 +1642,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

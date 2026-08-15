@@ -380,19 +380,17 @@ const checkoutBtn = document.getElementById('checkoutBtn');
 const checkoutForm = document.getElementById('checkoutForm');
 const continueShopping = document.getElementById('continueShopping');
 
-const upiModal = document.getElementById('upiModal');
-const upiClose = document.getElementById('upiClose');
-const confirmPaymentBtn = document.getElementById('confirmPayment');
-
 let currentStep = 1;
 let orderData = {};
-let paymentTimerInterval = null;
+
+// TODO: Replace with your Razorpay Key ID from https://dashboard.razorpay.com
+const RAZORPAY_KEY = 'rzp_test_YOUR_KEY_HERE';
 
 function showStep(step) {
-    document.querySelectorAll('.step-content').forEach(s => s.classList.remove('active'));
-    document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
-    const stepEl = document.getElementById(`step${step}`);
-    const stepBtn = document.querySelector(`.step[data-step="${step}"]`);
+    document.querySelectorAll('.checkout-step-content').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.checkout-steps .step').forEach(s => s.classList.remove('active'));
+    const stepEl = document.getElementById('step' + step);
+    const stepBtn = document.querySelector('.step[data-step="' + step + '"]');
     if (stepEl) stepEl.classList.add('active');
     if (stepBtn) stepBtn.classList.add('active');
     currentStep = step;
@@ -411,123 +409,106 @@ if (checkoutForm) checkoutForm.addEventListener('submit', (e) => {
     orderData.email = document.getElementById('custEmail').value;
     orderData.phone = document.getElementById('custPhone').value;
     const total = cart.reduce((sum, i) => sum + (i.price * i.qty), 0);
-    document.getElementById('summarySubtotal').textContent = `₹${total.toLocaleString('en-IN')}`;
-    document.getElementById('summaryTotal').textContent = `₹${total.toLocaleString('en-IN')}`;
+    document.getElementById('summarySubtotal').textContent = '₹' + total.toLocaleString('en-IN');
+    document.getElementById('summaryTotal').textContent = '₹' + total.toLocaleString('en-IN');
     showStep(2);
 });
 
 const payBtn = document.getElementById('payBtn');
 if (payBtn) payBtn.addEventListener('click', () => {
-    const paymentMethod = document.querySelector('input[name="payment"]:checked')?.value || 'upi';
     const total = cart.reduce((sum, i) => sum + (i.price * i.qty), 0);
-    orderData.paymentMethod = paymentMethod;
-    orderData.orderId = 'EDU-' + Date.now().toString(36).toUpperCase() + Math.random().toString(36).substr(2, 4).toUpperCase();
-    orderData.items = [...cart];
-    orderData.total = total;
-    checkoutModal.classList.remove('active');
-    setTimeout(() => openUpiModal(total), 300);
-});
-
-// ==================== UPI PAYMENT ====================
-function openUpiModal(amount) {
-    document.getElementById('upiAmount').textContent = `₹${amount.toLocaleString('en-IN')}`;
-    generateQRCode(amount);
-    upiModal.classList.add('active');
-    document.body.style.overflow = 'hidden';
-    startPaymentTimer();
-}
-
-function closeUpiModal() {
-    upiModal.classList.remove('active');
-    document.body.style.overflow = '';
-    if (paymentTimerInterval) clearInterval(paymentTimerInterval);
-}
-
-function generateQRCode(amount) {
-    const qrBox = document.getElementById('qrCode');
-    const qrText = `upi://pay?pa=edubazar@upi&pn=EduBazar&am=${amount}&cu=INR&tn=Payment for courses`;
-    const size = 190;
-    const canvas = document.createElement('canvas');
-    canvas.width = size;
-    canvas.height = size;
-    const ctx = canvas.getContext('2d');
-    ctx.fillStyle = '#FFFFFF';
-    ctx.fillRect(0, 0, size, size);
-    const modules = 25;
-    const moduleSize = size / modules;
-    ctx.fillStyle = '#1E1B4B';
-    const hash = Array.from(qrText).reduce((acc, char) => ((acc << 5) - acc) + char.charCodeAt(0), 0);
-    const seed = Math.abs(hash);
-    function seededRandom(s) { s = Math.sin(s) * 10000; return s - Math.floor(s); }
-    for (let r = 0; r < modules; r++) {
-        for (let c = 0; c < modules; c++) {
-            if (r < 7 && c < 7) { if (r === 0 || r === 6 || c === 0 || c === 6 || (r >= 2 && r <= 4 && c >= 2 && c <= 4)) ctx.fillRect(c * moduleSize, r * moduleSize, moduleSize, moduleSize); }
-            else if (r < 7 && c >= modules - 7) { if (c === modules - 7 || c === modules - 1 || r === 0 || r === 6 || (r >= 2 && r <= 4 && c >= modules - 5 && c <= modules - 3)) ctx.fillRect(c * moduleSize, r * moduleSize, moduleSize, moduleSize); }
-            else if (r >= modules - 7 && c < 7) { if (r === modules - 7 || r === modules - 1 || c === 0 || c === 6 || (r >= modules - 5 && r <= modules - 3 && c >= 2 && c <= 4)) ctx.fillRect(c * moduleSize, r * moduleSize, moduleSize, moduleSize); }
-            else { if (seededRandom(seed + r * modules + c) > 0.5) ctx.fillRect(c * moduleSize, r * moduleSize, moduleSize, moduleSize); }
-        }
+    if (total <= 0) {
+        completeOrder('free');
+        return;
     }
-    ctx.fillStyle = '#FFFFFF';
-    const center = (modules / 2 - 2) * moduleSize;
-    ctx.fillRect(center, center, 4 * moduleSize, 4 * moduleSize);
-    ctx.fillStyle = '#2e6bc6';
-    ctx.fillRect(center + moduleSize, center + moduleSize, 2 * moduleSize, 2 * moduleSize);
-    if (qrBox) { qrBox.innerHTML = ''; qrBox.appendChild(canvas); }
-    const paymentLink = document.getElementById('paymentLink');
-    if (paymentLink) paymentLink.href = qrText;
-}
-
-function startPaymentTimer() {
-    let time = 15 * 60;
-    const timerEl = document.getElementById('paymentTimer');
-    if (paymentTimerInterval) clearInterval(paymentTimerInterval);
-    paymentTimerInterval = setInterval(() => {
-        time--;
-        const m = Math.floor(time / 60);
-        const s = time % 60;
-        if (timerEl) timerEl.textContent = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-        if (time <= 0) { clearInterval(paymentTimerInterval); closeUpiModal(); showToast('Payment session expired', 'error'); }
-    }, 1000);
-}
-
-function copyUpiId() {
-    navigator.clipboard.writeText('edubazar@upi');
-    showToast('UPI ID copied!');
-}
-
-// UPI tabs
-document.querySelectorAll('.upi-tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-        document.querySelectorAll('.upi-tab').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll('.upi-tab-content').forEach(c => c.classList.remove('active'));
-        tab.classList.add('active');
-        const target = tab.getAttribute('data-tab');
-        if (target === 'qr') document.getElementById('tabQr')?.classList.add('active');
-        else if (target === 'upid') document.getElementById('tabUpiId')?.classList.add('active');
-        else if (target === 'link') document.getElementById('tabLink')?.classList.add('active');
-    });
+    openRazorpay(total);
 });
 
-if (confirmPaymentBtn) confirmPaymentBtn.addEventListener('click', () => {
+// ==================== RAZORPAY PAYMENT ====================
+function openRazorpay(amount) {
+    const orderId = 'EDU-' + Date.now().toString(36).toUpperCase() + Math.random().toString(36).substr(2, 4).toUpperCase();
+
+    const options = {
+        key: RAZORPAY_KEY,
+        amount: amount * 100,
+        currency: 'INR',
+        name: 'EduBazar',
+        description: 'Course Purchase',
+        image: 'edulogo1.png',
+        handler: function (response) {
+            completeOrder('paid', response.razorpay_payment_id, orderId);
+        },
+        prefill: {
+            name: orderData.name || '',
+            email: orderData.email || '',
+            contact: orderData.phone || ''
+        },
+        notes: {
+            order_id: orderId
+        },
+        theme: {
+            color: '#e94560'
+        },
+        modal: {
+            ondismiss: function () {
+                showToast('Payment cancelled', 'error');
+            }
+        }
+    };
+
+    const rzp = new Razorpay(options);
+    rzp.on('payment.failed', function (response) {
+        showToast('Payment failed: ' + response.error.description, 'error');
+    });
+    rzp.open();
+}
+
+function completeOrder(status, paymentId, orderId) {
+    orderId = orderId || 'EDU-' + Date.now().toString(36).toUpperCase() + Math.random().toString(36).substr(2, 4).toUpperCase();
+
+    orderData.orderId = orderId;
+    orderData.paymentMethod = 'razorpay';
+    orderData.paymentId = paymentId || 'free';
+    orderData.items = [...cart];
+    orderData.total = cart.reduce((sum, i) => sum + (i.price * i.qty), 0);
+    orderData.status = status;
+    orderData.date = new Date().toISOString();
+
     orderData.downloads = orderData.items.map(i => {
         const cd = courseData[i.id];
-        return { name: i.name, link: (cd && cd.downloadUrl) ? cd.downloadUrl : `https://edubazar.shop/download/${orderData.orderId}/${i.id}` };
+        return {
+            name: i.name,
+            link: (cd && cd.downloadUrl) ? cd.downloadUrl : '#'
+        };
     });
+
     let orders = JSON.parse(localStorage.getItem('edubazar_orders')) || [];
     orders.push(orderData);
     localStorage.setItem('edubazar_orders', JSON.stringify(orders));
+
     cart = [];
     saveCart();
-    closeUpiModal();
+    checkoutModal.classList.remove('active');
+
     setTimeout(() => {
-        document.getElementById('orderIdDisplay').textContent = orderData.orderId;
+        document.getElementById('orderIdDisplay').textContent = orderId;
         document.getElementById('emailDisplay').textContent = orderData.email;
         checkoutModal.classList.add('active');
         showStep(3);
-        showToast(`Order placed! ID: ${orderData.orderId}`);
-        setTimeout(() => showToast(`Confirmation email sent to ${orderData.email}`), 1500);
+        showToast('Order placed successfully!');
+        if (paymentId && paymentId !== 'free') {
+            setTimeout(() => showToast('Payment ID: ' + paymentId), 1000);
+        }
     }, 300);
-});
+}
+
+// Open/Close cart
+if (cartBtn) cartBtn.addEventListener('click', () => { cartSidebar.classList.add('active'); cartOverlay.classList.add('active'); document.body.style.overflow = 'hidden'; });
+if (cartClose) cartClose.addEventListener('click', closeCart);
+if (cartOverlay) cartOverlay.addEventListener('click', closeCart);
+function closeCart() { cartSidebar.classList.remove('active'); cartOverlay.classList.remove('active'); document.body.style.overflow = ''; }
+
+updateCartUI();
 
 if (checkoutBtn) checkoutBtn.addEventListener('click', () => {
     if (cart.length === 0) return;
