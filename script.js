@@ -383,8 +383,7 @@ const continueShopping = document.getElementById('continueShopping');
 let currentStep = 1;
 let orderData = {};
 
-// TODO: Replace with your Razorpay Key ID from https://dashboard.razorpay.com
-const RAZORPAY_KEY = 'rzp_test_YOUR_KEY_HERE';
+const RAZORPAY_KEY = 'rzp_live_TQ4W1kFTZRTbJ3';
 
 function showStep(step) {
     document.querySelectorAll('.checkout-step-content').forEach(s => s.classList.remove('active'));
@@ -523,8 +522,7 @@ if (checkoutBtn) checkoutBtn.addEventListener('click', () => {
 if (checkoutClose) checkoutClose.addEventListener('click', () => { checkoutModal.classList.remove('active'); document.body.style.overflow = ''; });
 if (checkoutModal) checkoutModal.addEventListener('click', (e) => { if (e.target === checkoutModal) { checkoutModal.classList.remove('active'); document.body.style.overflow = ''; } });
 if (continueShopping) continueShopping.addEventListener('click', () => { checkoutModal.classList.remove('active'); document.body.style.overflow = ''; });
-if (upiClose) upiClose.addEventListener('click', closeUpiModal);
-if (upiModal) upiModal.addEventListener('click', (e) => { if (e.target === upiModal) closeUpiModal(); });
+// UPI modal removed
 
 // ==================== BACK TO TOP ====================
 const backToTop = document.getElementById('backToTop');

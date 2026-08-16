@@ -148,8 +148,8 @@
         AOS.init({duration: 800, once: true});
 
         if (auth) {
-            document.getElementById('userEmail').textContent = auth.email;
-            document.getElementById('userAvatar').textContent = auth.email.charAt(0).toUpperCase();
+            document.getElementById('userEmail').textContent = auth.name || auth.email;
+            document.getElementById('userAvatar').textContent = (auth.name || auth.email).charAt(0).toUpperCase();
         }
 
         const orders = (JSON.parse(localStorage.getItem('edubazar_orders')) || []).filter(o => o.email && o.email.toLowerCase() === auth.email.toLowerCase());
