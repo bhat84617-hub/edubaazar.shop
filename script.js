@@ -383,7 +383,7 @@ const continueShopping = document.getElementById('continueShopping');
 let currentStep = 1;
 let orderData = {};
 
-const RAZORPAY_KEY = 'rzp_live_TQ4W1kFTZRTbJ3';
+const RAZORPAY_KEY = 'rzp_live_TQSSn1yiPIkBqv';
 
 function showStep(step) {
     document.querySelectorAll('.checkout-step-content').forEach(s => s.classList.remove('active'));
