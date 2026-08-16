@@ -426,6 +426,8 @@ if (payBtn) payBtn.addEventListener('click', () => {
 // ==================== RAZORPAY PAYMENT ====================
 function openRazorpay(amount) {
     const orderId = 'EDU-' + Date.now().toString(36).toUpperCase() + Math.random().toString(36).substr(2, 4).toUpperCase();
+    checkoutModal.classList.remove('active');
+    document.body.style.overflow = '';
 
     const options = {
         key: RAZORPAY_KEY,
@@ -451,6 +453,11 @@ function openRazorpay(amount) {
         modal: {
             ondismiss: function () {
                 showToast('Payment cancelled', 'error');
+                setTimeout(() => {
+                    checkoutModal.classList.add('active');
+                    document.body.style.overflow = 'hidden';
+                    showStep(2);
+                }, 300);
             }
         }
     };
