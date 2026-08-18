@@ -65,7 +65,7 @@
                     return;
                 }
                 sessionStorage.setItem('edubazar_user_auth', JSON.stringify({ email: user.email, name: user.name }));
-                window.location.href = 'user-dashboard.html';
+                window.location.href = 'index.html';
             } catch (err) {
                 errorEl.textContent = 'Something went wrong. Please try again.';
                 errorEl.style.display = 'block';

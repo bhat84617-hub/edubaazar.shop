@@ -77,9 +77,10 @@
                 const { error } = await _sb.from('users').insert([{ name, email, password }]);
                 if (error) throw error;
 
-                successEl.textContent = 'Account created successfully! Redirecting to login...';
+                sessionStorage.setItem('edubazar_user_auth', JSON.stringify({ name, email }));
+                successEl.textContent = 'Account created successfully! Redirecting...';
                 successEl.style.display = 'block';
-                setTimeout(() => { window.location.href = 'user-login.html'; }, 1500);
+                setTimeout(() => { window.location.href = 'index.html'; }, 1500);
             } catch (err) {
                 console.error('Signup error:', err);
                 errorEl.textContent = 'Something went wrong: ' + (err.message || 'Please try again.');
