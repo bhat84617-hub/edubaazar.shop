@@ -88,6 +88,75 @@ if (mobileSearchInput) {
     });
 }
 
+// ==================== COUNTER ANIMATION ====================
+function animateCounters() {
+    const counters = document.querySelectorAll('.stat-number[data-count]');
+    counters.forEach(counter => {
+        if (counter.dataset.animated) return;
+        const target = parseFloat(counter.dataset.count);
+        const isDecimal = target % 1 !== 0;
+        const duration = 2000;
+        const startTime = performance.now();
+
+        function update(currentTime) {
+            const elapsed = currentTime - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            const eased = 1 - Math.pow(1 - progress, 3);
+            const current = target * eased;
+
+            if (isDecimal) {
+                counter.textContent = current.toFixed(1);
+            } else if (target >= 1000) {
+                counter.textContent = Math.floor(current).toLocaleString('en-IN') + '+';
+            } else {
+                counter.textContent = Math.floor(current) + '+';
+            }
+
+            if (progress < 1) {
+                requestAnimationFrame(update);
+            } else {
+                counter.dataset.animated = 'true';
+            }
+        }
+        requestAnimationFrame(update);
+    });
+}
+
+const statsSection = document.querySelector('.stats-section');
+if (statsSection) {
+    const statsObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                animateCounters();
+                statsObserver.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.3 });
+    statsObserver.observe(statsSection);
+}
+
+// ==================== TESTIMONIALS AUTO-SCROLL ====================
+const testimonialsTrack = document.getElementById('testimonialsTrack');
+if (testimonialsTrack) {
+    let scrollDir = 1;
+    let scrollPaused = false;
+
+    testimonialsTrack.addEventListener('mouseenter', () => { scrollPaused = true; });
+    testimonialsTrack.addEventListener('mouseleave', () => { scrollPaused = false; });
+    testimonialsTrack.addEventListener('touchstart', () => { scrollPaused = true; });
+    testimonialsTrack.addEventListener('touchend', () => { scrollPaused = false; });
+
+    function autoScrollTestimonials() {
+        if (!scrollPaused && testimonialsTrack) {
+            const maxScroll = testimonialsTrack.scrollWidth - testimonialsTrack.clientWidth;
+            if (testimonialsTrack.scrollLeft >= maxScroll) scrollDir = -1;
+            if (testimonialsTrack.scrollLeft <= 0) scrollDir = 1;
+            testimonialsTrack.scrollLeft += scrollDir * 1;
+        }
+        requestAnimationFrame(autoScrollTestimonials);
+    }
+    requestAnimationFrame(autoScrollTestimonials);
+}
 // ESC key closes mobile menu
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') closeMobileMenu();
