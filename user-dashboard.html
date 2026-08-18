@@ -70,6 +70,9 @@
         .no-orders p{font-size:1.1rem;margin-bottom:20px}
         .btn-shop{padding:12px 30px;background:var(--gradient);color:var(--white);border:none;border-radius:50px;font-weight:600;cursor:pointer;text-decoration:none;font-family:'Poppins',sans-serif;display:inline-flex;align-items:center;gap:8px;transition:var(--transition)}
         .btn-shop:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(79,70,229,0.3)}
+        .btn-download-sm{display:inline-block;padding:4px 10px;background:var(--primary);color:#fff;border-radius:6px;text-decoration:none;font-size:0.8rem;margin:2px 0}
+        .btn-download-sm:hover{background:var(--primary-hover)}
+        .text-muted{color:#999}
         .empty-orders{text-align:center;padding:80px 20px}
         .empty-orders i{font-size:5rem;color:var(--gray-light);margin-bottom:20px}
         .empty-orders h3{font-size:1.3rem;margin-bottom:10px}
@@ -201,16 +204,24 @@
                         <a href="index.html" class="btn-shop"><i class="fas fa-shopping-bag"></i> Browse Courses</a>
                     </div>`;
             } else {
-                let html = `<table><thead><tr><th>Order ID</th><th>Items</th><th>Total</th><th>Payment</th><th>Date</th><th>Status</th></tr></thead><tbody>`;
+                let html = `<table><thead><tr><th>Order ID</th><th>Items</th><th>Total</th><th>Payment</th><th>Date</th><th>Status</th><th>Download</th></tr></thead><tbody>`;
                 orders.forEach(order => {
                     const date = new Date(order.date).toLocaleDateString('en-IN', {day:'2-digit', month:'short', year:'numeric'});
+                    const items = order.items || [];
+                    const downloadBtns = items.map(i => {
+                        if (i.downloadUrl && i.downloadUrl !== '#') {
+                            return `<a href="${i.downloadUrl}" target="_blank" class="btn-download-sm" title="${i.name}"><i class="fas fa-download"></i> ${i.name}</a>`;
+                        }
+                        return '';
+                    }).filter(Boolean).join('<br>');
                     html += `<tr>
                         <td><strong>${order.orderId}</strong></td>
-                        <td>${(order.items||[]).map(i => i.name).join(', ')}</td>
+                        <td>${items.map(i => i.name).join(', ')}</td>
                         <td><strong>₹${order.total}</strong></td>
                         <td>Razorpay</td>
                         <td>${date}</td>
                         <td><span class="status-badge status-completed">Completed</span></td>
+                        <td>${downloadBtns || '<span class="text-muted">—</span>'}</td>
                     </tr>`;
                 });
                 html += `</tbody></table>`;

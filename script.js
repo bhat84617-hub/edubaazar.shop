@@ -492,18 +492,13 @@ function completeOrder(status, paymentId, orderId) {
     orderData.orderId = orderId;
     orderData.paymentMethod = 'razorpay';
     orderData.paymentId = paymentId || 'free';
-    orderData.items = [...cart];
+    orderData.items = cart.map(i => {
+        const cd = courseData[i.id];
+        return { ...i, downloadUrl: (cd && cd.downloadUrl) ? cd.downloadUrl : null };
+    });
     orderData.total = cart.reduce((sum, i) => sum + (i.price * i.qty), 0);
     orderData.status = status;
     orderData.date = new Date().toISOString();
-
-    orderData.downloads = orderData.items.map(i => {
-        const cd = courseData[i.id];
-        return {
-            name: i.name,
-            link: (cd && cd.downloadUrl) ? cd.downloadUrl : '#'
-        };
-    });
 
     // Save to localStorage
     let orders = JSON.parse(localStorage.getItem('edubazar_orders')) || [];
