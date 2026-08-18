@@ -78,6 +78,11 @@
         .payment-badge{padding:4px 10px;border-radius:6px;font-size:0.7rem;font-weight:600;background:var(--gray-light)}
         .btn-view{padding:6px 14px;background:var(--primary);color:var(--white);border:none;border-radius:8px;cursor:pointer;transition:var(--transition);font-size:0.75rem;font-weight:600}
         .btn-view:hover{transform:scale(1.05)}
+        .btn-approve{padding:6px 10px;background:rgba(34,197,94,0.1);color:#22c55e;border:none;border-radius:8px;cursor:pointer;transition:var(--transition);font-size:0.75rem;font-weight:600;margin-left:4px}
+        .btn-approve:hover{background:#22c55e;color:var(--white)}
+        .btn-reject{padding:6px 10px;background:rgba(239,68,68,0.1);color:var(--red);border:none;border-radius:8px;cursor:pointer;transition:var(--transition);font-size:0.75rem;font-weight:600;margin-left:4px}
+        .btn-reject:hover{background:var(--red);color:var(--white)}
+        .status-pending{background:rgba(245,158,11,0.1);color:#f59e0b}
         .btn-delete{padding:6px 14px;background:rgba(239,68,68,0.1);color:var(--red);border:none;border-radius:8px;cursor:pointer;transition:var(--transition);font-size:0.75rem;font-weight:600}
         .btn-delete:hover{background:var(--red);color:var(--white)}
         .no-orders{text-align:center;padding:60px 20px;color:var(--gray)}
@@ -204,7 +209,7 @@
                             total: o.total,
                             status: o.status,
                             paymentMethod: o.payment_method,
-                            paymentId: o.payment_id,
+                            utr: o.utr || '',
                             date: o.date
                         }));
                     }
@@ -235,20 +240,25 @@
                 container.innerHTML = `<div class="no-orders"><i class="fas fa-inbox"></i><h3>No Orders Found</h3><p>No customer orders yet.</p></div>`;
                 return;
             }
-            const paymentLabels = {upi:'UPI/GPay', card:'Credit/Debit Card', netbanking:'Net Banking'};
-            let html = `<table><thead><tr><th>Order ID</th><th>Customer</th><th>Items</th><th>Total</th><th>Payment</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead><tbody>`;
+            let html = `<table><thead><tr><th>Order ID</th><th>Customer</th><th>Items</th><th>Total</th><th>UTR</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead><tbody>`;
             list.forEach((order, idx) => {
                 const date = new Date(order.date).toLocaleDateString('en-IN', {day:'2-digit', month:'short', year:'numeric'});
                 const initials = (order.name || 'U').split(' ').map(n => n[0]).join('').toUpperCase();
+                const isPending = order.status === 'pending';
+                const statusClass = isPending ? 'status-pending' : 'status-completed';
+                const statusText = isPending ? 'Pending' : 'Approved';
                 html += `<tr data-idx="${idx}">
                     <td><strong>${order.orderId}</strong></td>
                     <td><div class="customer-info"><div class="customer-avatar">${initials}</div><div><div class="customer-name">${order.name}</div><div class="customer-email">${order.email}</div></div></div></td>
                     <td>${(order.items||[]).map(i => i.name).join(', ')}</td>
                     <td><strong>₹${order.total}</strong></td>
-                    <td><span class="payment-badge">${paymentLabels[order.paymentMethod] || order.paymentMethod || 'Razorpay'}</span></td>
+                    <td><code style="font-size:11px;background:#f0f0f0;padding:2px 6px;border-radius:4px">${order.utr || 'N/A'}</code></td>
                     <td>${date}</td>
-                    <td><span class="status-badge status-completed">Completed</span></td>
-                    <td><button class="btn-view" onclick="viewOrder(${idx})"><i class="fas fa-eye"></i></button></td>
+                    <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                    <td>
+                        <button class="btn-view" onclick="viewOrder(${idx})" title="View"><i class="fas fa-eye"></i></button>
+                        ${isPending ? `<button class="btn-approve" onclick="approveOrder('${order.orderId}')" title="Approve"><i class="fas fa-check"></i></button><button class="btn-reject" onclick="rejectOrder('${order.orderId}')" title="Reject"><i class="fas fa-times"></i></button>` : ''}
+                    </td>
                 </tr>`;
             });
             html += `</tbody></table>`;
@@ -276,6 +286,34 @@
 
         document.getElementById('detailClose').addEventListener('click', () => document.getElementById('detailOverlay').classList.remove('active'));
         document.getElementById('detailOverlay').addEventListener('click', (e) => { if (e.target.id === 'detailOverlay') document.getElementById('detailOverlay').classList.remove('active'); });
+
+        async function approveOrder(orderId) {
+            if (!confirm('Approve this payment? Course access will be given to customer.')) return;
+            if (typeof _sb !== 'undefined') {
+                await _sb.from('orders').update({ status: 'approved' }).eq('order_id', orderId);
+            }
+            const local = JSON.parse(localStorage.getItem('edubazar_orders')) || [];
+            local.forEach(o => { if (o.orderId === orderId) o.status = 'approved'; });
+            localStorage.setItem('edubazar_orders', JSON.stringify(local));
+            const idx = orders.findIndex(o => o.orderId === orderId);
+            if (idx !== -1) orders[idx].status = 'approved';
+            renderOrders(orders);
+            alert('Order approved!');
+        }
+
+        async function rejectOrder(orderId) {
+            if (!confirm('Reject this payment?')) return;
+            if (typeof _sb !== 'undefined') {
+                await _sb.from('orders').update({ status: 'rejected' }).eq('order_id', orderId);
+            }
+            const local = JSON.parse(localStorage.getItem('edubazar_orders')) || [];
+            local.forEach(o => { if (o.orderId === orderId) o.status = 'rejected'; });
+            localStorage.setItem('edubazar_orders', JSON.stringify(local));
+            const idx = orders.findIndex(o => o.orderId === orderId);
+            if (idx !== -1) orders[idx].status = 'rejected';
+            renderOrders(orders);
+            alert('Order rejected!');
+        }
 
         document.getElementById('adminSearch').addEventListener('input', (e) => {
             const val = e.target.value.toLowerCase();

@@ -400,8 +400,6 @@ const continueShopping = document.getElementById('continueShopping');
 let currentStep = 1;
 let orderData = {};
 
-const RAZORPAY_KEY = 'rzp_live_TQSSn1yiPIkBqv';
-
 function showStep(step) {
     document.querySelectorAll('.checkout-step-content').forEach(s => s.classList.remove('active'));
     document.querySelectorAll('.checkout-steps .step').forEach(s => s.classList.remove('active'));
@@ -431,67 +429,29 @@ if (checkoutForm) checkoutForm.addEventListener('submit', (e) => {
 });
 
 const payBtn = document.getElementById('payBtn');
+const utrInput = document.getElementById('utrInput');
+
 if (payBtn) payBtn.addEventListener('click', () => {
     const total = cart.reduce((sum, i) => sum + (i.price * i.qty), 0);
     if (total <= 0) {
         completeOrder('free');
         return;
     }
-    openRazorpay(total);
+    const utr = utrInput ? utrInput.value.trim() : '';
+    if (!utr || utr.length < 10) {
+        showToast('Please enter valid UPI Transaction ID (UTR)', 'error');
+        if (utrInput) utrInput.focus();
+        return;
+    }
+    completeOrder('pending', utr);
 });
 
-// ==================== RAZORPAY PAYMENT ====================
-function openRazorpay(amount) {
+function completeOrder(status, utr) {
     const orderId = 'EDU-' + Date.now().toString(36).toUpperCase() + Math.random().toString(36).substr(2, 4).toUpperCase();
-    checkoutModal.classList.remove('active');
-    checkoutModal.style.display = 'none';
-    document.body.style.overflow = '';
-
-    const options = {
-        key: RAZORPAY_KEY,
-        amount: amount * 100,
-        currency: 'INR',
-        name: 'EduBazar',
-        description: 'Course Purchase',
-        image: 'edulogo1.png',
-        handler: function (response) {
-            completeOrder('paid', response.razorpay_payment_id, orderId);
-        },
-        prefill: {
-            name: orderData.name || '',
-            email: orderData.email || '',
-            contact: orderData.phone || ''
-        },
-        notes: {
-            order_id: orderId
-        },
-        theme: {
-            color: '#e94560'
-        },
-        modal: {
-            ondismiss: function () {
-                showToast('Payment cancelled', 'error');
-                checkoutModal.style.display = '';
-                checkoutModal.classList.add('active');
-                document.body.style.overflow = 'hidden';
-                showStep(2);
-            }
-        }
-    };
-
-    const rzp = new Razorpay(options);
-    rzp.on('payment.failed', function (response) {
-        showToast('Payment failed: ' + response.error.description, 'error');
-    });
-    rzp.open();
-}
-
-function completeOrder(status, paymentId, orderId) {
-    orderId = orderId || 'EDU-' + Date.now().toString(36).toUpperCase() + Math.random().toString(36).substr(2, 4).toUpperCase();
 
     orderData.orderId = orderId;
-    orderData.paymentMethod = 'razorpay';
-    orderData.paymentId = paymentId || 'free';
+    orderData.paymentMethod = 'upi_qr';
+    orderData.utr = utr || '';
     orderData.items = cart.map(i => {
         const cd = courseData[i.id];
         return { ...i, downloadUrl: (cd && cd.downloadUrl) ? cd.downloadUrl : null };
@@ -515,8 +475,8 @@ function completeOrder(status, paymentId, orderId) {
             items: JSON.stringify(orderData.items),
             total: orderData.total,
             status: status,
-            payment_method: 'razorpay',
-            payment_id: paymentId || 'free',
+            payment_method: 'upi_qr',
+            utr: utr || '',
             date: orderData.date
         }]).then(() => {}).catch(() => {});
     }
@@ -527,13 +487,9 @@ function completeOrder(status, paymentId, orderId) {
 
     setTimeout(() => {
         document.getElementById('orderIdDisplay').textContent = orderId;
-        document.getElementById('emailDisplay').textContent = orderData.email;
         checkoutModal.classList.add('active');
         showStep(3);
-        showToast('Order placed successfully!');
-        if (paymentId && paymentId !== 'free') {
-            setTimeout(() => showToast('Payment ID: ' + paymentId), 1000);
-        }
+        showToast('Order placed! Waiting for payment verification.');
     }, 300);
 }
 

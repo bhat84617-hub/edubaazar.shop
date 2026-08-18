@@ -72,6 +72,8 @@
         .btn-shop:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(79,70,229,0.3)}
         .btn-download-sm{display:inline-block;padding:4px 10px;background:var(--primary);color:#fff;border-radius:6px;text-decoration:none;font-size:0.8rem;margin:2px 0}
         .btn-download-sm:hover{background:var(--primary-hover)}
+        .status-pending{background:rgba(245,158,11,0.1);color:#f59e0b}
+        .status-rejected{background:rgba(239,68,68,0.1);color:var(--red)}
         .text-muted{color:#999}
         .empty-orders{text-align:center;padding:80px 20px}
         .empty-orders i{font-size:5rem;color:var(--gray-light);margin-bottom:20px}
@@ -204,24 +206,34 @@
                         <a href="index.html" class="btn-shop"><i class="fas fa-shopping-bag"></i> Browse Courses</a>
                     </div>`;
             } else {
-                let html = `<table><thead><tr><th>Order ID</th><th>Items</th><th>Total</th><th>Payment</th><th>Date</th><th>Status</th><th>Download</th></tr></thead><tbody>`;
+                let html = `<table><thead><tr><th>Order ID</th><th>Items</th><th>Total</th><th>Date</th><th>Status</th><th>Access</th></tr></thead><tbody>`;
                 orders.forEach(order => {
                     const date = new Date(order.date).toLocaleDateString('en-IN', {day:'2-digit', month:'short', year:'numeric'});
                     const items = order.items || [];
-                    const downloadBtns = items.map(i => {
-                        if (i.downloadUrl && i.downloadUrl !== '#') {
-                            return `<a href="${i.downloadUrl}" target="_blank" class="btn-download-sm" title="${i.name}"><i class="fas fa-download"></i> ${i.name}</a>`;
-                        }
-                        return '';
-                    }).filter(Boolean).join('<br>');
+                    const isApproved = order.status === 'approved';
+                    const isPending = order.status === 'pending';
+                    const statusClass = isApproved ? 'status-completed' : (isPending ? 'status-pending' : 'status-rejected');
+                    const statusText = isApproved ? 'Approved' : (isPending ? 'Pending Verification' : 'Rejected');
+                    let accessHtml = '';
+                    if (isApproved) {
+                        accessHtml = items.map(i => {
+                            if (i.downloadUrl && i.downloadUrl !== '#') {
+                                return `<a href="${i.downloadUrl}" target="_blank" class="btn-download-sm" title="${i.name}"><i class="fas fa-download"></i> Download</a>`;
+                            }
+                            return '';
+                        }).filter(Boolean).join(' ') || '<span class="text-muted">—</span>';
+                    } else if (isPending) {
+                        accessHtml = '<span style="color:#f59e0b;font-size:0.8rem"><i class="fas fa-clock"></i> Payment verify ho raha hai</span>';
+                    } else {
+                        accessHtml = '<span style="color:var(--red);font-size:0.8rem"><i class="fas fa-times-circle"></i> Payment rejected</span>';
+                    }
                     html += `<tr>
                         <td><strong>${order.orderId}</strong></td>
                         <td>${items.map(i => i.name).join(', ')}</td>
                         <td><strong>₹${order.total}</strong></td>
-                        <td>Razorpay</td>
                         <td>${date}</td>
-                        <td><span class="status-badge status-completed">Completed</span></td>
-                        <td>${downloadBtns || '<span class="text-muted">—</span>'}</td>
+                        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                        <td>${accessHtml}</td>
                     </tr>`;
                 });
                 html += `</tbody></table>`;

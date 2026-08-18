@@ -492,26 +492,26 @@
                 </form>
             </div>
             <div class="checkout-step-content" id="step2">
-                <h3>Payment Summary</h3>
+                <h3>Scan QR & Pay</h3>
                 <div class="payment-summary">
                     <div class="summary-row"><span>Subtotal</span><span id="summarySubtotal">₹0</span></div>
-                    <div class="summary-row"><span>Discount</span><span class="text-green">-₹0</span></div>
-                    <div class="summary-row total"><span>Total</span><span id="summaryTotal">₹0</span></div>
+                    <div class="summary-row total"><span>Total Pay</span><span id="summaryTotal">₹0</span></div>
                 </div>
-                <div style="margin-bottom:16px">
-                    <p style="font-size:13px;color:var(--text-secondary);text-align:center;margin-bottom:12px">
-                        <i class="fas fa-shield-alt" style="color:var(--success)"></i> Secure payment powered by Razorpay
-                    </p>
-                    <div style="display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;opacity:0.7">
-                        <span style="font-size:12px;color:var(--text-secondary)"><i class="fas fa-mobile-alt"></i> UPI</span>
-                        <span style="font-size:12px;color:var(--text-secondary)"><i class="fas fa-credit-card"></i> Cards</span>
-                        <span style="font-size:12px;color:var(--text-secondary)"><i class="fas fa-university"></i> NetBanking</span>
-                        <span style="font-size:12px;color:var(--text-secondary)"><i class="fas fa-wallet"></i> Wallets</span>
-                    </div>
+                <div style="text-align:center;margin:20px 0">
+                    <img src="paymentqr.jpeg" alt="Scan UPI QR to Pay" style="max-width:260px;width:100%;border:2px solid var(--border);border-radius:12px;padding:8px;background:#fff">
+                    <p style="font-size:12px;color:var(--text-secondary);margin-top:10px">Scan with GPay / PhonePe / Paytm / any UPI app</p>
+                </div>
+                <div class="form-group">
+                    <label>UPI Transaction ID (UTR / Ref ID)</label>
+                    <input type="text" id="utrInput" placeholder="Enter 12-digit UTR number" required pattern="[0-9]{12}" maxlength="12">
+                    <small style="color:var(--text-secondary);font-size:11px;display:block;margin-top:4px">Payment ke baad UPI app se Transaction ID copy karein</small>
                 </div>
                 <button class="btn-primary btn-full" id="payBtn" style="background:linear-gradient(135deg,#072654 0%,#2b5ea7 100%);">
-                    <i class="fas fa-lock"></i> Pay Securely with Razorpay
+                    <i class="fas fa-check-circle"></i> I Have Paid - Submit
                 </button>
+                <p style="font-size:11px;color:var(--text-secondary);text-align:center;margin-top:10px">
+                    <i class="fas fa-shield-alt" style="color:var(--success)"></i> Payment verify hone ke baad aapko course access milega
+                </p>
             </div>
             <div class="checkout-step-content" id="step3">
                 <div class="success-animation">
@@ -521,9 +521,10 @@
                             <path class="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
                         </svg>
                     </div>
-                    <h2>Payment Successful!</h2>
+                    <h2>Order Placed!</h2>
+                    <p style="color:#f59e0b;font-weight:600"><i class="fas fa-clock"></i> Payment Under Verification</p>
                     <p>Order ID: <strong id="orderIdDisplay"></strong></p>
-                    <p class="text-gray">A confirmation email has been sent to <strong id="emailDisplay"></strong></p>
+                    <p class="text-gray">Aapka payment verify ho raha hai. Admin approve karne ke baad course access milega.</p>
                     <div class="success-actions">
                         <a href="user-dashboard.html" class="btn-primary"><i class="fas fa-tachometer-alt"></i> Go to Dashboard</a>
                         <button class="btn-secondary" id="continueShopping">Continue Shopping</button>
@@ -1643,7 +1644,6 @@
 
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-config.js"></script>
     <script src="script.js"></script>
