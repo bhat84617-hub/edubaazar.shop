@@ -158,9 +158,9 @@
             let orders = [];
 
             // Try Supabase first
-            if (supabase && auth) {
+            if (typeof _sb !== 'undefined' && auth) {
                 try {
-                    const { data } = await supabase.from('orders').select('*').eq('email', auth.email).order('date', { ascending: false });
+                    const { data } = await _sb.from('orders').select('*').eq('email', auth.email).order('date', { ascending: false });
                     if (data && data.length > 0) {
                         orders = data.map(o => ({
                             orderId: o.order_id,

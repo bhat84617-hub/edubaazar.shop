@@ -58,7 +58,7 @@
             errorEl.style.display = 'none';
 
             try {
-                const { data: user, error } = await supabase.from('users').select('name, email').eq('email', email).eq('password', password).single();
+                const { data: user, error } = await _sb.from('users').select('name, email').eq('email', email).eq('password', password).single();
                 if (error || !user) {
                     errorEl.textContent = 'Invalid email or password. Please try again.';
                     errorEl.style.display = 'block';

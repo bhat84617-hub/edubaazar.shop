@@ -494,8 +494,8 @@ function completeOrder(status, paymentId, orderId) {
     localStorage.setItem('edubazar_orders', JSON.stringify(orders));
 
     // Save to Supabase
-    if (supabase) {
-        supabase.from('orders').insert([{
+    if (typeof _sb !== 'undefined') {
+        _sb.from('orders').insert([{
             order_id: orderId,
             name: orderData.name,
             email: orderData.email,

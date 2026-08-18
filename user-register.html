@@ -67,21 +67,22 @@
             successEl.style.display = 'none';
 
             try {
-                const { data: existing } = await supabase.from('users').select('id').eq('email', email).single();
+                const { data: existing } = await _sb.from('users').select('id').eq('email', email).single();
                 if (existing) {
                     errorEl.textContent = 'This email is already registered. Please login.';
                     errorEl.style.display = 'block';
                     return;
                 }
 
-                const { error } = await supabase.from('users').insert([{ name, email, password }]);
+                const { error } = await _sb.from('users').insert([{ name, email, password }]);
                 if (error) throw error;
 
                 successEl.textContent = 'Account created successfully! Redirecting to login...';
                 successEl.style.display = 'block';
                 setTimeout(() => { window.location.href = 'user-login.html'; }, 1500);
             } catch (err) {
-                errorEl.textContent = 'Something went wrong. Please try again.';
+                console.error('Signup error:', err);
+                errorEl.textContent = 'Something went wrong: ' + (err.message || 'Please try again.');
                 errorEl.style.display = 'block';
             }
         });
