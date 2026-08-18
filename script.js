@@ -1,4 +1,21 @@
 // ==================== INIT ====================
+// Check login state and update header
+(function() {
+    const auth = JSON.parse(sessionStorage.getItem('edubazar_user_auth'));
+    const headerActions = document.getElementById('headerActions');
+    const btnLogin = document.getElementById('btnLogin');
+    const btnSignup = document.getElementById('btnSignup');
+    const mobileBtnLogin = document.getElementById('mobileBtnLogin');
+    const mobileBtnSignup = document.getElementById('mobileBtnSignup');
+    if (auth && auth.email) {
+        const name = auth.name || auth.email.split('@')[0];
+        if (btnLogin) { btnLogin.href = 'user-dashboard.html'; btnLogin.innerHTML = '<i class="fas fa-tachometer-alt"></i> Dashboard'; }
+        if (btnSignup) { btnSignup.innerHTML = '<i class="fas fa-user"></i> ' + name; btnSignup.href = 'user-dashboard.html'; }
+        if (mobileBtnLogin) { mobileBtnLogin.href = 'user-dashboard.html'; mobileBtnLogin.innerHTML = '<i class="fas fa-tachometer-alt"></i> Dashboard'; }
+        if (mobileBtnSignup) { mobileBtnSignup.innerHTML = '<i class="fas fa-user"></i> ' + name; mobileBtnSignup.href = 'user-dashboard.html'; }
+    }
+})();
+
 window.addEventListener('load', () => {
     setTimeout(() => document.getElementById('preloader').classList.add('loaded'), 1000);
 });
