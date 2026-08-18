@@ -488,9 +488,26 @@ function completeOrder(status, paymentId, orderId) {
         };
     });
 
+    // Save to localStorage
     let orders = JSON.parse(localStorage.getItem('edubazar_orders')) || [];
     orders.push(orderData);
     localStorage.setItem('edubazar_orders', JSON.stringify(orders));
+
+    // Save to Supabase
+    if (supabase) {
+        supabase.from('orders').insert([{
+            order_id: orderId,
+            name: orderData.name,
+            email: orderData.email,
+            phone: orderData.phone,
+            items: JSON.stringify(orderData.items),
+            total: orderData.total,
+            status: status,
+            payment_method: 'razorpay',
+            payment_id: paymentId || 'free',
+            date: orderData.date
+        }]).then(() => {}).catch(() => {});
+    }
 
     cart = [];
     saveCart();

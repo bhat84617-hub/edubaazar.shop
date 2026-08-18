@@ -135,6 +135,8 @@
     </div>
 
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
     <script>
         const auth = JSON.parse(sessionStorage.getItem('edubazar_user_auth'));
         if (!auth) { window.location.href = 'user-login.html'; }
@@ -152,62 +154,70 @@
             document.getElementById('userAvatar').textContent = (auth.name || auth.email).charAt(0).toUpperCase();
         }
 
-        const orders = (JSON.parse(localStorage.getItem('edubazar_orders')) || []).filter(o => o.email && o.email.toLowerCase() === auth.email.toLowerCase());
-        const container = document.getElementById('ordersContainer');
+        async function loadUserOrders() {
+            let orders = [];
 
-        // Update stats
-        document.getElementById('totalOrders').textContent = orders.length;
-        const allItems = orders.flatMap(o => o.items || []);
-        document.getElementById('totalCourses').textContent = allItems.length;
-        document.getElementById('totalSpent').textContent = '₹' + orders.reduce((sum, o) => sum + (o.total || 0), 0);
-        document.getElementById('totalDownloads').textContent = orders.reduce((sum, o) => sum + (o.downloadLinks || []).length, 0);
+            // Try Supabase first
+            if (supabase && auth) {
+                try {
+                    const { data } = await supabase.from('orders').select('*').eq('email', auth.email).order('date', { ascending: false });
+                    if (data && data.length > 0) {
+                        orders = data.map(o => ({
+                            orderId: o.order_id,
+                            name: o.name,
+                            email: o.email,
+                            items: typeof o.items === 'string' ? JSON.parse(o.items) : o.items,
+                            total: o.total,
+                            status: o.status,
+                            paymentMethod: o.payment_method,
+                            date: o.date,
+                            downloadLinks: []
+                        }));
+                    }
+                } catch (e) {}
+            }
 
-        if (orders.length === 0) {
-            container.innerHTML = `
-                <div class="empty-orders">
-                    <i class="fas fa-shopping-basket"></i>
-                    <h3>No Orders Yet</h3>
-                    <p>You haven't placed any orders. Start shopping to see your orders here!</p>
-                    <a href="index.html" class="btn-shop"><i class="fas fa-shopping-bag"></i> Browse Courses</a>
-                </div>`;
-        } else {
-            let html = `<table><thead><tr><th>Order ID</th><th>Items</th><th>Total</th><th>Payment</th><th>Date</th><th>Status</th><th>Downloads</th></tr></thead><tbody>`;
-            orders.reverse().forEach(order => {
-                const date = new Date(order.date).toLocaleDateString('en-IN', {day:'2-digit', month:'short', year:'numeric'});
-                const paymentLabels = {upi:'UPI/GPay', card:'Card', netbanking:'Net Banking'};
-                html += `<tr>
-                    <td><strong>${order.orderId}</strong></td>
-                    <td>${(order.items||[]).map(i => i.name).join(', ')}</td>
-                    <td><strong>₹${order.total}</strong></td>
-                    <td>${paymentLabels[order.paymentMethod] || order.paymentMethod}</td>
-                    <td>${date}</td>
-                    <td><span class="status-badge status-completed">Completed</span></td>
-                    <td>`;
-                if (order.status === 'completed' && order.downloadLinks) {
-                    order.downloadLinks.forEach(dl => {
-                        html += `<button class="btn-download" onclick="downloadCourse('${dl.link}', '${dl.name}')"><i class="fas fa-download"></i> ${dl.name.substring(0,20)}...</button> `;
-                    });
-                }
-                html += `</td></tr>`;
-            });
-            html += `</tbody></table>`;
-            container.innerHTML = html;
+            // Fallback to localStorage
+            if (orders.length === 0) {
+                orders = (JSON.parse(localStorage.getItem('edubazar_orders')) || []).filter(o => o.email && o.email.toLowerCase() === auth.email.toLowerCase());
+            }
+
+            return orders;
         }
 
-        function downloadCourse(link, name) {
-            showToast(`Downloading "${name}"...`);
-            setTimeout(() => showToast(`"${name}" download started!`), 1000);
-        }
+        loadUserOrders().then(orders => {
+            document.getElementById('totalOrders').textContent = orders.length;
+            const allItems = orders.flatMap(o => o.items || []);
+            document.getElementById('totalCourses').textContent = allItems.length;
+            document.getElementById('totalSpent').textContent = '₹' + orders.reduce((sum, o) => sum + (o.total || 0), 0);
 
-        function showToast(msg) {
-            const toast = document.createElement('div');
-            toast.style.cssText = 'position:fixed;top:20px;right:20px;padding:15px 25px;background:white;border-radius:12px;box-shadow:0 10px 40px rgba(0,0,0,0.15);z-index:10000;display:flex;align-items:center;gap:10px;animation:slideIn 0.5s ease;border-left:4px solid #10B981;font-size:0.9rem;font-weight:500';
-            toast.innerHTML = `<i class="fas fa-check-circle" style="color:#10B981;font-size:1.2rem"></i>${msg}`;
-            document.body.appendChild(toast);
-            setTimeout(() => toast.remove(), 3000);
-        }
+            const container = document.getElementById('ordersContainer');
+            if (orders.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-orders">
+                        <i class="fas fa-shopping-basket"></i>
+                        <h3>No Orders Yet</h3>
+                        <p>You haven't placed any orders. Start shopping to see your orders here!</p>
+                        <a href="index.html" class="btn-shop"><i class="fas fa-shopping-bag"></i> Browse Courses</a>
+                    </div>`;
+            } else {
+                let html = `<table><thead><tr><th>Order ID</th><th>Items</th><th>Total</th><th>Payment</th><th>Date</th><th>Status</th></tr></thead><tbody>`;
+                orders.forEach(order => {
+                    const date = new Date(order.date).toLocaleDateString('en-IN', {day:'2-digit', month:'short', year:'numeric'});
+                    html += `<tr>
+                        <td><strong>${order.orderId}</strong></td>
+                        <td>${(order.items||[]).map(i => i.name).join(', ')}</td>
+                        <td><strong>₹${order.total}</strong></td>
+                        <td>Razorpay</td>
+                        <td>${date}</td>
+                        <td><span class="status-badge status-completed">Completed</span></td>
+                    </tr>`;
+                });
+                html += `</tbody></table>`;
+                container.innerHTML = html;
+            }
+        });
 
-        // Search
         document.getElementById('orderSearch').addEventListener('input', (e) => {
             const val = e.target.value.toLowerCase();
             document.querySelectorAll('tbody tr').forEach(row => {

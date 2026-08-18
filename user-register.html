@@ -53,8 +53,10 @@
             <p style="margin-top:8px"><a href="index.html">Back to Home</a></p>
         </div>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
     <script>
-        document.getElementById('signupForm').addEventListener('submit', function(e) {
+        document.getElementById('signupForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             const name = document.getElementById('fullName').value.trim();
             const email = document.getElementById('email').value.trim().toLowerCase();
@@ -64,19 +66,24 @@
             errorEl.style.display = 'none';
             successEl.style.display = 'none';
 
-            let users = JSON.parse(localStorage.getItem('edubazar_users')) || [];
-            if (users.find(u => u.email === email)) {
-                errorEl.textContent = 'This email is already registered. Please login.';
+            try {
+                const { data: existing } = await supabase.from('users').select('id').eq('email', email).single();
+                if (existing) {
+                    errorEl.textContent = 'This email is already registered. Please login.';
+                    errorEl.style.display = 'block';
+                    return;
+                }
+
+                const { error } = await supabase.from('users').insert([{ name, email, password }]);
+                if (error) throw error;
+
+                successEl.textContent = 'Account created successfully! Redirecting to login...';
+                successEl.style.display = 'block';
+                setTimeout(() => { window.location.href = 'user-login.html'; }, 1500);
+            } catch (err) {
+                errorEl.textContent = 'Something went wrong. Please try again.';
                 errorEl.style.display = 'block';
-                return;
             }
-
-            users.push({ name: name, email: email, password: password });
-            localStorage.setItem('edubazar_users', JSON.stringify(users));
-
-            successEl.textContent = 'Account created successfully! Redirecting to login...';
-            successEl.style.display = 'block';
-            setTimeout(() => { window.location.href = 'user-login.html'; }, 1500);
         });
     </script>
 </body>

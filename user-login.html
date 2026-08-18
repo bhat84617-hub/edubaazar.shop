@@ -47,21 +47,27 @@
             <p style="margin-top:8px"><a href="index.html">Back to Home</a></p>
         </div>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
     <script>
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             const email = document.getElementById('email').value.trim().toLowerCase();
             const password = document.getElementById('password').value;
             const errorEl = document.getElementById('errorMsg');
             errorEl.style.display = 'none';
 
-            let users = JSON.parse(localStorage.getItem('edubazar_users')) || [];
-            const found = users.find(u => u.email === email && u.password === password);
-            if (found) {
-                sessionStorage.setItem('edubazar_user_auth', JSON.stringify({email: email, name: found.name}));
+            try {
+                const { data: user, error } = await supabase.from('users').select('name, email').eq('email', email).eq('password', password).single();
+                if (error || !user) {
+                    errorEl.textContent = 'Invalid email or password. Please try again.';
+                    errorEl.style.display = 'block';
+                    return;
+                }
+                sessionStorage.setItem('edubazar_user_auth', JSON.stringify({ email: user.email, name: user.name }));
                 window.location.href = 'user-dashboard.html';
-            } else {
-                errorEl.textContent = 'Invalid email or password. Please try again.';
+            } catch (err) {
+                errorEl.textContent = 'Something went wrong. Please try again.';
                 errorEl.style.display = 'block';
             }
         });
