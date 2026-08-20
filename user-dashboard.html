@@ -6,13 +6,13 @@
     <title>My Dashboard - EduBazar.shop</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Lato:wght@300;400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css">
     <style>
         :root{--primary:#4F46E5;--primary-dark:#4338CA;--secondary:#F59E0B;--dark:#1E1B4B;--gray:#6B7280;--gray-light:#F3F4F6;--white:#FFFFFF;--green:#10B981;--red:#EF4444;--gradient:linear-gradient(135deg,var(--primary) 0%,var(--secondary) 100%);--shadow:0 10px 40px rgba(79,70,229,0.15);--transition:all 0.3s ease}
         *{margin:0;padding:0;box-sizing:border-box}
-        body{font-family:'Poppins',sans-serif;background:var(--gray-light);color:var(--dark);min-height:100vh}
+        body{font-family:'Montserrat',sans-serif;background:var(--gray-light);color:var(--dark);min-height:100vh}
 
         /* Sidebar */
         .sidebar{position:fixed;left:0;top:0;width:260px;height:100%;background:var(--dark);z-index:100;padding:30px 20px;transition:var(--transition)}
@@ -33,7 +33,7 @@
         .topbar h1{font-size:1.5rem;font-weight:700}
         .topbar-right{display:flex;align-items:center;gap:15px}
         .user-email{color:var(--gray);font-size:0.85rem;font-weight:500}
-        .btn-back{padding:10px 20px;background:var(--gray-light);border:none;border-radius:10px;font-weight:600;cursor:pointer;transition:var(--transition);text-decoration:none;color:var(--dark);font-family:'Poppins',sans-serif;display:flex;align-items:center;gap:8px}
+        .btn-back{padding:10px 20px;background:var(--gray-light);border:none;border-radius:10px;font-weight:600;cursor:pointer;transition:var(--transition);text-decoration:none;color:var(--dark);font-family:'Montserrat',sans-serif;display:flex;align-items:center;gap:8px}
         .btn-back:hover{background:var(--primary);color:var(--white)}
         .user-avatar{width:45px;height:45px;border-radius:50%;background:var(--gradient);display:flex;align-items:center;justify-content:center;color:var(--white);font-weight:700;font-size:1.1rem}
 
@@ -53,7 +53,7 @@
         .orders-section{background:var(--white);border-radius:16px;padding:30px;box-shadow:var(--shadow)}
         .orders-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:25px}
         .orders-header h2{font-size:1.3rem;font-weight:700}
-        .orders-search{padding:10px 20px;border:2px solid var(--gray-light);border-radius:10px;font-family:'Poppins',sans-serif;width:250px;transition:var(--transition)}
+        .orders-search{padding:10px 20px;border:2px solid var(--gray-light);border-radius:10px;font-family:'Montserrat',sans-serif;width:250px;transition:var(--transition)}
         .orders-search:focus{border-color:var(--primary);outline:none}
         table{width:100%;border-collapse:collapse}
         th{text-align:left;padding:15px 12px;border-bottom:2px solid var(--gray-light);color:var(--gray);font-size:0.85rem;font-weight:600}
@@ -62,13 +62,13 @@
         .status-badge{padding:5px 12px;border-radius:50px;font-size:0.75rem;font-weight:600}
         .status-completed{background:rgba(16,185,129,0.1);color:var(--green)}
         .status-pending{background:rgba(245,158,11,0.1);color:var(--secondary)}
-        .btn-download{padding:8px 18px;background:var(--gradient);color:var(--white);border:none;border-radius:8px;font-weight:600;cursor:pointer;transition:var(--transition);font-family:'Poppins',sans-serif;font-size:0.8rem;display:inline-flex;align-items:center;gap:6px}
+        .btn-download{padding:8px 18px;background:var(--gradient);color:var(--white);border:none;border-radius:8px;font-weight:600;cursor:pointer;transition:var(--transition);font-family:'Montserrat',sans-serif;font-size:0.8rem;display:inline-flex;align-items:center;gap:6px}
         .btn-download:hover{transform:translateY(-2px);box-shadow:0 5px 20px rgba(79,70,229,0.3)}
         .btn-download:disabled{opacity:0.5;cursor:not-allowed;transform:none}
         .no-orders{text-align:center;padding:60px 20px;color:var(--gray)}
         .no-orders i{font-size:4rem;color:var(--gray-light);margin-bottom:15px}
         .no-orders p{font-size:1.1rem;margin-bottom:20px}
-        .btn-shop{padding:12px 30px;background:var(--gradient);color:var(--white);border:none;border-radius:50px;font-weight:600;cursor:pointer;text-decoration:none;font-family:'Poppins',sans-serif;display:inline-flex;align-items:center;gap:8px;transition:var(--transition)}
+        .btn-shop{padding:12px 30px;background:var(--gradient);color:var(--white);border:none;border-radius:50px;font-weight:600;cursor:pointer;text-decoration:none;font-family:'Montserrat',sans-serif;display:inline-flex;align-items:center;gap:8px;transition:var(--transition)}
         .btn-shop:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(79,70,229,0.3)}
         .btn-download-sm{display:inline-block;padding:4px 10px;background:var(--primary);color:#fff;border-radius:6px;text-decoration:none;font-size:0.8rem;margin:2px 0}
         .btn-download-sm:hover{background:var(--primary-hover)}

@@ -6,35 +6,82 @@
     <title>EduBazar.shop - Software &amp; Tools</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Lato:wght@300;400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
     <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="preloader" id="preloader"><div class="preloader-inner"><div class="preloader-spinner"></div><p style="color:#6c5ce7;font-weight:600;margin-top:15px">Loading EduBazar...</p></div></div>
+    <div class="preloader" id="preloader"><div class="preloader-inner"><div class="preloader-spinner"></div><p style="color:var(--fg-muted);font-weight:600;margin-top:15px;font-size:14px">Loading EduBazar...</p></div></div>
     <div class="toast-container" id="toastContainer"></div>
 
-    <header class="header" id="header">
+    <!-- WoodMart 3-Row Header -->
+    <div class="wm-topbar" id="wmTopbar">
         <div class="container">
-            <a href="index.html" class="logo"><img src="edulogo1.png" alt="EduBazar Logo" class="logo-img"><span>EduBazar</span></a>
-            <div class="search-bar">
-                <input type="text" id="searchInput" placeholder="Search courses...">
-                <button onclick="searchCourses()"><i class="fas fa-search"></i></button>
+            <div class="wm-topbar-left">
+                <a href="tel:+919759131256"><i class="fas fa-phone"></i> +91 9759131256</a>
+                <a href="https://wa.me/919759131256" target="_blank"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+                <a href="mailto:edubazarshop@gmail.com"><i class="fas fa-envelope"></i> edubazarshop@gmail.com</a>
             </div>
-            <div id="searchResults" class="search-results"></div>
-            <div class="header-actions">
-                <button class="btn-cart" id="cartBtn"><i class="fas fa-shopping-cart"></i><span class="cart-count" id="cartCount">0</span></button>
+            <div class="wm-topbar-right">
+                <a href="user-dashboard.html"><i class="fas fa-tachometer-alt"></i> My Dashboard</a>
+                <a href="user-login.html"><i class="fas fa-sign-in-alt"></i> Login</a>
+                <a href="user-register.html"><i class="fas fa-user-plus"></i> Sign Up</a>
             </div>
-            <div class="hamburger" id="hamburger"><span></span><span></span><span></span></div>
         </div>
-    </header>
+    </div>
+    <div class="wm-main-header" id="wmMainHeader">
+        <div class="container">
+            <a href="index.html" class="wm-logo">
+                <img src="edulogoupdate.jpeg" alt="EduBazar Logo">
+                <span>EduBazar</span>
+            </a>
+            <div class="wm-search">
+                <select id="wmSearchCat">
+                    <option value="all">All Categories</option>
+                    <option value="Hacking">Hacking</option>
+                    <option value="Programming">Programming</option>
+                    <option value="Trading">Trading</option>
+                    <option value="Books">Books</option>
+                    <option value="Tools">Tools</option>
+                </select>
+                <input type="text" id="wmSearchInput" placeholder="Search courses, books, tools...">
+                <button><i class="fas fa-search"></i></button>
+            </div>
+            <div class="wm-icons">
+                <a href="user-login.html" class="wm-icon-btn" id="wmAccountBtn">
+                    <i class="fas fa-user"></i><span>Account</span>
+                </a>
+                <a href="user-dashboard.html" class="wm-icon-btn" id="wmDashboardBtn" style="display:none">
+                    <i class="fas fa-tachometer-alt"></i><span>Dashboard</span>
+                </a>
+                <button class="wm-icon-btn" id="wmCartBtn">
+                    <i class="fas fa-shopping-cart"></i><span>Cart</span>
+                    <span class="wm-cart-count" id="wmCartCount" style="display:none">0</span>
+                </button>
+                <button class="wm-hamburger" id="wmHamburger" aria-label="Open Menu"><i class="fas fa-bars"></i></button>
+            </div>
+        </div>
+    </div>
+    <div class="wm-nav" id="wmNav">
+        <div class="container">
+            <div class="wm-nav-links">
+                <a href="index.html">Home</a>
+                <a href="hacking.html">Hacking</a>
+                <a href="programming.html">Programming</a>
+                <a href="trading.html">Trading</a>
+                <a href="books.html">Books</a>
+                <a href="tools.html" class="active">Software & Tools</a>
+            </div>
+            <a href="index.html#courses" class="wm-nav-cta">Browse Courses</a>
+        </div>
+    </div>
 
     <div class="mobile-nav" id="mobileNav"></div>
     <div class="mobile-menu" id="mobileMenu">
         <div class="mobile-menu-header">
-            <h3><img src="edulogo1.png" alt="EduBazar Logo" style="height:28px;width:auto;border-radius:6px;margin-right:8px;">EduBazar</h3>
+            <h3><img src="edulogoupdate.jpeg" alt="EduBazar Logo" style="height:28px;width:auto;border-radius:6px;margin-right:8px;">EduBazar</h3>
             <button class="mobile-close" id="mobileClose"><i class="fas fa-times"></i></button>
         </div>
         <div class="mobile-menu-links">
