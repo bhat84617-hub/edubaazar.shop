@@ -72,16 +72,18 @@ export default function Header() {
 
   return (
     <>
-      {/* Rotating promo ribbon */}
-      <div className={`ws-promo-ribbon ${headerTransparent ? "ribbon-transparent" : ""}`}>
-        <div className="ws-promo-inner" key={announceIdx}>
-          <span>{ANNOUNCEMENTS[announceIdx]}</span>
+      {/* Sticky wrapper — ribbon + header stay together */}
+      <div className={`ws-sticky-wrap ${headerTransparent ? "ws-sticky-transparent" : ""} ${scrolled ? "ws-sticky-scrolled" : ""}`}>
+        {/* Promo ribbon */}
+        <div className={`ws-promo-ribbon ${headerTransparent ? "ribbon-transparent" : ""}`}>
+          <div className="ws-promo-inner" key={announceIdx}>
+            <span>{ANNOUNCEMENTS[announceIdx]}</span>
+          </div>
         </div>
-      </div>
 
-      {/* Main header */}
-      <header className={`ws-header ${headerTransparent ? "ws-header-transparent" : ""} ${scrolled ? "ws-header-scrolled" : ""}`}>
-        <div className="ws-header-inner container">
+        {/* Main header */}
+        <header className="ws-header">
+          <div className="ws-header-inner container">
           {/* Hamburger */}
           <button className="ws-hamburger" onClick={() => setDrawerOpen(true)} aria-label="Menu">
             <Menu size={22} strokeWidth={1.5} />
@@ -256,6 +258,7 @@ export default function Header() {
           </div>
         </nav>
       </header>
+      </div>
 
       {/* Mobile drawer */}
       <div className={`ws-drawer ${drawerOpen ? "open" : ""}`}>

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { GraduationCap, Zap, Headset, ShieldCheck, Star, ArrowRight, Camera } from "lucide-react";
 import Hero from "@/components/Hero";
 import BestDealSlider from "@/components/BestDealSlider";
+import CourseSearchSlider from "@/components/CourseSearchSlider";
 import ProductCard from "@/components/ProductCard";
 import CountUp from "@/components/CountUp";
 import NewsletterPopup from "@/components/NewsletterPopup";
@@ -86,6 +87,9 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* Search + Course Slider */}
+      <CourseSearchSlider />
 
       {/* Featured products */}
       <section className="ws-section">
