@@ -46,6 +46,19 @@ export default function CheckoutPage() {
     if (order) {
       setPlaced({ id: order.orderId, total: order.total });
       setStep(3);
+      fetch("/api/send-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: "order",
+          orderId: order.orderId,
+          name: form.name,
+          email: form.email,
+          items: order.items.map((i) => ({ name: i.name, price: i.price, qty: i.qty })),
+          total: order.total,
+          utr,
+        }),
+      }).catch(() => {});
     }
   };
 

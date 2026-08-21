@@ -57,15 +57,25 @@ export default function AdminPage() {
   const revenue = orders.reduce((s, o) => s + (o.total || 0), 0);
   const customers = new Set(orders.map((o) => o.email)).size;
 
-  const approve = async (id: string) => {
+  const sendStatusEmail = (orderId: string, name: string, email: string, status: string) => {
+    fetch("/api/send-email", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ type: "order-status", orderId, name, email, status }),
+    }).catch(() => {});
+  };
+
+  const approve = async (order: Order) => {
     if (!confirm("Approve this payment? Course access will be given to customer.")) return;
-    await updateOrderStatus(id, "approved");
+    await updateOrderStatus(order.orderId, "approved");
+    sendStatusEmail(order.orderId, order.name, order.email, "approved");
     showToast("Order approved!");
   };
 
-  const reject = async (id: string) => {
+  const reject = async (order: Order) => {
     if (!confirm("Reject this payment?")) return;
-    await updateOrderStatus(id, "rejected");
+    await updateOrderStatus(order.orderId, "rejected");
+    sendStatusEmail(order.orderId, order.name, order.email, "rejected");
     showToast("Order rejected", "error");
   };
 
@@ -204,10 +214,10 @@ export default function AdminPage() {
                             </button>
                             {isPending && (
                               <>
-                                <button className="btn-mini ok" onClick={() => approve(order.orderId)} title="Approve">
+                                <button className="btn-mini ok" onClick={() => approve(order)} title="Approve">
                                   <Check size={13} />
                                 </button>
-                                <button className="btn-mini no" onClick={() => reject(order.orderId)} title="Reject">
+                                <button className="btn-mini no" onClick={() => reject(order)} title="Reject">
                                   <X size={13} />
                                 </button>
                               </>
