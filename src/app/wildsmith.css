@@ -4,26 +4,26 @@
 
 /* ----- Promo ribbon ----- */
 .ws-promo-ribbon {
-  background: var(--greige-light);
-  color: var(--ink);
+  background: var(--cream);
+  color: var(--muted);
   overflow: hidden;
-  font-size: 12px;
+  font-size: 11px;
   text-transform: uppercase;
-  letter-spacing: 0.4px;
+  letter-spacing: 0.5px;
   position: relative;
   border-bottom: 1px solid var(--line);
   transition: background 0.35s var(--transition), border-color 0.35s var(--transition);
 }
 .ws-promo-ribbon.ribbon-transparent {
-  background: rgba(0,0,0,0.25);
-  color: rgba(255,255,255,0.9);
-  border-bottom: 1px solid rgba(255,255,255,0.12);
+  background: rgba(0,0,0,0.35);
+  color: rgba(255,255,255,0.8);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
 }
 .ws-promo-inner {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 38px;
+  min-height: 34px;
   white-space: nowrap;
 }
 
@@ -32,19 +32,19 @@
   position: sticky;
   top: 0;
   z-index: 50;
-  background: #fff;
+  background: var(--cream);
   transition: background 0.35s var(--transition), box-shadow 0.35s var(--transition);
 }
 .ws-sticky-scrolled {
-  box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
 }
 .ws-sticky-transparent {
   background: transparent;
 }
 .ws-sticky-transparent .ws-promo-ribbon {
-  background: rgba(0,0,0,0.25);
-  color: rgba(255,255,255,0.9);
-  border-bottom: 1px solid rgba(255,255,255,0.12);
+  background: rgba(0,0,0,0.35);
+  color: rgba(255,255,255,0.8);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
 }
 .ws-sticky-transparent .ws-header {
   background: transparent;
@@ -56,7 +56,7 @@
 
 /* ----- Header (Wildsmith) ----- */
 .ws-header {
-  background: inherit;
+  background: var(--cream);
   transition: background 0.35s var(--transition);
 }
 
@@ -322,11 +322,15 @@
 .ws-btn-hero {
   background: transparent;
   color: #fff;
-  border: 1px solid #fff;
+  border: 1px solid rgba(255,255,255,0.5);
+  padding: 10px 22px;
+  font-size: 11px;
+  letter-spacing: 0.5px;
 }
 .ws-btn-hero:hover {
   background: #fff;
   color: var(--ink);
+  border-color: #fff;
 }
 .ws-btn-sm {
   padding: 10px 22px;
@@ -335,7 +339,7 @@
 
 /* ----- Navigation (Wildsmith) ----- */
 .ws-nav {
-  background: #fff;
+  background: var(--cream);
   border-top: 1px solid var(--line);
 }
 .ws-nav-transparent {
@@ -380,8 +384,8 @@
   top: 100%;
   left: 0;
   right: 0;
-  background: #fff;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  background: var(--cream);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.06);
   border-top: 1px solid var(--line);
   padding: 28px 0 20px;
   opacity: 0;
@@ -566,9 +570,9 @@
 /* ----- Hero (Wildsmith full-bleed) ----- */
 .ws-hero {
   position: relative;
-  min-height: 85vh;
+  min-height: 70vh;
   display: flex;
-  align-items: center;
+  align-items: stretch;
   overflow: hidden;
 }
 .ws-hero-bg {
@@ -585,31 +589,42 @@
 .ws-hero-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to right, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.2) 60%, transparent 100%);
+  background: linear-gradient(to right, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.3) 40%, rgba(0,0,0,0.05) 70%, transparent 100%);
 }
 .ws-hero-content {
   position: relative;
   z-index: 2;
-  padding: 120px 0 80px;
-  max-width: 640px;
+  display: flex;
+  align-items: center;
+  padding: 40px 0;
+  max-width: 100%;
+  width: 100%;
+}
+.ws-hero-text {
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  padding: 32px 36px;
+  max-width: 380px;
+  border-left: 3px solid var(--primary);
 }
 .ws-hero-text h1 {
   color: #fff;
-  font-size: clamp(36px, 5.5vw, 62px);
-  font-weight: 500;
-  line-height: 1.1;
+  font-size: clamp(20px, 2.5vw, 28px);
+  font-weight: 700;
+  line-height: 1.2;
   text-transform: uppercase;
-  letter-spacing: 3px;
-  margin-bottom: 20px;
+  letter-spacing: 1.5px;
+  margin-bottom: 12px;
   white-space: pre-line;
 }
 .ws-hero-desc {
-  color: rgba(255,255,255,0.85);
-  font-size: 16px;
-  font-weight: 300;
-  line-height: 1.7;
-  margin-bottom: 32px;
-  max-width: 480px;
+  color: rgba(255,255,255,0.75);
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.6;
+  margin-bottom: 20px;
+  max-width: 320px;
 }
 .ws-hero-nav {
   position: absolute;
@@ -1531,7 +1546,7 @@
 
   .shop-product-grid { grid-template-columns: repeat(2, 1fr); }
 
-  .ws-hero { min-height: 65vh; }
+  .ws-hero { min-height: 55vh; }
   .ws-deal-card { width: 260px; }
 }
 
@@ -1564,10 +1579,11 @@
   .ws-newsletter-box { padding: 40px 20px; }
 
   .ws-hero { min-height: 55vh; }
-  .ws-hero-content { padding: 80px 0 60px; }
-  .ws-hero-text h1 { font-size: clamp(26px, 7vw, 40px); letter-spacing: 2px; }
-  .ws-hero-desc { font-size: 14px; }
-  .ws-hero-nav { padding: 0 16px; bottom: 20px; }
+  .ws-hero-content { padding: 24px 0; }
+  .ws-hero-text { padding: 24px 28px; max-width: 300px; }
+  .ws-hero-text h1 { font-size: clamp(18px, 4vw, 24px); letter-spacing: 1px; }
+  .ws-hero-desc { font-size: 12px; }
+  .ws-hero-nav { padding: 0 16px; bottom: 16px; }
 
   .ws-btn { padding: 12px 24px; font-size: 12px; min-width: 80px; }
 
@@ -1602,8 +1618,10 @@
   .p-action-btn { width: 30px; height: 30px; }
   .p-action-btn svg { width: 14px; height: 14px; }
 
-  .ws-hero { min-height: 50vh; }
-  .ws-hero-text h1 { letter-spacing: 1px; }
+  .ws-hero { min-height: 45vh; }
+  .ws-hero-text { padding: 20px 22px; max-width: 260px; }
+  .ws-hero-text h1 { letter-spacing: 0.5px; font-size: 16px; }
+  .ws-hero-desc { font-size: 11px; margin-bottom: 14px; }
   .ws-deal-card { width: 220px; }
 }
 
