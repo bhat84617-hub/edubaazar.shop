@@ -1,7 +1,7 @@
 import { Resend } from "resend";
 
 const resendKey = process.env.RESEND_API_KEY || "";
-const FROM_EMAIL = "EduBazar <onboarding@resend.dev>";
+const FROM_EMAIL = "EduBazar <noreply@edubaazar.shop>";
 const ADMIN_EMAIL = "edubazarshop@gmail.com";
 
 export function getResend() {
