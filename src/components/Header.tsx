@@ -254,6 +254,8 @@ export default function Header() {
               <li><Link href="/shop?cat=Trading">Trading</Link></li>
               <li><Link href="/shop?cat=Books">Books</Link></li>
               <li><Link href="/shop?cat=Tools">Tools</Link></li>
+              <li><Link href="/about">About</Link></li>
+              <li><Link href="/contact">Contact</Link></li>
             </ul>
           </div>
         </nav>
@@ -274,6 +276,8 @@ export default function Header() {
           <div className="ws-drawer-nav">
             <Link href="/" onClick={() => setDrawerOpen(false)}>Home</Link>
             <Link href="/shop" onClick={() => setDrawerOpen(false)}>All Products</Link>
+            <Link href="/about" onClick={() => setDrawerOpen(false)}>About Us</Link>
+            <Link href="/contact" onClick={() => setDrawerOpen(false)}>Contact</Link>
             <div className="ws-drawer-label">Categories</div>
             {CATEGORIES.map((c) => (
               <Link key={c.key} href={`/shop?cat=${encodeURIComponent(c.key)}`} onClick={() => setDrawerOpen(false)}>

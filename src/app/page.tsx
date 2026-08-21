@@ -24,9 +24,9 @@ const STATS = [
 ];
 
 const TESTIMONIALS = [
-  { name: "Rahul Sharma", role: "Cyber Security Student", text: "The ethical hacking course is the best I've found in India. Practical labs and real-world projects made me job-ready." },
-  { name: "Priya Verma", role: "Python Developer", text: "I learned Python from absolute zero and now I'm working as a developer. EduBazar courses are worth every rupee!" },
-  { name: "Aman Gupta", role: "Trader", text: "Trading psychology book completely changed my approach. The stock market course is practical and easy to follow." },
+  { name: "Student from Delhi", role: "Ethical Hacking Course", text: "Bought the hacking course for just ₹199. Content quality is amazing — practical labs, real projects. UPI payment was instant, got access within minutes." },
+  { name: "Student from Maharashtra", role: "Python Complete Course", text: "Started learning Python from zero. The course is well-structured and easy to follow. Best investment I've made in my career." },
+  { name: "Student from UP", role: "Stock Market Course", text: "The trading psychology content changed my approach completely. Very practical and beginner-friendly. Highly recommended for anyone starting in trading." },
 ];
 
 const IG = [
@@ -53,6 +53,9 @@ export default function HomePage() {
       {/* Trust bar */}
       <section className="ws-section ws-section-sm">
         <div className="container">
+          <h1 style={{ position: "absolute", width: 1, height: 1, padding: 0, margin: -1, overflow: "hidden", clip: "rect(0,0,0,0)", whiteSpace: "nowrap", border: 0 }}>
+            EduBazar — Buy Online Courses in Hacking, Programming, Trading & Digital Marketing
+          </h1>
           <div className="ws-trust-row">
             <div className="ws-trust-chip"><ShieldCheck size={18} strokeWidth={1.5} /> Lifetime Access</div>
             <div className="ws-trust-chip"><GraduationCap size={18} strokeWidth={1.5} /> Expert Instructors</div>
@@ -229,7 +232,7 @@ export default function HomePage() {
                 </div>
                 <p>&ldquo;{t.text}&rdquo;</p>
                 <div className="ws-testimonial-person">
-                  <div className="ws-testimonial-avatar">{t.name[0]}</div>
+                  <div className="ws-testimonial-avatar">{t.name.split(" ").map(w => w[0]).slice(0,2).join("").toUpperCase()}</div>
                   <div>
                     <h5>{t.name}</h5>
                     <span>{t.role}</span>
@@ -251,7 +254,7 @@ export default function HomePage() {
           </div>
           <div className="ws-ig-strip">
             {IG.map((src, i) => (
-              <a key={i} href="https://instagram.com" target="_blank" rel="noreferrer" className="ws-ig-item">
+              <a key={i} href="https://instagram.com/edubazarshop" target="_blank" rel="noreferrer" className="ws-ig-item">
                 <img src={src} alt="EduBazar Instagram" loading="lazy" />
                 <div className="ws-ig-icon"><Camera size={24} strokeWidth={1.5} /></div>
               </a>

@@ -3,6 +3,19 @@ import { ChevronRight, ChevronDown } from "lucide-react";
 import ProductCard from "@/components/ProductCard";
 import { ShopControls } from "@/components/ShopControls";
 import { products, CATEGORIES } from "@/lib/products";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Shop — Online Courses, Books & Hacking Tools",
+  description: "Browse 30+ premium courses in Ethical Hacking, Programming, Python, JavaScript, Stock Market Trading, Digital Marketing & more. Instant access after UPI payment.",
+  keywords: ["buy courses online", "hacking courses India", "programming courses cheap", "stock market course", "digital marketing course", "free tools", "EduBazar shop"],
+  openGraph: {
+    title: "Shop All Courses — EduBazar.shop",
+    description: "Browse 30+ premium courses in Hacking, Programming, Trading & more. Instant access after payment.",
+    url: "https://edubaazar.shop/shop",
+  },
+  alternates: { canonical: "https://edubaazar.shop/shop" },
+};
 
 type SearchParams = { cat?: string; q?: string; sort?: string; kind?: string };
 

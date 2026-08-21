@@ -6,6 +6,8 @@ import ProductTabs from "@/components/ProductTabs";
 import ProductCard from "@/components/ProductCard";
 import { products, getProductBySlug, getRelatedProducts } from "@/lib/products";
 
+const SITE = "https://edubaazar.shop";
+
 export const dynamicParams = false;
 
 export function generateStaticParams() {
@@ -19,11 +21,23 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   return {
     title: product.title,
     description: product.desc,
+    keywords: [product.title, product.category + " course", "buy " + product.title, "EduBazar " + product.category, product.category + " online course India"],
     openGraph: {
       title: `${product.title} | EduBazar.shop`,
       description: product.desc,
-      images: [`https://edubaazar-shop.vercel.app${product.images[0]}`],
+      url: `${SITE}/product/${slug}`,
+      siteName: "EduBazar.shop",
+      locale: "en_IN",
+      type: "website",
+      images: [{ url: `https://edubaazar.shop${product.images[0]}`, width: 800, height: 600, alt: product.title }],
     },
+    twitter: {
+      card: "summary_large_image",
+      title: `${product.title} | EduBazar.shop`,
+      description: product.desc,
+      images: [`https://edubaazar.shop${product.images[0]}`],
+    },
+    alternates: { canonical: `${SITE}/product/${slug}` },
   };
 }
 
@@ -40,7 +54,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
     "@type": "Product",
     name: product.title,
     description: product.desc,
-    image: [`https://edubaazar-shop.vercel.app${product.images[0]}`],
+    image: [`https://edubaazar.shop${product.images[0]}`],
     brand: { "@type": "Brand", name: "EduBazar.shop" },
     aggregateRating: {
       "@type": "AggregateRating",
@@ -52,12 +66,48 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
       price: product.price,
       priceCurrency: "INR",
       availability: "https://schema.org/InStock",
+      url: `${SITE}/product/${slug}`,
     },
+  };
+
+  const breadcrumbLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: SITE },
+      { "@type": "ListItem", position: 2, name: "Shop", item: `${SITE}/shop` },
+      { "@type": "ListItem", position: 3, name: product.category, item: `${SITE}/shop?cat=${encodeURIComponent(product.category)}` },
+      { "@type": "ListItem", position: 4, name: product.title, item: `${SITE}/product/${slug}` },
+    ],
+  };
+
+  const faqLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: [
+      {
+        "@type": "Question",
+        name: `What is included in ${product.title}?`,
+        acceptedAnswer: { "@type": "Answer", text: product.includes?.join(". ") || `This course includes comprehensive content on ${product.category}.` },
+      },
+      {
+        "@type": "Question",
+        name: `How long does access last for ${product.title}?`,
+        acceptedAnswer: { "@type": "Answer", text: "You get lifetime access. Once purchased, you can study anytime, anywhere." },
+      },
+      {
+        "@type": "Question",
+        name: "How do I pay for this course?",
+        acceptedAnswer: { "@type": "Answer", text: "We accept UPI payments via Google Pay, PhonePe, Paytm, or any UPI app. After payment, enter your transaction ID and admin will verify it." },
+      },
+    ],
   };
 
   return (
     <div>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }} />
 
       <div style={{ background: "var(--cream)", borderBottom: "1px solid var(--line)", padding: "18px 0" }}>
         <div className="container">
@@ -87,13 +137,13 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
                   boxShadow: "var(--shadow)",
                 }}
               >
-                <img src={product.images[0]} alt={product.title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                <img src={product.images[0]} alt={product.title} width={800} height={600} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
               </div>
               {product.images.length > 1 && (
                 <div className="thumb-row">
                   {product.images.map((img, i) => (
                     <button key={i} className={i === 0 ? "active" : ""}>
-                      <img src={img} alt="" />
+                      <img src={img} alt={`${product.title} thumbnail ${i + 1}`} width={120} height={90} />
                     </button>
                   ))}
                 </div>
@@ -121,6 +171,24 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
           {/* Tabs */}
           <div style={{ marginTop: 54 }}>
             <ProductTabs product={product} />
+          </div>
+
+          {/* FAQ Section */}
+          <div style={{ marginTop: 48 }}>
+            <h2 style={{ fontSize: 22, marginBottom: 20 }}>Frequently Asked Questions</h2>
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              {[
+                { q: `What is included in ${product.title}?`, a: product.includes?.join(". ") || `This course includes comprehensive content on ${product.category}.` },
+                { q: "How long does access last?", a: "You get lifetime access. Once purchased, you can study anytime, anywhere on any device." },
+                { q: "How do I pay?", a: "We accept UPI payments via Google Pay, PhonePe, Paytm, or any UPI app. After payment, enter your transaction ID and our team will verify it within 24 hours." },
+                { q: "Will I get a certificate?", a: "Yes! You receive a certificate of completion after finishing the course content." },
+              ].map((faq, i) => (
+                <details key={i} style={{ background: "var(--soft)", borderRadius: 8, padding: "16px 20px", cursor: "pointer" }}>
+                  <summary style={{ fontWeight: 600, fontSize: 14.5, color: "var(--body)", listStyle: "none" }}>{faq.q}</summary>
+                  <p style={{ marginTop: 10, fontSize: 14, color: "var(--muted)", lineHeight: 1.7 }}>{faq.a}</p>
+                </details>
+              ))}
+            </div>
           </div>
         </div>
       </section>

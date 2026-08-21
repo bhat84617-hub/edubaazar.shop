@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import {
-  Phone, Mail, MapPin, Globe, Camera, MessageCircle, Play, Briefcase,
+  Phone, Mail, MapPin, Camera, MessageCircle,
 } from "lucide-react";
 import { STORE } from "@/lib/config";
 import { CATEGORIES } from "@/lib/products";
@@ -34,15 +34,12 @@ export default function Footer() {
               <span>EduBazar</span>
             </div>
             <p>
-              Empowering millions of learners worldwide with world-class
-              education, premium digital books and professional tools.
+              India&apos;s affordable online learning platform. Premium courses in Hacking, Programming, Trading & more at prices everyone can afford.
             </p>
             <div className="ws-social-row">
-              <a href="#" aria-label="Facebook"><Globe size={16} strokeWidth={1.5} /></a>
-              <a href="#" aria-label="Instagram"><Camera size={16} strokeWidth={1.5} /></a>
-              <a href="#" aria-label="Twitter"><MessageCircle size={16} strokeWidth={1.5} /></a>
-              <a href="#" aria-label="YouTube"><Play size={16} strokeWidth={1.5} /></a>
-              <a href="#" aria-label="LinkedIn"><Briefcase size={16} strokeWidth={1.5} /></a>
+              <a href="https://instagram.com/edubazarshop" target="_blank" rel="noreferrer" aria-label="Instagram"><Camera size={16} strokeWidth={1.5} /></a>
+              <a href="https://wa.me/919759131256" target="_blank" rel="noreferrer" aria-label="WhatsApp"><MessageCircle size={16} strokeWidth={1.5} /></a>
+              <a href="mailto:edubazarshop@gmail.com" aria-label="Email"><Mail size={16} strokeWidth={1.5} /></a>
             </div>
           </div>
 
@@ -51,9 +48,9 @@ export default function Footer() {
             <ul>
               <li><Link href="/">Home</Link></li>
               <li><Link href="/shop">Shop All</Link></li>
+              <li><Link href="/about">About Us</Link></li>
+              <li><Link href="/contact">Contact</Link></li>
               <li><Link href="/account">My Dashboard</Link></li>
-              <li><Link href="/wishlist">Wishlist</Link></li>
-              <li><Link href="/compare">Compare</Link></li>
             </ul>
           </div>
 
@@ -94,9 +91,9 @@ export default function Footer() {
         <div className="ws-footer-bottom">
           <p>&copy; {new Date().getFullYear()} EduBazar.shop. All rights reserved.</p>
           <div style={{ display: "flex", gap: 20 }}>
-            <a href="#">Privacy Policy</a>
-            <a href="#">Terms of Service</a>
-            <a href="#">Refund Policy</a>
+            <Link href="/privacy">Privacy Policy</Link>
+            <Link href="/terms">Terms of Service</Link>
+            <Link href="/refund">Refund Policy</Link>
           </div>
         </div>
       </div>
