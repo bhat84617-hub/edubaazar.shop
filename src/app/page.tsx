@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { GraduationCap, Zap, Headset, ShieldCheck, Star, ArrowRight, Camera } from "lucide-react";
 import Hero from "@/components/Hero";
+import BestDealSlider from "@/components/BestDealSlider";
 import ProductCard from "@/components/ProductCard";
 import CountUp from "@/components/CountUp";
 import NewsletterPopup from "@/components/NewsletterPopup";
@@ -45,6 +46,8 @@ export default function HomePage() {
   return (
     <>
       <Hero />
+
+      <BestDealSlider />
 
       {/* Trust bar */}
       <section className="ws-section ws-section-sm">
