@@ -64,6 +64,7 @@ export default function HomePage() {
           <div className="section-head">
             <span className="section-tag">Browse</span>
             <h2>Shop by Category</h2>
+            <div className="section-divider" />
             <p>Find courses, books and tools from our curated catalog</p>
           </div>
           <div className="cat-grid">
@@ -90,6 +91,7 @@ export default function HomePage() {
           <div className="section-head">
             <span className="section-tag">Featured</span>
             <h2>Featured Courses</h2>
+            <div className="section-divider" />
             <p>Our most popular products chosen by students</p>
           </div>
           <div className="p-grid">
@@ -128,6 +130,7 @@ export default function HomePage() {
           <div className="section-head">
             <span className="section-tag">Why Choose Us</span>
             <h2>Everything You Need to Succeed</h2>
+            <div className="section-divider" />
           </div>
           <div className="features-grid">
             {FEATURES.map((f, i) => (
@@ -163,6 +166,7 @@ export default function HomePage() {
           <div className="section-head">
             <span className="section-tag">New & Trending</span>
             <h2>Fresh Additions</h2>
+            <div className="section-divider" />
             <p>Just added to our catalog — grab them before they sell out</p>
           </div>
           <div className="p-grid">
@@ -179,6 +183,7 @@ export default function HomePage() {
           <div className="section-head">
             <span className="section-tag">Hot</span>
             <h2>Bestsellers</h2>
+            <div className="section-divider" />
           </div>
           <div className="p-grid">
             {bestSellers.map((p) => (
@@ -195,6 +200,7 @@ export default function HomePage() {
             <div className="section-head">
               <span className="section-tag">Free</span>
               <h2>Free Software & Tools</h2>
+              <div className="section-divider" />
               <p>Download and explore — no payment needed</p>
             </div>
             <div className="p-grid">
@@ -212,6 +218,7 @@ export default function HomePage() {
           <div className="section-head">
             <span className="section-tag">Testimonials</span>
             <h2>What Our Students Say</h2>
+            <div className="section-divider" />
           </div>
           <div className="t-grid">
             {TESTIMONIALS.map((t, i) => (
@@ -221,7 +228,7 @@ export default function HomePage() {
                     <Star key={s} size={15} fill="currentColor" />
                   ))}
                 </div>
-                <p>“{t.text}”</p>
+                <p>&ldquo;{t.text}&rdquo;</p>
                 <div className="t-person">
                   <div className="t-avatar">{t.name[0]}</div>
                   <div>
@@ -241,6 +248,7 @@ export default function HomePage() {
           <div className="section-head">
             <span className="section-tag">Instagram</span>
             <h2>Follow @edubazarshop</h2>
+            <div className="section-divider" />
           </div>
           <div className="ig-strip">
             {IG.map((src, i) => (

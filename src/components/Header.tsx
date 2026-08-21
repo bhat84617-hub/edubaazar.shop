@@ -60,15 +60,17 @@ export default function Header() {
 
   return (
     <>
+      {/* Announcement bar */}
       <div className="announce-bar">
         <div className="announce-inner container" key={announceIdx}>
           <span>
-            <ShieldCheck size={15} style={{ color: "var(--accent)" }} />
+            <ShieldCheck size={15} />
             {ANNOUNCEMENTS[announceIdx]}
           </span>
         </div>
       </div>
 
+      {/* Top bar */}
       <div className="wm-topbar">
         <div className="container">
           <div className="wm-topbar-left">
@@ -99,6 +101,7 @@ export default function Header() {
         </div>
       </div>
 
+      {/* Main header */}
       <div className="wm-header">
         <div className="wm-main-header">
           <div className="container">
@@ -216,6 +219,7 @@ export default function Header() {
           </div>
         </div>
 
+        {/* Navigation */}
         <div className="wm-nav">
           <div className="container">
             <ul>
@@ -289,16 +293,12 @@ export default function Header() {
               <li>
                 <Link href="/shop?cat=Tools">Tools</Link>
               </li>
-              <li>
-                <Link href="/shop" className="btn btn-accent btn-sm" style={{ marginLeft: 14 }}>
-                  Browse Courses <ArrowRight size={14} />
-                </Link>
-              </li>
             </ul>
           </div>
         </div>
       </div>
 
+      {/* Mobile drawer */}
       <div className={`mobile-drawer ${drawerOpen ? "open" : ""}`}>
         <div className="drawer-overlay" onClick={() => setDrawerOpen(false)} />
         <div className="drawer-panel">

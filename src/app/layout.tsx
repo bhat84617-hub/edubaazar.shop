@@ -1,21 +1,16 @@
 import type { Metadata } from "next";
-import { League_Spartan, Inter } from "next/font/google";
+import { Jost } from "next/font/google";
 import { StoreProvider } from "@/lib/store";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Toaster from "@/components/Toaster";
 import "./globals.css";
 
-const league = League_Spartan({
-  variable: "--font-league",
+const jost = Jost({
+  variable: "--font-jost",
   subsets: ["latin"],
   display: "swap",
-});
-
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-  display: "swap",
+  weight: ["300", "400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -53,14 +48,14 @@ export const metadata: Metadata = {
 };
 
 export const viewport = {
-  themeColor: "#114639",
+  themeColor: "#1B0000",
   width: "device-width",
   initialScale: 1,
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${league.variable} ${inter.variable}`}>
+    <html lang="en" className={jost.variable}>
       <body className="min-h-screen flex flex-col">
         <StoreProvider>
           <Header />
