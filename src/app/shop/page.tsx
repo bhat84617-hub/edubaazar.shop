@@ -73,9 +73,9 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
       <section className="section-pad">
         <div className="container">
           <ShopControls count={list.length} />
-          <div style={{ display: "grid", gridTemplateColumns: "240px 1fr", gap: 26, alignItems: "start" }}>
+          <div className="shop-layout">
             {/* Sidebar filters */}
-            <aside className="filter-side" style={{ position: "sticky", top: 120 }}>
+            <aside className="filter-side">
               <div className="filter-group">
                 <h4>Categories</h4>
                 <Link href={`/shop?${sidebarLink({ cat: "" })}`} className="filter-option" style={{ display: "flex", justifyContent: "space-between" }}>
@@ -149,7 +149,7 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
                   <Link href="/shop" className="btn btn-primary">Reset Filters</Link>
                 </div>
               ) : (
-                <div className="p-grid" style={{ gridTemplateColumns: "repeat(3, 1fr)" }}>
+                <div className="p-grid shop-product-grid">
                   {list.map((p) => (
                     <ProductCard key={p.id} product={p} />
                   ))}
