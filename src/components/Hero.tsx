@@ -6,28 +6,28 @@ import { ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
 
 const SLIDES = [
   {
-    image: "/images/slide1.png",
+    image: "/images/hackingslide.png",
     title: "Master Ethical\nHacking Skills",
     desc: "Learn penetration testing, network security & become a certified ethical hacker.",
     ctaText: "Explore Hacking",
     ctaHref: "/shop?cat=Hacking",
   },
   {
-    image: "/images/slide2.png",
+    image: "/images/programingslide.png",
     title: "Learn to Code\nLike a Pro",
     desc: "Python, JavaScript, React & more. Build real projects and launch your tech career.",
     ctaText: "Explore Programming",
     ctaHref: "/shop?cat=Programming",
   },
   {
-    image: "/images/slide3.png",
+    image: "/images/tradingslide.png",
     title: "Stock Market &\nCrypto Trading",
     desc: "Master technical analysis, crypto trading & build profitable strategies.",
     ctaText: "Explore Trading",
     ctaHref: "/shop?cat=Trading",
   },
   {
-    image: "/images/slide4.png",
+    image: "/images/softwaresslide.png",
     title: "Software &\nHacking Tools",
     desc: "Premium RATs, payload generators & analysis tools. Most are FREE to download.",
     ctaText: "Explore Tools",
