@@ -26,7 +26,10 @@ export default function Header() {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<ReturnType<typeof searchProducts>>([]);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
+
+  const isHome = pathname === "/";
 
   useEffect(() => {
     const t = setInterval(() => setAnnounceIdx((i) => (i + 1) % ANNOUNCEMENTS.length), 4000);
@@ -36,6 +39,14 @@ export default function Header() {
   useEffect(() => {
     setResults(searchProducts(query));
   }, [query]);
+
+  useEffect(() => {
+    function onScroll() {
+      setScrolled(window.scrollY > 60);
+    }
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   useEffect(() => {
     function onDoc(e: MouseEvent) {
@@ -55,81 +66,56 @@ export default function Header() {
   };
 
   const isActive = (href: string) => pathname === href;
+  const headerTransparent = isHome && !scrolled;
 
   if (pathname.startsWith("/admin")) return null;
 
   return (
     <>
-      {/* Announcement bar */}
-      <div className="announce-bar">
-        <div className="announce-inner container" key={announceIdx}>
-          <span>
-            <ShieldCheck size={15} />
-            {ANNOUNCEMENTS[announceIdx]}
-          </span>
-        </div>
-      </div>
-
-      {/* Top bar */}
-      <div className="wm-topbar">
-        <div className="container">
-          <div className="wm-topbar-left">
-            <a href={`tel:+91${STORE.phoneRaw}`}>
-              <Phone size={12} /> +91 {STORE.phoneRaw}
-            </a>
-            <a href={`mailto:${STORE.email}`} className="hide-sm">
-              <Mail size={12} /> {STORE.email}
-            </a>
-          </div>
-          <div className="wm-topbar-right">
-            {mounted && user ? (
-              <>
-                <Link href="/account">
-                  <LayoutDashboard size={12} /> Dashboard
-                </Link>
-                <button onClick={logout} className="tb-btn">
-                  Logout
-                </button>
-              </>
-            ) : (
-              <>
-                <Link href="/login">Login</Link>
-                <Link href="/register">Sign Up</Link>
-              </>
-            )}
-          </div>
+      {/* Rotating promo ribbon */}
+      <div className={`ws-promo-ribbon ${headerTransparent ? "ribbon-transparent" : ""}`}>
+        <div className="ws-promo-inner" key={announceIdx}>
+          <span>{ANNOUNCEMENTS[announceIdx]}</span>
         </div>
       </div>
 
       {/* Main header */}
-      <div className="wm-header">
-        <div className="wm-main-header">
-          <div className="container">
-            <button className="hamburger header-icon-btn" onClick={() => setDrawerOpen(true)} aria-label="Menu">
-              <Menu size={24} />
-            </button>
+      <header className={`ws-header ${headerTransparent ? "ws-header-transparent" : ""} ${scrolled ? "ws-header-scrolled" : ""}`}>
+        <div className="ws-header-inner container">
+          {/* Hamburger */}
+          <button className="ws-hamburger" onClick={() => setDrawerOpen(true)} aria-label="Menu">
+            <Menu size={22} strokeWidth={1.5} />
+          </button>
 
-            <Link href="/" className="wm-logo">
-              <img src="/logo/edulogo.jpeg" alt="EduBazar Logo" />
-              <span>EduBazar</span>
-            </Link>
+          {/* Logo — center */}
+          <Link href="/" className="ws-logo">
+            <img src="/logo/edulogo.jpeg" alt="EduBazar" />
+            <span className="ws-logo-text">EduBazar</span>
+          </Link>
 
-            <div className="header-search" ref={searchRef}>
+          {/* Right icons */}
+          <div className="ws-header-right">
+            {/* Search */}
+            <div className="ws-search" ref={searchRef}>
+              <button className="ws-icon-btn" aria-label="Search" onClick={() => {
+                const el = document.querySelector(".ws-search-input") as HTMLInputElement;
+                el?.focus();
+              }}>
+                <Search size={20} strokeWidth={1.5} />
+              </button>
               <input
+                className="ws-search-input"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && doSearch()}
-                placeholder="Search courses, books, tools..."
+                placeholder="Search..."
               />
-              <button onClick={() => doSearch()} aria-label="Search">
-                <Search size={17} />
-              </button>
               {results.length > 0 && (
-                <div className="search-results">
+                <div className="ws-search-results">
                   {results.map((p) => (
                     <div
                       key={p.id}
-                      className="search-result-item"
+                      className="ws-search-item"
                       onClick={() => {
                         router.push(`/product/${p.slug}`);
                         setQuery("");
@@ -141,99 +127,82 @@ export default function Header() {
                         <h4>{p.title}</h4>
                         <p>{p.category}</p>
                       </div>
-                      <strong style={{ fontSize: 13, color: "var(--primary)" }}>
-                        {formatINR(p.price)}
-                      </strong>
+                      <strong>{formatINR(p.price)}</strong>
                     </div>
                   ))}
                 </div>
               )}
             </div>
 
-            <div className="header-actions">
-              <Link href="/wishlist" className="header-icon-btn" aria-label="Wishlist">
-                <Heart size={22} />
-                {mounted && wishlist.length > 0 && <span className="icon-badge">{wishlist.length}</span>}
-              </Link>
+            <Link href="/wishlist" className="ws-icon-btn" aria-label="Wishlist">
+              <Heart size={20} strokeWidth={1.5} />
+              {mounted && wishlist.length > 0 && <span className="ws-badge">{wishlist.length}</span>}
+            </Link>
 
-              <div className="group" style={{ position: "relative" }}>
-                <Link href="/cart" className="header-icon-btn" aria-label="Cart">
-                  <ShoppingCart size={22} />
-                  {mounted && cartCount > 0 && <span className="icon-badge">{cartCount}</span>}
-                </Link>
-                <div className="mini-cart">
-                  <div className="mini-cart-title">
-                    Shopping Cart {mounted && `(${cartCount} item${cartCount !== 1 ? "s" : ""})`}
-                  </div>
-                  {mounted && cart.length === 0 ? (
-                    <div className="mini-cart-empty">Your cart is empty.</div>
-                  ) : (
-                    <>
-                      {mounted &&
-                        cart.slice(0, 3).map((item) => {
-                          const p = getProductById(item.id);
-                          if (!p) return null;
-                          return (
-                            <div key={item.id} className="mini-cart-item">
-                              <img src={p.images[0]} alt={p.title} />
-                              <div style={{ flex: 1 }}>
-                                <h5>{p.title}</h5>
-                                <p>{formatINR(p.price)} × {item.qty}</p>
-                              </div>
-                              <button
-                                onClick={() => removeFromCart(item.id)}
-                                aria-label="Remove"
-                                style={{ background: "none", border: "none", color: "var(--muted)" }}
-                              >
-                                <Trash2 size={16} />
-                              </button>
-                            </div>
-                          );
-                        })}
-                      <div className="mini-cart-footer">
-                        <div className="sum-row">
-                          <span>Subtotal</span>
-                          <strong style={{ color: "var(--primary)" }}>{formatINR(cartSubtotal)}</strong>
-                        </div>
-                        <Link href="/cart" className="btn btn-primary btn-sm btn-block" style={{ marginTop: 10 }}>
-                          View Cart
-                        </Link>
-                        <Link href="/checkout" className="btn btn-accent btn-sm btn-block" style={{ marginTop: 8 }}>
-                          Checkout <MoveRight size={15} />
-                        </Link>
-                      </div>
-                    </>
-                  )}
+            <div className="ws-cart-wrap">
+              <Link href="/cart" className="ws-icon-btn" aria-label="Cart">
+                <ShoppingCart size={20} strokeWidth={1.5} />
+                {mounted && cartCount > 0 && <span className="ws-badge">{cartCount}</span>}
+              </Link>
+              {/* Mini cart dropdown */}
+              <div className="ws-mini-cart">
+                <div className="ws-mini-cart-head">
+                  Shopping Cart {mounted && `(${cartCount})`}
                 </div>
+                {mounted && cart.length === 0 ? (
+                  <div className="ws-mini-cart-empty">Your cart is empty.</div>
+                ) : (
+                  <>
+                    {mounted && cart.slice(0, 3).map((item) => {
+                      const p = getProductById(item.id);
+                      if (!p) return null;
+                      return (
+                        <div key={item.id} className="ws-mini-cart-item">
+                          <img src={p.images[0]} alt={p.title} />
+                          <div style={{ flex: 1 }}>
+                            <h5>{p.title}</h5>
+                            <p>{formatINR(p.price)} × {item.qty}</p>
+                          </div>
+                          <button onClick={() => removeFromCart(item.id)} aria-label="Remove" className="ws-mini-cart-remove">
+                            <Trash2 size={15} />
+                          </button>
+                        </div>
+                      );
+                    })}
+                    <div className="ws-mini-cart-foot">
+                      <div className="ws-mini-cart-total">
+                        <span>Subtotal</span>
+                        <strong>{formatINR(cartSubtotal)}</strong>
+                      </div>
+                      <Link href="/cart" className="ws-btn ws-btn-outline ws-btn-sm">View Cart</Link>
+                      <Link href="/checkout" className="ws-btn ws-btn-fill ws-btn-sm" style={{ marginTop: 6 }}>Checkout</Link>
+                    </div>
+                  </>
+                )}
               </div>
-
-              <Link href={mounted && user ? "/account" : "/login"} className="header-icon-btn" aria-label="Account">
-                <User size={22} />
-              </Link>
-
-              <Link href="/cart" className="header-icon-btn header-cart-btn" aria-label="Cart">
-                <ShoppingCart size={19} />
-                <span className="cart-label">Cart</span>
-              </Link>
             </div>
+
+            <Link href={mounted && user ? "/account" : "/login"} className="ws-icon-btn" aria-label="Account">
+              <User size={20} strokeWidth={1.5} />
+            </Link>
           </div>
         </div>
 
         {/* Navigation */}
-        <div className="wm-nav">
+        <nav className={`ws-nav ${headerTransparent ? "ws-nav-transparent" : ""}`}>
           <div className="container">
-            <ul>
+            <ul className="ws-nav-list">
               <li>
                 <Link href="/" className={isActive("/") ? "active" : ""}>Home</Link>
               </li>
-              <li className="has-mega">
+              <li className="ws-has-mega">
                 <Link href="/shop">
-                  Shop <ChevronDown size={14} />
+                  Shop <ChevronDown size={13} />
                 </Link>
-                <div className="mega-menu">
+                <div className="ws-mega">
                   <div className="container">
-                    <div className="mega-grid">
-                      <div className="mega-col">
+                    <div className="ws-mega-grid">
+                      <div className="ws-mega-col">
                         <h4>Categories</h4>
                         <ul>
                           {CATEGORIES.map((c) => (
@@ -243,17 +212,17 @@ export default function Header() {
                           ))}
                         </ul>
                       </div>
-                      <div className="mega-col">
+                      <div className="ws-mega-col">
                         <h4>Shop By Type</h4>
                         <ul>
-                          <li><Link href="/shop?kind=course">Courses <span>19</span></Link></li>
-                          <li><Link href="/shop?kind=book">Digital Books <span>5</span></Link></li>
-                          <li><Link href="/shop?kind=tool">Software & Tools <span>7</span></Link></li>
+                          <li><Link href="/shop?kind=course">Courses</Link></li>
+                          <li><Link href="/shop?kind=book">Digital Books</Link></li>
+                          <li><Link href="/shop?kind=tool">Software & Tools</Link></li>
                           <li><Link href="/shop?sort=price_low">Under ₹200</Link></li>
                           <li><Link href="/shop?q=free">Free Courses</Link></li>
                         </ul>
                       </div>
-                      <div className="mega-col">
+                      <div className="ws-mega-col">
                         <h4>Popular Courses</h4>
                         <ul>
                           <li><Link href="/product/complete-ethical-hacking-penetration-testing">Ethical Hacking Mastery</Link></li>
@@ -263,13 +232,13 @@ export default function Header() {
                           <li><Link href="/product/ui-ux-design-complete-course">UI/UX Design Course</Link></li>
                         </ul>
                       </div>
-                      <div className="mega-col">
-                        <div className="mega-featured">
+                      <div className="ws-mega-col">
+                        <div className="ws-mega-featured">
                           <h4>Featured Deal</h4>
                           <img src="/images/ethical-hacking-pentest.jpeg" alt="Ethical Hacking" />
                           <p>Complete Ethical Hacking &amp; Penetration Testing</p>
-                          <span className="price">₹199 <s style={{ opacity: 0.7, fontSize: 13 }}>₹499</s></span>
-                          <Link href="/product/complete-ethical-hacking-penetration-testing" className="btn btn-accent btn-sm">
+                          <span className="ws-mega-price">₹199 <s>₹499</s></span>
+                          <Link href="/product/complete-ethical-hacking-penetration-testing" className="ws-btn ws-btn-outline ws-btn-sm">
                             Shop Now
                           </Link>
                         </div>
@@ -278,46 +247,37 @@ export default function Header() {
                   </div>
                 </div>
               </li>
-              <li>
-                <Link href="/shop?cat=Hacking" className={pathname === "/shop" ? "active" : ""}>Hacking</Link>
-              </li>
-              <li>
-                <Link href="/shop?cat=Programming">Programming</Link>
-              </li>
-              <li>
-                <Link href="/shop?cat=Trading">Trading</Link>
-              </li>
-              <li>
-                <Link href="/shop?cat=Books">Books</Link>
-              </li>
-              <li>
-                <Link href="/shop?cat=Tools">Tools</Link>
-              </li>
+              <li><Link href="/shop?cat=Hacking" className={pathname === "/shop" ? "active" : ""}>Hacking</Link></li>
+              <li><Link href="/shop?cat=Programming">Programming</Link></li>
+              <li><Link href="/shop?cat=Trading">Trading</Link></li>
+              <li><Link href="/shop?cat=Books">Books</Link></li>
+              <li><Link href="/shop?cat=Tools">Tools</Link></li>
             </ul>
           </div>
-        </div>
-      </div>
+        </nav>
+      </header>
 
       {/* Mobile drawer */}
-      <div className={`mobile-drawer ${drawerOpen ? "open" : ""}`}>
-        <div className="drawer-overlay" onClick={() => setDrawerOpen(false)} />
-        <div className="drawer-panel">
-          <div className="drawer-head">
+      <div className={`ws-drawer ${drawerOpen ? "open" : ""}`}>
+        <div className="ws-drawer-overlay" onClick={() => setDrawerOpen(false)} />
+        <div className="ws-drawer-panel">
+          <div className="ws-drawer-head">
             <img src="/logo/edulogo.jpeg" alt="EduBazar" />
-            <button className="drawer-close" onClick={() => setDrawerOpen(false)} aria-label="Close">
+            <span>EduBazar</span>
+            <button className="ws-drawer-close" onClick={() => setDrawerOpen(false)} aria-label="Close">
               <X size={20} />
             </button>
           </div>
-          <div className="drawer-nav">
+          <div className="ws-drawer-nav">
             <Link href="/" onClick={() => setDrawerOpen(false)}>Home</Link>
             <Link href="/shop" onClick={() => setDrawerOpen(false)}>All Products</Link>
-            <div className="sub-label">Categories</div>
+            <div className="ws-drawer-label">Categories</div>
             {CATEGORIES.map((c) => (
               <Link key={c.key} href={`/shop?cat=${encodeURIComponent(c.key)}`} onClick={() => setDrawerOpen(false)}>
                 {c.label}
               </Link>
             ))}
-            <div className="sub-label">Account</div>
+            <div className="ws-drawer-label">Account</div>
             <Link href="/wishlist" onClick={() => setDrawerOpen(false)}>Wishlist</Link>
             <Link href="/compare" onClick={() => setDrawerOpen(false)}>Compare</Link>
             <Link href="/cart" onClick={() => setDrawerOpen(false)}>Cart</Link>
