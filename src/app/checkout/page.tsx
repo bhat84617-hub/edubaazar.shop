@@ -29,9 +29,16 @@ export default function CheckoutPage() {
   };
 
   const submitPayment = async () => {
-    if (total > 0 && utr.trim().replace(/\D/g, "").length < 10) {
-      showToast("Please enter the 12-digit UPI transaction ID", "error");
-      return;
+    if (total > 0) {
+      const digits = utr.trim().replace(/\D/g, "");
+      if (digits.length < 10) {
+        showToast("Please enter a valid UPI Transaction ID (10-13 digits)", "error");
+        return;
+      }
+      if (digits.length > 14) {
+        showToast("Transaction ID too long. Please check and try again.", "error");
+        return;
+      }
     }
     setPlacing(true);
     const order = await placeOrder({ name: form.name, email: form.email, phone: form.phone, utr });
@@ -193,13 +200,18 @@ export default function CheckoutPage() {
                   <div className="field">
                     <label>UPI Transaction ID (UTR / Ref ID)</label>
                     <input
-                      placeholder="Enter 12-digit UTR number"
+                      placeholder="e.g. 385912345678"
                       value={utr}
-                      onChange={(e) => setUtr(e.target.value)}
-                      maxLength={20}
+                      onChange={(e) => {
+                        const cleaned = e.target.value.replace(/[^0-9]/g, "").slice(0, 14);
+                        setUtr(cleaned);
+                      }}
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      maxLength={14}
                     />
                     <small style={{ color: "var(--muted)", fontSize: 11.5, display: "block", marginTop: 4 }}>
-                      Payment ke baad UPI app se Transaction ID copy karein (12 digit)
+                      UPI app me transaction ID copy karein aur yahan paste karein. Sirf numbers dalein.
                     </small>
                   </div>
                 ) : (

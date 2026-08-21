@@ -25,5 +25,6 @@ export function upiLink(amount: number, note = "EduBazar Order"): string {
   const pa = STORE.upiId;
   const pn = "EduBazar";
   const am = amount > 0 ? `&am=${amount}` : "";
-  return `upi://pay?pa=${pa}&pn=${encodeURIComponent(pn)}${am}&cu=INR&tn=${encodeURIComponent(note)}`;
+  const tn = encodeURIComponent(note);
+  return `upi://pay?pa=${pa}&pn=${pn}&cu=INR${am}&tn=${tn}`;
 }
