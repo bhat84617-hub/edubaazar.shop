@@ -9,9 +9,9 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Privacy Policy — EduBazar.shop",
     description: "How EduBazar.shop collects, uses, and protects your personal information.",
-    url: "https://edubaazar.shop/privacy",
+    url: "https://www.edubaazar.shop/privacy",
   },
-  alternates: { canonical: "https://edubaazar.shop/privacy" },
+  alternates: { canonical: "https://www.edubaazar.shop/privacy" },
 };
 
 export default function PrivacyPage() {

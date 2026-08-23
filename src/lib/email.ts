@@ -27,7 +27,7 @@ export async function sendSignupEmail(name: string, email: string) {
             <p style="color:#444;line-height:1.7;">
               Your account has been created successfully. You can now browse our collection of courses, books, and tools.
             </p>
-            <a href="https://edubaazar.shop/shop" style="display:inline-block;background:#687975;color:white;padding:12px 32px;text-decoration:none;font-weight:600;margin:16px 0;">
+              <a href="https://www.edubaazar.shop/shop" style="display:inline-block;background:#687975;color:white;padding:12px 32px;text-decoration:none;font-weight:600;margin:16px 0;">
               Browse Courses →
             </a>
             <hr style="border:none;border-top:1px solid #eee;margin:24px 0;" />
@@ -102,7 +102,7 @@ export async function sendOrderConfirmation(data: {
           <p><strong>Customer:</strong> ${data.name} (${data.email})</p>
           <p><strong>Total:</strong> ₹${data.total}</p>
           ${data.utr ? `<p><strong>UTR:</strong> ${data.utr}</p>` : ""}
-          <p><a href="https://edubaazar.shop/admin">Review in Admin Panel →</a></p>
+          <p><a href="https://www.edubaazar.shop/admin">Review in Admin Panel →</a></p>
         </div>
       `,
     });
@@ -139,7 +139,7 @@ export async function sendOrderStatusUpdate(data: {
             <p style="color:#444;">Hi ${data.name},</p>
             <p style="color:#444;line-height:1.7;">${statusText}</p>
             <p style="color:#666;">Order ID: <strong>${data.orderId}</strong></p>
-            <a href="https://edubaazar.shop/account" style="display:inline-block;background:#687975;color:white;padding:12px 32px;text-decoration:none;font-weight:600;margin:16px 0;">
+            <a href="https://www.edubaazar.shop/account" style="display:inline-block;background:#687975;color:white;padding:12px 32px;text-decoration:none;font-weight:600;margin:16px 0;">
               Go to My Account →
             </a>
           </div>

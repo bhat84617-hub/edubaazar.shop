@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   title: "About Us",
   description: "Learn about EduBazar.shop — India's affordable online learning platform. We provide premium courses in Ethical Hacking, Programming, Trading & more at prices everyone can afford.",
   keywords: ["about EduBazar", "online learning platform India", "affordable courses", "EduBazar shop about"],
-  alternates: { canonical: "https://edubaazar.shop/about" },
+  alternates: { canonical: "https://www.edubaazar.shop/about" },
   openGraph: { title: "About EduBazar.shop", description: "India's affordable online learning platform for Hacking, Programming, Trading & more." },
 };
 

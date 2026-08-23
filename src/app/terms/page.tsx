@@ -9,9 +9,9 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Terms & Conditions — EduBazar.shop",
     description: "Read our terms and conditions for purchases, access, intellectual property, and more.",
-    url: "https://edubaazar.shop/terms",
+    url: "https://www.edubaazar.shop/terms",
   },
-  alternates: { canonical: "https://edubaazar.shop/terms" },
+  alternates: { canonical: "https://www.edubaazar.shop/terms" },
 };
 
 export default function TermsPage() {

@@ -14,7 +14,7 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ["/api/", "/admin/", "/checkout/"],
       },
     ],
-    sitemap: "https://edubaazar.shop/sitemap.xml",
-    host: "https://edubaazar.shop",
+    sitemap: "https://www.edubaazar.shop/sitemap.xml",
+    host: "https://www.edubaazar.shop",
   };
 }

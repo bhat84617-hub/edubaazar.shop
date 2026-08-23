@@ -6,7 +6,7 @@ import ProductTabs from "@/components/ProductTabs";
 import ProductCard from "@/components/ProductCard";
 import { products, getProductBySlug, getRelatedProducts } from "@/lib/products";
 
-const SITE = "https://edubaazar.shop";
+const SITE = "https://www.edubaazar.shop";
 
 export const dynamicParams = false;
 
@@ -38,13 +38,13 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       siteName: "EduBazar.shop",
       locale: "en_IN",
       type: "website",
-      images: [{ url: `https://edubaazar.shop${product.images[0]}`, width: 800, height: 600, alt: product.title }],
+      images: [{ url: `${SITE}${product.images[0]}`, width: 800, height: 600, alt: product.title }],
     },
     twitter: {
       card: "summary_large_image",
       title: `${product.title} | EduBazar.shop`,
       description: seoDescription,
-      images: [`https://edubaazar.shop${product.images[0]}`],
+      images: [`${SITE}${product.images[0]}`],
     },
     alternates: { canonical: `${SITE}/product/${slug}` },
   };
@@ -65,7 +65,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
     description: product.fullDesc || product.desc,
     category: product.category,
     keywords: product.tags?.join(", "),
-    image: [`https://edubaazar.shop${product.images[0]}`],
+    image: [`${SITE}${product.images[0]}`],
     brand: { "@type": "Brand", name: "EduBazar.shop" },
     sku: product.slug,
     aggregateRating: product.reviewCount ? {

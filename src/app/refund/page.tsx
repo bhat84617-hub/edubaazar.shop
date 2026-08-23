@@ -9,9 +9,9 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Refund Policy — EduBazar.shop",
     description: "EduBazar.shop refund policy for courses, e-books, and digital tools.",
-    url: "https://edubaazar.shop/refund",
+    url: "https://www.edubaazar.shop/refund",
   },
-  alternates: { canonical: "https://edubaazar.shop/refund" },
+  alternates: { canonical: "https://www.edubaazar.shop/refund" },
 };
 
 export default function RefundPage() {

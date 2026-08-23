@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   title: "Contact Us",
   description: "Get in touch with EduBazar.shop. WhatsApp, email, or DM us for course queries, payment issues, or support. We respond within 24 hours.",
   keywords: ["contact EduBazar", "EduBazar support", "course help India", "UPI payment issue"],
-  alternates: { canonical: "https://edubaazar.shop/contact" },
+  alternates: { canonical: "https://www.edubaazar.shop/contact" },
   openGraph: { title: "Contact EduBazar.shop", description: "Get in touch for course queries, payment issues, or support." },
 };
 

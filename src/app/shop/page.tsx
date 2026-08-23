@@ -5,19 +5,33 @@ import { ShopControls } from "@/components/ShopControls";
 import { products, CATEGORIES } from "@/lib/products";
 import type { Metadata } from "next";
 
-export const metadata: Metadata = {
+const SITE = "https://www.edubaazar.shop";
+
+const baseMetadata: Metadata = {
   title: "Shop — Online Courses, Books & Hacking Tools",
   description: "Browse 30+ premium courses in Ethical Hacking, Programming, Python, JavaScript, Stock Market Trading, Digital Marketing & more. Instant access after UPI payment.",
   keywords: ["buy courses online", "hacking courses India", "programming courses cheap", "stock market course", "digital marketing course", "free tools", "EduBazar shop"],
   openGraph: {
     title: "Shop All Courses — EduBazar.shop",
     description: "Browse 30+ premium courses in Hacking, Programming, Trading & more. Instant access after payment.",
-    url: "https://edubaazar.shop/shop",
+    url: `${SITE}/shop`,
   },
-  alternates: { canonical: "https://edubaazar.shop/shop" },
+  alternates: { canonical: `${SITE}/shop` },
 };
 
 type SearchParams = { cat?: string; q?: string; sort?: string; kind?: string; free?: string };
+
+export async function generateMetadata({ searchParams }: { searchParams: Promise<SearchParams> }): Promise<Metadata> {
+  const params = await searchParams;
+  const hasNonIndexableFilter = Boolean(params.q || params.sort || params.kind || params.free);
+  const canonical = params.cat ? `${SITE}/shop?cat=${encodeURIComponent(params.cat)}` : `${SITE}/shop`;
+
+  return {
+    ...baseMetadata,
+    alternates: { canonical },
+    robots: hasNonIndexableFilter ? { index: false, follow: true } : { index: true, follow: true },
+  };
+}
 
 function buildHref(extra: Partial<SearchParams>, base: SearchParams): string {
   const url = new URLSearchParams();
@@ -66,14 +80,14 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
     "@type": "CollectionPage",
     name: cat ? `${cat} Courses — EduBazar.shop` : "All Courses — EduBazar.shop",
     description: `Browse ${list.length} premium courses in Ethical Hacking, Programming, Stock Market Trading, Digital Marketing & more.`,
-    url: `https://edubaazar.shop/shop${cat ? `?cat=${encodeURIComponent(cat)}` : ""}`,
+    url: `${SITE}/shop${cat ? `?cat=${encodeURIComponent(cat)}` : ""}`,
     mainEntity: {
       "@type": "ItemList",
       numberOfItems: list.length,
       itemListElement: list.slice(0, 20).map((p, i) => ({
         "@type": "ListItem",
         position: i + 1,
-        url: `https://edubaazar.shop/product/${p.slug}`,
+        url: `${SITE}/product/${p.slug}`,
         name: p.title,
       })),
     },

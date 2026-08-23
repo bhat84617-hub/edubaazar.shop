@@ -23,7 +23,7 @@ export type SeoUrlAudit = {
   issues: number;
 };
 
-export const SEO_SITE_URL = "https://edubaazar.shop";
+export const SEO_SITE_URL = "https://www.edubaazar.shop";
 
 const staticUrls: SeoUrlAudit[] = [
   { url: "/", type: "home", status: "warning", title: "EduBazar.shop — Online Courses, Digital Books & Hacking Tools", indexable: true, inSitemap: true, issues: 1 },
