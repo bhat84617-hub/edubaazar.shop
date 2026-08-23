@@ -1,13 +1,15 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { CheckCircle2, Copy, ExternalLink, ShieldCheck, Wallet, ArrowRight, ArrowLeft, LayoutDashboard, ShoppingBag, PartyPopper } from "lucide-react";
+import { CheckCircle2, Copy, ExternalLink, ShieldCheck, Wallet, ArrowRight, ArrowLeft, LayoutDashboard, ShoppingBag, PartyPopper, Lock } from "lucide-react";
 import { getProductById, formatINR } from "@/lib/products";
 import { useStore } from "@/lib/store";
 import { STORE, upiLink } from "@/lib/config";
 
 export default function CheckoutPage() {
+  const router = useRouter();
   const { cart, cartSubtotal, user, mounted, placeOrder, showToast } = useStore();
   const [step, setStep] = useState(1);
   const [form, setForm] = useState({ name: user?.name ?? "", email: user?.email ?? "", phone: "" });
@@ -61,6 +63,24 @@ export default function CheckoutPage() {
       }).catch(() => {});
     }
   };
+
+  if (mounted && !user) {
+    return (
+      <section className="section-pad">
+        <div className="container" style={{ maxWidth: 520 }}>
+          <div className="dash-panel" style={{ textAlign: "center", padding: "60px 24px" }}>
+            <Lock size={48} style={{ color: "var(--line)", marginBottom: 14 }} />
+            <h3 style={{ marginBottom: 8 }}>Login Required</h3>
+            <p style={{ color: "var(--muted)", marginBottom: 20 }}>Please login or create an account to purchase courses.</p>
+            <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
+              <Link href="/login" className="btn btn-primary">Login</Link>
+              <Link href="/register" className="btn btn-outline">Sign Up</Link>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   if (mounted && cart.length === 0 && !placed) {
     return (
@@ -126,12 +146,10 @@ export default function CheckoutPage() {
           <div className="pay-card">
             {step === 1 && (
               <>
-                <h3>Your Details {user ? <span style={{ fontSize: 12, color: "var(--primary)", fontWeight: 600 }}>· Welcome back {user.name}</span> : null}</h3>
-                {!user && (
-                  <p style={{ fontSize: 13, color: "var(--muted)", marginBottom: 18 }}>
-                    Guest checkout allowed — or <Link href="/login" style={{ color: "var(--primary)", fontWeight: 700 }}>login</Link> to track orders.
-                  </p>
-                )}
+                <h3>Your Details <span style={{ fontSize: 12, color: "var(--primary)", fontWeight: 600 }}>· Welcome {user?.name}</span></h3>
+                <p style={{ fontSize: 13, color: "var(--muted)", marginBottom: 18 }}>
+                  Completing purchase as <strong>{user?.email}</strong>
+                </p>
                 <form onSubmit={nextFromDetails}>
                   <div className="field">
                     <label>Full Name</label>

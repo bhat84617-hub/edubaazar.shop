@@ -147,6 +147,9 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
 
   const placeOrder = useCallback(
     async (data: { name: string; email: string; phone: string; utr?: string }): Promise<Order | null> => {
+      if (!user) {
+        return null;
+      }
       const cartSnapshot = [...cart];
       const items: OrderItem[] = cartSnapshot.map((i) => {
         const p = getProductById(i.id);
