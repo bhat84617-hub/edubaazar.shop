@@ -22,6 +22,13 @@ export default function Header() {
   const router = useRouter();
   const { cartCount, cartSubtotal, cart, wishlist, user, logout, removeFromCart, mounted } = useStore();
 
+  const [currentCat, setCurrentCat] = useState("");
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    setCurrentCat(params.get("cat") ?? "");
+  }, [pathname]);
+
   const [announceIdx, setAnnounceIdx] = useState(0);
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<ReturnType<typeof searchProducts>>([]);
@@ -249,11 +256,11 @@ export default function Header() {
                   </div>
                 </div>
               </li>
-              <li><Link href="/shop?cat=Hacking" className={pathname === "/shop" ? "active" : ""}>Hacking</Link></li>
-              <li><Link href="/shop?cat=Programming">Programming</Link></li>
-              <li><Link href="/shop?cat=Trading">Trading</Link></li>
-              <li><Link href="/shop?cat=Books">Books</Link></li>
-              <li><Link href="/shop?cat=Tools">Tools</Link></li>
+              {CATEGORIES.map((c) => (
+                <li key={c.key}>
+                  <Link href={`/shop?cat=${encodeURIComponent(c.key)}`} className={currentCat.toLowerCase() === c.key.toLowerCase() ? "active" : ""}>{c.label}</Link>
+                </li>
+              ))}
               <li><Link href="/about">About</Link></li>
               <li><Link href="/contact">Contact</Link></li>
             </ul>

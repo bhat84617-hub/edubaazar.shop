@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "https://edubaazar.shop/shop" },
 };
 
-type SearchParams = { cat?: string; q?: string; sort?: string; kind?: string };
+type SearchParams = { cat?: string; q?: string; sort?: string; kind?: string; free?: string };
 
 function buildHref(extra: Partial<SearchParams>, base: SearchParams): string {
   const url = new URLSearchParams();
@@ -34,11 +34,13 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
   const q = (sp.q ?? "").toLowerCase().trim();
   const kind = sp.kind ?? "";
   const sort = sp.sort ?? "";
+  const freeOnly = sp.free === "1";
 
   let list = [...products];
 
   if (cat) list = list.filter((p) => p.category.toLowerCase() === cat.toLowerCase());
   if (kind) list = list.filter((p) => p.kind === kind);
+  if (freeOnly) list = list.filter((p) => p.price <= 0);
   if (q) list = list.filter((p) => p.title.toLowerCase().includes(q) || p.category.toLowerCase().includes(q) || p.desc.toLowerCase().includes(q));
 
   switch (sort) {
@@ -57,7 +59,7 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
   }
 
   const freeCount = products.filter((p) => p.price <= 0).length;
-  const sidebarLink = (extra: Partial<SearchParams>) => buildHref(extra, { cat, q, kind, sort });
+  const sidebarLink = (extra: Partial<SearchParams>) => buildHref(extra, { cat, q, kind, sort, free: freeOnly ? "1" : "" });
 
   const collectionLd = {
     "@context": "https://schema.org",
@@ -110,7 +112,7 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
             <aside className="filter-side">
               <div className="filter-group">
                 <h4>Categories</h4>
-                <Link href={`/shop?${sidebarLink({ cat: "" })}`} className="filter-option" style={{ display: "flex", justifyContent: "space-between" }}>
+                <Link href={`/shop`} className="filter-option" style={{ display: "flex", justifyContent: "space-between" }}>
                   <span><input type="checkbox" checked={!cat} readOnly style={{ marginRight: 8 }} />All</span>
                   <span style={{ color: "var(--muted)", fontSize: 12 }}>{products.length}</span>
                 </Link>
@@ -120,7 +122,7 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
                   return (
                     <Link
                       key={c.key}
-                      href={`/shop?${sidebarLink({ cat: c.key })}`}
+                      href={`/shop?${sidebarLink({ cat: c.key, free: "" })}`}
                       className="filter-option"
                       style={{ display: "flex", justifyContent: "space-between", color: active ? "var(--primary)" : "var(--body)", fontWeight: active ? 700 : 400 }}
                     >
@@ -140,7 +142,7 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
                   return (
                     <Link
                       key={k}
-                      href={`/shop?${sidebarLink(kind === k ? { kind: "" } : { kind: k })}`}
+                      href={`/shop?${sidebarLink(kind === k ? { kind: "", free: "" } : { kind: k, free: "" })}`}
                       className="filter-option"
                       style={{ color: active ? "var(--primary)" : "var(--body)", fontWeight: active ? 700 : 400 }}
                     >
@@ -153,21 +155,25 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
 
               <div className="filter-group">
                 <h4>Price</h4>
-                <Link href={`/shop?${sidebarLink({ q: "free" })}`} className="filter-option">
+                <Link
+                  href={`/shop?${sidebarLink(freeOnly ? { free: "" } : { free: "1" })}`}
+                  className="filter-option"
+                  style={{ color: freeOnly ? "var(--primary)" : "var(--body)", fontWeight: freeOnly ? 700 : 400 }}
+                >
                   Free Products ({freeCount})
                 </Link>
-                <Link href={`/shop?${sidebarLink({ sort: "price_low" })}`} className="filter-option">
+                <Link href={`/shop?${sidebarLink({ sort: "price_low", free: "" })}`} className="filter-option">
                   Under ₹200
                 </Link>
-                <Link href={`/shop?${sidebarLink({ sort: "price_high" })}`} className="filter-option">
+                <Link href={`/shop?${sidebarLink({ sort: "price_high", free: "" })}`} className="filter-option">
                   Premium ₹250+
                 </Link>
               </div>
 
               <div className="filter-group">
                 <h4>Rating</h4>
-                <Link href={`/shop?${sidebarLink({ sort: "rating" })}`} className="filter-option">
-                  Top Rated (4.5★+) <ChevronDown size={14} style={{ marginLeft: "auto" }} />
+                <Link href={`/shop?${sidebarLink({ sort: "rating", free: "" })}`} className="filter-option">
+                  Top Rated (4.5+) <ChevronDown size={14} style={{ marginLeft: "auto" }} />
                 </Link>
               </div>
             </aside>
