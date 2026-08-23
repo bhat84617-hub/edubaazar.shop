@@ -3,9 +3,14 @@ import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Refund Policy",
+  title: "Refund Policy — EduBazar.shop",
   description: "EduBazar.shop refund policy for courses, e-books, and digital tools. Learn how to request a refund for your purchase.",
-  keywords: ["EduBazar refund", "course refund policy", "money back guarantee"],
+  keywords: ["EduBazar refund", "course refund policy", "money back guarantee", "digital product refund", "UPI refund"],
+  openGraph: {
+    title: "Refund Policy — EduBazar.shop",
+    description: "EduBazar.shop refund policy for courses, e-books, and digital tools.",
+    url: "https://edubaazar.shop/refund",
+  },
   alternates: { canonical: "https://edubaazar.shop/refund" },
 };
 

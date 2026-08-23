@@ -3,8 +3,14 @@ import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy",
+  title: "Privacy Policy — EduBazar.shop",
   description: "How EduBazar.shop collects, uses, and protects your personal information. Your privacy is important to us.",
+  keywords: ["EduBazar privacy", "data protection", "online course privacy", "UPI payment privacy", "student data policy"],
+  openGraph: {
+    title: "Privacy Policy — EduBazar.shop",
+    description: "How EduBazar.shop collects, uses, and protects your personal information.",
+    url: "https://edubaazar.shop/privacy",
+  },
   alternates: { canonical: "https://edubaazar.shop/privacy" },
 };
 

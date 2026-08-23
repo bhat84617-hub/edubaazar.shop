@@ -21,7 +21,7 @@ export default function ProductCard({ product }: { product: Product }) {
           <Link href={`/product/${product.slug}`}>
             <img src={product.images[0]} alt={product.title} loading="lazy" />
             {product.images[1] && (
-              <img src={product.images[1]} alt="" className="second" loading="lazy" />
+              <img src={product.images[1]} alt={`${product.title} preview`} className="second" loading="lazy" />
             )}
           </Link>
           {product.badge && <span className={`p-badge ${product.badge.toLowerCase()}`}>{product.badge}</span>}

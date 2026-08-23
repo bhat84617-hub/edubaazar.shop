@@ -59,8 +59,27 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
   const freeCount = products.filter((p) => p.price <= 0).length;
   const sidebarLink = (extra: Partial<SearchParams>) => buildHref(extra, { cat, q, kind, sort });
 
+  const collectionLd = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: cat ? `${cat} Courses — EduBazar.shop` : "All Courses — EduBazar.shop",
+    description: `Browse ${list.length} premium courses in Ethical Hacking, Programming, Stock Market Trading, Digital Marketing & more.`,
+    url: `https://edubaazar.shop/shop${cat ? `?cat=${encodeURIComponent(cat)}` : ""}`,
+    mainEntity: {
+      "@type": "ItemList",
+      numberOfItems: list.length,
+      itemListElement: list.slice(0, 20).map((p, i) => ({
+        "@type": "ListItem",
+        position: i + 1,
+        url: `https://edubaazar.shop/product/${p.slug}`,
+        name: p.title,
+      })),
+    },
+  };
+
   return (
     <div>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionLd) }} />
       <div style={{ background: "var(--primary-dark)", color: "#fff", padding: "38px 0 30px" }}>
         <div className="container">
           <div className="breadcrumb" style={{ color: "rgba(255,255,255,0.7)", marginBottom: 10 }}>

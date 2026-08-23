@@ -3,8 +3,14 @@ import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Terms & Conditions",
+  title: "Terms & Conditions — EduBazar.shop",
   description: "Terms and conditions for using EduBazar.shop. Read our policies on purchases, access, intellectual property, and more.",
+  keywords: ["EduBazar terms", "online course terms", "digital product policy", "UPI payment terms", "course access policy"],
+  openGraph: {
+    title: "Terms & Conditions — EduBazar.shop",
+    description: "Read our terms and conditions for purchases, access, intellectual property, and more.",
+    url: "https://edubaazar.shop/terms",
+  },
   alternates: { canonical: "https://edubaazar.shop/terms" },
 };
 

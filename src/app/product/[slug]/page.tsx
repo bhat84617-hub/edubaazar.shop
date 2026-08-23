@@ -53,9 +53,10 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
     "@context": "https://schema.org",
     "@type": "Product",
     name: product.title,
-    description: product.desc,
+    description: product.fullDesc || product.desc,
     image: [`https://edubaazar.shop${product.images[0]}`],
     brand: { "@type": "Brand", name: "EduBazar.shop" },
+    sku: product.slug,
     aggregateRating: {
       "@type": "AggregateRating",
       ratingValue: product.rating,
@@ -67,7 +68,9 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
       priceCurrency: "INR",
       availability: "https://schema.org/InStock",
       url: `${SITE}/product/${slug}`,
+      itemCondition: "https://schema.org/NewCondition",
     },
+    dateModified: product.lastUpdated || product.createdAt,
   };
 
   const breadcrumbLd = {
