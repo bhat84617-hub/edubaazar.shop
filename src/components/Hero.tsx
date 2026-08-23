@@ -7,27 +7,31 @@ import { ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
 const SLIDES = [
   {
     image: "/images/hackingslide.png",
+    alt: "Ethical hacking and penetration testing course hero",
     title: "Master Ethical\nHacking Skills",
     desc: "Learn penetration testing, network security & become a certified ethical hacker.",
     ctaText: "Explore Hacking",
     ctaHref: "/shop?cat=Hacking",
   },
   {
-    image: "/images/programingslideherosection.jpeg",
+    image: "/images/programming-hero-section.jpeg",
+    alt: "Programming courses with Python, JavaScript and React",
     title: "Learn to Code\nLike a Pro",
     desc: "Python, JavaScript, React & more. Build real projects and launch your tech career.",
     ctaText: "Explore Programming",
     ctaHref: "/shop?cat=Programming",
   },
   {
-    image: "/images/tradingslideherosection.jpeg",
+    image: "/images/trading-hero-section.jpeg",
+    alt: "Stock market and crypto trading courses",
     title: "Stock Market &\nCrypto Trading",
     desc: "Master technical analysis, crypto trading & build profitable strategies.",
     ctaText: "Explore Trading",
     ctaHref: "/shop?cat=Trading",
   },
   {
-    image: "/images/softwareslideherosection.jpeg",
+    image: "/images/software-tools-hero-section.jpeg",
+    alt: "Software and cybersecurity tools learning resources",
     title: "Software &\nHacking Tools",
     desc: "Premium RATs, payload generators & analysis tools. Most are FREE to download.",
     ctaText: "Explore Tools",
@@ -52,8 +56,10 @@ export default function Hero() {
         <div
           key={i}
           className={`ws-hero-bg ${i === idx ? "active" : ""}`}
-          style={{ backgroundImage: `url(${slide.image})` }}
-        />
+          aria-hidden={i !== idx}
+        >
+          <img src={slide.image} alt={i === idx ? slide.alt : ""} />
+        </div>
       ))}
       <div className="ws-hero-overlay" />
 
