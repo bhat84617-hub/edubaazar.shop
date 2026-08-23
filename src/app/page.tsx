@@ -20,7 +20,7 @@ const STATS = [
   { value: 15000, suffix: "+", label: "Happy Students" },
   { value: 5000, suffix: "+", label: "Courses Delivered" },
   { value: 25000, suffix: "+", label: "Downloads" },
-  { value: 48, suffix: "", label: "Expert Courses" },
+  { value: 33, suffix: "+", label: "Expert Courses" },
 ];
 
 const TESTIMONIALS = [
@@ -255,7 +255,7 @@ export default function HomePage() {
           <div className="ws-ig-strip">
             {IG.map((src, i) => (
               <a key={i} href="https://instagram.com/edubazarshop" target="_blank" rel="noreferrer" className="ws-ig-item">
-                <img src={src} alt="EduBazar Instagram" loading="lazy" />
+                <img src={src} alt={`EduBazar ${["Ethical Hacking", "Python Course", "UI/UX Design", "Hacking Bible", "JavaScript", "Trading"][i]} course preview`} loading="lazy" width={300} height={300} />
                 <div className="ws-ig-icon"><Camera size={24} strokeWidth={1.5} /></div>
               </a>
             ))}

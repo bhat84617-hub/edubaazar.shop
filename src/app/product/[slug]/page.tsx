@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   if (!product) return { title: "Product not found" };
   return {
     title: product.title,
-    description: product.desc,
+    description: product.fullDesc || product.desc,
     keywords: [product.title, product.category + " course", "buy " + product.title, "EduBazar " + product.category, product.category + " online course India"],
     openGraph: {
       title: `${product.title} | EduBazar.shop`,
@@ -81,6 +81,21 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
     ],
   };
 
+  const courseLd = product.kind === "course" ? {
+    "@context": "https://schema.org",
+    "@type": "Course",
+    name: product.title,
+    description: product.fullDesc || product.desc,
+    provider: { "@type": "Organization", name: "EduBazar.shop", url: SITE },
+    educationalLevel: product.level,
+    timeRequired: product.duration,
+    numberOfCredits: 1,
+    inLanguage: product.language || "en",
+    offers: { "@type": "Offer", price: product.price, priceCurrency: "INR", availability: "https://schema.org/InStock", url: `${SITE}/product/${slug}` },
+    aggregateRating: { "@type": "AggregateRating", ratingValue: product.rating, reviewCount: parseInt(product.reviewCount.replace(/,/g, "")) || 10 },
+    ...(product.instructor ? { instructor: { "@type": "Person", name: product.instructor } } : {}),
+  } : null;
+
   const faqLd = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
@@ -106,6 +121,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   return (
     <div>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      {courseLd && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(courseLd) }} />}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }} />
 

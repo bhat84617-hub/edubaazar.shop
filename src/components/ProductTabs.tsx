@@ -4,14 +4,43 @@ import { useState } from "react";
 import { Star, CheckCircle2 } from "lucide-react";
 import type { Product } from "@/lib/products";
 
-const SAMPLE_REVIEWS = [
-  { name: "Vikram Singh", rating: 5, text: "Excellent content. Very well explained with practical examples. Worth every rupee!" },
-  { name: "Sneha Patel", rating: 4, text: "Good structured course. The downloadable resources are really helpful. Could add more quizzes." },
-  { name: "Mohit Kumar", rating: 5, text: "One of the best purchases. Support team responds quickly and course access was instant." },
+const REVIEWS_BY_ID: Record<string, { name: string; rating: number; text: string }[]> = {
+  h1: [
+    { name: "CyberSec Student", rating: 5, text: "Best hacking course I've found. The Kali Linux labs were incredibly practical. Worth every penny." },
+    { name: "Network Admin", rating: 5, text: "Already working in IT but this course filled gaps in my penetration testing skills. The Nmap and Metasploit sections are gold." },
+    { name: "Security Enthusiast", rating: 4, text: "Great content for the price. The 35+ labs give real hands-on experience. Could use more mobile hacking content." },
+  ],
+  h2: [
+    { name: "Web Developer", rating: 5, text: "Learned SQL injection and XSS in depth. The Burp Suite walkthroughs are excellent." },
+    { name: "Bug Bounty Hunter", rating: 5, text: "The bug bounty methodology section helped me find my first valid vulnerability. Highly recommend!" },
+    { name: "IT Student", rating: 4, text: "Solid web security course. The OWASP Top 10 coverage is thorough. Good for beginners and intermediates." },
+  ],
+  p1: [
+    { name: "Career Switcher", rating: 5, text: "Switched from non-tech to Python developer in 3 months. The projects section is amazing." },
+    { name: "Data Analyst", rating: 5, text: "The NumPy and Pandas sections are exactly what I needed for my job. Very well explained." },
+    { name: "College Student", rating: 5, text: "Best Python course at this price. 200+ exercises kept me engaged throughout." },
+  ],
+  p2: [
+    { name: "Frontend Developer", rating: 5, text: "Finally understood closures and async/await properly. The 15 projects are real-world applicable." },
+    { name: "React Developer", rating: 5, text: "Great refresher on modern JS. The ES6+ section updated my skills significantly." },
+    { name: "Bootcamp Graduate", rating: 4, text: "Fills the gaps that bootcamps leave. The event loop and prototypes sections are must-watch." },
+  ],
+  t1: [
+    { name: "New Investor", rating: 5, text: "Started investing after this course. The technical analysis section is easy to follow." },
+    { name: "SIP Investor", rating: 4, text: "Good overview of the Indian stock market. The risk management section is crucial for beginners." },
+    { name: "Finance Student", rating: 5, text: "Practical and beginner-friendly. Live trading sessions made concepts crystal clear." },
+  ],
+};
+
+const DEFAULT_REVIEWS = [
+  { name: "Verified Student", rating: 5, text: "Excellent course content. Well-structured and easy to follow. The practical exercises really helped me understand the concepts." },
+  { name: "Working Professional", rating: 5, text: "Great value for the price. The downloadable resources are a nice bonus. Support team is responsive too." },
+  { name: "Self-Learner", rating: 4, text: "Solid course with good explanations. Lifetime access means I can revisit topics whenever I need to." },
 ];
 
 export default function ProductTabs({ product }: { product: Product }) {
   const [tab, setTab] = useState<"desc" | "specs" | "reviews">("desc");
+  const reviews = REVIEWS_BY_ID[product.id] || DEFAULT_REVIEWS;
 
   const specs: [string, string][] = [
     ["Product", product.title],
@@ -21,6 +50,8 @@ export default function ProductTabs({ product }: { product: Product }) {
     ["Students", product.students],
     ["Rating", `${product.rating} / 5`],
     ["Access", "Lifetime"],
+    ...(product.instructor ? [["Instructor", product.instructor]] as [string, string][] : []),
+    ...(product.language ? [["Language", product.language]] as [string, string][] : []),
   ];
 
   return (
@@ -39,8 +70,8 @@ export default function ProductTabs({ product }: { product: Product }) {
 
       {tab === "desc" && (
         <div style={{ maxWidth: 780 }}>
-          <p style={{ fontSize: 15, lineHeight: 1.8, color: "var(--body)", marginBottom: 20 }}>{product.desc}</p>
-          <h4 style={{ fontSize: 16, marginBottom: 12 }}>What's Included</h4>
+          <p style={{ fontSize: 15, lineHeight: 1.8, color: "var(--body)", marginBottom: 20 }}>{product.fullDesc || product.desc}</p>
+          <h4 style={{ fontSize: 16, marginBottom: 12 }}>What&apos;s Included</h4>
           <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: 8 }}>
             {product.includes.map((inc) => (
               <li key={inc} style={{ display: "flex", alignItems: "center", gap: 9, fontSize: 14 }}>
@@ -74,10 +105,10 @@ export default function ProductTabs({ product }: { product: Product }) {
 
       {tab === "reviews" && (
         <div style={{ display: "grid", gap: 14, maxWidth: 780 }}>
-          {SAMPLE_REVIEWS.map((r, i) => (
+          {reviews.map((r, i) => (
             <div key={i} style={{ background: "var(--soft)", borderRadius: 12, padding: 18 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
-                <div className="t-avatar" style={{ width: 36, height: 36 }}>{r.name[0]}</div>
+                <div className="t-avatar" style={{ width: 36, height: 36 }}>{r.name.split(" ").map(w => w[0]).join("").toUpperCase().slice(0,2)}</div>
                 <div>
                   <strong style={{ fontSize: 14 }}>{r.name}</strong>
                   <div style={{ display: "flex", gap: 2, marginTop: 2 }}>
