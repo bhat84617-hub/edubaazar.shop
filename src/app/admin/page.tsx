@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Lock, ShieldCheck, ShoppingBag, IndianRupee, Users, LayoutDashboard, Store, Search, Check, X, Eye, Download, Inbox } from "lucide-react";
+import { Lock, ShieldCheck, ShoppingBag, IndianRupee, Users, LayoutDashboard, Store, Search, Check, X, Eye, Download, Inbox, ExternalLink } from "lucide-react";
 import { supabase } from "@/lib/config";
 import { useStore } from "@/lib/store";
 import type { Order } from "@/lib/store";
@@ -13,6 +13,9 @@ export default function AdminPage() {
   const [remoteOrders, setRemoteOrders] = useState<Order[]>([]);
   const [q, setQ] = useState("");
   const [selected, setSelected] = useState<Order | null>(null);
+  const [approveModal, setApproveModal] = useState<Order | null>(null);
+  const [downloadUrls, setDownloadUrls] = useState<Record<string, string>>({});
+  const [approving, setApproving] = useState(false);
 
   useEffect(() => {
     setAuthed(localStorage.getItem("edubazar_admin") === "true");
@@ -65,11 +68,27 @@ export default function AdminPage() {
     }).catch(() => {});
   };
 
+  const openApprove = (order: Order) => {
+    const urls: Record<string, string> = {};
+    (order.items || []).forEach((item) => {
+      urls[item.id] = item.downloadUrl || "";
+    });
+    setDownloadUrls(urls);
+    setApproveModal(order);
+  };
+
+  const confirmApprove = async () => {
+    if (!approveModal) return;
+    setApproving(true);
+    await updateOrderStatus(approveModal.orderId, "approved", downloadUrls);
+    sendStatusEmail(approveModal.orderId, approveModal.name, approveModal.email, "approved");
+    showToast("Order approved with download links!");
+    setApproveModal(null);
+    setApproving(false);
+  };
+
   const approve = async (order: Order) => {
-    if (!confirm("Approve this payment? Course access will be given to customer.")) return;
-    await updateOrderStatus(order.orderId, "approved");
-    sendStatusEmail(order.orderId, order.name, order.email, "approved");
-    showToast("Order approved!");
+    openApprove(order);
   };
 
   const reject = async (order: Order) => {
@@ -254,9 +273,69 @@ export default function AdminPage() {
                   <div style={{ flex: 1 }}>
                     <h5>{item.name}</h5>
                     <p>Qty: {item.qty} | ₹{item.price * item.qty}</p>
+                    {item.downloadUrl && (
+                      <a href={item.downloadUrl} target="_blank" rel="noreferrer" style={{ fontSize: 12, color: "var(--primary)" }}>
+                        <ExternalLink size={12} /> Download link saved
+                      </a>
+                    )}
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {approveModal && (
+        <div className="modal open" onClick={() => setApproveModal(null)}>
+          <div className="modal-card" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 560 }}>
+            <div className="modal-head">
+              <h3><ShieldCheck size={18} style={{ color: "var(--accent)" }} /> Approve Order — {approveModal.orderId}</h3>
+              <button className="sheet-x" onClick={() => setApproveModal(null)}><X size={18} /></button>
+            </div>
+            <div className="modal-body">
+              <p style={{ fontSize: 13.5, color: "var(--muted)", marginBottom: 16 }}>
+                Paste the download link for each item below. Customer will get access after approval.
+              </p>
+              <div className="spec-table" style={{ marginBottom: 16 }}>
+                {[["Customer", approveModal.name], ["Email", approveModal.email], ["Total", `₹${approveModal.total}`], ["UTR", approveModal.utr || "—"]].map(([k, v]) => (
+                  <div key={k} className="sum-row"><span>{k}</span><strong style={{ fontSize: 13 }}>{v}</strong></div>
+                ))}
+              </div>
+              {(approveModal.items || []).map((item) => (
+                <div key={item.id} style={{ marginBottom: 16, padding: 14, background: "var(--soft)", borderRadius: 8 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
+                    {item.img && <img src={item.img} alt={item.name} style={{ width: 44, height: 44, borderRadius: 6, objectFit: "cover" }} />}
+                    <div>
+                      <h5 style={{ fontSize: 14, margin: 0 }}>{item.name}</h5>
+                      <p style={{ fontSize: 12, color: "var(--muted)", margin: 0 }}>₹{item.price} × {item.qty}</p>
+                    </div>
+                  </div>
+                  <label style={{ fontSize: 12, fontWeight: 600, color: "var(--body)", display: "block", marginBottom: 5 }}>
+                    Download URL
+                  </label>
+                  <input
+                    type="url"
+                    placeholder="https://drive.google.com/file/d/... or MediaFire link"
+                    value={downloadUrls[item.id] || ""}
+                    onChange={(e) => setDownloadUrls({ ...downloadUrls, [item.id]: e.target.value })}
+                    style={{ width: "100%", fontSize: 13, padding: "10px 12px", borderRadius: 8, border: "1px solid var(--line)", background: "#fff" }}
+                  />
+                  {item.downloadUrl && (
+                    <p style={{ fontSize: 11, color: "var(--muted)", marginTop: 4 }}>
+                      Default from product: <a href={item.downloadUrl} target="_blank" rel="noreferrer" style={{ color: "var(--primary)" }}>{item.downloadUrl.slice(0, 50)}...</a>
+                    </p>
+                  )}
+                </div>
+              ))}
+              <div style={{ display: "flex", gap: 10, marginTop: 8 }}>
+                <button className="btn btn-primary" onClick={confirmApprove} disabled={approving} style={{ flex: 1 }}>
+                  <Check size={16} /> {approving ? "Approving..." : "Approve & Send Access"}
+                </button>
+                <button className="btn btn-outline" onClick={() => setApproveModal(null)} disabled={approving}>
+                  Cancel
+                </button>
+              </div>
             </div>
           </div>
         </div>

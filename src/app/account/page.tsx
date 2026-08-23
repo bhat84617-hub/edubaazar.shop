@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { ShoppingBag, Download, IndianRupee, BookOpen, LayoutDashboard, Store, Heart, LogOut, Settings, DownloadCloud, Clock, XCircle, ChevronRight } from "lucide-react";
+import { ShoppingBag, Download, IndianRupee, BookOpen, LayoutDashboard, Store, Heart, LogOut, Settings, DownloadCloud, Clock, XCircle, ChevronRight, ExternalLink, MessageCircle } from "lucide-react";
 import { supabase } from "@/lib/config";
 import { useStore } from "@/lib/store";
 import type { Order } from "@/lib/store";
@@ -21,28 +21,34 @@ export default function AccountPage() {
   const [remoteOrders, setRemoteOrders] = useState<PublicOrder[]>([]);
   const [tab, setTab] = useState<"orders" | "wishlist" | "settings">("orders");
   const [q, setQ] = useState("");
+  const [refreshing, setRefreshing] = useState(false);
+
+  const fetchOrders = async () => {
+    if (!user) return;
+    setRefreshing(true);
+    try {
+      const { data } = await supabase.from("orders").select("*").eq("email", user.email).order("date", { ascending: false });
+      if (data && data.length > 0) {
+        setRemoteOrders(
+          data.map((o) => ({
+            orderId: o.order_id,
+            email: o.email,
+            items: typeof o.items === "string" ? JSON.parse(o.items) : o.items,
+            total: o.total,
+            status: o.status,
+            date: o.date,
+          }))
+        );
+      }
+    } catch {
+      // fallback to local orders
+    }
+    setRefreshing(false);
+  };
 
   useEffect(() => {
     if (!user) return;
-    (async () => {
-      try {
-        const { data } = await supabase.from("orders").select("*").eq("email", user.email).order("date", { ascending: false });
-        if (data && data.length > 0) {
-          setRemoteOrders(
-            data.map((o) => ({
-              orderId: o.order_id,
-              email: o.email,
-              items: typeof o.items === "string" ? JSON.parse(o.items) : o.items,
-              total: o.total,
-              status: o.status,
-              date: o.date,
-            }))
-          );
-        }
-      } catch {
-        // fallback to local orders
-      }
-    })();
+    fetchOrders();
   }, [user]);
 
   const merged: (PublicOrder | Order)[] = useMemo(() => {
@@ -101,7 +107,12 @@ export default function AccountPage() {
       <div className="dash-main">
         <div className="dash-top">
           <h1>Welcome, {user.name.split(" ")[0]} 👋</h1>
-          <span style={{ color: "var(--muted)", fontSize: 13}}>{user.email}</span>
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <span style={{ color: "var(--muted)", fontSize: 13}}>{user.email}</span>
+            <button className="btn btn-outline btn-sm" onClick={fetchOrders} disabled={refreshing} style={{ fontSize: 12 }}>
+              <Download size={13} /> {refreshing ? "Refreshing..." : "Refresh"}
+            </button>
+          </div>
         </div>
 
         <div className="dash-stats">
@@ -180,9 +191,9 @@ export default function AccountPage() {
                                     <DownloadCloud size={13} /> Download
                                   </a>
                                 ) : (
-                                  <span key={i.name} style={{ fontSize: 12, color: "var(--primary)", fontWeight: 600, marginRight: 8 }}>
-                                    <BookOpen size={12} /> Course access unlocked
-                                  </span>
+                                  <a key={i.name} href="https://wa.me/919759131256?text=Hi%20EduBazar%2C%20I%20need%20download%20link%20for%20my%20approved%20order%20${order.orderId}" target="_blank" rel="noreferrer" className="btn btn-outline btn-sm" style={{ margin: "2px 4px 2px 0", fontSize: 11 }}>
+                                    <MessageCircle size={12} /> Get Download Link
+                                  </a>
                                 )
                               )
                             ) : isPending ? (

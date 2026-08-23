@@ -42,7 +42,7 @@ type StoreCtx = {
   logout: () => void;
   showToast: (msg: string, type?: "success" | "error") => void;
   placeOrder: (data: { name: string; email: string; phone: string; utr?: string }) => Promise<Order | null>;
-  updateOrderStatus: (orderId: string, status: string) => Promise<void>;
+  updateOrderStatus: (orderId: string, status: string, downloadUrls?: Record<string, string>) => Promise<void>;
 };
 
 const Ctx = createContext<StoreCtx | null>(null);
@@ -200,12 +200,27 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     [cart, setCart, setOrders]
   );
 
-  const updateOrderStatus = useCallback(async (orderId: string, status: string) => {
+  const updateOrderStatus = useCallback(async (orderId: string, status: string, downloadUrls?: Record<string, string>) => {
     const prev = read<Order[]>("edubazar_orders", []);
-    const next = prev.map((o) => (o.orderId === orderId ? { ...o, status } : o));
+    const next = prev.map((o) => {
+      if (o.orderId !== orderId) return o;
+      const updated = { ...o, status };
+      if (downloadUrls) {
+        updated.items = o.items.map((item) => ({
+          ...item,
+          downloadUrl: downloadUrls[item.id] || item.downloadUrl,
+        }));
+      }
+      return updated;
+    });
     setOrders(next);
     try {
-      await supabase.from("orders").update({ status }).eq("order_id", orderId);
+      const updatePayload: Record<string, unknown> = { status };
+      if (downloadUrls) {
+        const order = next.find((o) => o.orderId === orderId);
+        if (order) updatePayload.items = JSON.stringify(order.items);
+      }
+      await supabase.from("orders").update(updatePayload).eq("order_id", orderId);
     } catch {
       // ignore
     }
