@@ -18,13 +18,22 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const product = getProductBySlug(slug);
   if (!product) return { title: "Product not found" };
+  const seoDescription = product.desc.length <= 160 ? product.desc : `${product.desc.slice(0, 157).trimEnd()}...`;
+  const seoKeywords = [
+    product.title,
+    `${product.category} ${product.kind}`,
+    `${product.level} ${product.category}`,
+    ...(product.tags ?? []),
+    "EduBazar",
+    "online learning India",
+  ];
   return {
     title: product.title,
-    description: product.fullDesc || product.desc,
-    keywords: [product.title, product.category + " course", "buy " + product.title, "EduBazar " + product.category, product.category + " online course India"],
+    description: seoDescription,
+    keywords: [...new Set(seoKeywords)],
     openGraph: {
       title: `${product.title} | EduBazar.shop`,
-      description: product.desc,
+      description: seoDescription,
       url: `${SITE}/product/${slug}`,
       siteName: "EduBazar.shop",
       locale: "en_IN",
@@ -34,7 +43,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     twitter: {
       card: "summary_large_image",
       title: `${product.title} | EduBazar.shop`,
-      description: product.desc,
+      description: seoDescription,
       images: [`https://edubaazar.shop${product.images[0]}`],
     },
     alternates: { canonical: `${SITE}/product/${slug}` },
@@ -54,6 +63,8 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
     "@type": "Product",
     name: product.title,
     description: product.fullDesc || product.desc,
+    category: product.category,
+    keywords: product.tags?.join(", "),
     image: [`https://edubaazar.shop${product.images[0]}`],
     brand: { "@type": "Brand", name: "EduBazar.shop" },
     sku: product.slug,

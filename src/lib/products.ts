@@ -834,6 +834,19 @@ const availableImages = new Set([
 
 products.forEach((product) => {
   if (!availableImages.has(product.images[0])) product.images = [fallbackImages[product.category] ?? fallbackImages.Hacking];
+
+  const titleTags = product.title
+    .split(/[^a-zA-Z0-9]+/)
+    .map((word) => word.toLowerCase())
+    .filter((word) => word.length >= 3 && !["the", "and", "for", "from", "with", "course", "complete"].includes(word));
+  const catalogTags = [
+    product.category.toLowerCase(),
+    product.kind,
+    product.level.toLowerCase(),
+    product.price <= 0 ? "free" : "premium",
+    ...titleTags,
+  ];
+  product.tags = [...new Set([...(product.tags ?? []), ...catalogTags])];
 });
 
 export function getCategoryProducts(category: string): Product[] {
