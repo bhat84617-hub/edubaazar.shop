@@ -22,8 +22,11 @@ CREATE TABLE IF NOT EXISTS orders (
     status TEXT DEFAULT 'pending',
     payment_method TEXT,
     payment_id TEXT,
+    utr TEXT,
     date TIMESTAMPTZ DEFAULT NOW()
 );
+
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS utr TEXT;
 
 -- Enable RLS but allow all (simple setup)
 ALTER TABLE users ENABLE ROW LEVEL SECURITY;

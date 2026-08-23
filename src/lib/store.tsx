@@ -180,7 +180,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       setCart([]);
 
       try {
-        await supabase.from("orders").insert([
+        const { error } = await supabase.from("orders").insert([
           {
             order_id: order.orderId,
             name: order.name,
@@ -194,8 +194,9 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
             date: order.date,
           },
         ]);
+        if (error) throw error;
       } catch {
-        // offline fallback: order is already saved locally
+        showToast("Order saved locally, but server sync failed. Please contact support.", "error");
       }
 
       return order;
@@ -223,11 +224,12 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         const order = next.find((o) => o.orderId === orderId);
         if (order) updatePayload.items = JSON.stringify(order.items);
       }
-      await supabase.from("orders").update(updatePayload).eq("order_id", orderId);
+      const { error } = await supabase.from("orders").update(updatePayload).eq("order_id", orderId);
+      if (error) throw error;
     } catch {
-      // ignore
+      showToast("Order updated locally, but server sync failed.", "error");
     }
-  }, []);
+  }, [showToast]);
 
   const cartCount = cart.reduce((s, i) => s + i.qty, 0);
   const cartSubtotal = cart.reduce((s, i) => {
