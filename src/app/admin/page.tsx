@@ -60,12 +60,13 @@ export default function AdminPage() {
   const revenue = orders.reduce((s, o) => s + (o.total || 0), 0);
   const customers = new Set(orders.map((o) => o.email)).size;
 
-  const sendStatusEmail = (orderId: string, name: string, email: string, status: string) => {
-    fetch("/api/send-email", {
+  const sendStatusEmail = async (orderId: string, name: string, email: string, status: string, urls: Record<string, string> = {}) => {
+    const response = await fetch("/api/send-email", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ type: "order-status", orderId, name, email, status }),
-    }).catch(() => {});
+      body: JSON.stringify({ type: "order-status", orderId, name, email, status, downloadUrls: urls }),
+    });
+    if (!response.ok) throw new Error("Status email failed");
   };
 
   const openApprove = (order: Order) => {
@@ -79,9 +80,18 @@ export default function AdminPage() {
 
   const confirmApprove = async () => {
     if (!approveModal) return;
+    const missingLink = (approveModal.items || []).some((item) => !/^https?:\/\//i.test(downloadUrls[item.id] || item.downloadUrl || ""));
+    if (missingLink) {
+      showToast("Har item ke liye valid download URL required hai.", "error");
+      return;
+    }
     setApproving(true);
     await updateOrderStatus(approveModal.orderId, "approved", downloadUrls);
-    sendStatusEmail(approveModal.orderId, approveModal.name, approveModal.email, "approved");
+    try {
+      await sendStatusEmail(approveModal.orderId, approveModal.name, approveModal.email, "approved", downloadUrls);
+    } catch {
+      showToast("Order approve hua, lekin email send nahi hui. Resend settings check karein.", "error");
+    }
     showToast("Order approved with download links!");
     setApproveModal(null);
     setApproving(false);

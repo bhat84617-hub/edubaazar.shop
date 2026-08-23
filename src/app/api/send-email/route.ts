@@ -21,9 +21,9 @@ export async function POST(req: NextRequest) {
     }
 
     if (type === "order-status") {
-      const { orderId, name, email, status } = body;
+      const { orderId, name, email, status, downloadUrls } = body;
       if (!orderId || !name || !email || !status) return NextResponse.json({ error: "Missing fields" }, { status: 400 });
-      await sendOrderStatusUpdate({ orderId, name, email, status });
+      await sendOrderStatusUpdate({ orderId, name, email, status, downloadUrls: downloadUrls || {} });
       return NextResponse.json({ ok: true });
     }
 

@@ -116,13 +116,18 @@ export async function sendOrderStatusUpdate(data: {
   name: string;
   email: string;
   status: string;
+  downloadUrls: Record<string, string>;
 }) {
   const r = getResend();
   if (!r) return;
 
   const statusText = data.status === "approved"
-    ? "Your order has been approved! You can now download your course from your account."
+    ? "Your order has been approved! Use the download buttons below or open your account dashboard."
     : "We couldn't process your order. Please contact support on WhatsApp at 9759131256.";
+  const downloadLinks = Object.entries(data.downloadUrls)
+    .filter(([, url]) => /^https?:\/\//i.test(url))
+    .map(([name, url]) => `<p style="margin:10px 0;"><a href="${url}" style="display:inline-block;background:#687975;color:white;padding:11px 20px;text-decoration:none;font-weight:600;">Download ${name} →</a></p>`)
+    .join("");
 
   try {
     await r.emails.send({
@@ -139,6 +144,7 @@ export async function sendOrderStatusUpdate(data: {
             <p style="color:#444;">Hi ${data.name},</p>
             <p style="color:#444;line-height:1.7;">${statusText}</p>
             <p style="color:#666;">Order ID: <strong>${data.orderId}</strong></p>
+            ${data.status === "approved" ? (downloadLinks || '<p style="color:#b54708;">Your access is approved. Please contact support if a download button is missing.</p>') : ""}
             <a href="https://www.edubaazar.shop/account" style="display:inline-block;background:#687975;color:white;padding:12px 32px;text-decoration:none;font-weight:600;margin:16px 0;">
               Go to My Account →
             </a>
