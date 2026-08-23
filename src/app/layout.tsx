@@ -56,7 +56,7 @@ export const metadata: Metadata = {
     follow: true,
     googleBot: { index: true, follow: true, "max-video-preview": -1, "max-image-preview": "large", "max-snippet": -1 },
   },
-  alternates: { canonical: SITE_URL, languages: { "en": SITE_URL, "hi": SITE_URL } },
+  alternates: { canonical: SITE_URL, languages: { "en": SITE_URL } },
   icons: { icon: "/logo/edulogo.jpeg" },
 };
 

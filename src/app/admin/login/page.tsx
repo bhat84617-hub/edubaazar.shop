@@ -9,16 +9,27 @@ export default function AdminLoginPage() {
   const router = useRouter();
   const [password, setPassword] = useState("");
   const [error, setError] = useState(false);
+  const [busy, setBusy] = useState(false);
 
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (password === "admin123") {
-      localStorage.setItem("edubazar_admin", "true");
-      router.push("/admin");
-    } else {
+    setBusy(true);
+    setError(false);
+    let success = false;
+    try {
+      const response = await fetch("/api/admin/login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ password }) });
+      if (response.ok) {
+        success = true;
+        localStorage.setItem("edubazar_admin", "true");
+        router.push("/admin");
+      }
+    } catch {
       setError(true);
-      setPassword("");
+    } finally {
+      setBusy(false);
     }
+    if (!success) setError(true);
+    setPassword("");
   };
 
   return (
@@ -37,12 +48,12 @@ export default function AdminLoginPage() {
             <input type="password" placeholder="Enter admin password" value={password} onChange={(e) => setPassword(e.target.value)} required />
           </div>
           {error && <div className="auth-alert error show">Invalid password! Access denied.</div>}
-          <button className="btn btn-primary btn-block" type="submit">
-            <ShieldCheck size={16} /> Access Dashboard
+          <button className="btn btn-primary btn-block" type="submit" disabled={busy}>
+            <ShieldCheck size={16} /> {busy ? "Checking..." : "Access Dashboard"}
           </button>
         </form>
         <p style={{ textAlign: "center", marginTop: 18, fontSize: 12.5, color: "var(--muted)", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
-          <Info size={13} /> Hint: Admin password is <strong>admin123</strong>
+          <Info size={13} /> Admin access is configured on the server.
         </p>
         <p style={{ textAlign: "center", marginTop: 10 }}>
           <Link href="/" style={{ fontSize: 12.5, color: "var(--muted)", display: "inline-flex", alignItems: "center", gap: 5 }}>

@@ -4,7 +4,8 @@ import { useEffect, useRef, useState } from "react";
 
 export default function CountUp({ value, suffix = "+" }: { value: number; suffix?: string }) {
   const ref = useRef<HTMLSpanElement>(null);
-  const [display, setDisplay] = useState(0);
+  // Render the truthful value before hydration and when motion is unavailable.
+  const [display, setDisplay] = useState(value);
   const started = useRef(false);
 
   useEffect(() => {
@@ -16,6 +17,7 @@ export default function CountUp({ value, suffix = "+" }: { value: number; suffix
           started.current = true;
           const duration = 1600;
           const start = performance.now();
+          setDisplay(0);
           const tick = (now: number) => {
             const p = Math.min((now - start) / duration, 1);
             const eased = 1 - Math.pow(1 - p, 3);

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Lock, ShieldCheck, ShoppingBag, IndianRupee, Users, LayoutDashboard, Store, Search, Check, X, Eye, Download, Inbox, ExternalLink } from "lucide-react";
+import { Lock, ShieldCheck, ShoppingBag, IndianRupee, Users, LayoutDashboard, Store, Search, Check, X, Eye, Download, Inbox, ExternalLink, Gauge } from "lucide-react";
 import { supabase } from "@/lib/config";
 import { useStore } from "@/lib/store";
 import type { Order } from "@/lib/store";
@@ -18,7 +18,7 @@ export default function AdminPage() {
   const [approving, setApproving] = useState(false);
 
   useEffect(() => {
-    setAuthed(localStorage.getItem("edubazar_admin") === "true");
+    fetch("/api/admin/session").then((response) => setAuthed(response.ok)).catch(() => setAuthed(false));
   }, []);
 
   useEffect(() => {
@@ -140,9 +140,10 @@ export default function AdminPage() {
         <a className="active" style={{ cursor: "pointer" }}>
           <LayoutDashboard size={18} /> <span>Dashboard</span>
         </a>
+        <Link href="/admin/seo"><Gauge size={18} /> <span>SEO Control Center</span></Link>
         <Link href="/"><Store size={18} /> <span>View Store</span></Link>
         <Link href="/shop"><ShoppingBag size={18} /> <span>All Products</span></Link>
-        <a style={{ cursor: "pointer", marginTop: "auto" }} onClick={() => { localStorage.removeItem("edubazar_admin"); window.location.href = "/"; }}>
+          <a style={{ cursor: "pointer", marginTop: "auto" }} onClick={async () => { await fetch("/api/admin/logout", { method: "POST" }); localStorage.removeItem("edubazar_admin"); window.location.href = "/"; }}>
           <Lock size={18} /> <span>Logout</span>
         </a>
       </aside>

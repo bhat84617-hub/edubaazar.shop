@@ -7,7 +7,6 @@ const supabaseAnonKey =
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-export const ADMIN_PASSWORD = "admin123";
 export const ADMIN_EMAIL = "admin@edubazar.shop";
 
 export const STORE = {

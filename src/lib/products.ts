@@ -807,6 +807,27 @@ export const products: Product[] = [
   },
 ];
 
+const fallbackImages: Record<string, string> = {
+  Hacking: "/images/ethical-hacking-pentest.jpeg",
+  Programming: "/images/python-complete.jpeg",
+  Trading: "/images/mindfluential-trading.jpeg",
+  Books: "/images/hacking-bible.jpeg",
+  Tools: "/images/ethical-hacking-pentest.jpeg",
+  Design: "/images/uiux-design.jpeg",
+  Marketing: "/images/python-complete.jpeg",
+};
+
+const availableImages = new Set([
+  "/images/ethical-hacking-pentest.jpeg", "/images/python-complete.jpeg", "/images/mindfluential-trading.jpeg",
+  "/images/hacking-bible.jpeg", "/images/uiux-design.jpeg", "/images/javascript-mastery.jpeg",
+  "/images/keylogger-mastery.jpeg", "/images/reverse-engineering.jpeg", "/images/hacking-beginner-pro.jpeg",
+  "/images/ethical-hacking-masters-2.jpeg", "/images/web-app-hacking.jpeg", "/images/trading-psychology.jpeg",
+]);
+
+products.forEach((product) => {
+  if (!availableImages.has(product.images[0])) product.images = [fallbackImages[product.category] ?? fallbackImages.Hacking];
+});
+
 export function getCategoryProducts(category: string): Product[] {
   return products.filter((p) => p.category.toLowerCase() === category.toLowerCase());
 }

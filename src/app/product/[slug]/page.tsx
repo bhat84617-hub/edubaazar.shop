@@ -57,11 +57,11 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
     image: [`https://edubaazar.shop${product.images[0]}`],
     brand: { "@type": "Brand", name: "EduBazar.shop" },
     sku: product.slug,
-    aggregateRating: {
+    aggregateRating: product.reviewCount ? {
       "@type": "AggregateRating",
       ratingValue: product.rating,
-      reviewCount: parseInt(product.reviewCount.replace(/,/g, "")) || 10,
-    },
+      reviewCount: parseInt(product.reviewCount.replace(/,/g, "")),
+    } : undefined,
     offers: {
       "@type": "Offer",
       price: product.price,
@@ -95,7 +95,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
     numberOfCredits: 1,
     inLanguage: product.language || "en",
     offers: { "@type": "Offer", price: product.price, priceCurrency: "INR", availability: "https://schema.org/InStock", url: `${SITE}/product/${slug}` },
-    aggregateRating: { "@type": "AggregateRating", ratingValue: product.rating, reviewCount: parseInt(product.reviewCount.replace(/,/g, "")) || 10 },
+    ...(product.reviewCount ? { aggregateRating: { "@type": "AggregateRating", ratingValue: product.rating, reviewCount: parseInt(product.reviewCount.replace(/,/g, "")) } } : {}),
     ...(product.instructor ? { instructor: { "@type": "Person", name: product.instructor } } : {}),
   } : null;
 
