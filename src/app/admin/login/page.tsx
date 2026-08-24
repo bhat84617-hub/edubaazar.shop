@@ -21,7 +21,7 @@ export default function AdminLoginPage() {
       if (response.ok) {
         success = true;
         localStorage.setItem("edubazar_admin", "true");
-        router.push("/admin");
+        window.location.href = "/admin";
       }
     } catch {
       setError(true);

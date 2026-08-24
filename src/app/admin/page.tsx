@@ -26,7 +26,7 @@ export default function AdminPage() {
     setLoadError("");
     setDebugInfo("API se orders load ho rahe hain...");
     try {
-      const response = await fetch("/api/admin/orders/status", { cache: "no-store" });
+      const response = await fetch("/api/admin/orders/status", { cache: "no-store", credentials: "same-origin" });
       if (response.ok) {
         const result = await response.json() as { orders?: Order[] };
         const list = result.orders || [];
@@ -71,7 +71,26 @@ export default function AdminPage() {
   };
 
   useEffect(() => {
-    fetch("/api/admin/session").then((response) => setAuthed(response.ok)).catch(() => setAuthed(false));
+    const checkSession = (retries = 3) => {
+      fetch("/api/admin/session", { credentials: "same-origin" })
+        .then((response) => {
+          if (response.ok) {
+            setAuthed(true);
+          } else if (retries > 0) {
+            setTimeout(() => checkSession(retries - 1), 500);
+          } else {
+            setAuthed(false);
+          }
+        })
+        .catch(() => {
+          if (retries > 0) {
+            setTimeout(() => checkSession(retries - 1), 500);
+          } else {
+            setAuthed(false);
+          }
+        });
+    };
+    checkSession();
   }, []);
 
   useEffect(() => {
@@ -118,6 +137,7 @@ export default function AdminPage() {
       const response = await fetch("/api/admin/orders/status", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
+        credentials: "same-origin",
         body: JSON.stringify({ orderId: approveModal.orderId, status: "approved", downloadUrls }),
       });
       if (!response.ok) {
@@ -156,6 +176,7 @@ export default function AdminPage() {
       const response = await fetch("/api/admin/orders/status", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
+        credentials: "same-origin",
         body: JSON.stringify({ orderId: order.orderId, status: "approved", downloadUrls: urls }),
       });
       if (!response.ok) {
@@ -179,6 +200,7 @@ export default function AdminPage() {
     const response = await fetch("/api/admin/orders/status", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
+      credentials: "same-origin",
       body: JSON.stringify({ orderId: order.orderId, status: "rejected" }),
     });
     if (!response.ok) {
