@@ -69,12 +69,10 @@ export async function PATCH(request: NextRequest) {
   if (readError || !order) {
     return NextResponse.json({ error: "Order not found" }, { status: 404 });
   }
-  if (order.status !== "pending") {
-    return NextResponse.json({ error: "Only pending orders can be updated" }, { status: 409 });
-  }
 
   const update: Record<string, unknown> = { status: body.status };
   const items = (typeof order.items === "string" ? JSON.parse(order.items) : order.items) as Array<{ id: string; name?: string; downloadUrl?: string | null }>;
+
   if (body.status === "approved") {
     const urls = body.downloadUrls || {};
     if (!items?.length || items.some((item) => !/^https?:\/\//i.test(urls[item.id] || item.downloadUrl || ""))) {
@@ -83,7 +81,7 @@ export async function PATCH(request: NextRequest) {
     update.items = JSON.stringify(items.map((item) => ({ ...item, downloadUrl: urls[item.id] || item.downloadUrl })));
   }
 
-  const { error: updateError } = await client.from("orders").update(update).eq("order_id", body.orderId).eq("status", "pending");
+  const { error: updateError } = await client.from("orders").update(update).eq("order_id", body.orderId);
   if (updateError) {
     return NextResponse.json({ error: "Could not update order" }, { status: 500 });
   }
