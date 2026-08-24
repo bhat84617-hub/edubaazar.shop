@@ -204,7 +204,12 @@ export default function AdminPage() {
         <div className="dash-panel">
           <div className="ph">
             <h2>All Customer Orders</h2>
-            <input className="dash-search" placeholder="Search by name, email, order ID..." value={q} onChange={(e) => setQ(e.target.value)} />
+            <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+              <input className="dash-search" placeholder="Search by name, email, order ID..." value={q} onChange={(e) => setQ(e.target.value)} />
+              <button className="btn btn-outline btn-sm" onClick={loadRemoteOrders} title="Refresh orders">
+                Refresh
+              </button>
+            </div>
           </div>
 
           {filtered.length === 0 ? (
@@ -247,17 +252,17 @@ export default function AdminPage() {
                           </span>
                         </td>
                         <td>
-                          <div style={{ display: "flex", gap: 6 }}>
-                            <button className="btn-mini info" onClick={() => setSelected(order)} title="View">
-                              <Eye size={13} />
+                          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                            <button className="btn btn-outline btn-sm" onClick={() => setSelected(order)} title="View order and UTR">
+                              <Eye size={13} /> View
                             </button>
                             {isPending && (
                               <>
-                                <button className="btn-mini ok" onClick={() => approve(order)} title="Approve">
-                                  <Check size={13} />
+                                <button className="btn btn-primary btn-sm" onClick={() => approve(order)} title="Verify UTR and approve">
+                                  <Check size={13} /> Verify UTR & Approve
                                 </button>
-                                <button className="btn-mini no" onClick={() => reject(order)} title="Reject">
-                                  <X size={13} />
+                                <button className="btn btn-outline btn-sm" onClick={() => reject(order)} title="Reject payment">
+                                  <X size={13} /> Reject
                                 </button>
                               </>
                             )}
@@ -301,6 +306,11 @@ export default function AdminPage() {
                   </div>
                 </div>
               ))}
+              {selected.status === "pending" && (
+                <button className="btn btn-primary btn-block" onClick={() => { setSelected(null); approve(selected); }}>
+                  <Check size={16} /> Verify UTR & Approve This Order
+                </button>
+              )}
             </div>
           </div>
         </div>
