@@ -2,14 +2,17 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Lock, ShieldCheck, ShoppingBag, IndianRupee, Users, LayoutDashboard, Store, Search, Check, X, Eye, Download, Inbox, ExternalLink, Gauge } from "lucide-react";
+import { Lock, ShieldCheck, ShoppingBag, IndianRupee, Users, LayoutDashboard, Store, Search, Check, X, Eye, Download, Inbox, ExternalLink, Gauge, AlertTriangle, RefreshCw } from "lucide-react";
 import { useStore } from "@/lib/store";
+import { supabase } from "@/lib/config";
 import type { Order } from "@/lib/store";
 
 export default function AdminPage() {
   const { orders: localOrders, showToast, mounted } = useStore();
   const [authed, setAuthed] = useState(false);
   const [remoteOrders, setRemoteOrders] = useState<Order[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
   const [q, setQ] = useState("");
   const [selected, setSelected] = useState<Order | null>(null);
   const [approveModal, setApproveModal] = useState<Order | null>(null);
@@ -17,14 +20,43 @@ export default function AdminPage() {
   const [approving, setApproving] = useState(false);
 
   const loadRemoteOrders = async () => {
+    setLoadError("");
     try {
       const response = await fetch("/api/admin/orders/status", { cache: "no-store" });
-      if (!response.ok) return;
-      const result = await response.json() as { orders?: Order[] };
-      setRemoteOrders(result.orders || []);
+      if (response.ok) {
+        const result = await response.json() as { orders?: Order[] };
+        setRemoteOrders(result.orders || []);
+        setLoading(false);
+        return;
+      }
     } catch {
-      // Keep the local order fallback visible.
+      // API failed, try client-side fallback
     }
+
+    // Fallback: read orders directly from Supabase using anon key
+    try {
+      const { data, error } = await supabase
+        .from("orders")
+        .select("*")
+        .order("date", { ascending: false });
+      if (error) throw error;
+      const mapped = (data || []).map((o: Record<string, unknown>) => ({
+        orderId: o.order_id,
+        name: o.name,
+        email: o.email,
+        phone: o.phone,
+        items: typeof o.items === "string" ? JSON.parse(o.items as string) : o.items,
+        total: o.total,
+        status: o.status,
+        paymentMethod: o.payment_method,
+        utr: o.utr ?? "",
+        date: o.date,
+      })) as Order[];
+      setRemoteOrders(mapped);
+    } catch {
+      setLoadError("Orders load nahi ho paaye. Vercel me SUPABASE_SERVICE_ROLE_KEY check karein ya Supabase RLS policies dekhein.");
+    }
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -33,6 +65,7 @@ export default function AdminPage() {
 
   useEffect(() => {
     if (!authed) return;
+    setLoading(true);
     const initialRefresh = window.setTimeout(loadRemoteOrders, 0);
     const refreshTimer = window.setInterval(loadRemoteOrders, 30_000);
     return () => {
@@ -209,13 +242,31 @@ export default function AdminPage() {
             <h2>All Customer Orders</h2>
             <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
               <input className="dash-search" placeholder="Search by name, email, order ID..." value={q} onChange={(e) => setQ(e.target.value)} />
-              <button className="btn btn-outline btn-sm" onClick={loadRemoteOrders} title="Refresh orders">
-                Refresh
+              <button className="btn btn-outline btn-sm" onClick={() => { setLoading(true); loadRemoteOrders(); }} title="Refresh orders">
+                <RefreshCw size={13} /> Refresh
               </button>
             </div>
           </div>
 
-          {filtered.length === 0 ? (
+          {loadError && (
+            <div style={{ display: "flex", alignItems: "flex-start", gap: 10, padding: "14px 16px", marginBottom: 16, background: "#fef3cd", border: "1px solid #ffc107", borderRadius: 8, fontSize: 13, color: "#664d03" }}>
+              <AlertTriangle size={18} style={{ flexShrink: 0, marginTop: 1 }} />
+              <div>
+                <strong>Orders load nahi ho paaye.</strong>
+                <div style={{ marginTop: 4 }}>{loadError}</div>
+                <div style={{ marginTop: 6, fontSize: 12, opacity: 0.8 }}>
+                  Possible fixes: (1) Vercel Dashboard me SUPABASE_SERVICE_ROLE_KEY add karein, (2) Supabase me orders table ki RLS policies check karein.
+                </div>
+              </div>
+            </div>
+          )}
+
+          {loading ? (
+            <div style={{ textAlign: "center", padding: "50px 20px", color: "var(--muted)" }}>
+              <RefreshCw size={32} style={{ color: "var(--accent)", marginBottom: 10 }} />
+              <p>Loading orders from database...</p>
+            </div>
+          ) : filtered.length === 0 ? (
             <div style={{ textAlign: "center", padding: "50px 20px", color: "var(--muted)" }}>
               <Inbox size={42} style={{ color: "var(--line)", marginBottom: 10 }} />
               <p>No orders found.</p>
