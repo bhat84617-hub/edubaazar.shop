@@ -298,32 +298,38 @@ export default function AdminPage() {
                           </span>
                         </td>
                         <td>
-                          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-                            <button className="btn-mini info" onClick={() => setSelected(order)} title="View details">
+                          <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
+                            <button onClick={() => setSelected(order)} title="View details" style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "6px 12px", border: "none", borderRadius: 0, fontWeight: 600, fontSize: 11.5, cursor: "pointer", background: "var(--ink)", color: "#fff" }}>
                               <Eye size={13} /> View
                             </button>
-                            {(isPending || isRejected) && (
+                            {isPending && (
                               <>
-                                <button
-                                  className="btn-mini ok"
-                                  onClick={() => quickApprove(order)}
-                                  disabled={isBusy}
-                                  title={isRejected ? "Re-approve this order" : "Approve with default download link"}
-                                >
-                                  <Check size={13} /> {isBusy ? "Working..." : isRejected ? "Re-Approve" : "Approve"}
+                                <button onClick={() => quickApprove(order)} disabled={isBusy} title="Approve with default download link" style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "6px 12px", border: "none", borderRadius: 0, fontWeight: 600, fontSize: 11.5, cursor: "pointer", background: "#22a06b", color: "#fff", opacity: isBusy ? 0.6 : 1 }}>
+                                  <Check size={13} /> {isBusy ? "Working..." : "Approve"}
                                 </button>
-                                <button className="btn-mini info" onClick={() => openApprove(order)} title="Set custom download links">
+                                <button onClick={() => openApprove(order)} title="Set custom download links" style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "6px 12px", border: "none", borderRadius: 0, fontWeight: 600, fontSize: 11.5, cursor: "pointer", background: "#2c6ecb", color: "#fff" }}>
                                   <ExternalLink size={13} /> Custom
                                 </button>
-                                {isPending && (
-                                  <button className="btn-mini no" onClick={() => rejectOrder(order)} disabled={isBusy} title="Reject payment">
-                                    <X size={13} /> Reject
-                                  </button>
-                                )}
+                                <button onClick={() => rejectOrder(order)} disabled={isBusy} title="Reject payment" style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "6px 12px", border: "none", borderRadius: 0, fontWeight: 600, fontSize: 11.5, cursor: "pointer", background: "#e74c3c", color: "#fff", opacity: isBusy ? 0.6 : 1 }}>
+                                  <X size={13} /> Reject
+                                </button>
+                              </>
+                            )}
+                            {isRejected && (
+                              <>
+                                <button onClick={() => quickApprove(order)} disabled={isBusy} title="Re-approve this order" style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "6px 12px", border: "none", borderRadius: 0, fontWeight: 600, fontSize: 11.5, cursor: "pointer", background: "#22a06b", color: "#fff", opacity: isBusy ? 0.6 : 1 }}>
+                                  <Check size={13} /> {isBusy ? "Working..." : "Re-Approve"}
+                                </button>
+                                <button onClick={() => openApprove(order)} title="Set custom download links" style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "6px 12px", border: "none", borderRadius: 0, fontWeight: 600, fontSize: 11.5, cursor: "pointer", background: "#2c6ecb", color: "#fff" }}>
+                                  <ExternalLink size={13} /> Custom
+                                </button>
+                                <button onClick={() => rejectOrder(order)} disabled={isBusy} title="Reject again" style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "6px 12px", border: "none", borderRadius: 0, fontWeight: 600, fontSize: 11.5, cursor: "pointer", background: "#e74c3c", color: "#fff", opacity: isBusy ? 0.6 : 1 }}>
+                                  <X size={13} /> Reject
+                                </button>
                               </>
                             )}
                             {order.status === "approved" && (
-                              <span className="badge approved"><Check size={12} /> Sent</span>
+                              <span className="badge approved" style={{ display: "inline-flex", alignItems: "center", gap: 4 }}><Check size={12} /> Sent</span>
                             )}
                           </div>
                         </td>
