@@ -269,7 +269,15 @@ export default function AdminPage() {
           ) : filtered.length === 0 ? (
             <div style={{ textAlign: "center", padding: "50px 20px", color: "var(--muted)" }}>
               <Inbox size={42} style={{ color: "var(--line)", marginBottom: 10 }} />
-              <p>No orders found.</p>
+              <p>{q ? "Koi order match nahi kar raha is search se." : "Koi orders nahi mile."}</p>
+              {!q && (
+                <div style={{ marginTop: 10, fontSize: 12, lineHeight: 1.6 }}>
+                  <p>Agar customer ne order kiya hai lekin yahan nahi dikh raha:</p>
+                  <p>1. Customer ko login karne bolo → Account page pe order dikhega</p>
+                  <p>2. Supabase Dashboard me <code>orders</code> table check karo</p>
+                  <p>3. Browser me F12 → Console me errors dekho</p>
+                </div>
+              )}
             </div>
           ) : (
             <div style={{ overflowX: "auto" }}>
