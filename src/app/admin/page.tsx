@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { Lock, ShieldCheck, ShoppingBag, IndianRupee, Users, LayoutDashboard, Store, Search, Check, X, Eye, Download, Inbox, ExternalLink, Gauge, AlertTriangle, RefreshCw } from "lucide-react";
 import { useStore } from "@/lib/store";
 import { supabase } from "@/lib/config";
+import { getProductById } from "@/lib/products";
 import type { Order } from "@/lib/store";
 
 export default function AdminPage() {
@@ -18,6 +19,7 @@ export default function AdminPage() {
   const [approveModal, setApproveModal] = useState<Order | null>(null);
   const [downloadUrls, setDownloadUrls] = useState<Record<string, string>>({});
   const [approving, setApproving] = useState(false);
+  const [quickApprovingId, setQuickApprovingId] = useState<string | null>(null);
 
   const loadRemoteOrders = async () => {
     setLoadError("");
@@ -131,6 +133,36 @@ export default function AdminPage() {
 
   const approve = async (order: Order) => {
     openApprove(order);
+  };
+
+  const quickApprove = async (order: Order) => {
+    if (!confirm(`Order ${order.orderId} approve karna hai? Customer ko email jayega.`)) return;
+    setQuickApprovingId(order.orderId);
+    const urls: Record<string, string> = {};
+    (order.items || []).forEach((item) => {
+      const product = getProductById(item.id);
+      urls[item.id] = item.downloadUrl || product?.downloadUrl || "";
+    });
+    try {
+      const response = await fetch("/api/admin/orders/status", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderId: order.orderId, status: "approved", downloadUrls: urls }),
+      });
+      if (!response.ok) {
+        const result = await response.json().catch(() => null);
+        throw new Error(result?.error || "Approval failed");
+      }
+      setRemoteOrders((current) =>
+        current.map((o) => o.orderId === order.orderId
+          ? { ...o, status: "approved", items: o.items.map((item) => ({ ...item, downloadUrl: urls[item.id] || item.downloadUrl })) }
+          : o)
+      );
+      showToast(`${order.name} ka order approved! Email bhej diya.`);
+    } catch (err) {
+      showToast(`Approve failed: ${err instanceof Error ? err.message : "Unknown error"}`, "error");
+    }
+    setQuickApprovingId(null);
   };
 
   const reject = async (order: Order) => {
@@ -320,8 +352,17 @@ export default function AdminPage() {
                             </button>
                             {isPending && (
                               <>
-                                <button className="btn btn-primary btn-sm" onClick={() => approve(order)} title="Verify UTR and approve">
-                                  <Check size={13} /> Verify UTR & Approve
+                                <button
+                                  className="btn btn-primary btn-sm"
+                                  onClick={() => quickApprove(order)}
+                                  disabled={quickApprovingId === order.orderId}
+                                  title="Seedha approve karo with default download link"
+                                  style={quickApprovingId === order.orderId ? { opacity: 0.6 } : {}}
+                                >
+                                  <Check size={13} /> {quickApprovingId === order.orderId ? "Approving..." : "Approve"}
+                                </button>
+                                <button className="btn btn-outline btn-sm" onClick={() => approve(order)} title="Custom link ke saath approve karo">
+                                  <ExternalLink size={13} /> Custom
                                 </button>
                                 <button className="btn btn-outline btn-sm" onClick={() => reject(order)} title="Reject payment">
                                   <X size={13} /> Reject
