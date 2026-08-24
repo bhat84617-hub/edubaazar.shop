@@ -1,104 +1,89 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useState, useCallback } from "react";
-import { Lock, ShieldCheck, ShoppingBag, IndianRupee, Users, LayoutDashboard, Store, Search, Check, X, Eye, Download, Inbox, ExternalLink, Gauge, RefreshCw } from "lucide-react";
 import { getProductById } from "@/lib/products";
-import type { Order } from "@/lib/store";
+import type { Order, OrderItem } from "@/lib/store";
+
+type Tab = "orders" | "pending" | "approved" | "rejected";
 
 export default function AdminPage() {
   const [authed, setAuthed] = useState(false);
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
-  const [loadError, setLoadError] = useState("");
-  const [q, setQ] = useState("");
-  const [selected, setSelected] = useState<Order | null>(null);
-  const [approveModal, setApproveModal] = useState<Order | null>(null);
+  const [error, setError] = useState("");
+  const [search, setSearch] = useState("");
+  const [tab, setTab] = useState<Tab>("orders");
+  const [viewOrder, setViewOrder] = useState<Order | null>(null);
+  const [approveOrder, setApproveOrder] = useState<Order | null>(null);
   const [downloadUrls, setDownloadUrls] = useState<Record<string, string>>({});
-  const [approving, setApproving] = useState(false);
-  const [busyOrderId, setBusyOrderId] = useState<string | null>(null);
-  const [toast, setToast] = useState<{ msg: string; type: "success" | "error" } | null>(null);
+  const [busy, setBusy] = useState<string | null>(null);
+  const [toast, setToast] = useState<{ msg: string; ok: boolean } | null>(null);
 
-  const showToast = useCallback((msg: string, type: "success" | "error" = "success") => {
-    setToast({ msg, type });
+  const flash = useCallback((msg: string, ok = true) => {
+    setToast({ msg, ok });
     setTimeout(() => setToast(null), 3500);
   }, []);
 
   useEffect(() => {
-    const check = (retries = 5) => {
+    let alive = true;
+    const check = (n = 0) => {
       fetch("/api/admin/session", { credentials: "same-origin" })
         .then((r) => {
+          if (!alive) return;
           if (r.ok) setAuthed(true);
-          else if (retries > 0) setTimeout(() => check(retries - 1), 600);
+          else if (n < 5) setTimeout(() => check(n + 1), 800);
           else window.location.href = "/admin/login";
         })
         .catch(() => {
-          if (retries > 0) setTimeout(() => check(retries - 1), 600);
+          if (!alive) return;
+          if (n < 5) setTimeout(() => check(n + 1), 800);
           else window.location.href = "/admin/login";
         });
     };
     check();
+    return () => { alive = false; };
   }, []);
 
-  const loadOrders = useCallback(async () => {
-    setLoadError("");
+  const fetchOrders = useCallback(async () => {
     try {
       const r = await fetch("/api/admin/orders/status", { cache: "no-store", credentials: "same-origin" });
-      if (!r.ok) {
-        if (r.status === 401) { window.location.href = "/admin/login"; return; }
-        const err = await r.json().catch(() => ({}));
-        setLoadError(err.error || `Server error ${r.status}`);
-        setLoading(false);
-        return;
-      }
-      const data = await r.json() as { orders?: Order[] };
-      setOrders(data.orders || []);
+      if (r.status === 401) { window.location.href = "/admin/login"; return; }
+      if (!r.ok) { setError(`Error ${r.status}`); setLoading(false); return; }
+      const d = await r.json() as { orders?: Order[] };
+      setOrders(d.orders || []);
     } catch (e) {
-      setLoadError(`Network error: ${e instanceof Error ? e.message : "unknown"}`);
+      setError(e instanceof Error ? e.message : "Network error");
     }
     setLoading(false);
   }, []);
 
   useEffect(() => {
     if (!authed) return;
-    setLoading(true);
-    loadOrders();
-    const t = setInterval(loadOrders, 30_000);
+    fetchOrders();
+    const t = setInterval(fetchOrders, 30000);
     return () => clearInterval(t);
-  }, [authed, loadOrders]);
+  }, [authed, fetchOrders]);
 
-  const filtered = orders.filter((o) =>
-    (o.name || "").toLowerCase().includes(q.toLowerCase()) ||
-    (o.email || "").toLowerCase().includes(q.toLowerCase()) ||
-    (o.orderId || "").toLowerCase().includes(q.toLowerCase()) ||
-    (o.phone || "").includes(q)
-  );
+  const norm = (s: string) => (s || "").toLowerCase().trim();
 
-  const revenue = orders.reduce((s, o) => s + (o.total || 0), 0);
-  const customers = new Set(orders.map((o) => o.email)).size;
-  const pendingCount = orders.filter((o) => o.status === "pending").length;
+  const filtered = orders.filter((o) => {
+    if (tab !== "orders" && norm(o.status) !== tab) return false;
+    if (!search) return true;
+    const q = norm(search);
+    return norm(o.name).includes(q) || norm(o.email).includes(q) || norm(o.orderId).includes(q) || (o.phone || "").includes(search);
+  });
 
-  const openApprove = (order: Order) => {
-    const urls: Record<string, string> = {};
-    (order.items || []).forEach((item) => { urls[item.id] = item.downloadUrl || ""; });
-    setDownloadUrls(urls);
-    setApproveModal(order);
-  };
+  const pendingCount = orders.filter((o) => norm(o.status) === "pending").length;
+  const approvedCount = orders.filter((o) => norm(o.status) === "approved").length;
+  const rejectedCount = orders.filter((o) => norm(o.status) === "rejected").length;
+  const revenue = orders.reduce((s, o) => s + (norm(o.status) === "approved" ? o.total || 0 : 0), 0);
+  const uniqueCustomers = new Set(orders.map((o) => o.email)).size;
 
-  const quickApprove = async (order: Order) => {
-    const urls: Record<string, string> = {};
-    let hasAllUrls = true;
-    (order.items || []).forEach((item) => {
-      const product = getProductById(item.id);
-      urls[item.id] = item.downloadUrl || product?.downloadUrl || "";
-      if (!urls[item.id] || !/^https?:\/\//i.test(urls[item.id])) hasAllUrls = false;
-    });
-    if (!hasAllUrls) {
-      openApprove(order);
-      return;
-    }
-    if (!confirm(`Order ${order.orderId} approve karna hai?\nCustomer: ${order.name}\nItems: ${(order.items || []).map((i) => i.name).join(", ")}`)) return;
-    setBusyOrderId(order.orderId);
+  const doApprove = async (order: Order, urls: Record<string, string>) => {
+    const items = order.items || [];
+    const missing = items.some((item) => !/^https?:\/\//i.test(urls[item.id] || item.downloadUrl || ""));
+    if (missing) { flash("Har item ke liye download URL required hai!", false); return; }
+    setBusy(order.orderId);
     try {
       const r = await fetch("/api/admin/orders/status", {
         method: "PATCH",
@@ -108,48 +93,22 @@ export default function AdminPage() {
       });
       if (!r.ok) {
         const err = await r.json().catch(() => ({}));
-        throw new Error(err.error || "Failed");
+        throw new Error(err.error || `Error ${r.status}`);
       }
       setOrders((prev) => prev.map((o) => o.orderId === order.orderId
         ? { ...o, status: "approved", items: o.items.map((item) => ({ ...item, downloadUrl: urls[item.id] || item.downloadUrl })) }
         : o));
-      showToast(`${order.name} approved! Email sent.`);
+      flash(`${order.name} approved! Email sent.`);
+      setApproveOrder(null);
     } catch (e) {
-      showToast(`Approve failed: ${e instanceof Error ? e.message : "Unknown"}`, "error");
+      flash(`Failed: ${e instanceof Error ? e.message : "unknown"}`, false);
     }
-    setBusyOrderId(null);
+    setBusy(null);
   };
 
-  const confirmApprove = async () => {
-    if (!approveModal) return;
-    const missingLink = (approveModal.items || []).some((item) => !/^https?:\/\//i.test(downloadUrls[item.id] || item.downloadUrl || ""));
-    if (missingLink) { showToast("Har item ke liye valid download URL required hai.", "error"); return; }
-    setApproving(true);
-    try {
-      const r = await fetch("/api/admin/orders/status", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        credentials: "same-origin",
-        body: JSON.stringify({ orderId: approveModal.orderId, status: "approved", downloadUrls }),
-      });
-      if (!r.ok) {
-        const err = await r.json().catch(() => ({}));
-        throw new Error(err.error || "Failed");
-      }
-      setOrders((prev) => prev.map((o) => o.orderId === approveModal.orderId
-        ? { ...o, status: "approved", items: o.items.map((item) => ({ ...item, downloadUrl: downloadUrls[item.id] || item.downloadUrl })) }
-        : o));
-      showToast(`${approveModal.name} approved! Email sent.`);
-      setApproveModal(null);
-    } catch (e) {
-      showToast(`Approve failed: ${e instanceof Error ? e.message : "Unknown"}`, "error");
-    }
-    setApproving(false);
-  };
-
-  const rejectOrder = async (order: Order) => {
-    if (!confirm(`Order ${order.orderId} reject karna hai?\nCustomer: ${order.name}`)) return;
-    setBusyOrderId(order.orderId);
+  const doReject = async (order: Order) => {
+    if (!confirm(`Reject ${order.orderId} (${order.name})?`)) return;
+    setBusy(order.orderId);
     try {
       const r = await fetch("/api/admin/orders/status", {
         method: "PATCH",
@@ -159,177 +118,190 @@ export default function AdminPage() {
       });
       if (!r.ok) throw new Error("Failed");
       setOrders((prev) => prev.map((o) => o.orderId === order.orderId ? { ...o, status: "rejected" } : o));
-      showToast(`Order ${order.orderId} rejected.`, "error");
+      flash(`Order rejected.`, false);
     } catch {
-      showToast("Reject failed.", "error");
+      flash("Reject failed.", false);
     }
-    setBusyOrderId(null);
+    setBusy(null);
+  };
+
+  const quickApprove = async (order: Order) => {
+    const urls: Record<string, string> = {};
+    let allGood = true;
+    (order.items || []).forEach((item) => {
+      const p = getProductById(item.id);
+      urls[item.id] = item.downloadUrl || p?.downloadUrl || "";
+      if (!urls[item.id] || !/^https?:\/\//i.test(urls[item.id])) allGood = false;
+    });
+    if (!allGood) {
+      openApproveModal(order);
+      return;
+    }
+    if (!confirm(`Approve ${order.name}?\nItems: ${(order.items || []).map((i) => i.name).join(", ")}`)) return;
+    await doApprove(order, urls);
+  };
+
+  const openApproveModal = (order: Order) => {
+    const urls: Record<string, string> = {};
+    (order.items || []).forEach((item) => { urls[item.id] = item.downloadUrl || ""; });
+    setDownloadUrls(urls);
+    setApproveOrder(order);
   };
 
   const exportCsv = () => {
-    if (orders.length === 0) return alert("No orders to export");
-    let csv = "Order ID,Customer Name,Email,Phone,Items,Total,Payment,UTR,Date,Status\n";
+    if (!orders.length) return alert("No orders");
+    let csv = "Order ID,Name,Email,Phone,Items,Total,UTR,Date,Status\n";
     orders.forEach((o) => {
-      csv += `"${o.orderId}","${o.name}","${o.email}","${o.phone || ""}","${(o.items || []).map((i) => i.name).join("; ")}","₹${o.total}","${o.paymentMethod || "UPI"}","${o.utr || ""}","${new Date(o.date).toLocaleString("en-IN")}","${o.status}"\n`;
+      csv += `"${o.orderId}","${o.name}","${o.email}","${o.phone || ""}","${(o.items || []).map((i) => i.name).join("; ")}","${o.total}","${o.utr || ""}","${new Date(o.date).toLocaleDateString("en-IN")}","${o.status}"\n`;
     });
-    const url = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
     const a = document.createElement("a");
-    a.href = url; a.download = "edubazar_orders.csv"; a.click();
-    URL.revokeObjectURL(url);
+    a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
+    a.download = "orders.csv"; a.click();
+  };
+
+  const btnStyle = (bg: string): React.CSSProperties => ({
+    display: "inline-flex", alignItems: "center", gap: 5, padding: "7px 14px",
+    border: "none", fontWeight: 700, fontSize: 12, cursor: "pointer",
+    background: bg, color: "#fff", letterSpacing: 0.3,
+  });
+
+  const statusBadge = (s: string) => {
+    const v = norm(s);
+    const bg = v === "approved" ? "#d4edda" : v === "pending" ? "#fff3cd" : "#f8d7da";
+    const fg = v === "approved" ? "#155724" : v === "pending" ? "#856404" : "#721c24";
+    const label = v === "approved" ? "Approved" : v === "pending" ? "Pending" : "Rejected";
+    return <span style={{ display: "inline-block", padding: "3px 10px", fontWeight: 700, fontSize: 11, background: bg, color: fg }}>{label}</span>;
   };
 
   if (!authed) {
     return (
-      <section className="section-pad">
-        <div className="container" style={{ maxWidth: 480 }}>
-          <div className="dash-panel" style={{ textAlign: "center", padding: "60px 24px" }}>
-            <Lock size={48} style={{ color: "var(--line)", marginBottom: 14 }} />
-            <h3 style={{ marginBottom: 8 }}>Admin access required</h3>
-            <p style={{ color: "var(--muted)", marginBottom: 20 }}>Redirecting to login...</p>
-          </div>
-        </div>
-      </section>
+      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#f5f5f5" }}>
+        <p style={{ color: "#888", fontSize: 14 }}>Checking access...</p>
+      </div>
     );
   }
 
   return (
-    <div className="dash-shell">
-      <aside className="dash-side">
-        <div className="brand">
-          <img src="/logo/edulogo.jpeg" alt="EduBazar" />
-          <span>EduBazar</span>
+    <div style={{ minHeight: "100vh", background: "#f5f5f5" }}>
+      {/* TOPBAR */}
+      <div style={{ background: "#181d27", color: "#fff", padding: "16px 24px", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <img src="/logo/edulogo.jpeg" alt="" style={{ height: 32 }} />
+          <span style={{ fontSize: 18, fontWeight: 700, letterSpacing: 0.5 }}>Admin Dashboard</span>
         </div>
-        <span style={{ color: "var(--accent)", fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, marginBottom: 14 }}>
-          <ShieldCheck size={14} style={{ verticalAlign: "-2px" }} /> Admin Panel
-        </span>
-        <a className="active" style={{ cursor: "pointer" }}>
-          <LayoutDashboard size={18} /> <span>Dashboard</span>
-        </a>
-        <Link href="/admin/seo"><Gauge size={18} /> <span>SEO Control Center</span></Link>
-        <Link href="/"><Store size={18} /> <span>View Store</span></Link>
-        <Link href="/shop"><ShoppingBag size={18} /> <span>All Products</span></Link>
-        <a style={{ cursor: "pointer", marginTop: "auto" }} onClick={async () => { await fetch("/api/admin/logout", { method: "POST" }); localStorage.removeItem("edubazar_admin"); window.location.href = "/"; }}>
-          <Lock size={18} /> <span>Logout</span>
-        </a>
-      </aside>
+        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+          <a href="/" style={{ padding: "8px 16px", background: "rgba(255,255,255,0.1)", color: "#fff", fontSize: 12, fontWeight: 600, textDecoration: "none", border: "1px solid rgba(255,255,255,0.2)" }}>View Store</a>
+          <button onClick={exportCsv} style={btnStyle("#2c6ecb")}>Export CSV</button>
+          <button onClick={async () => { await fetch("/api/admin/logout", { method: "POST" }); localStorage.removeItem("edubazar_admin"); window.location.href = "/"; }} style={btnStyle("#666")}>Logout</button>
+        </div>
+      </div>
 
-      <div className="dash-main">
-        <div className="dash-top">
-          <h1><ShieldCheck size={20} style={{ verticalAlign: "-3px", color: "var(--accent)" }} /> Admin Dashboard</h1>
-          <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-            {pendingCount > 0 && (
-              <span className="badge pending" style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
-                <Inbox size={13} /> {pendingCount} pending
-              </span>
-            )}
-            <button className="btn btn-primary btn-sm" onClick={exportCsv}><Download size={14} /> Export CSV</button>
-            <Link href="/shop" className="btn btn-outline btn-sm">View Store</Link>
+      {/* STATS */}
+      <div style={{ padding: "20px 24px", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 16 }}>
+        {[
+          { label: "Total Orders", value: orders.length, bg: "#fff" },
+          { label: "Revenue", value: `₹${revenue.toLocaleString("en-IN")}`, bg: "#d4edda" },
+          { label: "Customers", value: uniqueCustomers, bg: "#fff" },
+          { label: "Pending", value: pendingCount, bg: pendingCount > 0 ? "#fff3cd" : "#fff" },
+          { label: "Approved", value: approvedCount, bg: "#d4edda" },
+          { label: "Rejected", value: rejectedCount, bg: "#f8d7da" },
+        ].map((s) => (
+          <div key={s.label} style={{ padding: 18, background: s.bg, border: "1px solid #d5d7da" }}>
+            <div style={{ fontSize: 26, fontWeight: 700, color: "#181d27" }}>{s.value}</div>
+            <div style={{ fontSize: 12, color: "#666", marginTop: 2 }}>{s.label}</div>
           </div>
+        ))}
+      </div>
+
+      {/* TABS + SEARCH */}
+      <div style={{ padding: "0 24px 20px", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
+        <div style={{ display: "flex", gap: 0 }}>
+          {([["orders", "All"], ["pending", `Pending (${pendingCount})`], ["approved", `Approved (${approvedCount})`], ["rejected", `Rejected (${rejectedCount})`]] as [Tab, string][]).map(([key, label]) => (
+            <button
+              key={key}
+              onClick={() => setTab(key)}
+              style={{
+                padding: "9px 18px", border: "1px solid #d5d7da", borderRight: "none",
+                background: tab === key ? "#181d27" : "#fff",
+                color: tab === key ? "#fff" : "#181d27",
+                fontWeight: 700, fontSize: 12, cursor: "pointer",
+              }}
+            >
+              {label}
+            </button>
+          ))}
         </div>
-
-        <div className="dash-stats">
-          <div className="dash-stat"><div className="ic"><ShoppingBag size={20} /></div><div className="n">{orders.length}</div><div className="l">Total Orders</div></div>
-          <div className="dash-stat"><div className="ic"><IndianRupee size={20} /></div><div className="n">₹{revenue.toLocaleString("en-IN")}</div><div className="l">Total Revenue</div></div>
-          <div className="dash-stat"><div className="ic"><Users size={20} /></div><div className="n">{customers}</div><div className="l">Unique Customers</div></div>
-          <div className="dash-stat"><div className="ic"><Search size={20} /></div><div className="n">{pendingCount}</div><div className="l">Pending</div></div>
+        <div style={{ display: "flex", gap: 8 }}>
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search orders..."
+            style={{ padding: "9px 14px", border: "1px solid #d5d7da", fontSize: 13, width: 240, outline: "none" }}
+          />
+          <button onClick={() => { setLoading(true); fetchOrders(); }} style={btnStyle("#181d27")}>Refresh</button>
         </div>
+      </div>
 
-        <div className="dash-panel">
-          <div className="ph">
-            <h2>All Customer Orders</h2>
-            <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-              <input className="dash-search" placeholder="Search by name, email, order ID..." value={q} onChange={(e) => setQ(e.target.value)} />
-              <button className="btn btn-outline btn-sm" onClick={() => { setLoading(true); loadOrders(); }} title="Refresh">
-                <RefreshCw size={13} /> Refresh
-              </button>
-            </div>
-          </div>
-
-          {loadError && (
-            <div style={{ padding: "12px 16px", marginBottom: 16, background: "#fef3cd", border: "1px solid #ffc107", borderRadius: 0, fontSize: 13, color: "#664d03" }}>
-              <strong>Error:</strong> {loadError}
-            </div>
-          )}
-
+      {/* ORDERS TABLE */}
+      <div style={{ padding: "0 24px 40px" }}>
+        <div style={{ background: "#fff", border: "1px solid #d5d7da", overflow: "hidden" }}>
           {loading ? (
-            <div style={{ textAlign: "center", padding: "50px 20px", color: "var(--muted)" }}>
-              <RefreshCw size={32} style={{ color: "var(--accent)", marginBottom: 10, animation: "spin 1s linear infinite" }} />
-              <p>Loading orders from database...</p>
-            </div>
+            <div style={{ padding: 60, textAlign: "center", color: "#888" }}>Loading orders...</div>
+          ) : error ? (
+            <div style={{ padding: 30, background: "#fdecea", color: "#721c24", fontSize: 13 }}>{error}</div>
           ) : filtered.length === 0 ? (
-            <div style={{ textAlign: "center", padding: "50px 20px", color: "var(--muted)" }}>
-              <Inbox size={42} style={{ color: "var(--line)", marginBottom: 10 }} />
-              <p>{q ? "Koi order match nahi kar raha." : "Koi orders nahi mile."}</p>
-            </div>
+            <div style={{ padding: 60, textAlign: "center", color: "#888" }}>{search ? "No matching orders" : "No orders yet"}</div>
           ) : (
             <div style={{ overflowX: "auto" }}>
-              <table className="dash-table">
+              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
                 <thead>
-                  <tr>
-                    <th>Order ID</th>
-                    <th>Customer</th>
-                    <th>Items</th>
-                    <th>Total</th>
-                    <th>UTR</th>
-                    <th>Date</th>
-                    <th>Status</th>
-                    <th>Actions</th>
+                  <tr style={{ background: "#f8f8f8" }}>
+                    {["Order ID", "Customer", "Items", "Total", "UTR", "Date", "Status", "Actions"].map((h) => (
+                      <th key={h} style={{ padding: "11px 12px", textAlign: "left", fontSize: 11, fontWeight: 700, color: "#666", textTransform: "uppercase", letterSpacing: 0.5, borderBottom: "2px solid #eee" }}>{h}</th>
+                    ))}
                   </tr>
                 </thead>
                 <tbody>
                   {filtered.map((order) => {
-                    const isPending = order.status === "pending";
-                    const isRejected = order.status === "rejected";
-                    const isBusy = busyOrderId === order.orderId;
+                    const s = norm(order.status);
+                    const isBusy = busy === order.orderId;
                     return (
-                      <tr key={order.orderId}>
-                        <td><strong>{order.orderId}</strong></td>
-                        <td>
-                          <strong>{order.name || "—"}</strong>
-                          <div style={{ fontSize: 12, color: "var(--muted)" }}>{order.email}</div>
+                      <tr key={order.orderId} style={{ borderBottom: "1px solid #eee" }}>
+                        <td style={{ padding: 12, fontWeight: 700, fontSize: 12, fontFamily: "monospace" }}>{order.orderId}</td>
+                        <td style={{ padding: 12 }}>
+                          <div style={{ fontWeight: 600 }}>{order.name || "—"}</div>
+                          <div style={{ fontSize: 11, color: "#888" }}>{order.email}</div>
                         </td>
-                        <td>{(order.items || []).map((i) => i.name).join(", ")}</td>
-                        <td><strong>₹{order.total}</strong></td>
-                        <td>{order.utr ? <code style={{ fontSize: 11, background: "var(--soft)", padding: "2px 6px", borderRadius: 0 }}>{order.utr}</code> : "—"}</td>
-                        <td>{new Date(order.date).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })}</td>
-                        <td>
-                          <span className={`badge ${order.status === "approved" ? "approved" : order.status === "pending" ? "pending" : "rejected"}`}>
-                            {order.status === "approved" ? "Approved" : order.status === "pending" ? "Pending" : "Rejected"}
-                          </span>
+                        <td style={{ padding: 12, maxWidth: 200 }}>{(order.items || []).map((i) => i.name).join(", ")}</td>
+                        <td style={{ padding: 12, fontWeight: 700 }}>₹{order.total}</td>
+                        <td style={{ padding: 12 }}>
+                          {order.utr ? <code style={{ fontSize: 11, background: "#f5f5f5", padding: "2px 6px" }}>{order.utr}</code> : "—"}
                         </td>
-                        <td>
-                          <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
-                            <button onClick={() => setSelected(order)} title="View details" style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "6px 12px", border: "none", borderRadius: 0, fontWeight: 600, fontSize: 11.5, cursor: "pointer", background: "var(--ink)", color: "#fff" }}>
-                              <Eye size={13} /> View
-                            </button>
-                            {isPending && (
+                        <td style={{ padding: 12, fontSize: 12, color: "#666" }}>{new Date(order.date).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })}</td>
+                        <td style={{ padding: 12 }}>{statusBadge(order.status)}</td>
+                        <td style={{ padding: 12 }}>
+                          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                            <button onClick={() => setViewOrder(order)} style={btnStyle("#333")}>View</button>
+                            {s === "pending" && (
                               <>
-                                <button onClick={() => quickApprove(order)} disabled={isBusy} title="Approve with default download link" style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "6px 12px", border: "none", borderRadius: 0, fontWeight: 600, fontSize: 11.5, cursor: "pointer", background: "#22a06b", color: "#fff", opacity: isBusy ? 0.6 : 1 }}>
-                                  <Check size={13} /> {isBusy ? "Working..." : "Approve"}
+                                <button onClick={() => quickApprove(order)} disabled={isBusy} style={{ ...btnStyle("#22a06b"), opacity: isBusy ? 0.5 : 1 }}>
+                                  {isBusy ? "..." : "Approve"}
                                 </button>
-                                <button onClick={() => openApprove(order)} title="Set custom download links" style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "6px 12px", border: "none", borderRadius: 0, fontWeight: 600, fontSize: 11.5, cursor: "pointer", background: "#2c6ecb", color: "#fff" }}>
-                                  <ExternalLink size={13} /> Custom
-                                </button>
-                                <button onClick={() => rejectOrder(order)} disabled={isBusy} title="Reject payment" style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "6px 12px", border: "none", borderRadius: 0, fontWeight: 600, fontSize: 11.5, cursor: "pointer", background: "#e74c3c", color: "#fff", opacity: isBusy ? 0.6 : 1 }}>
-                                  <X size={13} /> Reject
-                                </button>
+                                <button onClick={() => openApproveModal(order)} style={btnStyle("#2c6ecb")}>Custom</button>
+                                <button onClick={() => doReject(order)} disabled={isBusy} style={{ ...btnStyle("#dc3545"), opacity: isBusy ? 0.5 : 1 }}>Reject</button>
                               </>
                             )}
-                            {isRejected && (
+                            {s === "rejected" && (
                               <>
-                                <button onClick={() => quickApprove(order)} disabled={isBusy} title="Re-approve this order" style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "6px 12px", border: "none", borderRadius: 0, fontWeight: 600, fontSize: 11.5, cursor: "pointer", background: "#22a06b", color: "#fff", opacity: isBusy ? 0.6 : 1 }}>
-                                  <Check size={13} /> {isBusy ? "Working..." : "Re-Approve"}
+                                <button onClick={() => quickApprove(order)} disabled={isBusy} style={{ ...btnStyle("#22a06b"), opacity: isBusy ? 0.5 : 1 }}>
+                                  {isBusy ? "..." : "Re-Approve"}
                                 </button>
-                                <button onClick={() => openApprove(order)} title="Set custom download links" style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "6px 12px", border: "none", borderRadius: 0, fontWeight: 600, fontSize: 11.5, cursor: "pointer", background: "#2c6ecb", color: "#fff" }}>
-                                  <ExternalLink size={13} /> Custom
-                                </button>
-                                <button onClick={() => rejectOrder(order)} disabled={isBusy} title="Reject again" style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "6px 12px", border: "none", borderRadius: 0, fontWeight: 600, fontSize: 11.5, cursor: "pointer", background: "#e74c3c", color: "#fff", opacity: isBusy ? 0.6 : 1 }}>
-                                  <X size={13} /> Reject
-                                </button>
+                                <button onClick={() => openApproveModal(order)} style={btnStyle("#2c6ecb")}>Custom</button>
+                                <button onClick={() => doReject(order)} disabled={isBusy} style={{ ...btnStyle("#dc3545"), opacity: isBusy ? 0.5 : 1 }}>Reject</button>
                               </>
                             )}
-                            {order.status === "approved" && (
-                              <span className="badge approved" style={{ display: "inline-flex", alignItems: "center", gap: 4 }}><Check size={12} /> Sent</span>
+                            {s === "approved" && (
+                              <span style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "5px 12px", background: "#d4edda", color: "#155724", fontWeight: 700, fontSize: 11 }}>✓ Sent</span>
                             )}
                           </div>
                         </td>
@@ -343,42 +315,44 @@ export default function AdminPage() {
         </div>
       </div>
 
-      {selected && (
-        <div className="modal open" onClick={() => setSelected(null)}>
-          <div className="modal-card" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 500 }}>
-            <div className="modal-head">
-              <h3>Order — {selected.orderId}</h3>
-              <button className="sheet-x" onClick={() => setSelected(null)}><X size={18} /></button>
+      {/* VIEW MODAL */}
+      {viewOrder && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }} onClick={() => setViewOrder(null)}>
+          <div onClick={(e) => e.stopPropagation()} style={{ background: "#fff", maxWidth: 520, width: "100%", maxHeight: "85vh", overflow: "auto", padding: 0 }}>
+            <div style={{ padding: "16px 20px", borderBottom: "1px solid #eee", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700 }}>Order {viewOrder.orderId}</h3>
+              <button onClick={() => setViewOrder(null)} style={{ background: "none", border: "none", fontSize: 22, cursor: "pointer", color: "#888" }}>×</button>
             </div>
-            <div className="modal-body">
-              <div className="spec-table" style={{ marginBottom: 16 }}>
-                {[["Customer", selected.name || "—"], ["Email", selected.email || "—"], ["Phone", selected.phone || "—"], ["Total", `₹${selected.total}`], ["UTR", selected.utr || "—"], ["Status", selected.status]].map(([k, v]) => (
-                  <div key={k} className="sum-row"><span>{k}</span><strong style={{ fontSize: 13 }}>{v}</strong></div>
+            <div style={{ padding: 20 }}>
+              <div style={{ marginBottom: 16 }}>
+                {[["Customer", viewOrder.name], ["Email", viewOrder.email], ["Phone", viewOrder.phone || "—"], ["Total", `₹${viewOrder.total}`], ["UTR", viewOrder.utr || "—"], ["Status", viewOrder.status], ["Date", new Date(viewOrder.date).toLocaleString("en-IN")]].map(([k, v]) => (
+                  <div key={k} style={{ display: "flex", justifyContent: "space-between", padding: "8px 0", borderBottom: "1px solid #f0f0f0", fontSize: 13 }}>
+                    <span style={{ color: "#888" }}>{k}</span>
+                    <span style={{ fontWeight: 600 }}>{v}</span>
+                  </div>
                 ))}
               </div>
-              <h4 style={{ fontSize: 14, marginBottom: 10 }}>Items Purchased</h4>
-              {(selected.items || []).map((item) => (
-                <div key={item.id + item.name} className="co-item" style={{ marginBottom: 8 }}>
-                  {item.img ? <img src={item.img} alt={item.name} /> : null}
+              <h4 style={{ fontSize: 13, fontWeight: 700, marginBottom: 10, color: "#666", textTransform: "uppercase", letterSpacing: 0.5 }}>Items</h4>
+              {(viewOrder.items || []).map((item: OrderItem) => (
+                <div key={item.id} style={{ display: "flex", gap: 12, padding: 10, background: "#f9f9f9", marginBottom: 8, alignItems: "center" }}>
+                  {item.img && <img src={item.img} alt="" style={{ width: 48, height: 48, objectFit: "cover" }} />}
                   <div style={{ flex: 1 }}>
-                    <h5>{item.name}</h5>
-                    <p>Qty: {item.qty} | ₹{item.price * item.qty}</p>
+                    <div style={{ fontWeight: 600, fontSize: 13 }}>{item.name}</div>
+                    <div style={{ fontSize: 12, color: "#888" }}>₹{item.price} × {item.qty}</div>
                     {item.downloadUrl && (
-                      <a href={item.downloadUrl} target="_blank" rel="noreferrer" style={{ fontSize: 12, color: "var(--primary)" }}>
-                        <ExternalLink size={12} /> Download link saved
+                      <a href={item.downloadUrl} target="_blank" rel="noreferrer" style={{ fontSize: 11, color: "#2c6ecb" }}>
+                        Download link ✓
                       </a>
                     )}
                   </div>
                 </div>
               ))}
-              {(selected.status === "pending" || selected.status === "rejected") && (
+              {(norm(viewOrder.status) === "pending" || norm(viewOrder.status) === "rejected") && (
                 <div style={{ display: "flex", gap: 8, marginTop: 16 }}>
-                  <button className="btn btn-primary" onClick={() => { setSelected(null); quickApprove(selected); }} style={{ flex: 1 }}>
-                    <Check size={16} /> {selected.status === "rejected" ? "Re-Approve Order" : "Approve with Default Links"}
+                  <button onClick={() => { setViewOrder(null); quickApprove(viewOrder); }} style={{ ...btnStyle("#22a06b"), flex: 1, justifyContent: "center" }}>
+                    {norm(viewOrder.status) === "rejected" ? "Re-Approve" : "Approve with Default Links"}
                   </button>
-                  <button className="btn btn-outline" onClick={() => { setSelected(null); openApprove(selected); }}>
-                    <ExternalLink size={16} /> Custom Links
-                  </button>
+                  <button onClick={() => { setViewOrder(null); openApproveModal(viewOrder); }} style={{ ...btnStyle("#2c6ecb"), justifyContent: "center" }}>Custom Links</button>
                 </div>
               )}
             </div>
@@ -386,80 +360,78 @@ export default function AdminPage() {
         </div>
       )}
 
-      {approveModal && (
-        <div className="modal open" onClick={() => setApproveModal(null)}>
-          <div className="modal-card" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 560 }}>
-            <div className="modal-head">
-              <h3><ShieldCheck size={18} style={{ color: "var(--accent)" }} /> Approve — {approveModal.orderId}</h3>
-              <button className="sheet-x" onClick={() => setApproveModal(null)}><X size={18} /></button>
+      {/* APPROVE MODAL */}
+      {approveOrder && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }} onClick={() => setApproveOrder(null)}>
+          <div onClick={(e) => e.stopPropagation()} style={{ background: "#fff", maxWidth: 560, width: "100%", maxHeight: "85vh", overflow: "auto", padding: 0 }}>
+            <div style={{ padding: "16px 20px", borderBottom: "1px solid #eee", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700 }}>Approve {approveOrder.orderId}</h3>
+              <button onClick={() => setApproveOrder(null)} style={{ background: "none", border: "none", fontSize: 22, cursor: "pointer", color: "#888" }}>×</button>
             </div>
-            <div className="modal-body">
-              <p style={{ fontSize: 13.5, color: "var(--muted)", marginBottom: 16 }}>
-                Paste the download link for each item below. Customer will get access after approval.
-              </p>
-              <div className="spec-table" style={{ marginBottom: 16 }}>
-                {[["Customer", approveModal.name], ["Email", approveModal.email], ["Total", `₹${approveModal.total}`], ["UTR", approveModal.utr || "—"]].map(([k, v]) => (
-                  <div key={k} className="sum-row"><span>{k}</span><strong style={{ fontSize: 13 }}>{v}</strong></div>
+            <div style={{ padding: 20 }}>
+              <div style={{ marginBottom: 16 }}>
+                {[["Customer", approveOrder.name], ["Email", approveOrder.email], ["Total", `₹${approveOrder.total}`], ["UTR", approveOrder.utr || "—"]].map(([k, v]) => (
+                  <div key={k} style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: "1px solid #f0f0f0", fontSize: 13 }}>
+                    <span style={{ color: "#888" }}>{k}</span>
+                    <span style={{ fontWeight: 600 }}>{v}</span>
+                  </div>
                 ))}
               </div>
-              {(approveModal.items || []).map((item) => {
+              {(approveOrder.items || []).map((item) => {
                 const product = getProductById(item.id);
-                const defaultUrl = item.downloadUrl || product?.downloadUrl || "";
+                const def = item.downloadUrl || product?.downloadUrl || "";
                 return (
-                  <div key={item.id} style={{ marginBottom: 16, padding: 14, background: "var(--soft)", borderRadius: 0 }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
-                      {item.img && <img src={item.img} alt={item.name} style={{ width: 44, height: 44, borderRadius: 0, objectFit: "cover" }} />}
+                  <div key={item.id} style={{ marginBottom: 16, padding: 14, background: "#f9f9f9" }}>
+                    <div style={{ display: "flex", gap: 10, alignItems: "center", marginBottom: 10 }}>
+                      {item.img && <img src={item.img} alt="" style={{ width: 40, height: 40, objectFit: "cover" }} />}
                       <div>
-                        <h5 style={{ fontSize: 14, margin: 0 }}>{item.name}</h5>
-                        <p style={{ fontSize: 12, color: "var(--muted)", margin: 0 }}>₹{item.price} × {item.qty}</p>
+                        <div style={{ fontWeight: 600, fontSize: 13 }}>{item.name}</div>
+                        <div style={{ fontSize: 11, color: "#888" }}>₹{item.price} × {item.qty}</div>
                       </div>
                     </div>
-                    <label style={{ fontSize: 12, fontWeight: 600, color: "var(--body)", display: "block", marginBottom: 5 }}>
-                      Download URL
-                    </label>
+                    <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#666", marginBottom: 4, textTransform: "uppercase", letterSpacing: 0.5 }}>Download URL</label>
                     <input
-                      type="url"
-                      placeholder="https://terabox.com/... or Google Drive link"
                       value={downloadUrls[item.id] || ""}
-                      onChange={(e) => setDownloadUrls({ ...downloadUrls, [item.id]: e.target.value })}
-                      style={{ width: "100%", fontSize: 13, padding: "10px 12px", borderRadius: 0, border: "1px solid var(--line)", background: "#fff" }}
+                      onChange={(e) => setDownloadUrls((p) => ({ ...p, [item.id]: e.target.value }))}
+                      placeholder="https://terabox.com/..."
+                      style={{ width: "100%", padding: 10, border: "1px solid #d5d7da", fontSize: 13, boxSizing: "border-box" }}
                     />
-                    {defaultUrl && (
+                    {def && (
                       <button
-                        className="btn btn-outline btn-sm"
-                        style={{ marginTop: 6, fontSize: 11 }}
-                        onClick={() => setDownloadUrls({ ...downloadUrls, [item.id]: defaultUrl })}
+                        onClick={() => setDownloadUrls((p) => ({ ...p, [item.id]: def }))}
+                        style={{ marginTop: 6, padding: "4px 10px", background: "#e8f4fd", color: "#084298", border: "1px solid #b6d4fe", fontSize: 11, fontWeight: 600, cursor: "pointer" }}
                       >
-                        Use product default link
+                        Use product default
                       </button>
                     )}
                   </div>
                 );
               })}
-              <div style={{ display: "flex", gap: 10, marginTop: 8 }}>
-                <button className="btn btn-primary" onClick={confirmApprove} disabled={approving} style={{ flex: 1 }}>
-                  <Check size={16} /> {approving ? "Approving..." : "Approve & Send Access"}
+              <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+                <button
+                  onClick={() => doApprove(approveOrder, downloadUrls)}
+                  disabled={busy !== null}
+                  style={{ ...btnStyle("#22a06b"), flex: 1, justifyContent: "center", opacity: busy ? 0.5 : 1, padding: "12px 0" }}
+                >
+                  {busy ? "Approving..." : "Approve & Send Access"}
                 </button>
-                <button className="btn btn-outline" onClick={() => setApproveModal(null)} disabled={approving}>Cancel</button>
+                <button onClick={() => setApproveOrder(null)} style={{ ...btnStyle("#666"), padding: "12px 20px" }}>Cancel</button>
               </div>
             </div>
           </div>
         </div>
       )}
 
+      {/* TOAST */}
       {toast && (
         <div style={{
           position: "fixed", bottom: 24, right: 24, zIndex: 9999,
-          padding: "14px 22px", borderRadius: 0,
-          background: toast.type === "success" ? "#1d7a4a" : "#c0392b",
-          color: "#fff", fontSize: 14, fontWeight: 600,
-          boxShadow: "0 4px 20px rgba(0,0,0,0.15)",
+          padding: "14px 24px", background: toast.ok ? "#155724" : "#721c24",
+          color: "#fff", fontWeight: 700, fontSize: 14, boxShadow: "0 4px 20px rgba(0,0,0,0.2)",
         }}>
           {toast.msg}
         </div>
       )}
-
-      <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
     </div>
   );
 }

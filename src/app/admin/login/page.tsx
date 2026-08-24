@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { ShieldCheck, Lock, ArrowLeft, Info } from "lucide-react";
+import { ShieldCheck, Lock, ArrowLeft } from "lucide-react";
 
 export default function AdminLoginPage() {
   const [password, setPassword] = useState("");
@@ -14,59 +14,67 @@ export default function AdminLoginPage() {
     setBusy(true);
     setError("");
     try {
-      const response = await fetch("/api/admin/login", {
+      const r = await fetch("/api/admin/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "same-origin",
         body: JSON.stringify({ password }),
       });
-      if (response.ok) {
+      const data = await r.json().catch(() => null);
+      if (r.ok) {
         localStorage.setItem("edubazar_admin", "true");
-        window.location.href = "/admin";
+        window.location.replace("/admin");
         return;
       }
-      const data = await response.json().catch(() => null);
-      if (response.status === 503) {
-        setError("ADMIN_PASSWORD Vercel pe set nahi hai. Vercel Dashboard → Settings → Environment Variables me add karo.");
-      } else if (response.status === 401) {
-        setError("Galat password! Dobara try karo.");
-      } else {
-        setError(data?.error || `Server error (${response.status})`);
-      }
+      if (r.status === 503) setError("ADMIN_PASSWORD Vercel pe set nahi hai.");
+      else if (r.status === 401) setError("Galat password!");
+      else setError(data?.error || "Server error");
     } catch {
-      setError("Network error. Internet check karo.");
+      setError("Network error");
     }
     setBusy(false);
   };
 
   return (
-    <div className="auth-wrap" style={{ background: "radial-gradient(1200px 500px at 70% -10%, rgba(251,188,52,0.12), transparent), var(--cream)" }}>
-      <div className="auth-card">
-        <div className="auth-logo">
-          <div style={{ width: 74, height: 74, borderRadius: 999, background: "var(--primary)", color: "var(--accent)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <ShieldCheck size={34} />
+    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#edece9", padding: 20 }}>
+      <div style={{ width: "100%", maxWidth: 400, background: "#fff", border: "1px solid #d5d7da", padding: 40 }}>
+        <div style={{ textAlign: "center", marginBottom: 32 }}>
+          <div style={{ width: 64, height: 64, margin: "0 auto 16px", background: "#181d27", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <ShieldCheck size={30} color="#edece9" />
           </div>
-          <h1>Admin Access</h1>
-          <p>Enter admin credentials to access the dashboard</p>
+          <h1 style={{ fontSize: 22, fontWeight: 700, color: "#181d27", margin: 0 }}>Admin Login</h1>
         </div>
         <form onSubmit={submit}>
-          <div className="field">
-            <label><Lock size={13} style={{ verticalAlign: "-2px" }} /> Admin Password</label>
-            <input type="password" placeholder="Enter admin password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-          </div>
-          {error && <div className="auth-alert error show" style={{ fontSize: 12, lineHeight: 1.5 }}>{error}</div>}
-          <button className="btn btn-primary btn-block" type="submit" disabled={busy}>
-            <ShieldCheck size={16} /> {busy ? "Checking..." : "Access Dashboard"}
+          <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#181d27", marginBottom: 6 }}>
+            <Lock size={12} style={{ verticalAlign: "-1px", marginRight: 4 }} />Password
+          </label>
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Enter admin password"
+            autoFocus
+            required
+            style={{ width: "100%", padding: "12px 14px", border: "1px solid #d5d7da", background: "#fff", fontSize: 14, outline: "none", marginBottom: 16, boxSizing: "border-box" }}
+          />
+          {error && (
+            <div style={{ padding: "10px 14px", background: "#fdecea", color: "#c0392b", fontSize: 13, marginBottom: 16 }}>
+              {error}
+            </div>
+          )}
+          <button
+            type="submit"
+            disabled={busy}
+            style={{ width: "100%", padding: "13px 0", background: "#181d27", color: "#fff", border: "none", fontSize: 14, fontWeight: 700, cursor: busy ? "wait" : "pointer", letterSpacing: 0.5 }}
+          >
+            {busy ? "Checking..." : "Login"}
           </button>
         </form>
-        <p style={{ textAlign: "center", marginTop: 18, fontSize: 12.5, color: "var(--muted)", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
-          <Info size={13} /> Admin access is configured on the server.
-        </p>
-        <p style={{ textAlign: "center", marginTop: 10 }}>
-          <Link href="/" style={{ fontSize: 12.5, color: "var(--muted)", display: "inline-flex", alignItems: "center", gap: 5 }}>
-            <ArrowLeft size={13} /> Back to Store
+        <div style={{ textAlign: "center", marginTop: 20 }}>
+          <Link href="/" style={{ fontSize: 12, color: "#888", textDecoration: "none" }}>
+            <ArrowLeft size={12} style={{ verticalAlign: "-1px" }} /> Back to Store
           </Link>
-        </p>
+        </div>
       </div>
     </div>
   );
