@@ -17,35 +17,42 @@ export default function AdminPage() {
   const [downloadUrls, setDownloadUrls] = useState<Record<string, string>>({});
   const [approving, setApproving] = useState(false);
 
+  const loadRemoteOrders = async () => {
+    try {
+      const { data } = await supabase.from("orders").select("*").order("date", { ascending: false });
+      if (data) {
+        setRemoteOrders(
+          data.map((o) => ({
+            orderId: o.order_id,
+            name: o.name,
+            email: o.email,
+            phone: o.phone,
+            items: typeof o.items === "string" ? JSON.parse(o.items) : o.items,
+            total: o.total,
+            status: o.status,
+            paymentMethod: o.payment_method,
+            utr: o.utr ?? "",
+            date: o.date,
+          }))
+        );
+      }
+    } catch {
+      // Keep the local order fallback visible.
+    }
+  };
+
   useEffect(() => {
     fetch("/api/admin/session").then((response) => setAuthed(response.ok)).catch(() => setAuthed(false));
   }, []);
 
   useEffect(() => {
     if (!authed) return;
-    (async () => {
-      try {
-        const { data } = await supabase.from("orders").select("*").order("date", { ascending: false });
-        if (data && data.length > 0) {
-          setRemoteOrders(
-            data.map((o) => ({
-              orderId: o.order_id,
-              name: o.name,
-              email: o.email,
-              phone: o.phone,
-              items: typeof o.items === "string" ? JSON.parse(o.items) : o.items,
-              total: o.total,
-              status: o.status,
-              paymentMethod: o.payment_method,
-              utr: o.utr ?? "",
-              date: o.date,
-            }))
-          );
-        }
-      } catch {
-        // fallback to local
-      }
-    })();
+    const initialRefresh = window.setTimeout(loadRemoteOrders, 0);
+    const refreshTimer = window.setInterval(loadRemoteOrders, 30_000);
+    return () => {
+      window.clearTimeout(initialRefresh);
+      window.clearInterval(refreshTimer);
+    };
   }, [authed]);
 
   const orders: Order[] = (mounted && remoteOrders.length > 0 ? remoteOrders : localOrders).filter(Boolean);
@@ -59,15 +66,6 @@ export default function AdminPage() {
 
   const revenue = orders.reduce((s, o) => s + (o.total || 0), 0);
   const customers = new Set(orders.map((o) => o.email)).size;
-
-  const sendStatusEmail = async (orderId: string, name: string, email: string, status: string, urls: Record<string, string> = {}) => {
-    const response = await fetch("/api/send-email", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ type: "order-status", orderId, name, email, status, downloadUrls: urls }),
-    });
-    if (!response.ok) throw new Error("Status email failed");
-  };
 
   const openApprove = (order: Order) => {
     const urls: Record<string, string> = {};
@@ -86,11 +84,24 @@ export default function AdminPage() {
       return;
     }
     setApproving(true);
-    await updateOrderStatus(approveModal.orderId, "approved", downloadUrls);
     try {
-      await sendStatusEmail(approveModal.orderId, approveModal.name, approveModal.email, "approved", downloadUrls);
+      const response = await fetch("/api/admin/orders/status", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderId: approveModal.orderId, status: "approved", downloadUrls }),
+      });
+      if (!response.ok) {
+        const result = await response.json().catch(() => null);
+        throw new Error(result?.error || "Order approval failed");
+      }
+      setRemoteOrders((current) => current.map((order) => order.orderId === approveModal.orderId
+        ? { ...order, status: "approved", items: order.items.map((item) => ({ ...item, downloadUrl: downloadUrls[item.id] || item.downloadUrl })) }
+        : order));
+      await updateOrderStatus(approveModal.orderId, "approved", downloadUrls);
     } catch {
-      showToast("Order approve hua, lekin email send nahi hui. Resend settings check karein.", "error");
+      showToast("Payment approve nahi hui. Database/settings check karein.", "error");
+      setApproving(false);
+      return;
     }
     showToast("Order approved with download links!");
     setApproveModal(null);
@@ -104,7 +115,6 @@ export default function AdminPage() {
   const reject = async (order: Order) => {
     if (!confirm("Reject this payment?")) return;
     await updateOrderStatus(order.orderId, "rejected");
-    sendStatusEmail(order.orderId, order.name, order.email, "rejected");
     showToast("Order rejected", "error");
   };
 
@@ -162,6 +172,11 @@ export default function AdminPage() {
         <div className="dash-top">
           <h1><ShieldCheck size={20} style={{ verticalAlign: "-3px", color: "var(--accent)" }} /> Admin Dashboard</h1>
           <div style={{ display: "flex", gap: 10 }}>
+            {orders.filter((o) => o.status === "pending").length > 0 && (
+              <span className="badge pending" style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
+                <Inbox size={13} /> {orders.filter((o) => o.status === "pending").length} pending approval
+              </span>
+            )}
             <button className="btn btn-primary btn-sm" onClick={exportCsv}>
               <Download size={14} /> Export CSV
             </button>

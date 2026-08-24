@@ -59,6 +59,11 @@ export default function CheckoutPage() {
           items: order.items.map((i) => ({ name: i.name, price: i.price, qty: i.qty })),
           total: order.total,
           utr,
+          downloadUrls: Object.fromEntries(
+            order.items
+              .filter((item) => item.downloadUrl)
+              .map((item) => [item.name, item.downloadUrl])
+          ),
         }),
       }).catch(() => {});
     }
@@ -164,11 +169,13 @@ export default function CheckoutPage() {
                     <label>Email Address</label>
                     <input
                       type="email"
-                      placeholder="john@example.com"
-                      value={form.email}
-                      onChange={(e) => setForm({ ...form, email: e.target.value })}
+                      value={user?.email ?? form.email}
+                      readOnly
                       required
                     />
+                    <small style={{ color: "var(--muted)", fontSize: 11.5, display: "block", marginTop: 4 }}>
+                      Course access isi registered email par bheja jayega.
+                    </small>
                   </div>
                   <div className="field">
                     <label>Phone Number</label>

@@ -48,12 +48,17 @@ export async function sendOrderConfirmation(data: {
   items: { name: string; price: number; qty: number }[];
   total: number;
   utr?: string;
+  downloadUrls?: Record<string, string>;
 }) {
   const r = getResend();
   if (!r) return;
 
   const itemRows = data.items
     .map((i) => `<tr><td style="padding:8px;border-bottom:1px solid #eee;">${i.name}</td><td style="padding:8px;border-bottom:1px solid #eee;text-align:center;">${i.qty}</td><td style="padding:8px;border-bottom:1px solid #eee;text-align:right;">₹${i.price}</td></tr>`)
+    .join("");
+  const downloadLinks = Object.entries(data.downloadUrls || {})
+    .filter(([, url]) => /^https?:\/\//i.test(url))
+    .map(([name, url]) => `<p style="margin:10px 0;"><a href="${url}" style="display:inline-block;background:#687975;color:white;padding:11px 20px;text-decoration:none;font-weight:600;">Download ${name} →</a></p>`)
     .join("");
 
   const emailHtml = `
@@ -70,7 +75,7 @@ export async function sendOrderConfirmation(data: {
         </table>
         <p style="font-size:18px;font-weight:700;color:#181d27;text-align:right;">Total: ₹${data.total}</p>
         ${data.utr ? `<p style="color:#666;">UTR: ${data.utr}</p>` : ""}
-        ${data.total <= 0 ? '<p style="color:#2d7d46;font-weight:600;">✅ Free order — access granted immediately!</p>' : '<p style="color:#666;">⏳ Your order is being reviewed. You will get access once payment is verified.</p>'}
+        ${data.total <= 0 ? `<p style="color:#2d7d46;font-weight:600;">Free order — access granted immediately!</p>${downloadLinks}` : '<p style="color:#666;">Your order is being reviewed. You will get access once payment is verified.</p>'}
         <hr style="border:none;border-top:1px solid #eee;margin:24px 0;" />
         <p style="color:#888;font-size:12px;">Questions? WhatsApp us at 9759131256 or email edubazarshop@gmail.com</p>
       </div>

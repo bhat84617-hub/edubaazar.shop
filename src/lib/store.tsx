@@ -100,15 +100,20 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
 
   const addToCart = useCallback(
     (id: string, qty = 1, variant?: string) => {
+      const product = getProductById(id);
+      const requestedQty = product?.kind === "course" ? 1 : qty;
       setCart((prev) => {
         const existing = prev.find((i) => i.id === id);
         if (existing) {
-          return prev.map((i) => (i.id === id ? { ...i, qty: i.qty + qty } : i));
+          return prev.map((i) =>
+            i.id === id
+              ? { ...i, qty: product?.kind === "course" ? 1 : i.qty + requestedQty }
+              : i
+          );
         }
-        return [...prev, { id, qty, variant }];
+        return [...prev, { id, qty: requestedQty, variant }];
       });
-      const p = getProductById(id);
-      showToast(`${p?.title ?? "Item"} added to cart!`);
+      showToast(`${product?.title ?? "Item"} added to cart!`);
     },
     [showToast]
   );
@@ -123,7 +128,9 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         removeFromCart(id);
         return;
       }
-      setCart((prev) => prev.map((i) => (i.id === id ? { ...i, qty } : i)));
+      const product = getProductById(id);
+      const nextQty = product?.kind === "course" ? 1 : qty;
+      setCart((prev) => prev.map((i) => (i.id === id ? { ...i, qty: nextQty } : i)));
     },
     [removeFromCart]
   );

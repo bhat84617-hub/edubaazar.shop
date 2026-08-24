@@ -14,9 +14,9 @@ export async function POST(req: NextRequest) {
     }
 
     if (type === "order") {
-      const { orderId, name, email, items, total, utr } = body;
+      const { orderId, name, email, items, total, utr, downloadUrls } = body;
       if (!orderId || !name || !email) return NextResponse.json({ error: "Missing fields" }, { status: 400 });
-      await sendOrderConfirmation({ orderId, name, email, items: items || [], total: total || 0, utr });
+      await sendOrderConfirmation({ orderId, name, email, items: items || [], total: total || 0, utr, downloadUrls: downloadUrls || {} });
       return NextResponse.json({ ok: true });
     }
 

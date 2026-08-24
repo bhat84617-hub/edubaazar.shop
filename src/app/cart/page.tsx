@@ -1,26 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
-import { Trash2, Minus, Plus, ShoppingBag, ArrowRight, Tag, ShieldCheck } from "lucide-react";
+import { Trash2, Minus, Plus, ShoppingBag, ArrowRight, ShieldCheck } from "lucide-react";
 import { getProductById, formatINR } from "@/lib/products";
 import { useStore } from "@/lib/store";
 
 export default function CartPage() {
-  const { cart, removeFromCart, setQty, cartSubtotal, mounted, showToast } = useStore();
-  const [coupon, setCoupon] = useState("");
-  const [discount, setDiscount] = useState(false);
-
-  const applyCoupon = () => {
-    if (coupon.trim().toUpperCase() === "EDU50" && !discount) {
-      setDiscount(true);
-      showToast("Coupon EDU50 applied! 50% off.");
-    } else {
-      showToast("Invalid coupon code", "error");
-    }
-  };
-
-  const total = discount ? Math.max(0, Math.round(cartSubtotal * 0.5)) : cartSubtotal;
+  const { cart, removeFromCart, setQty, cartSubtotal, mounted } = useStore();
 
   return (
     <section className="section-pad">
@@ -72,10 +58,6 @@ export default function CartPage() {
                 })}
 
               <div style={{ display: "flex", gap: 10, marginTop: 20, flexWrap: "wrap" }}>
-                <div className="header-search" style={{ flex: 1, minWidth: 220 }}>
-                  <input placeholder="Coupon code (try EDU50)" value={coupon} onChange={(e) => setCoupon(e.target.value)} />
-                  <button onClick={applyCoupon}><Tag size={16} /></button>
-                </div>
                 <Link href="/shop" className="btn btn-outline">Continue Shopping</Link>
               </div>
             </div>
@@ -100,9 +82,8 @@ export default function CartPage() {
                   })}
               </div>
               <div className="sum-row"><span>Subtotal</span><span>{formatINR(cartSubtotal)}</span></div>
-              {discount && <div className="sum-row"><span>Coupon EDU50 (-50%)</span><span style={{ color: "#22a06b" }}>-{formatINR(Math.round(cartSubtotal * 0.5))}</span></div>}
               <div className="sum-row"><span>Delivery</span><span>Instant (Digital)</span></div>
-              <div className="sum-row total"><span>Total</span><span>{formatINR(total)}</span></div>
+              <div className="sum-row total"><span>Total</span><span>{formatINR(cartSubtotal)}</span></div>
               <Link href="/checkout" className="btn btn-primary btn-block" style={{ marginTop: 16 }}>
                 Proceed to Checkout <ArrowRight size={16} />
               </Link>

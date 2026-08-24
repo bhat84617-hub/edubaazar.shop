@@ -63,7 +63,10 @@ export default function AccountPage() {
   );
 
   const totalSpent = merged.reduce((s, o) => s + (o.total || 0), 0);
-  const totalDownloads = merged.flatMap((o) => o.items || []).length;
+  const totalDownloads = merged
+    .filter((o) => o.status === "approved")
+    .flatMap((o) => o.items || [])
+    .filter((item) => item.downloadUrl && item.downloadUrl !== "#").length;
   const approved = merged.filter((o) => o.status === "approved").length;
 
   if (!user) {
