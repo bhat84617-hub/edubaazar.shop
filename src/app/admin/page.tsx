@@ -80,9 +80,12 @@ export default function AdminPage() {
         const result = await response.json().catch(() => null);
         throw new Error(result?.error || "Order approval failed");
       }
-      setRemoteOrders((current) => current.map((order) => order.orderId === approveModal.orderId
-        ? { ...order, status: "approved", items: order.items.map((item) => ({ ...item, downloadUrl: downloadUrls[item.id] || item.downloadUrl })) }
-        : order));
+      setRemoteOrders((current) => {
+        const source = current.length > 0 ? current : orders;
+        return source.map((order) => order.orderId === approveModal.orderId
+          ? { ...order, status: "approved", items: order.items.map((item) => ({ ...item, downloadUrl: downloadUrls[item.id] || item.downloadUrl })) }
+          : order);
+      });
     } catch {
       showToast("Payment approve nahi hui. Database/settings check karein.", "error");
       setApproving(false);
@@ -265,6 +268,11 @@ export default function AdminPage() {
                                   <X size={13} /> Reject
                                 </button>
                               </>
+                            )}
+                            {order.status === "approved" && (
+                              <span className="badge approved" style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
+                                <Check size={13} /> Access Sent
+                              </span>
                             )}
                           </div>
                         </td>
