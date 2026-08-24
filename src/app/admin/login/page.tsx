@@ -1,35 +1,42 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { ShieldCheck, Lock, ArrowLeft, Info } from "lucide-react";
 
 export default function AdminLoginPage() {
-  const router = useRouter();
   const [password, setPassword] = useState("");
-  const [error, setError] = useState(false);
+  const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setBusy(true);
-    setError(false);
-    let success = false;
+    setError("");
     try {
-      const response = await fetch("/api/admin/login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ password }) });
+      const response = await fetch("/api/admin/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify({ password }),
+      });
       if (response.ok) {
-        success = true;
         localStorage.setItem("edubazar_admin", "true");
         window.location.href = "/admin";
+        return;
+      }
+      const data = await response.json().catch(() => null);
+      if (response.status === 503) {
+        setError("ADMIN_PASSWORD Vercel pe set nahi hai. Vercel Dashboard → Settings → Environment Variables me add karo.");
+      } else if (response.status === 401) {
+        setError("Galat password! Dobara try karo.");
+      } else {
+        setError(data?.error || `Server error (${response.status})`);
       }
     } catch {
-      setError(true);
-    } finally {
-      setBusy(false);
+      setError("Network error. Internet check karo.");
     }
-    if (!success) setError(true);
-    setPassword("");
+    setBusy(false);
   };
 
   return (
@@ -47,7 +54,7 @@ export default function AdminLoginPage() {
             <label><Lock size={13} style={{ verticalAlign: "-2px" }} /> Admin Password</label>
             <input type="password" placeholder="Enter admin password" value={password} onChange={(e) => setPassword(e.target.value)} required />
           </div>
-          {error && <div className="auth-alert error show">Invalid password! Access denied.</div>}
+          {error && <div className="auth-alert error show" style={{ fontSize: 12, lineHeight: 1.5 }}>{error}</div>}
           <button className="btn btn-primary btn-block" type="submit" disabled={busy}>
             <ShieldCheck size={16} /> {busy ? "Checking..." : "Access Dashboard"}
           </button>
