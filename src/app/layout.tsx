@@ -13,7 +13,7 @@ const jost = Jost({
   weight: ["300", "400", "500", "600", "700"],
 });
 
-const SITE_URL = "https://www.edubaazar.shop";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.edubaazar.shop";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -66,7 +66,7 @@ export const viewport = {
   initialScale: 1,
 };
 
-const SITE = "https://www.edubaazar.shop";
+const SITE = SITE_URL;
 
 const jsonLd = {
   "@context": "https://schema.org",

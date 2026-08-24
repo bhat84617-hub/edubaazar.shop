@@ -22,7 +22,6 @@ export default function AdminLoginPage() {
       });
       const data = await r.json().catch(() => null);
       if (r.ok) {
-        localStorage.setItem("edubazar_admin", "true");
         window.location.replace("/admin");
         return;
       }

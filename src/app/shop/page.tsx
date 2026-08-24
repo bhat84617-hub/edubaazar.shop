@@ -5,7 +5,7 @@ import { ShopControls } from "@/components/ShopControls";
 import { products, CATEGORIES } from "@/lib/products";
 import type { Metadata } from "next";
 
-const SITE = "https://www.edubaazar.shop";
+const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.edubaazar.shop";
 
 const baseMetadata: Metadata = {
   title: "Shop — Online Courses, Books & Hacking Tools",
@@ -79,7 +79,7 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
     "@context": "https://schema.org",
     "@type": "CollectionPage",
     name: cat ? `${cat} Courses — EduBazar.shop` : "All Courses — EduBazar.shop",
-    description: `Browse ${list.length} premium courses in Ethical Hacking, Programming, Stock Market Trading, Digital Marketing & more.`,
+    description: cat ? `Browse ${list.length} ${cat} products on EduBazar.shop.` : `Browse ${list.length} online courses, books, and digital products on EduBazar.shop.`,
     url: `${SITE}/shop${cat ? `?cat=${encodeURIComponent(cat)}` : ""}`,
     mainEntity: {
       "@type": "ItemList",
@@ -126,8 +126,8 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
             <aside className="filter-side">
               <div className="filter-group">
                 <h4>Categories</h4>
-                <Link href={`/shop`} className="filter-option" style={{ display: "flex", justifyContent: "space-between" }}>
-                  <span><input type="checkbox" checked={!cat} readOnly style={{ marginRight: 8 }} />All</span>
+                <Link href={`/shop`} className="filter-option" style={{ display: "flex", justifyContent: "space-between" }} aria-current={!cat ? "page" : undefined}>
+                  <span>{!cat ? "✓ " : ""}All</span>
                   <span style={{ color: "var(--muted)", fontSize: 12 }}>{products.length}</span>
                 </Link>
                 {CATEGORIES.map((c) => {
@@ -139,6 +139,7 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
                       href={`/shop?${sidebarLink({ cat: c.key, free: "" })}`}
                       className="filter-option"
                       style={{ display: "flex", justifyContent: "space-between", color: active ? "var(--primary)" : "var(--body)", fontWeight: active ? 700 : 400 }}
+                      aria-current={active ? "page" : undefined}
                     >
                       <span>{c.label}</span>
                       <span style={{ color: "var(--muted)", fontSize: 12 }}>{count}</span>

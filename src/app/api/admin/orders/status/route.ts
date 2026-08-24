@@ -46,11 +46,11 @@ export async function PATCH(request: NextRequest) {
 
   const body = await request.json().catch(() => null) as {
     orderId?: string;
-    status?: string;
+    status?: "approved" | "rejected";
     downloadUrls?: Record<string, string>;
   } | null;
 
-  if (!body?.orderId || !body.status) {
+  if (!body?.orderId || !body.status || !["approved", "rejected"].includes(body.status)) {
     return NextResponse.json({ error: "orderId and status required" }, { status: 400 });
   }
 
@@ -69,6 +69,7 @@ export async function PATCH(request: NextRequest) {
 
   const update: Record<string, unknown> = { status: body.status };
   const items = (typeof order.items === "string" ? JSON.parse(order.items) : order.items) as Array<{ id: string; name?: string; downloadUrl?: string | null }>;
+  let updatedItems = items;
 
   if (body.status === "approved") {
     const urls = body.downloadUrls || {};
@@ -76,19 +77,21 @@ export async function PATCH(request: NextRequest) {
     if (missing) {
       return NextResponse.json({ error: "Download URL required for every item" }, { status: 400 });
     }
-    update.items = JSON.stringify(items.map((item) => ({ ...item, downloadUrl: urls[item.id] || item.downloadUrl })));
+    updatedItems = items.map((item) => ({ ...item, downloadUrl: urls[item.id] || item.downloadUrl }));
+    update.items = JSON.stringify(updatedItems);
   }
 
   const { error: updateErr } = await db
     .from("orders")
     .update(update)
-    .eq("order_id", body.orderId);
+    .eq("order_id", body.orderId)
+    .eq("status", "pending");
 
   if (updateErr) {
     return NextResponse.json({ error: updateErr.message }, { status: 500 });
   }
 
-  const downloadMap = Object.fromEntries(items.map((i) => [i.name || i.id, i.downloadUrl || ""]));
+  const downloadMap = Object.fromEntries(updatedItems.map((i) => [i.name || i.id, i.downloadUrl || ""]));
   sendOrderStatusUpdate({
     orderId: body.orderId,
     name: order.name,

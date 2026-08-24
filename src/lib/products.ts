@@ -40,7 +40,7 @@ export const CATEGORIES = [
   { key: "Books", label: "Digital Books", icon: "book", image: "/images/hacking-bible.jpeg" },
   { key: "Tools", label: "Software & Tools", icon: "wrench", image: "/images/ethical-hacking-pentest.jpeg" },
   { key: "Design", label: "Design", icon: "palette", image: "/images/uiux-design.jpeg" },
-  { key: "Marketing", label: "Marketing", icon: "megaphone", image: "/images/digital-marketing.jpeg" },
+  { key: "Marketing", label: "Marketing", icon: "megaphone", image: "/images/python-complete.jpeg" },
 ] as const;
 
 const img = "?w=800&auto=format&fit=crop";
@@ -1112,6 +1112,11 @@ const fallbackImages: Record<string, string> = {
   Design: "/images/uiux-design.jpeg",
   Marketing: "/images/python-complete.jpeg",
 };
+
+const restrictedProductIds = new Set(["h3", "h4", "h7", "h24", "h25", "h26", "h27", "h28", "h29", "h30", "h35"]);
+for (let index = products.length - 1; index >= 0; index -= 1) {
+  if (restrictedProductIds.has(products[index].id)) products.splice(index, 1);
+}
 
 const availableImages = new Set([
   "/images/ethical-hacking-pentest.jpeg", "/images/python-complete.jpeg", "/images/mindfluential-trading.jpeg",

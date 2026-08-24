@@ -2,17 +2,13 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { Search, SlidersHorizontal } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 export function ShopControls({ count }: { count: number }) {
   const router = useRouter();
   const params = useSearchParams();
-  const [q, setQ] = useState(params.get("q") ?? "");
+  const [q, setQ] = useState(() => params.get("q") ?? "");
   const sort = params.get("sort") ?? "";
-
-  useEffect(() => {
-    setQ(params.get("q") ?? "");
-  }, [params]);
 
   const setParam = (key: string, value: string) => {
     const url = new URLSearchParams(params.toString());

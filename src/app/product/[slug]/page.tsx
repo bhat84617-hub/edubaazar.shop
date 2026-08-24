@@ -6,7 +6,7 @@ import ProductTabs from "@/components/ProductTabs";
 import ProductCard from "@/components/ProductCard";
 import { products, getProductBySlug, getRelatedProducts } from "@/lib/products";
 
-const SITE = "https://www.edubaazar.shop";
+const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.edubaazar.shop";
 
 export const dynamicParams = false;
 
@@ -68,11 +68,6 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
     image: [`${SITE}${product.images[0]}`],
     brand: { "@type": "Brand", name: "EduBazar.shop" },
     sku: product.slug,
-    aggregateRating: product.reviewCount ? {
-      "@type": "AggregateRating",
-      ratingValue: product.rating,
-      reviewCount: parseInt(product.reviewCount.replace(/,/g, "")),
-    } : undefined,
     offers: {
       "@type": "Offer",
       price: product.price,
@@ -106,7 +101,6 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
     numberOfCredits: 1,
     inLanguage: product.language || "en",
     offers: { "@type": "Offer", price: product.price, priceCurrency: "INR", availability: "https://schema.org/InStock", url: `${SITE}/product/${slug}` },
-    ...(product.reviewCount ? { aggregateRating: { "@type": "AggregateRating", ratingValue: product.rating, reviewCount: parseInt(product.reviewCount.replace(/,/g, "")) } } : {}),
     ...(product.instructor ? { instructor: { "@type": "Person", name: product.instructor } } : {}),
   } : null;
 

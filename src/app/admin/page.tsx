@@ -84,7 +84,7 @@ export default function AdminPage() {
       {msg && <div style={{ padding: 12, marginBottom: 16, background: "#d4edda", border: "1px solid #aaa", fontWeight: 700 }}>{msg}</div>}
       <a href="/" style={{ marginRight: 12 }}>View Store</a>
       <a href="/admin/seo">SEO</a>
-      <button onClick={async () => { await fetch("/api/admin/logout", { method: "POST" }); localStorage.removeItem("edubazar_admin"); window.location.href = "/"; }} style={{ marginLeft: 12 }}>Logout</button>
+      <button onClick={async () => { await fetch("/api/admin/logout", { method: "POST" }); window.location.href = "/"; }} style={{ marginLeft: 12 }}>Logout</button>
       <br /><br />
       {loading ? <p>Loading...</p> : orders.length === 0 ? <p>No orders</p> : (
         <table style={{ width: "100%", borderCollapse: "collapse" }}>
