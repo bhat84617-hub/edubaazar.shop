@@ -3,12 +3,11 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Lock, ShieldCheck, ShoppingBag, IndianRupee, Users, LayoutDashboard, Store, Search, Check, X, Eye, Download, Inbox, ExternalLink, Gauge } from "lucide-react";
-import { supabase } from "@/lib/config";
 import { useStore } from "@/lib/store";
 import type { Order } from "@/lib/store";
 
 export default function AdminPage() {
-  const { orders: localOrders, updateOrderStatus, showToast, mounted } = useStore();
+  const { orders: localOrders, showToast, mounted } = useStore();
   const [authed, setAuthed] = useState(false);
   const [remoteOrders, setRemoteOrders] = useState<Order[]>([]);
   const [q, setQ] = useState("");
@@ -19,23 +18,10 @@ export default function AdminPage() {
 
   const loadRemoteOrders = async () => {
     try {
-      const { data } = await supabase.from("orders").select("*").order("date", { ascending: false });
-      if (data) {
-        setRemoteOrders(
-          data.map((o) => ({
-            orderId: o.order_id,
-            name: o.name,
-            email: o.email,
-            phone: o.phone,
-            items: typeof o.items === "string" ? JSON.parse(o.items) : o.items,
-            total: o.total,
-            status: o.status,
-            paymentMethod: o.payment_method,
-            utr: o.utr ?? "",
-            date: o.date,
-          }))
-        );
-      }
+      const response = await fetch("/api/admin/orders/status", { cache: "no-store" });
+      if (!response.ok) return;
+      const result = await response.json() as { orders?: Order[] };
+      setRemoteOrders(result.orders || []);
     } catch {
       // Keep the local order fallback visible.
     }
@@ -97,7 +83,6 @@ export default function AdminPage() {
       setRemoteOrders((current) => current.map((order) => order.orderId === approveModal.orderId
         ? { ...order, status: "approved", items: order.items.map((item) => ({ ...item, downloadUrl: downloadUrls[item.id] || item.downloadUrl })) }
         : order));
-      await updateOrderStatus(approveModal.orderId, "approved", downloadUrls);
     } catch {
       showToast("Payment approve nahi hui. Database/settings check karein.", "error");
       setApproving(false);
@@ -114,7 +99,16 @@ export default function AdminPage() {
 
   const reject = async (order: Order) => {
     if (!confirm("Reject this payment?")) return;
-    await updateOrderStatus(order.orderId, "rejected");
+    const response = await fetch("/api/admin/orders/status", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ orderId: order.orderId, status: "rejected" }),
+    });
+    if (!response.ok) {
+      showToast("Payment reject nahi hui. Database/settings check karein.", "error");
+      return;
+    }
+    setRemoteOrders((current) => current.map((item) => item.orderId === order.orderId ? { ...item, status: "rejected" } : item));
     showToast("Order rejected", "error");
   };
 

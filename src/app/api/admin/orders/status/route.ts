@@ -10,6 +10,37 @@ function getAdminSupabase() {
   return createClient(url, key, { auth: { autoRefreshToken: false, persistSession: false } });
 }
 
+function toOrder(order: Record<string, unknown>) {
+  return {
+    orderId: order.order_id,
+    name: order.name,
+    email: order.email,
+    phone: order.phone,
+    items: typeof order.items === "string" ? JSON.parse(order.items) : order.items,
+    total: order.total,
+    status: order.status,
+    paymentMethod: order.payment_method,
+    utr: order.utr ?? "",
+    date: order.date,
+  };
+}
+
+export async function GET(request: NextRequest) {
+  const session = request.cookies.get("edubazar_admin_session")?.value;
+  if (!isValidAdminSession(session)) {
+    return NextResponse.json({ error: "Admin authentication required" }, { status: 401 });
+  }
+
+  const client = getAdminSupabase();
+  if (!client) {
+    return NextResponse.json({ error: "Server payment database is not configured" }, { status: 503 });
+  }
+
+  const { data, error } = await client.from("orders").select("*").order("date", { ascending: false });
+  if (error) return NextResponse.json({ error: "Could not load orders" }, { status: 500 });
+  return NextResponse.json({ orders: (data || []).map((order) => toOrder(order)) });
+}
+
 export async function PATCH(request: NextRequest) {
   const session = request.cookies.get("edubazar_admin_session")?.value;
   if (!isValidAdminSession(session)) {
