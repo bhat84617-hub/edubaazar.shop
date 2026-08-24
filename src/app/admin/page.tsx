@@ -20,22 +20,29 @@ export default function AdminPage() {
   const [downloadUrls, setDownloadUrls] = useState<Record<string, string>>({});
   const [approving, setApproving] = useState(false);
   const [quickApprovingId, setQuickApprovingId] = useState<string | null>(null);
+  const [debugInfo, setDebugInfo] = useState("");
 
   const loadRemoteOrders = async () => {
     setLoadError("");
+    setDebugInfo("API se orders load ho rahe hain...");
     try {
       const response = await fetch("/api/admin/orders/status", { cache: "no-store" });
       if (response.ok) {
         const result = await response.json() as { orders?: Order[] };
-        setRemoteOrders(result.orders || []);
+        const list = result.orders || [];
+        setRemoteOrders(list);
+        setDebugInfo(`API se ${list.length} orders mile.`);
         setLoading(false);
         return;
       }
-    } catch {
-      // API failed, try client-side fallback
+      const errText = await response.text().catch(() => "");
+      setDebugInfo(`API failed (${response.status}): ${errText.slice(0, 200)}`);
+    } catch (e) {
+      setDebugInfo(`API error: ${e instanceof Error ? e.message : "unknown"}`);
     }
 
     // Fallback: read orders directly from Supabase using anon key
+    setDebugInfo("Supabase se direct load ho raha hai...");
     try {
       const { data, error } = await supabase
         .from("orders")
@@ -55,8 +62,10 @@ export default function AdminPage() {
         date: o.date,
       })) as Order[];
       setRemoteOrders(mapped);
+      setDebugInfo(`Supabase se ${mapped.length} orders mile (fallback).`);
     } catch {
-      setLoadError("Orders load nahi ho paaye. Vercel me SUPABASE_SERVICE_ROLE_KEY check karein ya Supabase RLS policies dekhein.");
+      setLoadError("Orders load nahi ho paaye. Supabase connection check karein.");
+      setDebugInfo("Dono methods fail hue. Supabase table 'orders' exist karti hai?");
     }
     setLoading(false);
   };
@@ -268,6 +277,12 @@ export default function AdminPage() {
             <div className="l">Pending</div>
           </div>
         </div>
+
+        {debugInfo && (
+          <div style={{ padding: "8px 14px", marginBottom: 14, background: "#e8f4fd", border: "1px solid #b6d4fe", borderRadius: 6, fontSize: 12, color: "#084298", fontFamily: "monospace" }}>
+            Debug: {debugInfo}
+          </div>
+        )}
 
         <div className="dash-panel">
           <div className="ph">
