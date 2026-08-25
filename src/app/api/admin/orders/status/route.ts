@@ -84,8 +84,7 @@ export async function PATCH(request: NextRequest) {
   const { error: updateErr } = await db
     .from("orders")
     .update(update)
-    .eq("order_id", body.orderId)
-    .eq("status", "pending");
+    .eq("order_id", body.orderId);
 
   if (updateErr) {
     return NextResponse.json({ error: updateErr.message }, { status: 500 });
