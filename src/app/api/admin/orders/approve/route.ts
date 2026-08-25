@@ -13,17 +13,17 @@ function getDb() {
 export async function GET(request: NextRequest) {
   const session = request.cookies.get("edubazar_admin_session")?.value;
   if (!isValidAdminSession(session)) {
-    return NextResponse.redirect(new URL("/admin/login", request.url));
+    return htmlResponse("Session expired. Please <a href='/admin/login'>login again</a>.");
   }
 
   const orderId = request.nextUrl.searchParams.get("orderId");
   if (!orderId) {
-    return NextResponse.redirect(new URL("/admin", request.url));
+    return htmlResponse("No order ID provided. <a href='/admin'>Back to Admin</a>");
   }
 
   const db = getDb();
   if (!db) {
-    return NextResponse.redirect(new URL("/admin", request.url));
+    return htmlResponse("Database not configured. <a href='/admin'>Back to Admin</a>");
   }
 
   const { data: order } = await db
@@ -49,7 +49,21 @@ export async function GET(request: NextRequest) {
       status: "approved",
       downloadUrls: downloadMap,
     }).catch(() => {});
+
+    return htmlResponse(
+      `<div style="color:#28a745;font-weight:700;margin-bottom:16px;">✓ Order ${orderId} APPROVED! Download link sent to customer.</div>
+       <a href='/admin' style="display:inline-block;padding:12px 28px;background:#181d27;color:#fff;text-decoration:none;border-radius:6px;font-weight:600;">← Back to Admin</a>`
+    );
   }
 
-  return NextResponse.redirect(new URL("/admin", request.url));
+  return htmlResponse("Order not found. <a href='/admin'>Back to Admin</a>");
+}
+
+function htmlResponse(body: string) {
+  const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Admin</title></head>
+  <body style="font-family:Arial,sans-serif;max-width:600px;margin:80px auto;padding:0 20px;">
+    <h1 style="margin-bottom:24px;">EduBazar Admin</h1>
+    ${body}
+  </body></html>`;
+  return new NextResponse(html, { headers: { "Content-Type": "text/html; charset=utf-8" } });
 }
