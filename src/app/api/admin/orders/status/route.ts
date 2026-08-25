@@ -73,11 +73,7 @@ export async function PATCH(request: NextRequest) {
 
   if (body.status === "approved") {
     const urls = body.downloadUrls || {};
-    const missing = items.some((item) => !/^https?:\/\//i.test(urls[item.id] || item.downloadUrl || ""));
-    if (missing) {
-      return NextResponse.json({ error: "Download URL required for every item" }, { status: 400 });
-    }
-    updatedItems = items.map((item) => ({ ...item, downloadUrl: urls[item.id] || item.downloadUrl }));
+    updatedItems = items.map((item) => ({ ...item, downloadUrl: urls[item.id] || item.downloadUrl || "" }));
     update.items = JSON.stringify(updatedItems);
   }
 

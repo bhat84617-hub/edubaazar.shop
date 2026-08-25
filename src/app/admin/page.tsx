@@ -39,12 +39,9 @@ export default function AdminPage() {
 
   const approve = async (o: Order) => {
     const urls: Record<string, string> = {};
-    let ok = true;
     for (const item of o.items || []) {
       urls[item.id] = item.downloadUrl || "";
-      if (!urls[item.id] || !/^https?:\/\//i.test(urls[item.id])) ok = false;
     }
-    if (!ok) { flash("Download URL missing for " + o.name); return; }
     if (!confirm("Approve " + o.name + "?")) return;
     setBusy(o.orderId);
     try {
