@@ -1,217 +1,114 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import Link from "next/link";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Check, Copy, Download, ExternalLink, Eye, FileText, LogOut, RefreshCw, Search, ShieldCheck, X } from "lucide-react";
 import type { Order } from "@/lib/store";
+
+type View = "all" | "pending" | "approved" | "rejected";
 
 export default function AdminPage() {
   const [authed, setAuthed] = useState(false);
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [busy, setBusy] = useState<string | null>(null);
-  const [msg, setMsg] = useState("");
+  const [view, setView] = useState<View>("pending");
+  const [query, setQuery] = useState("");
+  const [selected, setSelected] = useState<Order | null>(null);
+  const [decision, setDecision] = useState<{ order: Order; status: "approved" | "rejected" } | null>(null);
+  const [links, setLinks] = useState<Record<string, string>>({});
+  const [notice, setNotice] = useState<{ text: string; error: boolean } | null>(null);
+
+  const flash = (text: string, error = false) => {
+    setNotice({ text, error });
+    window.setTimeout(() => setNotice(null), 4500);
+  };
 
   useEffect(() => {
-    let alive = true;
-    const check = (n = 0) => {
-      fetch("/api/admin/session", { credentials: "same-origin" })
-        .then((r) => { if (!alive) return; if (r.ok) setAuthed(true); else if (n < 8) setTimeout(() => check(n + 1), 600); else window.location.href = "/admin/login"; })
-        .catch(() => { if (!alive) return; if (n < 8) setTimeout(() => check(n + 1), 600); else window.location.href = "/admin/login"; });
-    };
-    check();
-    return () => { alive = false; };
+    fetch("/api/admin/session", { credentials: "same-origin" })
+      .then((response) => { if (response.ok) setAuthed(true); else window.location.replace("/admin/login"); })
+      .catch(() => window.location.replace("/admin/login"));
   }, []);
 
-  const load = useCallback(async () => {
+  const loadOrders = useCallback(async () => {
+    setRefreshing(true);
     try {
-      const r = await fetch("/api/admin/orders/status", { cache: "no-store", credentials: "same-origin" });
-      if (r.status === 401) { window.location.href = "/admin/login"; return; }
-      const d = await r.json() as { orders?: Order[] };
-      setOrders(d.orders || []);
-    } catch { /* */ }
-    setLoading(false);
+      const response = await fetch("/api/admin/orders/status", { cache: "no-store", credentials: "same-origin" });
+      if (response.status === 401) { window.location.replace("/admin/login"); return; }
+      if (!response.ok) throw new Error("Orders could not be loaded");
+      const data = await response.json() as { orders?: Order[] };
+      setOrders(data.orders || []);
+    } catch (error) { flash(error instanceof Error ? error.message : "Orders could not be loaded", true); }
+    finally { setLoading(false); setRefreshing(false); }
   }, []);
 
-  useEffect(() => { if (authed) load(); }, [authed, load]);
+  useEffect(() => {
+    if (!authed) return;
+    const initialLoad = window.setTimeout(loadOrders, 0);
+    const timer = window.setInterval(loadOrders, 15000);
+    return () => { window.clearTimeout(initialLoad); window.clearInterval(timer); };
+  }, [authed, loadOrders]);
 
-  const approve = async (o: Order) => {
-    if (!confirm("YES = Approve & Send Download Link to Customer?")) return;
-    setBusy(o.orderId);
-    try {
-      const urls: Record<string, string> = {};
-      for (const item of o.items || []) urls[item.id] = item.downloadUrl || "";
-      const r = await fetch("/api/admin/orders/status", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        credentials: "same-origin",
-        body: JSON.stringify({ orderId: o.orderId, status: "approved", downloadUrls: urls }),
-      });
-      if (!r.ok) { const err = await r.json(); throw new Error(err.error || "fail"); }
-      setOrders(prev => prev.map(x => x.orderId === o.orderId ? { ...x, status: "approved" } : x));
-      setMsg("APPROVED! Download link sent to customer.");
-      setTimeout(() => setMsg(""), 5000);
-    } catch (e: unknown) { setMsg("FAILED: " + (e instanceof Error ? e.message : "unknown")); setTimeout(() => setMsg(""), 5000); }
-    setBusy(null);
+  const counts = useMemo(() => ({
+    all: orders.length,
+    pending: orders.filter((order) => order.status === "pending").length,
+    approved: orders.filter((order) => order.status === "approved").length,
+    rejected: orders.filter((order) => order.status === "rejected").length,
+  }), [orders]);
+
+  const filtered = useMemo(() => orders.filter((order) => {
+    const text = `${order.orderId} ${order.name} ${order.email} ${order.phone} ${order.utr} ${order.items.map((item) => item.name).join(" ")}`.toLowerCase();
+    return (view === "all" || order.status === view) && text.includes(query.toLowerCase().trim());
+  }), [orders, query, view]);
+
+  const openDecision = (order: Order, status: "approved" | "rejected") => {
+    setLinks(Object.fromEntries(order.items.map((item) => [item.id, item.downloadUrl || ""])));
+    setDecision({ order, status });
   };
 
-  const reject = async (o: Order) => {
-    if (!confirm("NO = Reject? Customer will NOT get download link.")) return;
-    setBusy(o.orderId);
+  const submitDecision = async () => {
+    if (!decision) return;
+    if (decision.status === "approved" && decision.order.items.some((item) => !/^https?:\/\//i.test(links[item.id] || ""))) {
+      flash("Har item ke liye valid course link required hai.", true); return;
+    }
+    setBusy(decision.order.orderId);
     try {
-      const r = await fetch("/api/admin/orders/status", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        credentials: "same-origin",
-        body: JSON.stringify({ orderId: o.orderId, status: "rejected" }),
+      const response = await fetch("/api/admin/orders/status", {
+        method: "PATCH", headers: { "Content-Type": "application/json" }, credentials: "same-origin",
+        body: JSON.stringify({ orderId: decision.order.orderId, status: decision.status, downloadUrls: links }),
       });
-      if (!r.ok) throw new Error("fail");
-      setOrders(prev => prev.map(x => x.orderId === o.orderId ? { ...x, status: "rejected" } : x));
-      setMsg("REJECTED! Customer will NOT receive download link.");
-      setTimeout(() => setMsg(""), 5000);
-    } catch { setMsg("FAILED!"); setTimeout(() => setMsg(""), 5000); }
-    setBusy(null);
+      const data = await response.json().catch(() => null) as { error?: string } | null;
+      if (!response.ok) throw new Error(data?.error || "Request update failed");
+      setOrders((current) => current.map((order) => order.orderId === decision.order.orderId
+        ? { ...order, status: decision.status, items: order.items.map((item) => ({ ...item, downloadUrl: links[item.id] || item.downloadUrl })) } : order));
+      flash(decision.status === "approved" ? "Payment approved. Course links emailed to customer." : "Payment request rejected.");
+      setDecision(null); setSelected(null);
+    } catch (error) { flash(error instanceof Error ? error.message : "Request update failed", true); }
+    finally { setBusy(null); }
   };
 
-  if (!authed) return <div style={{ padding: 60, textAlign: "center", fontSize: 24, fontFamily: "Arial, sans-serif" }}>Loading admin panel...</div>;
+  const exportCsv = () => {
+    const header = "Order ID,Customer,Email,Phone,Items,Amount,UTR,Status,Date\n";
+    const rows = orders.map((order) => [order.orderId, order.name, order.email, order.phone, order.items.map((item) => item.name).join("; "), order.total, order.utr || "", order.status, order.date]
+      .map((value) => `"${String(value).replaceAll('"', '""')}"`).join(","));
+    const url = URL.createObjectURL(new Blob([header + rows.join("\n")], { type: "text/csv;charset=utf-8" }));
+    const anchor = document.createElement("a"); anchor.href = url; anchor.download = "edubazar-orders.csv"; anchor.click(); URL.revokeObjectURL(url);
+  };
 
-  const pending = orders.filter(o => (o.status || "").toLowerCase() === "pending");
-  const approved = orders.filter(o => (o.status || "").toLowerCase() === "approved");
-  const rejected = orders.filter(o => (o.status || "").toLowerCase() === "rejected");
+  if (!authed || loading) return <main className="admin-loading"><ShieldCheck size={28} /> Loading admin panel...</main>;
 
-  return (
-    <div style={{ padding: 20, fontFamily: "Arial, sans-serif", background: "#f8f9fa", minHeight: "100vh" }}>
-      <div style={{ maxWidth: 1400, margin: "0 auto" }}>
-        <h1 style={{ fontSize: 28, marginBottom: 16, color: "#333", textAlign: "center" }}>Admin Dashboard</h1>
-        
-        {msg && (
-          <div style={{ 
-            padding: 14, 
-            marginBottom: 20, 
-            background: msg.includes("FAILED") ? "#f8d7da" : "#d4edda", 
-            color: msg.includes("FAILED") ? "#721c24" : "#155724", 
-            borderRadius: 8, 
-            fontWeight: 600, 
-            fontSize: 16 
-          }}>
-            {msg}
-          </div>
-        )}
-
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, flexWrap: "wrap", gap: 12 }}>
-          <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
-            <div style={{ background: "#e9ecef", padding: "8px 16px", borderRadius: 6, fontSize: 14 }}>Total: {orders.length}</div>
-            <div style={{ background: "#fff3cd", padding: "8px 16px", borderRadius: 6, fontSize: 14 }}>Pending: {pending.length}</div>
-            <div style={{ background: "#d4edda", padding: "8px 16px", borderRadius: 6, fontSize: 14 }}>Approved: {approved.length}</div>
-            <div style={{ background: "#f8d7da", padding: "8px 16px", borderRadius: 6, fontSize: 14 }}>Rejected: {rejected.length}</div>
-          </div>
-          <div>
-            <button onClick={load} style={{ padding: "10px 20px", background: "#007bff", color: "#fff", border: "none", borderRadius: 6, fontSize: 14, cursor: "pointer" }}>Refresh</button>
-            <button onClick={async () => { await fetch("/api/admin/logout", { method: "POST" }); window.location.href = "/"; }} style={{ padding: "10px 20px", background: "#6c757d", color: "#fff", border: "none", borderRadius: 6, fontSize: 14, cursor: "pointer" }}>Logout</button>
-            <a href="/" style={{ padding: "10px 20px", background: "#181d27", color: "#fff", borderRadius: 6, fontSize: 14, textDecoration: "none" }}>View Store</a>
-          </div>
-        </div>
-
-        {loading ? (
-          <div style={{ textAlign: "center", padding: 60, color: "#6c757d" }}>
-            <div style={{ width: 40, height: 40, border: "4px solid #e9ecef", borderTopColor: "#181d27", borderRadius: "50%", animation: "spin 0.8s linear infinite", margin: "0 auto 12px" }} />
-            Loading orders...
-          </div>
-        ) : orders.length === 0 ? (
-          <div style={{ textAlign: "center", padding: 60, color: "#6c757d" }}>
-            <div style={{ fontSize: 48, marginBottom: 12 }}>📦</div>
-            <p style={{ fontSize: 18 }}>No orders found.</p>
-          </div>
-        ) : (
-          <div style={{ overflowX: "auto" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse", background: "#fff", borderRadius: 8, overflow: "hidden", boxShadow: "0 2px 8px rgba(0,0,0,0.1)" }}>
-              <thead>
-                <tr style={{ background: "#181d27" }}>
-                  <th style={th}>Order ID</th>
-                  <th style={th}>Customer</th>
-                  <th style={th}>Items</th>
-                  <th style={th}>Amount</th>
-                  <th style={th}>UTR</th>
-                  <th style={th}>Status</th>
-                  <th style={{ ...th, textAlign: "center" }}>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {orders.map((o, i) => {
-                  const s = (o.status || "").toLowerCase();
-                  const isBusy = busy === o.orderId;
-                  return (
-                    <tr key={o.orderId} style={{ borderBottom: "1px solid #eee", background: i % 2 === 0 ? "#f8f9fa" : "#fff" }}>
-                      <td style={td}><code style={{ background: "#f0f0f0", padding: "2px 6px", borderRadius: 3 }}>{o.orderId}</code></td>
-                      <td style={td}>
-                        <div style={{ fontWeight: 600, fontSize: 14 }}>{o.name}</div>
-                        <div style={{ fontSize: 12, color: "#6c757d" }}>{o.email}</div>
-                      </td>
-                      <td style={td}>{(o.items || []).map(i => i.name).join(", ")}</td>
-                      <td style={td}><strong>₹{o.total}</strong></td>
-                      <td style={td}><code>{o.utr || "—"}</code></td>
-                      <td style={td}>
-                        <span style={{
-                          padding: "4px 12px",
-                          borderRadius: 20,
-                          fontWeight: 600,
-                          fontSize: 12,
-                          background: s === "approved" ? "#d4edda" : s === "pending" ? "#fff3cd" : "#f8d7da",
-                          color: s === "approved" ? "#155724" : s === "pending" ? "#856404" : "#721c24",
-                        }}>
-                          {s === "approved" ? "APPROVED" : s === "pending" ? "PENDING" : "REJECTED"}
-                        </span>
-                      </td>
-                      <td style={{ ...td, textAlign: "center" }}>
-                        {(s === "pending" || s === "rejected") && (
-                          <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
-                            <button
-                              disabled={isBusy}
-                              onClick={() => approve(o)}
-                              style={{
-                                padding: "10px 24px",
-                                background: isBusy ? "#999" : "#28a745",
-                                color: "#fff",
-                                border: "none",
-                                borderRadius: 6,
-                                fontSize: 14,
-                                fontWeight: 600,
-                                cursor: isBusy ? "not-allowed" : "pointer",
-                              }}
-                            >
-                              {isBusy ? "⏳" : "✓ YES - Approve"}
-                            </button>
-                            <button
-                              disabled={isBusy}
-                              onClick={() => reject(o)}
-                              style={{
-                                padding: "10px 24px",
-                                background: isBusy ? "#999" : "#dc3545",
-                                color: "#fff",
-                                border: "none",
-                                borderRadius: 6,
-                                fontSize: 14,
-                                fontWeight: 600,
-                                cursor: isBusy ? "not-allowed" : "pointer",
-                              }}
-                            >
-                              {isBusy ? "⏳" : "✕ NO - Reject"}
-                            </button>
-                          </div>
-                        )}
-                        {s === "approved" && (
-                          <span style={{ color: "#28a745", fontWeight: 600, fontSize: 14 }}>✓ Link Sent</span>
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
-    </div>
-  );
+  return <main className="admin-shell">
+    <header className="admin-header"><div className="admin-brand"><div className="admin-brand-icon"><ShieldCheck size={23} /></div><div><strong>EduBazar</strong><small>Payment control center</small></div></div><div className="admin-header-actions"><button className="admin-button secondary" onClick={loadOrders} disabled={refreshing}><RefreshCw size={15} /> Refresh</button><button className="admin-button secondary" onClick={exportCsv}><Download size={15} /> Export CSV</button><button className="admin-button dark" onClick={async () => { await fetch("/api/admin/logout", { method: "POST" }); window.location.replace("/"); }}><LogOut size={15} /> Logout</button></div></header>
+    {notice && <div className={`admin-notice ${notice.error ? "error" : "success"}`}>{notice.error ? <X size={18} /> : <Check size={18} />}{notice.text}</div>}
+    <section className="admin-intro"><div><p className="admin-eyebrow">MANUAL PAYMENT VERIFICATION</p><h1>Orders & payment requests</h1><p>Review UTR, confirm the amount, and approve only verified payments.</p></div><Link href="/" className="admin-store-link"><ExternalLink size={15} /> View store</Link></section>
+    <section className="admin-stats">{(["pending", "approved", "rejected", "all"] as View[]).map((key) => <button key={key} className={`admin-stat ${view === key ? "active" : ""}`} onClick={() => setView(key)}><strong>{counts[key]}</strong><small>{key === "pending" ? "Pending review" : key[0].toUpperCase() + key.slice(1) + " requests"}</small></button>)}</section>
+    <section className="admin-panel"><div className="admin-toolbar"><div><h2>{view === "pending" ? "Pending payment requests" : `${view[0].toUpperCase()}${view.slice(1)} requests`}</h2><p>{filtered.length} request{filtered.length === 1 ? "" : "s"} shown</p></div><label className="admin-search"><Search size={17} /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search order, customer, email or UTR" /></label></div>
+      {filtered.length === 0 ? <div className="admin-empty"><FileText size={38} /><h3>{query ? "No matching requests" : "No requests in this view"}</h3><p>New UPI payment requests will appear here automatically.</p></div> : <div className="admin-table-wrap"><table className="admin-table"><thead><tr><th>Request</th><th>Customer</th><th>Amount</th><th>UTR / Ref ID</th><th>Submitted</th><th>Status</th><th>Action</th></tr></thead><tbody>{filtered.map((order) => <tr key={order.orderId}><td><strong>{order.orderId}</strong><small>{order.items.length} item{order.items.length === 1 ? "" : "s"}</small></td><td><strong>{order.name}</strong><small>{order.email}</small></td><td><strong className="amount">₹{order.total.toLocaleString("en-IN")}</strong></td><td><code>{order.utr || "Not provided"}</code></td><td>{new Date(order.date).toLocaleDateString("en-IN")}</td><td><span className={`status ${order.status}`}><i />{order.status}</span></td><td><div className="row-actions"><button className="icon-button" title="View request" aria-label="View request" onClick={() => setSelected(order)}><Eye size={16} /></button>{order.status === "pending" && <><button className="action-button approve" onClick={() => openDecision(order, "approved")}><Check size={14} /> Approve</button><button className="action-button reject" onClick={() => openDecision(order, "rejected")}><X size={14} /> Reject</button></>}</div></td></tr>)}</tbody></table></div>}
+    </section>
+    {selected && <div className="admin-overlay" onMouseDown={() => setSelected(null)}><section className="admin-modal" onMouseDown={(event) => event.stopPropagation()}><ModalHeader title="Payment request" onClose={() => setSelected(null)} /><div className="detail-grid"><div><span>Order ID</span><strong>{selected.orderId}</strong></div><div><span>Status</span><strong className={`status ${selected.status}`}><i />{selected.status}</strong></div><div><span>Customer</span><strong>{selected.name}</strong><small>{selected.email}</small></div><div><span>Phone</span><strong>{selected.phone || "Not provided"}</strong></div><div><span>Amount</span><strong className="amount">₹{selected.total.toLocaleString("en-IN")}</strong></div><div><span>UTR / Reference ID</span><strong>{selected.utr || "Not provided"}<button className="copy-button" onClick={() => selected.utr && navigator.clipboard?.writeText(selected.utr)} aria-label="Copy UTR"><Copy size={14} /></button></strong></div></div><div className="item-list"><h3>Purchased items</h3>{selected.items.map((item) => <div className="item-row" key={item.id}><div><strong>{item.name}</strong><small>Qty {item.qty} · ₹{item.price.toLocaleString("en-IN")}</small></div>{item.downloadUrl && <a href={item.downloadUrl} target="_blank" rel="noreferrer" aria-label="Open course link"><ExternalLink size={15} /></a>}</div>)}</div>{selected.status === "pending" && <div className="modal-footer"><button className="action-button reject" onClick={() => { setSelected(null); openDecision(selected, "rejected"); }}><X size={15} /> Reject request</button><button className="action-button approve" onClick={() => { setSelected(null); openDecision(selected, "approved"); }}><Check size={15} /> Review & approve</button></div>}</section></div>}
+    {decision && <div className="admin-overlay"><section className="admin-modal decision-modal"><ModalHeader title={decision.status === "approved" ? "Approve payment" : "Reject payment"} onClose={() => setDecision(null)} /><p className="modal-help">{decision.status === "approved" ? "Confirm the UTR and every course link. Approval unlocks dashboard access and sends the customer an email." : "This request will be rejected. No course link will be sent."}</p>{decision.status === "approved" && <div className="link-editor"><h3>Course access links</h3>{decision.order.items.map((item) => <label key={item.id}>{item.name}<div className="link-input"><ExternalLink size={15} /><input value={links[item.id] || ""} onChange={(event) => setLinks((current) => ({ ...current, [item.id]: event.target.value }))} placeholder="https://course-link.example/..." /></div></label>)}</div>}<div className="decision-summary"><span>Customer</span><strong>{decision.order.name} · {decision.order.email}</strong><span>Amount</span><strong>₹{decision.order.total.toLocaleString("en-IN")} · UTR {decision.order.utr || "not provided"}</strong></div><div className="modal-footer"><button className="admin-button secondary" onClick={() => setDecision(null)}>Cancel</button><button className={`action-button ${decision.status === "approved" ? "approve" : "reject"}`} disabled={busy === decision.order.orderId} onClick={submitDecision}>{busy === decision.order.orderId ? "Processing..." : decision.status === "approved" ? <><Check size={15} /> Confirm approval</> : <><X size={15} /> Confirm rejection</>}</button></div></section></div>}
+  </main>;
 }
 
-const th: React.CSSProperties = { padding: "14px 16px", textAlign: "left", fontSize: 13, fontWeight: 600, color: "#fff" };
-const td: React.CSSProperties = { padding: "14px 16px", fontSize: 13, verticalAlign: "middle" };
+function ModalHeader({ title, onClose }: { title: string; onClose: () => void }) { return <div className="modal-header"><div><p className="admin-eyebrow">ADMIN ACTION</p><h2>{title}</h2></div><button className="modal-close" onClick={onClose} aria-label="Close"><X size={19} /></button></div>; }

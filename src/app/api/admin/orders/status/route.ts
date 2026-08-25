@@ -67,12 +67,20 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json({ error: "Order not found" }, { status: 404 });
   }
 
+  if (order.status !== "pending") {
+    return NextResponse.json({ error: "Only pending requests can be changed" }, { status: 409 });
+  }
+
   const update: Record<string, unknown> = { status: body.status };
   const items = (typeof order.items === "string" ? JSON.parse(order.items) : order.items) as Array<{ id: string; name?: string; downloadUrl?: string | null }>;
   let updatedItems = items;
 
   if (body.status === "approved") {
     const urls = body.downloadUrls || {};
+    const missing = items.some((item) => !/^https?:\/\//i.test(urls[item.id] || item.downloadUrl || ""));
+    if (missing) {
+      return NextResponse.json({ error: "Download URL required for every item" }, { status: 400 });
+    }
     updatedItems = items.map((item) => ({ ...item, downloadUrl: urls[item.id] || item.downloadUrl || "" }));
     update.items = JSON.stringify(updatedItems);
   }
@@ -80,7 +88,8 @@ export async function PATCH(request: NextRequest) {
   const { error: updateErr } = await db
     .from("orders")
     .update(update)
-    .eq("order_id", body.orderId);
+    .eq("order_id", body.orderId)
+    .eq("status", "pending");
 
   if (updateErr) {
     return NextResponse.json({ error: updateErr.message }, { status: 500 });
