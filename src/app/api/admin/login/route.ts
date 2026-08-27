@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createAdminSession } from "@/lib/admin-session";
 
 export async function POST(request: NextRequest) {
-  const pw = process.env.ADMIN_PASSWORD || "edubazar123";
+  const pw = process.env.ADMIN_PASSWORD || "Admin@12345";
   if (!pw) {
     return NextResponse.json({ error: "ADMIN_PASSWORD not set" }, { status: 503 });
   }
