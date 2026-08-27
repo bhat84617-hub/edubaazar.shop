@@ -62,16 +62,22 @@ export default function AdminDashboard() {
     totalRevenue: 0,
     todayOrders: 0
   });
+  const [error, setError] = useState<string | null>(null);
 
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-    { auth: { autoRefreshToken: false, persistSession: false } }
-  );
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  const supabase = supabaseUrl && supabaseKey
+    ? createClient(supabaseUrl, supabaseKey, { auth: { autoRefreshToken: false, persistSession: false } })
+    : null;
 
   const fetchOrders = async () => {
     setLoading(true);
+    setError(null);
     try {
+      if (!supabase) {
+        throw new Error("Supabase not configured");
+      }
       const { data } = await supabase
         .from("orders")
         .select("*")
@@ -87,8 +93,9 @@ export default function AdminDashboard() {
         setFilteredOrders(formatted);
         calculateStats(formatted);
       }
-    } catch (error) {
-      console.error("Error fetching orders:", error);
+    } catch (err) {
+      console.error("Error fetching orders:", err);
+      setError(err instanceof Error ? err.message : "Failed to connect to database");
     }
     setLoading(false);
   };
@@ -240,6 +247,54 @@ export default function AdminDashboard() {
       default: return "var(--muted)";
     }
   };
+
+  if (error) {
+    return (
+      <div style={{ 
+        display: "flex", 
+        flexDirection: "column",
+        justifyContent: "center", 
+        alignItems: "center", 
+        height: "100vh",
+        background: "var(--bg)",
+        padding: "20px",
+        textAlign: "center"
+      }}>
+        <div style={{ 
+          background: "#ffebee", 
+          border: "1px solid #ffcdd2",
+          borderRadius: "12px", 
+          padding: "32px",
+          maxWidth: "500px"
+        }}>
+          <h2 style={{ color: "#c62828", marginBottom: "16px" }}>Admin Panel Error</h2>
+          <p style={{ color: "#b71c1c", marginBottom: "24px" }}>{error}</p>
+          <div style={{ background: "#fff", padding: "16px", borderRadius: "8px", textAlign: "left", fontSize: "14px", marginBottom: "24px" }}>
+            <strong>Required Environment Variables:</strong>
+            <ul style={{ marginTop: "8px", paddingLeft: "20px" }}>
+              <li>NEXT_PUBLIC_SUPABASE_URL</li>
+              <li>SUPABASE_SERVICE_ROLE_KEY</li>
+              <li>ADMIN_PASSWORD</li>
+            </ul>
+          </div>
+          <button 
+            onClick={() => window.location.reload()}
+            style={{
+              background: "#181d27",
+              color: "#fff",
+              border: "none",
+              padding: "12px 24px",
+              borderRadius: "8px",
+              cursor: "pointer",
+              fontWeight: 600
+            }}
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   if (loading && orders.length === 0) {
     return (
