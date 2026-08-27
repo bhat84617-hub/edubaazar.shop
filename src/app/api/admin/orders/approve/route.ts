@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { isValidAdminSession } from "@/lib/admin-session";
-import { sendOrderStatusUpdate } from "@/lib/email";
 import { SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY } from "@/lib/supabase-config";
 
 function getDb() {
@@ -29,9 +28,6 @@ export async function GET(request: NextRequest) {
   }
 
   const db = getDb();
-  if (!db) {
-    return htmlResponse("Database not configured. <a href='/admin'>Back to Admin</a>");
-  }
 
   const { data: order } = await db
     .from("orders")
@@ -48,20 +44,13 @@ export async function GET(request: NextRequest) {
       .update({ status: "approved", items: JSON.stringify(updatedItems) })
       .eq("order_id", orderId);
 
-    const downloadMap = Object.fromEntries(updatedItems.map((i: { name?: string; id: string; downloadUrl?: string | null }) => [i.name || i.id, i.downloadUrl || ""]));
-    sendOrderStatusUpdate({
-      orderId,
-      name: order.name,
-      email: order.email,
-      status: "approved",
-      downloadUrls: downloadMap,
-    }).catch(() => {});
-
     return htmlResponse(
-      `<div style="color:#28a745;font-weight:700;margin-bottom:16px;">✓ Order ${orderId} APPROVED! Download link sent to customer.</div>
+      `<div style="color:#28a745;font-weight:700;margin-bottom:16px;">✓ Order ${orderId} APPROVED!</div>
        <a href='/admin' style="display:inline-block;padding:12px 28px;background:#181d27;color:#fff;text-decoration:none;border-radius:6px;font-weight:600;">← Back to Admin</a>`
     );
   }
 
   return htmlResponse("Order not found. <a href='/admin'>Back to Admin</a>");
 }
+
+export const runtime = "nodejs";
