@@ -39,8 +39,6 @@ interface Stats {
 }
 
 export default function AdminDashboard() {
-  const [authed, setAuthed] = useState(false);
-  const [checkingAuth, setCheckingAuth] = useState(true);
   const [orders, setOrders] = useState<Order[]>([]);
   const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
@@ -56,12 +54,6 @@ export default function AdminDashboard() {
   const supabase = SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY
     ? createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, { auth: { autoRefreshToken: false, persistSession: false } })
     : null;
-
-  useEffect(() => {
-    fetch("/api/admin/session")
-      .then(r => { if (r.ok) { setAuthed(true); setCheckingAuth(false); } else { window.location.replace("/admin/login"); } })
-      .catch(() => window.location.replace("/admin/login"));
-  }, []);
 
   const calculateStats = useCallback((data: Order[]) => {
     const today = new Date().toDateString();
@@ -93,7 +85,7 @@ export default function AdminDashboard() {
     setLoading(false);
   }, [supabase, calculateStats]);
 
-  useEffect(() => { if (authed) fetchOrders(); }, [authed, fetchOrders]);
+  useEffect(() => { fetchOrders(); }, [fetchOrders]);
 
   useEffect(() => {
     let result = orders;
@@ -154,8 +146,6 @@ export default function AdminDashboard() {
 
   const formatDate = (d: string) => new Date(d).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
   const parseItems = (o: Order): OrderItem[] => Array.isArray(o.items) ? o.items : JSON.parse(o.items as string);
-
-  if (checkingAuth) return <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh", background: "#f0f2f5" }}><RefreshCw size={32} style={{ color: "#687975", animation: "spin 1s linear infinite" }} /></div>;
 
   return (
     <div className="admin-layout">
