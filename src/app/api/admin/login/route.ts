@@ -2,9 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { createAdminSession } from "@/lib/admin-session";
 
 export async function POST(request: NextRequest) {
-  const pw = process.env.ADMIN_PASSWORD;
+  const pw = process.env.ADMIN_PASSWORD || "edubazar123";
   if (!pw) {
-    return NextResponse.json({ error: "ADMIN_PASSWORD not set in Vercel env" }, { status: 503 });
+    return NextResponse.json({ error: "ADMIN_PASSWORD not set" }, { status: 503 });
   }
 
   const body = await request.json().catch(() => null) as { password?: string } | null;
