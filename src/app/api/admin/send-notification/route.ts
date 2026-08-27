@@ -17,7 +17,13 @@ function getResend() {
 
 export async function POST(request: NextRequest) {
   try {
-    const { orderId, name, email, status, items } = await request.json();
+    const { orderId, name, email, status, items } = await request.json() as {
+      orderId: string;
+      name: string;
+      email: string;
+      status: "approved" | "rejected";
+      items: Array<{ id: string; name?: string; price?: number; downloadUrl?: string }>;
+    };
 
     const db = getDb();
     const resend = getResend();
@@ -28,7 +34,7 @@ export async function POST(request: NextRequest) {
 
     // Update order status in database
     if (status === "approved") {
-      const updatedItems = items.map((item: any) => ({
+      const updatedItems = items.map((item) => ({
         ...item,
         downloadUrl: item.downloadUrl || `https://www.edubaazar.shop/account`
       }));
@@ -48,8 +54,8 @@ export async function POST(request: NextRequest) {
     if (resend) {
       const downloadLinks = status === "approved" 
         ? items
-            .filter((item: any) => item.downloadUrl)
-            .map((item: any) => `
+            .filter((item) => item.downloadUrl)
+            .map((item) => `
               <p style="margin: 10px 0;">
                 <a href="${item.downloadUrl}" 
                    style="display:inline-block;background:#687975;color:white;padding:11px 20px;

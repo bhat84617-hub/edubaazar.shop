@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { createClient } from "@supabase/supabase-js";
+import Link from "next/link";
 import { 
   LayoutDashboard, 
   ShoppingCart, 
@@ -9,25 +10,28 @@ import {
   Clock, 
   XCircle, 
   IndianRupee, 
-  Search, 
-  Filter,
-  Download,
+  Search,
   RefreshCw,
   LogOut,
   Eye,
   Check,
   X,
-  Mail,
   TrendingUp,
-  Users,
   Package
 } from "lucide-react";
+
+interface OrderItem {
+  id: string;
+  name: string;
+  price: number;
+  downloadUrl?: string;
+}
 
 interface Order {
   order_id: string;
   name: string;
   email: string;
-  items: string | any[];
+  items: string | OrderItem[];
   total: number;
   utr: string | null;
   status: string;
@@ -71,7 +75,21 @@ export default function AdminDashboard() {
     ? createClient(supabaseUrl, supabaseKey, { auth: { autoRefreshToken: false, persistSession: false } })
     : null;
 
-  const fetchOrders = async () => {
+  const calculateStats = useCallback((ordersData: Order[]) => {
+    const today = new Date().toDateString();
+    const todayOrders = ordersData.filter(o => new Date(o.date).toDateString() === today);
+    
+    setStats({
+      totalOrders: ordersData.length,
+      pendingOrders: ordersData.filter(o => o.status === "pending").length,
+      approvedOrders: ordersData.filter(o => o.status === "approved").length,
+      rejectedOrders: ordersData.filter(o => o.status === "rejected").length,
+      totalRevenue: ordersData.filter(o => o.status === "approved").reduce((sum, o) => sum + o.total, 0),
+      todayOrders: todayOrders.length
+    });
+  }, []);
+
+  const fetchOrders = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -98,62 +116,53 @@ export default function AdminDashboard() {
       setError(err instanceof Error ? err.message : "Failed to connect to database");
     }
     setLoading(false);
-  };
-
-  const calculateStats = (ordersData: Order[]) => {
-    const today = new Date().toDateString();
-    const todayOrders = ordersData.filter(o => new Date(o.date).toDateString() === today);
-    
-    setStats({
-      totalOrders: ordersData.length,
-      pendingOrders: ordersData.filter(o => o.status === "pending").length,
-      approvedOrders: ordersData.filter(o => o.status === "approved").length,
-      rejectedOrders: ordersData.filter(o => o.status === "rejected").length,
-      totalRevenue: ordersData.filter(o => o.status === "approved").reduce((sum, o) => sum + o.total, 0),
-      todayOrders: todayOrders.length
-    });
-  };
+  }, [supabase, calculateStats]);
 
   useEffect(() => {
-    fetchOrders();
-  }, []);
+    void fetchOrders();
+  }, [fetchOrders]);
 
   useEffect(() => {
-    let result = orders;
-
-    // Search filter
-    if (search) {
-      const s = search.toLowerCase();
-      result = result.filter(o => 
-        o.order_id.toLowerCase().includes(s) ||
-        o.name.toLowerCase().includes(s) ||
-        o.email.toLowerCase().includes(s) ||
-        (o.utr && o.utr.toLowerCase().includes(s))
-      );
-    }
-
-    // Status filter
-    if (statusFilter !== "all") {
-      result = result.filter(o => o.status === statusFilter);
-    }
-
-    // Date filter
-    if (dateFilter !== "all") {
-      const now = new Date();
-      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-      
-      if (dateFilter === "today") {
-        result = result.filter(o => new Date(o.date) >= today);
-      } else if (dateFilter === "week") {
-        const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
-        result = result.filter(o => new Date(o.date) >= weekAgo);
-      } else if (dateFilter === "month") {
-        const monthAgo = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
-        result = result.filter(o => new Date(o.date) >= monthAgo);
+    const filtered = orders.filter(o => {
+      // Search filter
+      if (search) {
+        const s = search.toLowerCase();
+        if (
+          !o.order_id.toLowerCase().includes(s) &&
+          !o.name.toLowerCase().includes(s) &&
+          !o.email.toLowerCase().includes(s) &&
+          !(o.utr && o.utr.toLowerCase().includes(s))
+        ) {
+          return false;
+        }
       }
-    }
 
-    setFilteredOrders(result);
+      // Status filter
+      if (statusFilter !== "all" && o.status !== statusFilter) {
+        return false;
+      }
+
+      // Date filter
+      if (dateFilter !== "all") {
+        const orderDate = new Date(o.date);
+        const now = new Date();
+        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        
+        if (dateFilter === "today") {
+          if (orderDate < today) return false;
+        } else if (dateFilter === "week") {
+          const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+          if (orderDate < weekAgo) return false;
+        } else if (dateFilter === "month") {
+          const monthAgo = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
+          if (orderDate < monthAgo) return false;
+        }
+      }
+
+      return true;
+    });
+
+    setFilteredOrders(filtered);
   }, [orders, search, statusFilter, dateFilter]);
 
   const handleApprove = async (orderId: string) => {
@@ -163,7 +172,7 @@ export default function AdminDashboard() {
       if (!order || !supabase) return;
 
       const items = Array.isArray(order.items) ? order.items : JSON.parse(order.items);
-      const updatedItems = items.map((item: any) => ({
+      const updatedItems = items.map((item: OrderItem) => ({
         ...item,
         downloadUrl: item.downloadUrl || `https://www.edubaazar.shop/account`
       }));
@@ -847,22 +856,22 @@ export default function AdminDashboard() {
         </div>
         <ul className="sidebar-menu">
           <li>
-            <a href="/admin" className="active">
+            <Link href="/admin" className="active">
               <LayoutDashboard size={18} />
               Dashboard
-            </a>
+            </Link>
           </li>
           <li>
-            <a href="/">
+            <Link href="/">
               <ShoppingCart size={18} />
               View Store
-            </a>
+            </Link>
           </li>
           <li>
-            <a href="/admin/seo">
+            <Link href="/admin/seo">
               <TrendingUp size={18} />
               SEO Settings
-            </a>
+            </Link>
           </li>
         </ul>
       </aside>
@@ -928,7 +937,7 @@ export default function AdminDashboard() {
             </div>
             <div className="stat-content">
               <h3>{stats.todayOrders}</h3>
-              <p>Today's Orders</p>
+              <p>Today&apos;s Orders</p>
             </div>
           </div>
         </div>
@@ -1036,10 +1045,10 @@ export default function AdminDashboard() {
           </div>
         )}
 
-        <a href="/api/admin/logout" className="logout-btn">
+        <Link href="/api/admin/logout" className="logout-btn">
           <LogOut size={16} />
           Logout
-        </a>
+        </Link>
       </main>
 
       {showModal && selectedOrder && (
@@ -1095,7 +1104,7 @@ export default function AdminDashboard() {
               <div className="detail-section">
                 <h4>Items</h4>
                 <div className="items-list">
-                  {Array.isArray(selectedOrder.items) && selectedOrder.items.map((item: any, idx: number) => (
+                  {Array.isArray(selectedOrder.items) && selectedOrder.items.map((item: OrderItem, idx: number) => (
                     <div className="item-row" key={idx}>
                       <span className="item-name">{item.name}</span>
                       <span className="item-price">₹{item.price}</span>
