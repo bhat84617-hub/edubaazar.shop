@@ -1,330 +1,1094 @@
-import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
-import { createClient } from "@supabase/supabase-js";
-import { isValidAdminSession } from "@/lib/admin-session";
+"use client";
+"use client";
+
 import { useEffect, useState } from "react";
+import { createClient } from "@supabase/supabase-js";
+import { 
+  LayoutDashboard, 
+  ShoppingCart, 
+  CheckCircle, 
+  Clock, 
+  XCircle, 
+  IndianRupee, 
+  Search, 
+  Filter,
+  Download,
+  RefreshCw,
+  LogOut,
+  Eye,
+  Check,
+  X,
+  Mail,
+  TrendingUp,
+  Users,
+  Package
+} from "lucide-react";
 
-export const dynamic = "force-dynamic";
-
-function getDb() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!url || !key) return null;
-  return createClient(url, key, { auth: { autoRefreshToken: false, persistSession: false } });
+interface Order {
+  order_id: string;
+  name: string;
+  email: string;
+  items: string | any[];
+  total: number;
+  utr: string | null;
+  status: string;
+  date: string;
+  phone?: string;
 }
 
-export default async function AdminPage() {
-  const cookieStore = await cookies();
-  const session = cookieStore.get("edubazar_admin_session")?.value;
+interface Stats {
+  totalOrders: number;
+  pendingOrders: number;
+  approvedOrders: number;
+  rejectedOrders: number;
+  totalRevenue: number;
+  todayOrders: number;
+}
 
-  if (!isValidAdminSession(session)) {
-    redirect("/admin/login");
-  }
+export default function AdminDashboard() {
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [dateFilter, setDateFilter] = useState("all");
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [showModal, setShowModal] = useState(false);
+  const [processing, setProcessing] = useState<string | null>(null);
+  const [stats, setStats] = useState<Stats>({
+    totalOrders: 0,
+    pendingOrders: 0,
+    approvedOrders: 0,
+    rejectedOrders: 0,
+    totalRevenue: 0,
+    todayOrders: 0
+  });
 
-  const db = getDb();
-  let orders: Record<string, unknown>[] = [];
-  if (db) {
-    const { data } = await db.from("orders").select("*").order("date", { ascending: false });
-    orders = (data as Record<string, unknown>[]) || [];
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { autoRefreshToken: false, persistSession: false } }
+  );
+
+  const fetchOrders = async () => {
+    setLoading(true);
+    try {
+      const { data } = await supabase
+        .from("orders")
+        .select("*")
+        .order("date", { ascending: false });
+
+      if (data) {
+        const formatted = data.map(o => ({
+          ...o,
+          items: typeof o.items === "string" ? JSON.parse(o.items) : o.items
+        })) as Order[];
+        
+        setOrders(formatted);
+        setFilteredOrders(formatted);
+        calculateStats(formatted);
+      }
+    } catch (error) {
+      console.error("Error fetching orders:", error);
+    }
+    setLoading(false);
+  };
+
+  const calculateStats = (ordersData: Order[]) => {
+    const today = new Date().toDateString();
+    const todayOrders = ordersData.filter(o => new Date(o.date).toDateString() === today);
+    
+    setStats({
+      totalOrders: ordersData.length,
+      pendingOrders: ordersData.filter(o => o.status === "pending").length,
+      approvedOrders: ordersData.filter(o => o.status === "approved").length,
+      rejectedOrders: ordersData.filter(o => o.status === "rejected").length,
+      totalRevenue: ordersData.filter(o => o.status === "approved").reduce((sum, o) => sum + o.total, 0),
+      todayOrders: todayOrders.length
+    });
+  };
+
+  useEffect(() => {
+    fetchOrders();
+  }, []);
+
+  useEffect(() => {
+    let result = orders;
+
+    // Search filter
+    if (search) {
+      const s = search.toLowerCase();
+      result = result.filter(o => 
+        o.order_id.toLowerCase().includes(s) ||
+        o.name.toLowerCase().includes(s) ||
+        o.email.toLowerCase().includes(s) ||
+        (o.utr && o.utr.toLowerCase().includes(s))
+      );
+    }
+
+    // Status filter
+    if (statusFilter !== "all") {
+      result = result.filter(o => o.status === statusFilter);
+    }
+
+    // Date filter
+    if (dateFilter !== "all") {
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      
+      if (dateFilter === "today") {
+        result = result.filter(o => new Date(o.date) >= today);
+      } else if (dateFilter === "week") {
+        const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+        result = result.filter(o => new Date(o.date) >= weekAgo);
+      } else if (dateFilter === "month") {
+        const monthAgo = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
+        result = result.filter(o => new Date(o.date) >= monthAgo);
+      }
+    }
+
+    setFilteredOrders(result);
+  }, [orders, search, statusFilter, dateFilter]);
+
+  const handleApprove = async (orderId: string) => {
+    setProcessing(orderId);
+    try {
+      const order = orders.find(o => o.order_id === orderId);
+      if (!order) return;
+
+      const items = Array.isArray(order.items) ? order.items : JSON.parse(order.items);
+      const updatedItems = items.map((item: any) => ({
+        ...item,
+        downloadUrl: item.downloadUrl || `https://www.edubaazar.shop/account`
+      }));
+
+      await supabase
+        .from("orders")
+        .update({ status: "approved", items: JSON.stringify(updatedItems) })
+        .eq("order_id", orderId);
+
+      // Send email notification
+      await fetch("/api/admin/send-notification", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          orderId,
+          name: order.name,
+          email: order.email,
+          status: "approved",
+          items: updatedItems
+        })
+      });
+
+      await fetchOrders();
+    } catch (error) {
+      console.error("Error approving order:", error);
+    }
+    setProcessing(null);
+  };
+
+  const handleReject = async (orderId: string) => {
+    setProcessing(orderId);
+    try {
+      const order = orders.find(o => o.order_id === orderId);
+      if (!order) return;
+
+      await supabase
+        .from("orders")
+        .update({ status: "rejected" })
+        .eq("order_id", orderId);
+
+      // Send email notification
+      await fetch("/api/admin/send-notification", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          orderId,
+          name: order.name,
+          email: order.email,
+          status: "rejected",
+          items: []
+        })
+      });
+
+      await fetchOrders();
+    } catch (error) {
+      console.error("Error rejecting order:", error);
+    }
+    setProcessing(null);
+  };
+
+  const viewOrderDetails = (order: Order) => {
+    setSelectedOrder(order);
+    setShowModal(true);
+  };
+
+  const formatDate = (dateStr: string) => {
+    return new Date(dateStr).toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit"
+    });
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "approved": return "var(--success)";
+      case "pending": return "var(--warning)";
+      case "rejected": return "var(--danger)";
+      default: return "var(--muted)";
+    }
+  };
+
+  if (loading && orders.length === 0) {
+    return (
+      <div style={{ 
+        display: "flex", 
+        justifyContent: "center", 
+        alignItems: "center", 
+        height: "100vh",
+        background: "var(--bg)"
+      }}>
+        <RefreshCw className="spin" size={32} style={{ color: "var(--primary)" }} />
+      </div>
+    );
   }
 
   return (
-    <html lang="en">
-      <head>
-        <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>Admin Dashboard - Course Approval Workflow | EduBazar</title>
-        <style>{`
-          * { margin: 0; padding: 0; box-sizing: border-box; }
-          body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f0f2f5; color: #181d27; }
-          .header { background: #181d27; color: #fff; padding: 20px 32px; display: flex; justify-content: space-between; align-items: center; }
-          .header h1 { font-size: 24px; font-weight: 600; }
-          .header nav { display: flex; gap: 16px; }
-          .header nav a { color: #fff; text-decoration: none; font-size: 14px; }
-          .container { max-width: 1400px; margin: 24px auto; padding: 0 20px; }
-          .order-card { background: #fff; border-radius: 12px; padding: 24px; margin-bottom: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border: 1px solid #e0e0e0; }
-          .order-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
-          .order-id { background: #687975; color: white; padding: 4px 12px; border-radius: 20px; font-size: 14px; font-weight: 600; }
-          .order-status { padding: 6px 16px; border-radius: 20px; font-size: 14px; font-weight: 600; text-transform: uppercase; }
-          .status-pending { background: #fff3cd; color: #856404; }
-          .status-approved { background: #d4edda; color: #155724; }
-          .status-rejected { background: #f8d7da; color: #721c24; }
-          .customer-info { flex: 1; }
-          .customer-name { font-size: 20px; font-weight: 600; margin: 4px 0; }
-          .customer-email { font-size: 14px; color: #666; }
-          .order-details { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 20px; }
-          .detail-item { background: #f8f9fa; padding: 16px; border-radius: 8px; }
-          .detail-label { font-size: 13px; color: #666; text-transform: uppercase; margin-bottom: 4px; }
-          .detail-value { font-size: 16px; font-weight: 600; }
-          .course-items { margin-bottom: 24px; }
-          .course-title { font-size: 18px; font-weight: 600; margin-bottom: 12px; color: #181d27; }
-          .course-list { display: flex; flex-direction: column; gap: 12px; }
-          .course-item { display: flex; justify-content: space-between; padding: 12px; background: #f0f2f5; border-radius: 6px; }
-          .course-name { font-weight: 500; }
-          .course-price { font-weight: 600; color: #687975; }
-          .actions-section { display: flex; gap: 16px; align-items: flex-end; }
-          .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 24px; border-radius: 8px; font-size: 15px; font-weight: 600; text-decoration: none; cursor: pointer; border: none; transition: all 0.2s; }
-          .btn-approve { background: #28a745; color: white; }
-          .btn-approve:hover { background: #218838; }
-          .btn-reject { background: #dc3545; color: white; }
-          .btn-reject:hover { background: #c82333; }
-          .btn-download { background: #687975; color: white; }
-          .btn-download:hover { background: #5a6260; }
-          .btn-secondary { background: #6c757d; color: white; }
-          .btn-secondary:hover { background: #5a6268; }
-          .btn:disabled { opacity: 0.6; cursor: not-allowed; }
-          .download-links { margin-top: 16px; }
-          .download-section { background: #e9ecef; padding: 16px; border-radius: 8px; }
-          .download-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: white; margin: 8px 0; border-radius: 6px; }
-          .download-url-input { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; }
-          .status-badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; margin-top: 8px; }
-          .empty-state { text-align: center; padding: 60px; color: #666; }
-          .empty-icon { font-size: 48px; margin-bottom: 20px; opacity: 0.5; }
-          .spinner { border: 3px solid #f3f3f3; border-top: 3px solid #687975; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; }
-          @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-          .download-progress { margin-top: 8px; font-size: 13px; color: #666; }
-          .modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 1000; }
-          .modal-content { background: white; border-radius: 12px; padding: 32px; max-width: 500px; width: 90%; max-height: 80vh; overflow-y: auto; }
-          .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
-          .modal-title { font-size: 20px; font-weight: 600; }
-          .modal-close { background: none; border: none; font-size: 24px; cursor: pointer; color: #666; }
-          .form-group { margin-bottom: 20px; }
-          .form-label { display: block; margin-bottom: 8px; font-weight: 600; }
-          .form-input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; }
-          .form-input:focus { outline: none; border-color: #687975; box-shadow: 0 0 0 2px rgba(104,121,117,0.2); }
-          .btn-block { width: 100%; }
-        `}</style>
-      </head>
-      <body>
-        <div className="header">
-          <h1>EduBazar Admin - Course Approval</h1>
-          <nav>
-            <a href="/">View Store</a>
-            <a href="/admin/seo">SEO Tools</a>
-            <a href="/api/admin/logout">Logout</a>
-          </nav>
+    <div className="admin-layout">
+      <style jsx>{`
+        .admin-layout {
+          display: flex;
+          min-height: 100vh;
+          background: var(--bg);
+        }
+        .admin-sidebar {
+          width: 260px;
+          background: #1a1a2e;
+          color: white;
+          padding: 24px 0;
+          position: fixed;
+          height: 100vh;
+          overflow-y: auto;
+        }
+        .sidebar-brand {
+          padding: 0 24px 24px;
+          border-bottom: 1px solid rgba(255,255,255,0.1);
+          margin-bottom: 24px;
+        }
+        .sidebar-brand h2 {
+          font-size: 20px;
+          font-weight: 700;
+          margin: 0;
+          color: white;
+        }
+        .sidebar-brand p {
+          font-size: 12px;
+          color: rgba(255,255,255,0.6);
+          margin: 4px 0 0;
+        }
+        .sidebar-menu {
+          list-style: none;
+          padding: 0;
+          margin: 0;
+        }
+        .sidebar-menu li a {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          padding: 12px 24px;
+          color: rgba(255,255,255,0.7);
+          text-decoration: none;
+          transition: all 0.2s;
+          font-size: 14px;
+        }
+        .sidebar-menu li a:hover,
+        .sidebar-menu li a.active {
+          background: rgba(255,255,255,0.1);
+          color: white;
+        }
+        .sidebar-menu li a svg {
+          width: 18px;
+          height: 18px;
+        }
+        .admin-main {
+          flex: 1;
+          margin-left: 260px;
+          padding: 32px;
+        }
+        .admin-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 32px;
+        }
+        .admin-header h1 {
+          font-size: 28px;
+          font-weight: 700;
+          color: var(--text);
+          margin: 0;
+        }
+        .stats-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+          gap: 20px;
+          margin-bottom: 32px;
+        }
+        .stat-card {
+          background: white;
+          border-radius: 12px;
+          padding: 24px;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+          display: flex;
+          align-items: center;
+          gap: 16px;
+        }
+        .stat-icon {
+          width: 48px;
+          height: 48px;
+          border-radius: 12px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        .stat-icon svg {
+          width: 24px;
+          height: 24px;
+        }
+        .stat-content h3 {
+          font-size: 28px;
+          font-weight: 700;
+          margin: 0;
+          color: var(--text);
+        }
+        .stat-content p {
+          font-size: 13px;
+          color: var(--muted);
+          margin: 4px 0 0;
+        }
+        .stat-card:nth-child(1) .stat-icon { background: #e3f2fd; color: #1976d2; }
+        .stat-card:nth-child(2) .stat-icon { background: #fff3e0; color: #f57c00; }
+        .stat-card:nth-child(3) .stat-icon { background: #e8f5e9; color: #388e3c; }
+        .stat-card:nth-child(4) .stat-icon { background: #ffebee; color: #d32f2f; }
+        .stat-card:nth-child(5) .stat-icon { background: #f3e5f5; color: #7b1fa2; }
+        .stat-card:nth-child(6) .stat-icon { background: #e0f7fa; color: #0097a7; }
+        
+        .filter-section {
+          background: white;
+          border-radius: 12px;
+          padding: 20px;
+          margin-bottom: 24px;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+          display: flex;
+          gap: 16px;
+          flex-wrap: wrap;
+          align-items: center;
+        }
+        .search-box {
+          flex: 1;
+          min-width: 250px;
+          position: relative;
+        }
+        .search-box svg {
+          position: absolute;
+          left: 12px;
+          top: 50%;
+          transform: translateY(-50%);
+          color: var(--muted);
+        }
+        .search-box input {
+          width: 100%;
+          padding: 12px 12px 12px 40px;
+          border: 2px solid #e0e0e0;
+          border-radius: 8px;
+          font-size: 14px;
+          outline: none;
+          transition: border-color 0.2s;
+        }
+        .search-box input:focus {
+          border-color: var(--primary);
+        }
+        .filter-select {
+          padding: 12px 16px;
+          border: 2px solid #e0e0e0;
+          border-radius: 8px;
+          font-size: 14px;
+          outline: none;
+          cursor: pointer;
+          min-width: 150px;
+        }
+        .filter-select:focus {
+          border-color: var(--primary);
+        }
+        .refresh-btn {
+          padding: 12px 20px;
+          background: var(--primary);
+          color: white;
+          border: none;
+          border-radius: 8px;
+          font-size: 14px;
+          font-weight: 600;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          transition: background 0.2s;
+        }
+        .refresh-btn:hover {
+          background: #1a1a2e;
+        }
+        
+        .orders-table {
+          background: white;
+          border-radius: 12px;
+          overflow: hidden;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .table-header {
+          display: grid;
+          grid-template-columns: 2fr 2fr 1.5fr 1.5fr 1fr 1fr 1fr;
+          padding: 16px 24px;
+          background: #f8f9fa;
+          font-size: 13px;
+          font-weight: 600;
+          color: var(--muted);
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+        .order-row {
+          display: grid;
+          grid-template-columns: 2fr 2fr 1.5fr 1.5fr 1fr 1fr 1fr;
+          padding: 16px 24px;
+          border-bottom: 1px solid #f0f0f0;
+          align-items: center;
+          font-size: 14px;
+          transition: background 0.2s;
+        }
+        .order-row:hover {
+          background: #f8f9fa;
+        }
+        .order-row:last-child {
+          border-bottom: none;
+        }
+        .order-id {
+          font-family: monospace;
+          font-weight: 600;
+          color: var(--primary);
+        }
+        .customer-info {
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
+        }
+        .customer-name {
+          font-weight: 600;
+          color: var(--text);
+        }
+        .customer-email {
+          font-size: 12px;
+          color: var(--muted);
+        }
+        .order-total {
+          font-weight: 700;
+          color: var(--text);
+        }
+        .order-date {
+          color: var(--muted);
+          font-size: 13px;
+        }
+        .status-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          padding: 6px 12px;
+          border-radius: 20px;
+          font-size: 12px;
+          font-weight: 600;
+          text-transform: capitalize;
+        }
+        .status-approved {
+          background: #e8f5e9;
+          color: #2e7d32;
+        }
+        .status-pending {
+          background: #fff3e0;
+          color: #e65100;
+        }
+        .status-rejected {
+          background: #ffebee;
+          color: #c62828;
+        }
+        .action-btns {
+          display: flex;
+          gap: 8px;
+        }
+        .btn {
+          padding: 8px 12px;
+          border: none;
+          border-radius: 6px;
+          font-size: 12px;
+          font-weight: 600;
+          cursor: pointer;
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+          transition: all 0.2s;
+        }
+        .btn-view {
+          background: #e3f2fd;
+          color: #1976d2;
+        }
+        .btn-view:hover {
+          background: #1976d2;
+          color: white;
+        }
+        .btn-approve {
+          background: #e8f5e9;
+          color: #2e7d32;
+        }
+        .btn-approve:hover {
+          background: #2e7d32;
+          color: white;
+        }
+        .btn-reject {
+          background: #ffebee;
+          color: #c62828;
+        }
+        .btn-reject:hover {
+          background: #c62828;
+          color: white;
+        }
+        .btn:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+        
+        .modal-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: rgba(0,0,0,0.5);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 1000;
+          animation: fadeIn 0.2s ease;
+        }
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        .modal-content {
+          background: white;
+          border-radius: 16px;
+          width: 90%;
+          max-width: 600px;
+          max-height: 90vh;
+          overflow-y: auto;
+          animation: slideUp 0.3s ease;
+        }
+        @keyframes slideUp {
+          from { transform: translateY(20px); opacity: 0; }
+          to { transform: translateY(0); opacity: 1; }
+        }
+        .modal-header {
+          padding: 24px;
+          border-bottom: 1px solid #f0f0f0;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+        .modal-header h2 {
+          font-size: 20px;
+          font-weight: 700;
+          margin: 0;
+          color: var(--text);
+        }
+        .close-btn {
+          background: none;
+          border: none;
+          cursor: pointer;
+          color: var(--muted);
+          padding: 8px;
+          border-radius: 8px;
+          transition: all 0.2s;
+        }
+        .close-btn:hover {
+          background: #f0f0f0;
+          color: var(--text);
+        }
+        .modal-body {
+          padding: 24px;
+        }
+        .detail-section {
+          margin-bottom: 24px;
+        }
+        .detail-section h4 {
+          font-size: 14px;
+          font-weight: 600;
+          color: var(--muted);
+          margin: 0 0 12px;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+        .detail-row {
+          display: flex;
+          justify-content: space-between;
+          padding: 10px 0;
+          border-bottom: 1px solid #f0f0f0;
+        }
+        .detail-row:last-child {
+          border-bottom: none;
+        }
+        .detail-label {
+          color: var(--muted);
+          font-size: 14px;
+        }
+        .detail-value {
+          font-weight: 600;
+          color: var(--text);
+          font-size: 14px;
+        }
+        .items-list {
+          background: #f8f9fa;
+          border-radius: 8px;
+          padding: 16px;
+        }
+        .item-row {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 12px 0;
+          border-bottom: 1px solid #e0e0e0;
+        }
+        .item-row:last-child {
+          border-bottom: none;
+        }
+        .item-name {
+          font-weight: 600;
+          color: var(--text);
+        }
+        .item-price {
+          font-weight: 700;
+          color: var(--primary);
+        }
+        .modal-footer {
+          padding: 24px;
+          border-top: 1px solid #f0f0f0;
+          display: flex;
+          gap: 12px;
+          justify-content: flex-end;
+        }
+        .btn-primary {
+          background: var(--primary);
+          color: white;
+          padding: 12px 24px;
+          border: none;
+          border-radius: 8px;
+          font-size: 14px;
+          font-weight: 600;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+        .btn-primary:hover {
+          background: #1a1a2e;
+        }
+        .btn-secondary {
+          background: #f0f0f0;
+          color: var(--text);
+          padding: 12px 24px;
+          border: none;
+          border-radius: 8px;
+          font-size: 14px;
+          font-weight: 600;
+          cursor: pointer;
+        }
+        .btn-secondary:hover {
+          background: #e0e0e0;
+        }
+        .btn-success {
+          background: #2e7d32;
+          color: white;
+          padding: 12px 24px;
+          border: none;
+          border-radius: 8px;
+          font-size: 14px;
+          font-weight: 600;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+        .btn-success:hover {
+          background: #1b5e20;
+        }
+        .btn-danger {
+          background: #c62828;
+          color: white;
+          padding: 12px 24px;
+          border: none;
+          border-radius: 8px;
+          font-size: 14px;
+          font-weight: 600;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+        .btn-danger:hover {
+          background: #b71c1c;
+        }
+        .empty-state {
+          text-align: center;
+          padding: 60px 20px;
+          color: var(--muted);
+        }
+        .empty-state svg {
+          width: 64px;
+          height: 64px;
+          margin-bottom: 16px;
+          color: var(--line);
+        }
+        .logout-btn {
+          position: fixed;
+          bottom: 24px;
+          left: 24px;
+          padding: 12px 24px;
+          background: rgba(255,255,255,0.1);
+          color: white;
+          border: 1px solid rgba(255,255,255,0.2);
+          border-radius: 8px;
+          font-size: 14px;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          transition: all 0.2s;
+        }
+        .logout-btn:hover {
+          background: rgba(255,255,255,0.2);
+        }
+        .spin {
+          animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        .no-orders {
+          grid-column: 1 / -1;
+        }
+      `}</style>
+
+      <aside className="admin-sidebar">
+        <div className="sidebar-brand">
+          <h2>EduBazar</h2>
+          <p>Admin Panel</p>
         </div>
-        <div className="container">
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
-            <h2>Pending Course Orders ({orders.filter(o => String(o.status || '').toLowerCase() === 'pending').length})</h2>
-            <button className="btn btn-secondary" onclick="window.location.reload()">Refresh</button>
-          </div>
+        <ul className="sidebar-menu">
+          <li>
+            <a href="/admin" className="active">
+              <LayoutDashboard size={18} />
+              Dashboard
+            </a>
+          </li>
+          <li>
+            <a href="/">
+              <ShoppingCart size={18} />
+              View Store
+            </a>
+          </li>
+          <li>
+            <a href="/admin/seo">
+              <TrendingUp size={18} />
+              SEO Settings
+            </a>
+          </li>
+        </ul>
+      </aside>
 
-          {orders.length === 0 ? (
-            <div className="empty-state">
-              <div className="empty-icon">📭</div>
-              <p>No orders found.</p>
+      <main className="admin-main">
+        <div className="admin-header">
+          <h1>Admin Dashboard</h1>
+          <button className="refresh-btn" onClick={fetchOrders}>
+            <RefreshCw size={16} />
+            Refresh
+          </button>
+        </div>
+
+        <div className="stats-grid">
+          <div className="stat-card">
+            <div className="stat-icon">
+              <Package size={24} />
             </div>
-          ) : (
-            orders.map((order) => {
-              const status = String(order.status || "pending").toLowerCase();
-              const items = typeof order.items === "string" ? JSON.parse(order.items) : (order.items || []);
+            <div className="stat-content">
+              <h3>{stats.totalOrders}</h3>
+              <p>Total Orders</p>
+            </div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-icon">
+              <Clock size={24} />
+            </div>
+            <div className="stat-content">
+              <h3>{stats.pendingOrders}</h3>
+              <p>Pending Verification</p>
+            </div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-icon">
+              <CheckCircle size={24} />
+            </div>
+            <div className="stat-content">
+              <h3>{stats.approvedOrders}</h3>
+              <p>Approved</p>
+            </div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-icon">
+              <XCircle size={24} />
+            </div>
+            <div className="stat-content">
+              <h3>{stats.rejectedOrders}</h3>
+              <p>Rejected</p>
+            </div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-icon">
+              <IndianRupee size={24} />
+            </div>
+            <div className="stat-content">
+              <h3>₹{stats.totalRevenue.toLocaleString()}</h3>
+              <p>Total Revenue</p>
+            </div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-icon">
+              <TrendingUp size={24} />
+            </div>
+            <div className="stat-content">
+              <h3>{stats.todayOrders}</h3>
+              <p>Today's Orders</p>
+            </div>
+          </div>
+        </div>
 
-              return (
-                <div key={String(order.order_id)} className="order-card">
-                  <div className="order-header">
-                    <div className="order-id">Order #{String(order.order_id)}</div>
-                    <span className={`order-status status-${status}`}>
-                      {status === 'approved' ? 'APPROVED' : status === 'pending' ? 'PENDING VERIFICATION' : 'REJECTED'}
-                    </span>
-                  </div>
+        <div className="filter-section">
+          <div className="search-box">
+            <Search size={18} />
+            <input
+              type="text"
+              placeholder="Search by Order ID, Name, Email, UTR..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
+          <select 
+            className="filter-select" 
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+          >
+            <option value="all">All Status</option>
+            <option value="pending">Pending</option>
+            <option value="approved">Approved</option>
+            <option value="rejected">Rejected</option>
+          </select>
+          <select 
+            className="filter-select"
+            value={dateFilter}
+            onChange={(e) => setDateFilter(e.target.value)}
+          >
+            <option value="all">All Time</option>
+            <option value="today">Today</option>
+            <option value="week">This Week</option>
+            <option value="month">This Month</option>
+          </select>
+        </div>
 
-                  <div className="customer-info">
-                    <div className="customer-name">{String(order.name)}</div>
-                    <div className="customer-email">{String(order.email)}</div>
-                  </div>
-
-                  <div className="order-details">
-                    <div className="detail-item">
-                      <div className="detail-label">Total Amount</div>
-                      <div className="detail-value">₹{String(order.total)}</div>
-                    </div>
-                    <div className="detail-item">
-                      <div className="detail-label">Payment Method</div>
-                      <div className="detail-value">UPI QR</div>
-                    </div>
-                    <div className="detail-item">
-                      <div className="detail-label">UTR / Transaction ID</div>
-                      <div className="detail-value">{String(order.utr || 'Not provided')}</div>
-                    </div>
-                    <div className="detail-item">
-                      <div className="detail-label">Order Date</div>
-                      <div className="detail-value">{new Date(String(order.date)).toLocaleString('en-IN')}</div>
-                    </div>
-                  </div>
-
-                  <div className="course-items">
-                    <div className="course-title">Courses Purchased:</div>
-                    <div className="course-list">
-                      {items.map((item, index) => (
-                        <div key={index} className="course-item">
-                          <span className="course-name">{item.name || item.id}</span>
-                          <span className="course-price">₹{item.price}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {status === 'pending' && (
-                    <div>
-                      <h3 style={{ marginBottom: 16 }}>Verify & Approve Course Access</h3>
-                      <div className="download-section">
-                        <p style={{ marginBottom: 16, color: #666, fontSize: 14 }}>
-                          Please enter/download links for each course below. Once approved, these links will be sent to the customer's email and made available in their dashboard.
-                        </p>
-                        {items.map((item, index) => (
-                          <div key={index} className="download-item">
-                            <span>{item.name || item.id}</span>
-                            <input
-                              type="text"
-                              className="download-url-input"
-                              placeholder="Enter download URL (e.g., https://drive.google.com/... or https://mediafire.com/...)"
-                              value={item.downloadUrl || ""}
-                              onChange={(e) => {
-                                const updatedItems = [...items];
-                                updatedItems[index] = { ...updatedItems[index], downloadUrl: e.target.value };
-                              }}
-                            />
-                          </div>
-                        ))}
-                        {items.length > 0 && (
-                          <div className="download-progress" style={{ marginTop: 12, padding: 12, background: #d4edda, borderRadius: 4, border: '1px solid #c3e6cb', color: '#155724' }}>
-                            💡 Tip: You can get download links from your course hosting platform (Google Drive, MediaFire, etc.) and paste them here
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="actions-section">
-                        <button
-                          className="btn btn-approve"
-                          onclick={(e) => {
-                            e.preventDefault();
-                            // Collect download URLs from inputs
-                            const downloadUrls = {};
-                            items.forEach((item, index) => {
-                              const input = document.querySelectorAll('.download-url-input')[index];
-                              if (input) {
-                                downloadUrls[item.id || item.name] = input.value.trim();
-                              }
-                            });
-
-                            // Validate that all required fields are filled
-                            const missingUrls = items.filter(item =>
-                              !downloadUrls[item.id || item.name] || downloadUrls[item.id || item.name].trim() === ''
-                            );
-
-                            if (missingUrls.length > 0) {
-                              alert('Please provide download URLs for all courses before approving.');
-                              return;
-                            }
-
-                            // Call approval API
-                            fetch(`/api/admin/orders/approve?orderId=${order.order_id}`, {
-                              method: 'GET',
-                              headers: {
-                                'Content-Type': 'application/json'
-                              }
-                            })
-                            .then(response => {
-                              if (response.ok) {
-                                // Show success and refresh
-                                alert('Course approved successfully! Download links sent to customer.');
-                                window.location.reload();
-                              } else {
-                                response.text().then(text => alert('Error approving order: ' + text));
-                              }
-                            })
-                            .catch(error => alert('Network error: ' + error.message));
-                          }}
-                        >
-                          ✅ YES - Approve & Send Download Links
-                        </button>
-
-                        <button
-                          className="btn btn-reject"
-                          onclick={(e) => {
-                            e.preventDefault();
-                            if (confirm('Are you sure you want to reject this order? Customer will NOT receive access.')) {
-                              fetch(`/api/admin/orders/reject?orderId=${order.order_id}`, {
-                                method: 'GET',
-                                headers: {
-                                  'Content-Type': 'application/json'
-                                }
-                              })
-                              .then(response => {
-                                if (response.ok) {
-                                  alert('Order rejected.');
-                                  window.location.reload();
-                                } else {
-                                  response.text().then(text => alert('Error rejecting order: ' + text));
-                                }
-                              })
-                              .catch(error => alert('Network error: ' + error.message));
-                            }
-                          }}
-                        >
-                          ❌ NO - Reject Order
-                        </button>
-                      </div>
-                    </div>
-                  )}
-
-                  {status === 'approved' && (
-                    <div>
-                      <div className="status-badge" style={{ background: '#d4edda', color: '#155724' }}>✓ APPROVED - Link Sent</div>
-                      <div className="download-links" style={{ marginTop: 16 }}>
-                        <h4 style={{ marginBottom: 12, color: '#181d27' }}>Download Links Sent:</h4>
-                        {items.map((item, index) => (
-                          <div key={index} style={{ marginBottom: 8, padding: 12, background: #f8f9fa, borderRadius: 6 }}>
-                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                              <span>{item.name || item.id}</span>
-                              {item.downloadUrl ? (
-                                <>
-                                  <a
-                                    href={item.downloadUrl}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    className="btn btn-download btn-sm"
-                                    style={{ padding: '8px 16px', fontSize: '13px' }}
-                                  >
-                                    ⬇️ Download
-                                  </a>
-                                  <button
-                                    onClick={(e) => {
-                                      e.preventDefault();
-                                      navigator.clipboard.writeText(item.downloadUrl);
-                                      alert('Download link copied to clipboard!');
-                                    }}
-                                    className="btn btn-secondary btn-sm"
-                                    style={{ marginLeft: '8px', padding: '6px 12px', fontSize: '12px' }}
-                                  >
-                                    📋 Copy
-                                  </button>
-                                </>
-                              ) : (
-                                <span style={{ color: '#666', fontStyle: 'italic' }}>Link not provided</span>
-                              )}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {status === 'rejected' && (
-                    <div>
-                      <div className="status-badge" style={{ background: '#f8d7da', color: '#721c24' }}>✕ REJECTED</div>
-                      <p style={{ marginTop: 12, color: '#721c24', fontStyle: 'italic' }}>
-                        Order was rejected. Customer will not receive access to courses.
-                      </p>
-                    </div>
+        {filteredOrders.length === 0 ? (
+          <div className="orders-table">
+            <div className="empty-state">
+              <ShoppingCart size={64} />
+              <h3>No Orders Found</h3>
+              <p>Try adjusting your filters or search terms.</p>
+            </div>
+          </div>
+        ) : (
+          <div className="orders-table">
+            <div className="table-header">
+              <div>Order ID</div>
+              <div>Customer</div>
+              <div>Total</div>
+              <div>Date</div>
+              <div>UTR</div>
+              <div>Status</div>
+              <div>Actions</div>
+            </div>
+            {filteredOrders.map((order) => (
+              <div className="order-row" key={order.order_id}>
+                <div className="order-id">{order.order_id}</div>
+                <div className="customer-info">
+                  <span className="customer-name">{order.name}</span>
+                  <span className="customer-email">{order.email}</span>
+                </div>
+                <div className="order-total">₹{order.total.toLocaleString()}</div>
+                <div className="order-date">{formatDate(order.date)}</div>
+                <div>{order.utr || "—"}</div>
+                <div>
+                  <span className={`status-badge status-${order.status}`}>
+                    {order.status === "approved" && <CheckCircle size={12} />}
+                    {order.status === "pending" && <Clock size={12} />}
+                    {order.status === "rejected" && <XCircle size={12} />}
+                    {order.status}
+                  </span>
+                </div>
+                <div className="action-btns">
+                  <button 
+                    className="btn btn-view"
+                    onClick={() => viewOrderDetails(order)}
+                  >
+                    <Eye size={14} />
+                    View
+                  </button>
+                  {order.status === "pending" && (
+                    <>
+                      <button 
+                        className="btn btn-approve"
+                        onClick={() => handleApprove(order.order_id)}
+                        disabled={processing === order.order_id}
+                      >
+                        <Check size={14} />
+                        {processing === order.order_id ? "..." : "Approve"}
+                      </button>
+                      <button 
+                        className="btn btn-reject"
+                        onClick={() => handleReject(order.order_id)}
+                        disabled={processing === order.order_id}
+                      >
+                        <X size={14} />
+                        Reject
+                      </button>
+                    </>
                   )}
                 </div>
-              );
-            })
-          )}
+              </div>
+            ))}
+          </div>
+        )}
+
+        <a href="/api/admin/logout" className="logout-btn">
+          <LogOut size={16} />
+          Logout
+        </a>
+      </main>
+
+      {showModal && selectedOrder && (
+        <div className="modal-overlay" onClick={() => setShowModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Order Details</h2>
+              <button className="close-btn" onClick={() => setShowModal(false)}>
+                <X size={24} />
+              </button>
+            </div>
+            <div className="modal-body">
+              <div className="detail-section">
+                <h4>Order Information</h4>
+                <div className="detail-row">
+                  <span className="detail-label">Order ID</span>
+                  <span className="detail-value">{selectedOrder.order_id}</span>
+                </div>
+                <div className="detail-row">
+                  <span className="detail-label">Date</span>
+                  <span className="detail-value">{formatDate(selectedOrder.date)}</span>
+                </div>
+                <div className="detail-row">
+                  <span className="detail-label">Status</span>
+                  <span className={`status-badge status-${selectedOrder.status}`}>
+                    {selectedOrder.status}
+                  </span>
+                </div>
+                <div className="detail-row">
+                  <span className="detail-label">UTR Number</span>
+                  <span className="detail-value">{selectedOrder.utr || "Not provided"}</span>
+                </div>
+              </div>
+
+              <div className="detail-section">
+                <h4>Customer Information</h4>
+                <div className="detail-row">
+                  <span className="detail-label">Name</span>
+                  <span className="detail-value">{selectedOrder.name}</span>
+                </div>
+                <div className="detail-row">
+                  <span className="detail-label">Email</span>
+                  <span className="detail-value">{selectedOrder.email}</span>
+                </div>
+                {selectedOrder.phone && (
+                  <div className="detail-row">
+                    <span className="detail-label">Phone</span>
+                    <span className="detail-value">{selectedOrder.phone}</span>
+                  </div>
+                )}
+              </div>
+
+              <div className="detail-section">
+                <h4>Items</h4>
+                <div className="items-list">
+                  {Array.isArray(selectedOrder.items) && selectedOrder.items.map((item: any, idx: number) => (
+                    <div className="item-row" key={idx}>
+                      <span className="item-name">{item.name}</span>
+                      <span className="item-price">₹{item.price}</span>
+                    </div>
+                  ))}
+                  <div className="item-row" style={{ borderTop: "2px solid #e0e0e0", marginTop: "8px", paddingTop: "16px" }}>
+                    <span className="item-name" style={{ fontWeight: 700 }}>Total</span>
+                    <span className="item-price" style={{ fontSize: "18px", color: "var(--primary)" }}>₹{selectedOrder.total.toLocaleString()}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button className="btn-secondary" onClick={() => setShowModal(false)}>
+                Close
+              </button>
+              {selectedOrder.status === "pending" && (
+                <>
+                  <button 
+                    className="btn-danger"
+                    onClick={() => {
+                      handleReject(selectedOrder.order_id);
+                      setShowModal(false);
+                    }}
+                    disabled={processing === selectedOrder.order_id}
+                  >
+                    <X size={16} />
+                    Reject
+                  </button>
+                  <button 
+                    className="btn-success"
+                    onClick={() => {
+                      handleApprove(selectedOrder.order_id);
+                      setShowModal(false);
+                    }}
+                    disabled={processing === selectedOrder.order_id}
+                  >
+                    <Check size={16} />
+                    Approve & Send Link
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
         </div>
-      </body>
-    </html>
+      )}
+    </div>
   );
 }
+>>>>>>> 35a54142543e9eb101ec4908801b25cf0b52c5f4

@@ -10,78 +10,60 @@ function getDb() {
   return createClient(url, key, { auth: { autoRefreshToken: false, persistSession: false } });
 }
 
+function htmlResponse(body: string) {
+  const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Admin</title></head>
+  <body style="font-family:Arial,sans-serif;max-width:600px;margin:80px auto;padding:0 20px;">
+    <h1 style="margin-bottom:24px;">EduBazar Admin</h1>
+    ${body}
+  </body></html>`;
+  return new NextResponse(html, { headers: { "Content-Type": "text/html; charset=utf-8" } });
+}
+
 export async function GET(request: NextRequest) {
   const session = request.cookies.get("edubazar_admin_session")?.value;
   if (!isValidAdminSession(session)) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return htmlResponse("Session expired. Please <a href='/admin/login'>login again</a>.");
   }
 
   const orderId = request.nextUrl.searchParams.get("orderId");
   if (!orderId) {
-    return NextResponse.json({ error: "No order ID provided" }, { status: 400 });
+    return htmlResponse("No order ID provided. <a href='/admin'>Back to Admin</a>");
   }
 
   const db = getDb();
   if (!db) {
-    return NextResponse.json({ error: "Database not configured" }, { status: 503 });
+    return htmlResponse("Database not configured. <a href='/admin'>Back to Admin</a>");
   }
 
   const { data: order } = await db
     .from("orders")
-    .select("name, email, items, status, utr")
+    .select("name, email, items")
     .eq("order_id", orderId)
     .single();
 
-  if (!order) {
-    return NextResponse.json({ error: "Order not found" }, { status: 404 });
+  if (order) {
+    const items = typeof order.items === "string" ? JSON.parse(order.items) : order.items;
+    const updatedItems = items.map((item: { id: string; name?: string; downloadUrl?: string | null }) => ({ ...item, downloadUrl: item.downloadUrl || "" }));
+
+    await db
+      .from("orders")
+      .update({ status: "approved", items: JSON.stringify(updatedItems) })
+      .eq("order_id", orderId);
+
+    const downloadMap = Object.fromEntries(updatedItems.map((i: { name?: string; id: string; downloadUrl?: string | null }) => [i.name || i.id, i.downloadUrl || ""]));
+    sendOrderStatusUpdate({
+      orderId,
+      name: order.name,
+      email: order.email,
+      status: "approved",
+      downloadUrls: downloadMap,
+    }).catch(() => {});
+
+    return htmlResponse(
+      `<div style="color:#28a745;font-weight:700;margin-bottom:16px;">✓ Order ${orderId} APPROVED! Download link sent to customer.</div>
+       <a href='/admin' style="display:inline-block;padding:12px 28px;background:#181d27;color:#fff;text-decoration:none;border-radius:6px;font-weight:600;">← Back to Admin</a>`
+    );
   }
 
-  if (order.status !== "pending") {
-    return NextResponse.json({ error: "Only pending requests can be approved" }, { status: 409 });
-  }
-
-  // Get download URLs from query parameters
-  const downloadUrlsParam = request.nextUrl.searchParams.get("downloadUrls");
-  let downloadUrls: Record<string, string> = {};
-  if (downloadUrlsParam) {
-    try {
-      downloadUrls = JSON.parse(decodeURIComponent(downloadUrlsParam));
-    } catch (e) {
-      return NextResponse.json({ error: "Invalid download URLs format" }, { status: 400 });
-    }
-  }
-
-  // Parse items
-  const items = (typeof order.items === "string" ? JSON.parse(order.items) : order.items) as Array<{ id: string; name?: string; downloadUrl?: string | null }>;
-
-  // Update order status and download URLs
-  const update: Record<string, unknown> = { status: "approved" };
-
-  const updatedItems = items.map(item => {
-    const key = item.id || item.name;
-    return { ...item, downloadUrl: downloadUrls[key] || item.downloadUrl || "" };
-  });
-  update.items = JSON.stringify(updatedItems);
-
-  const { error: updateError } = await db
-    .from("orders")
-    .update(update)
-    .eq("order_id", orderId)
-    .eq("status", "pending");
-
-  if (updateError) {
-    return NextResponse.json({ error: updateError.message }, { status: 500 });
-  }
-
-  // Send notification with download URLs
-  const downloadMap = Object.fromEntries(updatedItems.map((i) => [i.name || i.id, i.downloadUrl || ""]));
-  sendOrderStatusUpdate({
-    orderId: orderId,
-    name: order.name,
-    email: order.email,
-    status: "approved",
-    downloadUrls: downloadMap,
-  }).catch(() => {});
-
-  return NextResponse.json({ success: true, message: "Order approved and download links sent to customer" });
+  return htmlResponse("Order not found. <a href='/admin'>Back to Admin</a>");
 }
