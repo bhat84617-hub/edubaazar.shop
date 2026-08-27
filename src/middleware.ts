@@ -57,3 +57,5 @@ export async function middleware(request: NextRequest) {
 export const config = {
   matcher: ["/admin/:path*", "/admin/login"],
 };
+
+export const runtime = "nodejs";
