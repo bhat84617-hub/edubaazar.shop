@@ -37,6 +37,11 @@
   --shadow: none;
   --shadow-lg: none;
   --transition: cubic-bezier(0.25, 0.1, 0.25, 1);
+  --bg: #f0f2f5;
+  --success: #28a745;
+  --warning: #ffc107;
+  --danger: #dc3545;
+  --text: #181d27;
 }
 
 /* Admin payment review */
