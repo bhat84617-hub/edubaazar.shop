@@ -19,6 +19,7 @@ import {
   TrendingUp,
   Package
 } from "lucide-react";
+import { SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY } from "@/lib/supabase-config";
 
 interface OrderItem {
   id: string;
@@ -73,8 +74,8 @@ export default function AdminDashboard() {
     setEnvCheck(`SUPABASE_URL: ${process.env.NEXT_PUBLIC_SUPABASE_URL ? "✓" : "✗"}, SUPABASE_KEY: ${process.env.SUPABASE_SERVICE_ROLE_KEY ? "✓" : "✗"}, ADMIN_PWD: ${process.env.ADMIN_PASSWORD ? "✓" : "✗"}`);
   }, []);
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
-  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
+  const supabaseUrl = SUPABASE_URL;
+  const supabaseKey = SUPABASE_SERVICE_ROLE_KEY;
   const adminPassword = process.env.ADMIN_PASSWORD || "";
 
   console.log("Environment check:", { 
