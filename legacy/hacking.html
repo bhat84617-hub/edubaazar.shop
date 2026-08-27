@@ -1,0 +1,637 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduBazar.shop - Hacking Courses</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="preloader" id="preloader">
+        <div class="preloader-inner">
+            <div class="preloader-spinner"></div>
+            <p style="color:var(--fg-muted);font-weight:600;margin-top:15px;font-size:14px">Loading EduBazar...</p>
+        </div>
+    </div>
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- WoodMart 3-Row Header -->
+    <div class="wm-topbar" id="wmTopbar">
+        <div class="container">
+            <div class="wm-topbar-left">
+                <a href="tel:+919759131256"><i class="fas fa-phone"></i> +91 9759131256</a>
+                <a href="https://wa.me/919759131256" target="_blank"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+                <a href="mailto:edubazarshop@gmail.com"><i class="fas fa-envelope"></i> edubazarshop@gmail.com</a>
+            </div>
+            <div class="wm-topbar-right">
+                <a href="user-dashboard.html"><i class="fas fa-tachometer-alt"></i> My Dashboard</a>
+                <a href="user-login.html"><i class="fas fa-sign-in-alt"></i> Login</a>
+                <a href="user-register.html"><i class="fas fa-user-plus"></i> Sign Up</a>
+            </div>
+        </div>
+    </div>
+    <div class="wm-main-header" id="wmMainHeader">
+        <div class="container">
+            <a href="index.html" class="wm-logo">
+                <img src="edulogoupdate.jpeg" alt="EduBazar Logo">
+                <span>EduBazar</span>
+            </a>
+            <div class="wm-search">
+                <select id="wmSearchCat">
+                    <option value="all">All Categories</option>
+                    <option value="Hacking">Hacking</option>
+                    <option value="Programming">Programming</option>
+                    <option value="Trading">Trading</option>
+                    <option value="Books">Books</option>
+                    <option value="Tools">Tools</option>
+                </select>
+                <input type="text" id="wmSearchInput" placeholder="Search courses, books, tools...">
+                <button><i class="fas fa-search"></i></button>
+            </div>
+            <div class="wm-icons">
+                <a href="user-login.html" class="wm-icon-btn" id="wmAccountBtn">
+                    <i class="fas fa-user"></i><span>Account</span>
+                </a>
+                <a href="user-dashboard.html" class="wm-icon-btn" id="wmDashboardBtn" style="display:none">
+                    <i class="fas fa-tachometer-alt"></i><span>Dashboard</span>
+                </a>
+                <button class="wm-icon-btn" id="wmCartBtn">
+                    <i class="fas fa-shopping-cart"></i><span>Cart</span>
+                    <span class="wm-cart-count" id="wmCartCount" style="display:none">0</span>
+                </button>
+                <button class="wm-hamburger" id="wmHamburger" aria-label="Open Menu"><i class="fas fa-bars"></i></button>
+            </div>
+        </div>
+    </div>
+    <div class="wm-nav" id="wmNav">
+        <div class="container">
+            <div class="wm-nav-links">
+                <a href="index.html">Home</a>
+                <a href="hacking.html" class="active">Hacking</a>
+                <a href="programming.html">Programming</a>
+                <a href="trading.html">Trading</a>
+                <a href="books.html">Books</a>
+                <a href="tools.html">Software & Tools</a>
+            </div>
+            <a href="index.html#courses" class="wm-nav-cta">Browse Courses</a>
+        </div>
+    </div>
+
+    <div class="mobile-nav" id="mobileNav"></div>
+    <div class="mobile-menu" id="mobileMenu">
+        <div class="mobile-menu-header">
+            <h3><img src="edulogoupdate.jpeg" alt="EduBazar Logo" style="height:28px;width:auto;border-radius:6px;margin-right:8px;">EduBazar</h3>
+            <button class="mobile-close" id="mobileClose"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="mobile-menu-links">
+            <a href="index.html"><i class="fas fa-home"></i> Home</a>
+            <button class="mobile-menu-toggle">Courses <i class="fas fa-chevron-down"></i></button>
+            <div class="mobile-sub-links">
+                <a href="hacking.html">Hacking</a>
+                <a href="programming.html">Programming</a>
+                <a href="trading.html">Trading</a>
+                <a href="books.html">Books</a>
+                <a href="tools.html">Software & Tools</a>
+            </div>
+        </div>
+    </div>
+
+    <nav class="cat-nav">
+        <div class="container">
+            <a href="hacking.html" class="cat-nav-btn active" data-filter="hacking">Hacking</a>
+            <a href="programming.html" class="cat-nav-btn" data-filter="programming">Programming</a>
+            <a href="trading.html" class="cat-nav-btn" data-filter="trading">Trading</a>
+            <a href="books.html" class="cat-nav-btn" data-filter="books">Books</a>
+            <a href="tools.html" class="cat-nav-btn" data-filter="tools">Software & Tools</a>
+        </div>
+    </nav>
+
+    <div class="cart-overlay" id="cartOverlay"></div>
+    <div class="cart-sidebar" id="cartSidebar">
+        <div class="cart-header">
+            <h3><i class="fas fa-shopping-cart"></i> Your Cart</h3>
+            <button class="cart-close" id="cartClose"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="cart-items" id="cartItems">
+            <div class="cart-empty"><i class="fas fa-shopping-basket"></i><p>Your cart is empty</p></div>
+        </div>
+        <div class="cart-footer" id="cartFooter" style="display:none;">
+            <div class="cart-total"><span>Total:</span><span id="cartTotal">â‚¹0</span></div>
+            <button class="btn-checkout" id="checkoutBtn"><i class="fas fa-lock"></i> Proceed to Checkout</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="checkoutModal">
+        <div class="modal checkout-modal">
+            <button class="modal-close" id="checkoutClose"><i class="fas fa-times"></i></button>
+            <div class="checkout-steps">
+                <div class="step active" data-step="1"><span>1</span> Details</div>
+                <div class="step" data-step="2"><span>2</span> Payment</div>
+                <div class="step" data-step="3"><span>3</span> Done</div>
+            </div>
+            <div class="checkout-step-content active" id="step1">
+                <h3>Your Details</h3>
+                <form id="checkoutForm">
+                    <div class="form-group"><label>Full Name</label><input type="text" id="custName" placeholder="John Doe" required></div>
+                    <div class="form-group"><label>Email Address</label><input type="email" id="custEmail" placeholder="john@example.com" required></div>
+                    <div class="form-group"><label>Phone Number</label><input type="tel" id="custPhone" placeholder="+91 98765 43210" required></div>
+                    <button type="submit" class="btn-primary btn-full"><span>Continue to Payment</span><i class="fas fa-arrow-right"></i></button>
+                </form>
+            </div>
+            <div class="checkout-step-content" id="step2">
+                <h3>Scan QR & Pay</h3>
+                <div class="payment-summary">
+                    <div class="summary-row"><span>Subtotal</span><span id="summarySubtotal">â‚¹0</span></div>
+                    <div class="summary-row total"><span>Total Pay</span><span id="summaryTotal">â‚¹0</span></div>
+                </div>
+                <div style="text-align:center;margin:20px 0">
+                    <img src="paymentqr.jpeg" alt="Scan UPI QR to Pay" style="max-width:260px;width:100%;border:2px solid var(--border);border-radius:12px;padding:8px;background:#fff">
+                    <p style="font-size:12px;color:var(--text-secondary);margin-top:10px">Scan with GPay / PhonePe / Paytm / any UPI app</p>
+                </div>
+                <div class="form-group">
+                    <label>UPI Transaction ID (UTR / Ref ID)</label>
+                    <input type="text" id="utrInput" placeholder="Enter 12-digit UTR number" required pattern="[0-9]{12}" maxlength="12">
+                    <small style="color:var(--text-secondary);font-size:11px;display:block;margin-top:4px">Payment ke baad UPI app se Transaction ID copy karein</small>
+                </div>
+                <button class="btn-primary btn-full" id="payBtn"><i class="fas fa-check-circle"></i> I Have Paid - Submit</button>
+            </div>
+            <div class="checkout-step-content" id="step3">
+                <div class="success-animation">
+                    <div class="success-circle">
+                        <svg class="checkmark" viewBox="0 0 52 52"><circle class="checkmark-circle" cx="26" cy="26" r="25" fill="none"/><path class="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/></svg>
+                    </div>
+                    <h2>Order Placed!</h2>
+                    <p style="color:#f59e0b;font-weight:600"><i class="fas fa-clock"></i> Payment Under Verification</p>
+                    <p>Order ID: <strong id="orderIdDisplay"></strong></p>
+                    <p class="text-gray">Aapka payment verify ho raha hai. Admin approve karne ke baad course access milega.</p>
+                    <div class="success-actions">
+                        <a href="user-dashboard.html" class="btn-primary"><i class="fas fa-tachometer-alt"></i> Go to Dashboard</a>
+                        <button class="btn-secondary" id="continueShopping">Continue Shopping</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="previewModal">
+        <div class="modal preview-modal">
+            <button class="modal-close" id="previewClose"><i class="fas fa-times"></i></button>
+            <div class="preview-content" id="previewContent"></div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="upiModal">
+        <div class="modal upi-modal">
+            <button class="modal-close" id="upiClose"><i class="fas fa-times"></i></button>
+            <div class="upi-content">
+                <h3><i class="fas fa-shield-alt"></i> Complete Payment</h3>
+                <p class="upi-amount">Amount: <strong id="upiAmount">â‚¹0</strong></p>
+                <div class="upi-tabs">
+                    <button class="upi-tab active" data-tab="qr"><i class="fas fa-qrcode"></i> QR Code</button>
+                    <button class="upi-tab" data-tab="upid"><i class="fas fa-copy"></i> UPI ID</button>
+                    <button class="upi-tab" data-tab="link"><i class="fas fa-link"></i> Payment Link</button>
+                </div>
+                <div class="upi-tab-content active" id="tabQr">
+                    <div class="qr-container"><div class="qr-box" id="qrCode"></div><p>Scan with any UPI app</p><div class="upi-apps"><span><i class="fab fa-google-pay"></i> GPay</span><span><i class="fas fa-mobile-alt"></i> PhonePe</span><span><i class="fas fa-wallet"></i> Paytm</span></div></div>
+                </div>
+                <div class="upi-tab-content" id="tabUpiId">
+                    <div class="upi-id-box"><label>Send payment to this UPI ID:</label><div class="upi-copy-row"><input type="text" value="edubazar@upi" id="upiIdField" readonly><button class="btn-copy" onclick="copyUpiId()"><i class="fas fa-copy"></i> Copy</button></div></div>
+                </div>
+                <div class="upi-tab-content" id="tabLink">
+                    <div class="upi-id-box"><label>Or click the link to pay:</label><a href="#" class="payment-link" id="paymentLink" onclick="return false;"><i class="fas fa-external-link-alt"></i> Click to Pay</a></div>
+                </div>
+                <div class="payment-timer"><i class="fas fa-clock"></i> Payment expires in: <strong id="paymentTimer">15:00</strong></div>
+                <button class="btn-primary btn-full" id="confirmPayment"><i class="fas fa-check-circle"></i> I've Completed Payment</button>
+                <p class="upi-note">After payment, your download link will be generated automatically.</p>
+            </div>
+        </div>
+    </div>
+
+    <section class="hero" id="home">
+        <div class="hero-bg-shapes"><div class="shape shape-1"></div><div class="shape shape-2"></div></div>
+        <div class="container">
+            <div class="hero-content">
+                <span class="section-tag">Hacking Courses</span>
+                <h1>Ethical Hacking <span class="gradient-text">Courses</span></h1>
+                <p>Master penetration testing, network security & cybersecurity with 28+ expert-led courses</p>
+                <div class="hero-buttons">
+                    <a href="#courses" class="btn-primary"><i class="fas fa-play-circle"></i> Browse Courses</a>
+                </div>
+            </div>
+            <div class="hero-stats">
+                <div class="hero-stat"><h3>28+</h3><p>Courses</p></div>
+                <div class="hero-stat"><h3>15K+</h3><p>Students</p></div>
+                <div class="hero-stat"><h3>4.8</h3><p>Rating</p></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="courses">
+        <div class="container">
+            <div class="section-header" data-aos="fade-up">
+                <span class="section-tag">Hacking Courses</span>
+                <h2>Explore <span class="gradient-text">Hacking</span> Courses</h2>
+                <p>Become a certified ethical hacker with our comprehensive courses</p>
+            </div>
+            <div class="filter-row" data-aos="fade-up">
+                <a href="hacking.html" class="filter-btn active">Hacking</a>
+                <a href="programming.html" class="filter-btn">Programming</a>
+                <a href="trading.html" class="filter-btn">Trading</a>
+                <a href="books.html" class="filter-btn">Books</a>
+                <a href="tools.html" class="filter-btn">Tools</a>
+                <a href="index.html" class="filter-btn">All Courses</a>
+            </div>
+            <div class="courses-grid" id="coursesGrid">
+                <div class="course-card" data-aos="fade-up" data-category="hacking" data-id="h1" data-name="Complete Ethical Hacking" data-price="199" data-old="499">
+                    <div class="course-image">
+                        <img src="eduimages/Complete Ethical Hacking & Penetration Testing.jpeg" alt="Ethical Hacking">
+                        <span class="course-badge hot">Hot</span>
+                        <div class="course-overlay"><button class="btn-preview"><i class="fas fa-eye"></i></button><button class="btn-add-cart" data-id="h1" data-name="Complete Ethical Hacking" data-price="199" data-img="eduimages/Complete Ethical Hacking & Penetration Testing.jpeg"><i class="fas fa-cart-plus"></i></button></div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-user-secret"></i> Hacking</div>
+                        <h3>Complete Ethical Hacking & Penetration Testing</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> 48 hours</span><span><i class="fas fa-signal"></i> Advanced</span></div>
+                        <div class="course-footer"><div class="course-price"><span class="price-old">&#8377;499</span><span class="price-new">&#8377;199</span></div><div class="course-rating"><i class="fas fa-star"></i><span>4.9 (3.2k)</span></div></div>
+                    </div>
+                </div>
+                <div class="course-card" data-aos="fade-up" data-category="hacking" data-id="h2" data-name="Web App Hacking" data-price="249" data-old="599">
+                    <div class="course-image">
+                        <img src="eduimages/Web Application Hacking & Security.jpeg" alt="Web Hacking">
+                        <span class="course-badge bestseller">Bestseller</span>
+                        <div class="course-overlay"><button class="btn-preview"><i class="fas fa-eye"></i></button><button class="btn-add-cart" data-id="h2" data-name="Web App Hacking" data-price="249" data-img="eduimages/Web Application Hacking & Security.jpeg"><i class="fas fa-cart-plus"></i></button></div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-user-secret"></i> Hacking</div>
+                        <h3>Web Application Hacking & Security</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> 35 hours</span><span><i class="fas fa-signal"></i> Intermediate</span></div>
+                        <div class="course-footer"><div class="course-price"><span class="price-old">&#8377;599</span><span class="price-new">&#8377;249</span></div><div class="course-rating"><i class="fas fa-star"></i><span>4.8 (2.1k)</span></div></div>
+                    </div>
+                </div>
+                <div class="course-card" data-aos="fade-up" data-category="hacking" data-id="h3" data-name="Advanced Ethical Hacking Keylogger" data-price="199" data-old="499">
+                    <div class="course-image">
+                        <img src="eduimages/Advanced Ethical Hacking Keylogger Mastery.jpeg" alt="Keylogger Hacking">
+                        <span class="course-badge hot">Hot</span>
+                        <div class="course-overlay"><button class="btn-preview"><i class="fas fa-eye"></i></button><button class="btn-add-cart" data-id="h3" data-name="Advanced Ethical Hacking Keylogger" data-price="199" data-img="eduimages/Advanced Ethical Hacking Keylogger Mastery.jpeg"><i class="fas fa-cart-plus"></i></button></div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-user-secret"></i> Hacking</div>
+                        <h3>Advanced Ethical Hacking: Keylogger Mastery</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> 18 hours</span><span><i class="fas fa-signal"></i> Advanced</span></div>
+                        <div class="course-footer"><div class="course-price"><span class="price-old">&#8377;499</span><span class="price-new">&#8377;199</span></div><div class="course-rating"><i class="fas fa-star"></i><span>4.8 (1.2k)</span></div></div>
+                    </div>
+                </div>
+                <div class="course-card" data-aos="fade-up" data-category="hacking" data-id="h4" data-name="Reverse Engineering Cracking" data-price="249" data-old="599">
+                    <div class="course-image">
+                        <img src="eduimages/Reverse Engineering The Hacks Behind Cracking.jpeg" alt="Reverse Engineering">
+                        <span class="course-badge bestseller">Bestseller</span>
+                        <div class="course-overlay"><button class="btn-preview"><i class="fas fa-eye"></i></button><button class="btn-add-cart" data-id="h4" data-name="Reverse Engineering Cracking" data-price="249" data-img="eduimages/Reverse Engineering The Hacks Behind Cracking.jpeg"><i class="fas fa-cart-plus"></i></button></div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-user-secret"></i> Hacking</div>
+                        <h3>Reverse Engineering: The Hacks Behind Cracking</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> 22 hours</span><span><i class="fas fa-signal"></i> Advanced</span></div>
+                        <div class="course-footer"><div class="course-price"><span class="price-old">&#8377;599</span><span class="price-new">&#8377;249</span></div><div class="course-rating"><i class="fas fa-star"></i><span>4.9 (980)</span></div></div>
+                    </div>
+                </div>
+                <div class="course-card" data-aos="fade-up" data-category="hacking" data-id="h5" data-name="Complete Hacking Course" data-price="199" data-old="499">
+                    <div class="course-image">
+                        <img src="eduimages/Complete Hacking Course Beginner to Pro.jpeg" alt="Complete Hacking">
+                        <span class="course-badge new">New</span>
+                        <div class="course-overlay"><button class="btn-preview"><i class="fas fa-eye"></i></button><button class="btn-add-cart" data-id="h5" data-name="Complete Hacking Course" data-price="199" data-img="eduimages/Complete Hacking Course Beginner to Pro.jpeg"><i class="fas fa-cart-plus"></i></button></div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-user-secret"></i> Hacking</div>
+                        <h3>Complete Hacking Course: Beginner to Pro</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> 40 hours</span><span><i class="fas fa-signal"></i> Beginner</span></div>
+                        <div class="course-footer"><div class="course-price"><span class="price-old">&#8377;499</span><span class="price-new">&#8377;199</span></div><div class="course-rating"><i class="fas fa-star"></i><span>4.7 (2.8k)</span></div></div>
+                    </div>
+                </div>
+                <div class="course-card" data-aos="fade-up" data-category="hacking" data-id="h6" data-name="Masters Ethical Hacking" data-price="249" data-old="599">
+                    <div class="course-image">
+                        <img src="eduimages/Masters in Ethical Hacking Course 2.jpeg" alt="Masters Hacking">
+                        <span class="course-badge hot">Hot</span>
+                        <div class="course-overlay"><button class="btn-preview"><i class="fas fa-eye"></i></button><button class="btn-add-cart" data-id="h6" data-name="Masters Ethical Hacking" data-price="249" data-img="eduimages/Masters in Ethical Hacking Course 2.jpeg"><i class="fas fa-cart-plus"></i></button></div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-user-secret"></i> Hacking</div>
+                        <h3>Masters in Ethical Hacking: Course 2</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> 36 hours</span><span><i class="fas fa-signal"></i> Advanced</span></div>
+                        <div class="course-footer"><div class="course-price"><span class="price-old">&#8377;599</span><span class="price-new">&#8377;249</span></div><div class="course-rating"><i class="fas fa-star"></i><span>4.8 (1.6k)</span></div></div>
+                    </div>
+                </div>
+                <div class="course-card" data-aos="fade-up" data-category="hacking" data-id="h7" data-name="Dedsec Facebook Instagram Hacking" data-price="199" data-old="499">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?w=400&h=250&fit=crop" alt="Dedsec Facebook Instagram Hacking">
+                        <span class="course-badge bestseller">Bestseller</span>
+                        <div class="course-overlay"><button class="btn-preview"><i class="fas fa-eye"></i></button><button class="btn-add-cart" data-id="h7" data-name="Dedsec Facebook Instagram Hacking" data-price="199" data-img="https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button></div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-user-secret"></i> Hacking</div>
+                        <h3>Dedsec Facebook & Instagram Hacking Course</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> 20 hours</span><span><i class="fas fa-signal"></i> Intermediate</span></div>
+                        <div class="course-footer"><div class="course-price"><span class="price-old">&#8377;499</span><span class="price-new">&#8377;199</span></div><div class="course-rating"><i class="fas fa-star"></i><span>4.7 (1.1k)</span></div></div>
+                    </div>
+                </div>
+                <div class="course-card" data-aos="fade-up" data-category="hacking" data-id="h8" data-name="Dedsec Antivirus Evasion" data-price="249" data-old="599">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=400&h=250&fit=crop" alt="Dedsec Antivirus Evasion">
+                        <span class="course-badge hot">Hot</span>
+                        <div class="course-overlay"><button class="btn-preview"><i class="fas fa-eye"></i></button><button class="btn-add-cart" data-id="h8" data-name="Dedsec Antivirus Evasion" data-price="249" data-img="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button></div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-user-secret"></i> Hacking</div>
+                        <h3>Dedsec Antivirus Evasion Course</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> 18 hours</span><span><i class="fas fa-signal"></i> Advanced</span></div>
+                        <div class="course-footer"><div class="course-price"><span class="price-old">&#8377;599</span><span class="price-new">&#8377;249</span></div><div class="course-rating"><i class="fas fa-star"></i><span>4.8 (890)</span></div></div>
+                    </div>
+                </div>
+                <div class="course-card" data-aos="fade-up" data-category="hacking" data-id="h9" data-name="Dedsec WiFi Hacking 2" data-price="199" data-old="499">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=400&h=250&fit=crop" alt="Dedsec Complete WiFi Hacking 2">
+                        <span class="course-badge new">New</span>
+                        <div class="course-overlay"><button class="btn-preview"><i class="fas fa-eye"></i></button><button class="btn-add-cart" data-id="h9" data-name="Dedsec WiFi Hacking 2" data-price="199" data-img="https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button></div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-user-secret"></i> Hacking</div>
+                        <h3>Dedsec Complete WiFi Hacking Course 2</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> 22 hours</span><span><i class="fas fa-signal"></i> Advanced</span></div>
+                        <div class="course-footer"><div class="course-price"><span class="price-old">&#8377;499</span><span class="price-new">&#8377;199</span></div><div class="course-rating"><i class="fas fa-star"></i><span>4.8 (1.4k)</span></div></div>
+                    </div>
+                </div>
+                <div class="course-card" data-aos="fade-up" data-category="hacking" data-id="h10" data-name="Dedsec ERC Course" data-price="249" data-old="599">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=400&h=250&fit=crop" alt="Dedsec ERC Course">
+                        <span class="course-badge hot">Hot</span>
+                        <div class="course-overlay"><button class="btn-preview"><i class="fas fa-eye"></i></button><button class="btn-add-cart" data-id="h10" data-name="Dedsec ERC Course" data-price="249" data-img="https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button></div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-user-secret"></i> Hacking</div>
+                        <h3>Dedsec ERC Course (Blockchain Security)</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> 24 hours</span><span><i class="fas fa-signal"></i> Advanced</span></div>
+                        <div class="course-footer"><div class="course-price"><span class="price-old">&#8377;599</span><span class="price-new">&#8377;249</span></div><div class="course-rating"><i class="fas fa-star"></i><span>4.9 (720)</span></div></div>
+                    </div>
+                </div>
+                <div class="course-card" data-aos="fade-up" data-category="hacking" data-id="h11" data-name="Dedsec WiFi Hacking 1" data-price="199" data-old="499">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=250&fit=crop" alt="Dedsec Complete WiFi Hacking 1">
+                        <span class="course-badge bestseller">Bestseller</span>
+                        <div class="course-overlay"><button class="btn-preview"><i class="fas fa-eye"></i></button><button class="btn-add-cart" data-id="h11" data-name="Dedsec WiFi Hacking 1" data-price="199" data-img="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button></div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-user-secret"></i> Hacking</div>
+                        <h3>Dedsec Complete WiFi Hacking Course 1</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> 18 hours</span><span><i class="fas fa-signal"></i> Beginner</span></div>
+                        <div class="course-footer"><div class="course-price"><span class="price-old">&#8377;499</span><span class="price-new">&#8377;199</span></div><div class="course-rating"><i class="fas fa-star"></i><span>4.7 (2.2k)</span></div></div>
+                    </div>
+                </div>
+                <div class="course-card" data-aos="fade-up" data-category="hacking" data-id="h12" data-name="Dedsec Reverse Engineering 1" data-price="249" data-old="599">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=400&h=250&fit=crop" alt="Dedsec Reverse Engineering 1">
+                        <span class="course-badge bestseller">Bestseller</span>
+                        <div class="course-overlay"><button class="btn-preview"><i class="fas fa-eye"></i></button><button class="btn-add-cart" data-id="h12" data-name="Dedsec Reverse Engineering 1" data-price="249" data-img="https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button></div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-user-secret"></i> Hacking</div>
+                        <h3>Dedsec Reverse Engineering Course 1</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> 25 hours</span><span><i class="fas fa-signal"></i> Intermediate</span></div>
+                        <div class="course-footer"><div class="course-price"><span class="price-old">&#8377;599</span><span class="price-new">&#8377;249</span></div><div class="course-rating"><i class="fas fa-star"></i><span>4.8 (1.1k)</span></div></div>
+                    </div>
+                </div>
+                <div class="course-card" data-aos="fade-up" data-category="hacking" data-id="h13" data-name="Advanced Hacking Android" data-price="199" data-old="499">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1612178991541-b48cc8e92a4e?w=400&h=250&fit=crop" alt="Advanced Hacking Android Devices">
+                        <span class="course-badge hot">Hot</span>
+                        <div class="course-overlay"><button class="btn-preview"><i class="fas fa-eye"></i></button><button class="btn-add-cart" data-id="h13" data-name="Advanced Hacking Android" data-price="199" data-img="https://images.unsplash.com/photo-1612178991541-b48cc8e92a4e?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button></div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-user-secret"></i> Hacking</div>
+                        <h3>Advanced Hacking Android Devices</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> 28 hours</span><span><i class="fas fa-signal"></i> Advanced</span></div>
+                        <div class="course-footer"><div class="course-price"><span class="price-old">&#8377;499</span><span class="price-new">&#8377;199</span></div><div class="course-rating"><i class="fas fa-star"></i><span>4.7 (1.6k)</span></div></div>
+                    </div>
+                </div>
+                <div class="course-card" data-aos="fade-up" data-category="hacking" data-id="h14" data-name="Advanced Web Hacking" data-price="249" data-old="599">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=400&h=250&fit=crop" alt="Advanced Web Hacking">
+                        <span class="course-badge bestseller">Bestseller</span>
+                        <div class="course-overlay"><button class="btn-preview"><i class="fas fa-eye"></i></button><button class="btn-add-cart" data-id="h14" data-name="Advanced Web Hacking" data-price="249" data-img="https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button></div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-user-secret"></i> Hacking</div>
+                        <h3>Advanced Web Hacking</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> 30 hours</span><span><i class="fas fa-signal"></i> Advanced</span></div>
+                        <div class="course-footer"><div class="course-price"><span class="price-old">&#8377;599</span><span class="price-new">&#8377;249</span></div><div class="course-rating"><i class="fas fa-star"></i><span>4.9 (2.1k)</span></div></div>
+                    </div>
+                </div>
+                <div class="course-card" data-aos="fade-up" data-category="hacking" data-id="h15" data-name="Advanced Keylogger Tutorial" data-price="199" data-old="499">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=400&h=250&fit=crop" alt="Advanced Ethical Hacking Keylogger">
+                        <span class="course-badge new">New</span>
+                        <div class="course-overlay"><button class="btn-preview"><i class="fas fa-eye"></i></button><button class="btn-add-cart" data-id="h15" data-name="Advanced Keylogger Tutorial" data-price="199" data-img="https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button></div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-user-secret"></i> Hacking</div>
+                        <h3>Advanced Ethical Hacking Keylogger Tutorial</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> 15 hours</span><span><i class="fas fa-signal"></i> Advanced</span></div>
+                        <div class="course-footer"><div class="course-price"><span class="price-old">&#8377;499</span><span class="price-new">&#8377;199</span></div><div class="course-rating"><i class="fas fa-star"></i><span>4.7 (950)</span></div></div>
+                    </div>
+                </div>
+                <div class="course-card" data-aos="fade-up" data-category="hacking" data-id="h16" data-name="BlackHat Cracking Course" data-price="249" data-old="599">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=400&h=250&fit=crop" alt="BlackHat Cracking Course">
+                        <span class="course-badge hot">Hot</span>
+                        <div class="course-overlay"><button class="btn-preview"><i class="fas fa-eye"></i></button><button class="btn-add-cart" data-id="h16" data-name="BlackHat Cracking Course" data-price="249" data-img="https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button></div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-user-secret"></i> Hacking</div>
+                        <h3>BlackHat Cracking Course</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> 35 hours</span><span><i class="fas fa-signal"></i> Advanced</span></div>
+                        <div class="course-footer"><div class="course-price"><span class="price-old">&#8377;599</span><span class="price-new">&#8377;249</span></div><div class="course-rating"><i class="fas fa-star"></i><span>4.8 (1.8k)</span></div></div>
+                    </div>
+                </div>
+                <div class="course-card" data-aos="fade-up" data-category="hacking" data-id="h17" data-name="Intro Ethical Hacking" data-price="199" data-old="499">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1504639725590-34d0984388bd?w=400&h=250&fit=crop" alt="Introduction to Ethical Hacking">
+                        <span class="course-badge bestseller">Bestseller</span>
+                        <div class="course-overlay"><button class="btn-preview"><i class="fas fa-eye"></i></button><button class="btn-add-cart" data-id="h17" data-name="Intro Ethical Hacking" data-price="199" data-img="https://images.unsplash.com/photo-1504639725590-34d0984388bd?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button></div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-user-secret"></i> Hacking</div>
+                        <h3>Introduction to Ethical Hacking</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> 20 hours</span><span><i class="fas fa-signal"></i> Beginner</span></div>
+                        <div class="course-footer"><div class="course-price"><span class="price-old">&#8377;499</span><span class="price-new">&#8377;199</span></div><div class="course-rating"><i class="fas fa-star"></i><span>4.6 (3.4k)</span></div></div>
+                    </div>
+                </div>
+                <div class="course-card" data-aos="fade-up" data-category="hacking" data-id="h18" data-name="Hacking Lab Setup" data-price="249" data-old="599">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=400&h=250&fit=crop" alt="Setting Up a Hacking Lab">
+                        <span class="course-badge new">New</span>
+                        <div class="course-overlay"><button class="btn-preview"><i class="fas fa-eye"></i></button><button class="btn-add-cart" data-id="h18" data-name="Hacking Lab Setup" data-price="249" data-img="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button></div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-user-secret"></i> Hacking</div>
+                        <h3>Setting Up a Hacking Lab</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> 12 hours</span><span><i class="fas fa-signal"></i> Beginner</span></div>
+                        <div class="course-footer"><div class="course-price"><span class="price-old">&#8377;599</span><span class="price-new">&#8377;249</span></div><div class="course-rating"><i class="fas fa-star"></i><span>4.7 (2.5k)</span></div></div>
+                    </div>
+                </div>
+                <div class="course-card" data-aos="fade-up" data-category="hacking" data-id="h19" data-name="Advanced API Security" data-price="199" data-old="499">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=400&h=250&fit=crop" alt="Advanced API Security OAuth 2.0">
+                        <span class="course-badge hot">Hot</span>
+                        <div class="course-overlay"><button class="btn-preview"><i class="fas fa-eye"></i></button><button class="btn-add-cart" data-id="h19" data-name="Advanced API Security" data-price="199" data-img="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button></div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-user-secret"></i> Hacking</div>
+                        <h3>Advanced API Security OAuth 2.0 and Beyond</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> 22 hours</span><span><i class="fas fa-signal"></i> Advanced</span></div>
+                        <div class="course-footer"><div class="course-price"><span class="price-old">&#8377;499</span><span class="price-new">&#8377;199</span></div><div class="course-rating"><i class="fas fa-star"></i><span>4.9 (1.0k)</span></div></div>
+                    </div>
+                </div>
+                <div class="course-card" data-aos="fade-up" data-category="hacking" data-id="h20" data-name="Android Security Attacks" data-price="249" data-old="599">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1612178991541-b48cc8e92a4e?w=400&h=250&fit=crop" alt="Android Security Attacks">
+                        <span class="course-badge new">New</span>
+                        <div class="course-overlay"><button class="btn-preview"><i class="fas fa-eye"></i></button><button class="btn-add-cart" data-id="h20" data-name="Android Security Attacks" data-price="249" data-img="https://images.unsplash.com/photo-1612178991541-b48cc8e92a4e?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button></div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-user-secret"></i> Hacking</div>
+                        <h3>Android Security Attacks and Defenses</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> 24 hours</span><span><i class="fas fa-signal"></i> Intermediate</span></div>
+                        <div class="course-footer"><div class="course-price"><span class="price-old">&#8377;599</span><span class="price-new">&#8377;249</span></div><div class="course-rating"><i class="fas fa-star"></i><span>4.7 (1.3k)</span></div></div>
+                    </div>
+                </div>
+                <div class="course-card" data-aos="fade-up" data-category="hacking" data-id="h21" data-name="Malware Dev Ethical Hacking" data-price="199" data-old="499">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1563206767-5b18f218e8de?w=400&h=250&fit=crop" alt="Malware Development for Ethical Hacking">
+                        <span class="course-badge hot">Hot</span>
+                        <div class="course-overlay"><button class="btn-preview"><i class="fas fa-eye"></i></button><button class="btn-add-cart" data-id="h21" data-name="Malware Dev Ethical Hacking" data-price="199" data-img="https://images.unsplash.com/photo-1563206767-5b18f218e8de?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button></div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-user-secret"></i> Hacking</div>
+                        <h3>Malware Development for Ethical Hacking</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> 26 hours</span><span><i class="fas fa-signal"></i> Advanced</span></div>
+                        <div class="course-footer"><div class="course-price"><span class="price-old">&#8377;499</span><span class="price-new">&#8377;199</span></div><div class="course-rating"><i class="fas fa-star"></i><span>4.8 (980)</span></div></div>
+                    </div>
+                </div>
+                <div class="course-card" data-aos="fade-up" data-category="hacking" data-id="h22" data-name="Linux Basics Hackers" data-price="249" data-old="599">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1629654297299-c8506221ca97?w=400&h=250&fit=crop" alt="Linux Basics for Hackers">
+                        <span class="course-badge bestseller">Bestseller</span>
+                        <div class="course-overlay"><button class="btn-preview"><i class="fas fa-eye"></i></button><button class="btn-add-cart" data-id="h22" data-name="Linux Basics Hackers" data-price="249" data-img="https://images.unsplash.com/photo-1629654297299-c8506221ca97?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button></div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-user-secret"></i> Hacking</div>
+                        <h3>Linux Basics for Hackers</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> 16 hours</span><span><i class="fas fa-signal"></i> Beginner</span></div>
+                        <div class="course-footer"><div class="course-price"><span class="price-old">&#8377;599</span><span class="price-new">&#8377;249</span></div><div class="course-rating"><i class="fas fa-star"></i><span>4.6 (4.1k)</span></div></div>
+                    </div>
+                </div>
+                <div class="course-card" data-aos="fade-up" data-category="hacking" data-id="h23" data-name="Practical API Hacking" data-price="299" data-old="699">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=400&h=250&fit=crop" alt="Practical API Hacking">
+                        <span class="course-badge bestseller">Bestseller</span>
+                        <div class="course-overlay"><button class="btn-preview"><i class="fas fa-eye"></i></button><button class="btn-add-cart" data-id="h23" data-name="Practical API Hacking" data-price="299" data-img="https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button></div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-user-secret"></i> Hacking</div>
+                        <h3>Practical API Hacking</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> 20 hours</span><span><i class="fas fa-signal"></i> Intermediate</span></div>
+                        <div class="course-footer"><div class="course-price"><span class="price-old">&#8377;699</span><span class="price-new">&#8377;299</span></div><div class="course-rating"><i class="fas fa-star"></i><span>4.8 (1.2k)</span></div></div>
+                    </div>
+                </div>
+                <div class="course-card" data-aos="fade-up" data-category="hacking" data-id="h34" data-name="Practical Phishing" data-price="299" data-old="699">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1504639725590-34d0984388bd?w=400&h=250&fit=crop" alt="Advance Practical Phishing Course">
+                        <span class="course-badge hot">Hot</span>
+                        <div class="course-overlay"><button class="btn-preview"><i class="fas fa-eye"></i></button><button class="btn-add-cart" data-id="h34" data-name="Practical Phishing" data-price="299" data-img="https://images.unsplash.com/photo-1504639725590-34d0984388bd?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button></div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-user-secret"></i> Hacking</div>
+                        <h3>Advance Practical Phishing Course</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> 20 hours</span><span><i class="fas fa-signal"></i> Advanced</span></div>
+                        <div class="course-footer"><div class="course-price"><span class="price-old">&#8377;699</span><span class="price-new">&#8377;299</span></div><div class="course-rating"><i class="fas fa-star"></i><span>4.8 (1.5k)</span></div></div>
+                    </div>
+                </div>
+                <div class="course-card" data-aos="fade-up" data-category="hacking" data-id="h35" data-name="Android Hacking Scratch" data-price="299" data-old="699">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1612178991541-b48cc8e92a4e?w=400&h=250&fit=crop" alt="Hacking Using Android From Scratch">
+                        <span class="course-badge bestseller">Bestseller</span>
+                        <div class="course-overlay"><button class="btn-preview"><i class="fas fa-eye"></i></button><button class="btn-add-cart" data-id="h35" data-name="Android Hacking Scratch" data-price="299" data-img="https://images.unsplash.com/photo-1612178991541-b48cc8e92a4e?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button></div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-user-secret"></i> Hacking</div>
+                        <h3>Hacking Using Android From Scratch</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> 25 hours</span><span><i class="fas fa-signal"></i> Beginner</span></div>
+                        <div class="course-footer"><div class="course-price"><span class="price-old">&#8377;699</span><span class="price-new">&#8377;299</span></div><div class="course-rating"><i class="fas fa-star"></i><span>4.7 (2.1k)</span></div></div>
+                    </div>
+                </div>
+                <div class="course-card" data-aos="fade-up" data-category="hacking" data-id="h36" data-name="Payment Gateway Bypass" data-price="299" data-old="699">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=400&h=250&fit=crop" alt="Payment Gateway Bypass Course">
+                        <span class="course-badge hot">Hot</span>
+                        <div class="course-overlay"><button class="btn-preview"><i class="fas fa-eye"></i></button><button class="btn-add-cart" data-id="h36" data-name="Payment Gateway Bypass" data-price="299" data-img="https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button></div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-user-secret"></i> Hacking</div>
+                        <h3>Payment Gateway Bypass Course</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> 15 hours</span><span><i class="fas fa-signal"></i> Advanced</span></div>
+                        <div class="course-footer"><div class="course-price"><span class="price-old">&#8377;699</span><span class="price-new">&#8377;299</span></div><div class="course-rating"><i class="fas fa-star"></i><span>4.8 (1.2k)</span></div></div>
+                    </div>
+                </div>
+                <div class="course-card" data-aos="fade-up" data-category="hacking" data-id="h37" data-name="SS7 Attack Hacking" data-price="299" data-old="699">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=400&h=250&fit=crop" alt="SS7 Attack Hacking Course">
+                        <span class="course-badge new">New</span>
+                        <div class="course-overlay"><button class="btn-preview"><i class="fas fa-eye"></i></button><button class="btn-add-cart" data-id="h37" data-name="SS7 Attack Hacking" data-price="299" data-img="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button></div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-user-secret"></i> Hacking</div>
+                        <h3>SS7 Attack & Hacking Course</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> 18 hours</span><span><i class="fas fa-signal"></i> Advanced</span></div>
+                        <div class="course-footer"><div class="course-price"><span class="price-old">&#8377;699</span><span class="price-new">&#8377;299</span></div><div class="course-rating"><i class="fas fa-star"></i><span>4.9 (890)</span></div></div>
+                    </div>
+                </div>
+                <div class="course-card" data-aos="fade-up" data-category="hacking" data-id="h38" data-name="Windows Hacking Complete" data-price="299" data-old="699">
+                    <div class="course-image">
+                        <img src="https://images.unsplash.com/photo-1563206767-5b18f218e8de?w=400&h=250&fit=crop" alt="Windows Hacking Complete">
+                        <span class="course-badge bestseller">Bestseller</span>
+                        <div class="course-overlay"><button class="btn-preview"><i class="fas fa-eye"></i></button><button class="btn-add-cart" data-id="h38" data-name="Windows Hacking Complete" data-price="299" data-img="https://images.unsplash.com/photo-1563206767-5b18f218e8de?w=100&h=80&fit=crop"><i class="fas fa-cart-plus"></i></button></div>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-category"><i class="fas fa-user-secret"></i> Hacking</div>
+                        <h3>Windows Hacking Complete Course</h3>
+                        <div class="course-meta"><span><i class="fas fa-clock"></i> 28 hours</span><span><i class="fas fa-signal"></i> Intermediate</span></div>
+                        <div class="course-footer"><div class="course-price"><span class="price-old">&#8377;699</span><span class="price-new">&#8377;299</span></div><div class="course-rating"><i class="fas fa-star"></i><span>4.7 (1.8k)</span></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer" id="footer" style="padding:40px 0">
+        <div class="container">
+            <div class="footer-bottom" style="border-top:none;padding-top:0">
+                <p>&copy; 2024 EduBazar.shop. All rights reserved.</p>
+                <div class="footer-links"><a href="index.html">Back to Home</a></div>
+            </div>
+        </div>
+    </footer>
+
+    <button class="back-to-top" id="backToTop"><i class="fas fa-arrow-up"></i></button>
+    <!-- WhatsApp Floating Button -->
+    <a href="https://wa.me/919759131256" target="_blank" class="whatsapp-float" aria-label="Chat on WhatsApp">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
