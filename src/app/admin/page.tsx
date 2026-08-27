@@ -160,7 +160,7 @@ export default function AdminDashboard() {
     setProcessing(orderId);
     try {
       const order = orders.find(o => o.order_id === orderId);
-      if (!order) return;
+      if (!order || !supabase) return;
 
       const items = Array.isArray(order.items) ? order.items : JSON.parse(order.items);
       const updatedItems = items.map((item: any) => ({
@@ -197,7 +197,7 @@ export default function AdminDashboard() {
     setProcessing(orderId);
     try {
       const order = orders.find(o => o.order_id === orderId);
-      if (!order) return;
+      if (!order || !supabase) return;
 
       await supabase
         .from("orders")
