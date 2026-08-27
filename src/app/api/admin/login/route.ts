@@ -22,3 +22,5 @@ export async function POST(request: NextRequest) {
   });
   return res;
 }
+
+export const runtime = "nodejs";
