@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminSession } from "@/lib/admin-session";
 
-export async function POST(request: NextRequest) {
-  const pw = process.env.ADMIN_PASSWORD || "Admin@123";
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "Admin@123";
 
+export async function POST(request: NextRequest) {
   const body = await request.json().catch(() => null) as { password?: string } | null;
-  if (!body?.password || body.password !== pw) {
-    return NextResponse.json({ error: "Wrong password" }, { status: 401 });
+
+  if (!body?.password || body.password !== ADMIN_PASSWORD) {
+    return NextResponse.json({ error: "Galat password" }, { status: 401 });
   }
 
   const res = NextResponse.json({ ok: true });

@@ -22,12 +22,10 @@ export default function AdminLoginPage() {
       });
       const data = await r.json().catch(() => null);
       if (r.ok) {
-        window.location.replace("/admin");
+        window.location.href = "/admin";
         return;
       }
-      if (r.status === 503) setError("ADMIN_PASSWORD Vercel pe set nahi hai.");
-      else if (r.status === 401) setError("Galat password!");
-      else setError(data?.error || "Server error");
+      setError(data?.error || "Login failed");
     } catch {
       setError("Network error");
     }
@@ -35,43 +33,46 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#edece9", padding: 20 }}>
-      <div style={{ width: "100%", maxWidth: 400, background: "#fff", border: "1px solid #d5d7da", padding: 40 }}>
-        <div style={{ textAlign: "center", marginBottom: 32 }}>
-          <div style={{ width: 64, height: 64, margin: "0 auto 16px", background: "#181d27", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <ShieldCheck size={30} color="#edece9" />
+    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#f5f7f6", fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}>
+      <div style={{ width: "100%", maxWidth: 420, background: "#fff", borderRadius: 14, boxShadow: "0 4px 24px rgba(0,0,0,0.08)", padding: "48px 40px" }}>
+        <div style={{ textAlign: "center", marginBottom: 36 }}>
+          <div style={{ width: 64, height: 64, margin: "0 auto 16px", background: "#1a1a2e", borderRadius: 16, display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <ShieldCheck size={32} color="#edece9" />
           </div>
-          <h1 style={{ fontSize: 22, fontWeight: 700, color: "#181d27", margin: 0 }}>Admin Login</h1>
+          <h1 style={{ fontSize: 24, fontWeight: 700, color: "#181d27", margin: 0 }}>EduBazar Admin</h1>
+          <p style={{ fontSize: 13, color: "#888", marginTop: 6 }}>Enter password to access dashboard</p>
         </div>
         <form onSubmit={submit}>
-          <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#181d27", marginBottom: 6 }}>
+          <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#181d27", marginBottom: 8 }}>
             <Lock size={12} style={{ verticalAlign: "-1px", marginRight: 4 }} />Password
           </label>
           <input
             type="password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={e => setPassword(e.target.value)}
             placeholder="Enter admin password"
             autoFocus
             required
-            style={{ width: "100%", padding: "12px 14px", border: "1px solid #d5d7da", background: "#fff", fontSize: 14, outline: "none", marginBottom: 16, boxSizing: "border-box" }}
+            style={{ width: "100%", padding: "14px 16px", border: "1.5px solid #e0e0e0", borderRadius: 10, fontSize: 15, outline: "none", marginBottom: 20, boxSizing: "border-box", transition: "border 0.2s" }}
+            onFocus={e => e.target.style.borderColor = "#687975"}
+            onBlur={e => e.target.style.borderColor = "#e0e0e0"}
           />
           {error && (
-            <div style={{ padding: "10px 14px", background: "#fdecea", color: "#c0392b", fontSize: 13, marginBottom: 16 }}>
+            <div style={{ padding: "12px 16px", background: "#fef2f2", color: "#dc2626", fontSize: 13, marginBottom: 16, borderRadius: 8, border: "1px solid #fecaca" }}>
               {error}
             </div>
           )}
           <button
             type="submit"
             disabled={busy}
-            style={{ width: "100%", padding: "13px 0", background: "#181d27", color: "#fff", border: "none", fontSize: 14, fontWeight: 700, cursor: busy ? "wait" : "pointer", letterSpacing: 0.5 }}
+            style={{ width: "100%", padding: "14px 0", background: "#1a1a2e", color: "#fff", border: "none", borderRadius: 10, fontSize: 15, fontWeight: 700, cursor: busy ? "wait" : "pointer", letterSpacing: 0.5, transition: "background 0.2s" }}
           >
-            {busy ? "Checking..." : "Login"}
+            {busy ? "Verifying..." : "Login"}
           </button>
         </form>
-        <div style={{ textAlign: "center", marginTop: 20 }}>
-          <Link href="/" style={{ fontSize: 12, color: "#888", textDecoration: "none" }}>
-            <ArrowLeft size={12} style={{ verticalAlign: "-1px" }} /> Back to Store
+        <div style={{ textAlign: "center", marginTop: 24 }}>
+          <Link href="/" style={{ fontSize: 12, color: "#aaa", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 4 }}>
+            <ArrowLeft size={12} /> Back to Store
           </Link>
         </div>
       </div>

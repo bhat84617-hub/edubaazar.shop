@@ -4,20 +4,9 @@ import { useEffect, useState, useCallback } from "react";
 import { createClient } from "@supabase/supabase-js";
 import Link from "next/link";
 import {
-  LayoutDashboard,
-  ShoppingCart,
-  CheckCircle,
-  Clock,
-  XCircle,
-  IndianRupee,
-  Search,
-  RefreshCw,
-  LogOut,
-  Eye,
-  Check,
-  X,
-  TrendingUp,
-  Package
+  LayoutDashboard, ShoppingCart, CheckCircle, Clock, XCircle,
+  IndianRupee, Search, RefreshCw, LogOut, Eye, Check, X,
+  TrendingUp, Package, ChevronRight, Send
 } from "lucide-react";
 import { SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY } from "@/lib/supabase-config";
 
@@ -32,12 +21,12 @@ interface Order {
   order_id: string;
   name: string;
   email: string;
+  phone?: string;
   items: string | OrderItem[];
   total: number;
   utr: string | null;
   status: string;
   date: string;
-  phone?: string;
 }
 
 interface Stats {
@@ -50,24 +39,18 @@ interface Stats {
 }
 
 export default function AdminDashboard() {
-  const [authenticated, setAuthenticated] = useState<boolean | null>(null);
+  const [authed, setAuthed] = useState(false);
+  const [checkingAuth, setCheckingAuth] = useState(true);
   const [orders, setOrders] = useState<Order[]>([]);
   const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [dateFilter, setDateFilter] = useState("all");
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [processing, setProcessing] = useState<string | null>(null);
-  const [stats, setStats] = useState<Stats>({
-    totalOrders: 0,
-    pendingOrders: 0,
-    approvedOrders: 0,
-    rejectedOrders: 0,
-    totalRevenue: 0,
-    todayOrders: 0
-  });
+  const [downloadInputs, setDownloadInputs] = useState<Record<string, string>>({});
+  const [stats, setStats] = useState<Stats>({ totalOrders: 0, pendingOrders: 0, approvedOrders: 0, rejectedOrders: 0, totalRevenue: 0, todayOrders: 0 });
   const [error, setError] = useState<string | null>(null);
 
   const supabase = SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY
@@ -76,444 +59,336 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     fetch("/api/admin/session")
-      .then((res) => {
-        if (res.ok) {
-          setAuthenticated(true);
-        } else {
-          window.location.replace("/admin/login");
-        }
-      })
-      .catch(() => {
-        window.location.replace("/admin/login");
-      });
+      .then(r => { if (r.ok) { setAuthed(true); setCheckingAuth(false); } else { window.location.replace("/admin/login"); } })
+      .catch(() => window.location.replace("/admin/login"));
   }, []);
 
-  const calculateStats = useCallback((ordersData: Order[]) => {
+  const calculateStats = useCallback((data: Order[]) => {
     const today = new Date().toDateString();
-    const todayOrders = ordersData.filter(o => new Date(o.date).toDateString() === today);
-
     setStats({
-      totalOrders: ordersData.length,
-      pendingOrders: ordersData.filter(o => o.status === "pending").length,
-      approvedOrders: ordersData.filter(o => o.status === "approved").length,
-      rejectedOrders: ordersData.filter(o => o.status === "rejected").length,
-      totalRevenue: ordersData.filter(o => o.status === "approved").reduce((sum, o) => sum + o.total, 0),
-      todayOrders: todayOrders.length
+      totalOrders: data.length,
+      pendingOrders: data.filter(o => o.status === "pending").length,
+      approvedOrders: data.filter(o => o.status === "approved").length,
+      rejectedOrders: data.filter(o => o.status === "rejected").length,
+      totalRevenue: data.filter(o => o.status === "approved").reduce((s, o) => s + o.total, 0),
+      todayOrders: data.filter(o => new Date(o.date).toDateString() === today).length,
     });
   }, []);
 
   const fetchOrders = useCallback(async () => {
+    if (!supabase) return;
     setLoading(true);
     setError(null);
     try {
-      if (!supabase) {
-        throw new Error("Supabase not configured");
-      }
-      const { data } = await supabase
-        .from("orders")
-        .select("*")
-        .order("date", { ascending: false });
-
+      const { data } = await supabase.from("orders").select("*").order("date", { ascending: false });
       if (data) {
-        const formatted = data.map(o => ({
-          ...o,
-          items: typeof o.items === "string" ? JSON.parse(o.items) : o.items
-        })) as Order[];
-
+        const formatted = data.map(o => ({ ...o, items: typeof o.items === "string" ? JSON.parse(o.items) : o.items })) as Order[];
         setOrders(formatted);
         setFilteredOrders(formatted);
         calculateStats(formatted);
       }
     } catch (err) {
-      console.error("Error fetching orders:", err);
-      setError(err instanceof Error ? err.message : "Failed to connect to database");
+      setError(err instanceof Error ? err.message : "Database error");
     }
     setLoading(false);
   }, [supabase, calculateStats]);
 
-  useEffect(() => {
-    if (authenticated) {
-      fetchOrders();
-    }
-  }, [authenticated, fetchOrders]);
+  useEffect(() => { if (authed) fetchOrders(); }, [authed, fetchOrders]);
 
   useEffect(() => {
     let result = orders;
-
     if (search) {
       const s = search.toLowerCase();
-      result = result.filter(o =>
-        o.order_id.toLowerCase().includes(s) ||
-        o.name.toLowerCase().includes(s) ||
-        o.email.toLowerCase().includes(s) ||
-        (o.utr && o.utr.toLowerCase().includes(s))
-      );
+      result = result.filter(o => o.order_id.toLowerCase().includes(s) || o.name.toLowerCase().includes(s) || o.email.toLowerCase().includes(s) || (o.utr && o.utr.toLowerCase().includes(s)));
     }
-
-    if (statusFilter !== "all") {
-      result = result.filter(o => o.status === statusFilter);
-    }
-
-    if (dateFilter !== "all") {
-      const now = new Date();
-      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-
-      if (dateFilter === "today") {
-        result = result.filter(o => new Date(o.date) >= today);
-      } else if (dateFilter === "week") {
-        const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
-        result = result.filter(o => new Date(o.date) >= weekAgo);
-      } else if (dateFilter === "month") {
-        const monthAgo = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
-        result = result.filter(o => new Date(o.date) >= monthAgo);
-      }
-    }
-
+    if (statusFilter !== "all") result = result.filter(o => o.status === statusFilter);
     setFilteredOrders(result);
-  }, [orders, search, statusFilter, dateFilter]);
+  }, [orders, search, statusFilter]);
 
   const handleApprove = async (orderId: string) => {
+    if (!supabase) return;
     setProcessing(orderId);
     try {
       const order = orders.find(o => o.order_id === orderId);
-      if (!order || !supabase) return;
+      if (!order) return;
 
       const items = Array.isArray(order.items) ? order.items : JSON.parse(order.items as string);
       const updatedItems = items.map((item: OrderItem) => ({
         ...item,
-        downloadUrl: item.downloadUrl || `https://www.edubaazar.shop/account`
+        downloadUrl: downloadInputs[item.id || item.name] || item.downloadUrl || `https://www.edubaazar.shop/account`
       }));
 
-      await supabase
-        .from("orders")
-        .update({ status: "approved", items: JSON.stringify(updatedItems) })
-        .eq("order_id", orderId);
+      await supabase.from("orders").update({ status: "approved", items: JSON.stringify(updatedItems) }).eq("order_id", orderId);
 
       await fetch("/api/admin/send-notification", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          orderId,
-          name: order.name,
-          email: order.email,
-          status: "approved",
-          items: updatedItems
-        })
+        body: JSON.stringify({ orderId, name: order.name, email: order.email, status: "approved", items: updatedItems }),
       });
 
       await fetchOrders();
-    } catch (error) {
-      console.error("Error approving order:", error);
+    } catch (err) {
+      console.error("Approve error:", err);
     }
     setProcessing(null);
   };
 
   const handleReject = async (orderId: string) => {
+    if (!supabase) return;
     setProcessing(orderId);
     try {
       const order = orders.find(o => o.order_id === orderId);
-      if (!order || !supabase) return;
-
-      await supabase
-        .from("orders")
-        .update({ status: "rejected" })
-        .eq("order_id", orderId);
-
+      if (!order) return;
+      await supabase.from("orders").update({ status: "rejected" }).eq("order_id", orderId);
       await fetch("/api/admin/send-notification", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          orderId,
-          name: order.name,
-          email: order.email,
-          status: "rejected",
-          items: []
-        })
+        body: JSON.stringify({ orderId, name: order.name, email: order.email, status: "rejected", items: [] }),
       });
-
       await fetchOrders();
-    } catch (error) {
-      console.error("Error rejecting order:", error);
+    } catch (err) {
+      console.error("Reject error:", err);
     }
     setProcessing(null);
   };
 
-  const viewOrderDetails = (order: Order) => {
-    setSelectedOrder(order);
-    setShowModal(true);
-  };
+  const formatDate = (d: string) => new Date(d).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
+  const parseItems = (o: Order): OrderItem[] => Array.isArray(o.items) ? o.items : JSON.parse(o.items as string);
 
-  const formatDate = (dateStr: string) => {
-    return new Date(dateStr).toLocaleDateString("en-IN", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit"
-    });
-  };
-
-  if (authenticated === null) {
-    return (
-      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh", background: "#f0f2f5" }}>
-        <RefreshCw className="spin" size={32} style={{ color: "#687975" }} />
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", height: "100vh", background: "#f0f2f5", padding: "20px", textAlign: "center" }}>
-        <div style={{ background: "#ffebee", border: "1px solid #ffcdd2", borderRadius: "12px", padding: "32px", maxWidth: "500px" }}>
-          <h2 style={{ color: "#c62828", marginBottom: "16px" }}>Admin Panel Error</h2>
-          <p style={{ color: "#b71c1c", marginBottom: "24px" }}>{error}</p>
-          <button onClick={() => fetchOrders()} style={{ background: "#181d27", color: "#fff", border: "none", padding: "12px 24px", borderRadius: "8px", cursor: "pointer", fontWeight: 600 }}>Retry</button>
-        </div>
-      </div>
-    );
-  }
-
-  if (loading && orders.length === 0) {
-    return (
-      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh", background: "#f0f2f5" }}>
-        <RefreshCw className="spin" size={32} style={{ color: "#687975" }} />
-      </div>
-    );
-  }
+  if (checkingAuth) return <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh", background: "#f0f2f5" }}><RefreshCw size={32} style={{ color: "#687975", animation: "spin 1s linear infinite" }} /></div>;
 
   return (
     <div className="admin-layout">
       <style jsx>{`
-        .admin-layout { display: flex; min-height: 100vh; background: #f0f2f5; }
-        .admin-sidebar { width: 260px; background: #1a1a2e; color: white; padding: 24px 0; position: fixed; height: 100vh; overflow-y: auto; }
-        .sidebar-brand { padding: 0 24px 24px; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 24px; }
-        .sidebar-brand h2 { font-size: 20px; font-weight: 700; margin: 0; color: white; }
-        .sidebar-brand p { font-size: 12px; color: rgba(255,255,255,0.6); margin: 4px 0 0; }
-        .sidebar-menu { list-style: none; padding: 0; margin: 0; }
-        .sidebar-menu li a { display: flex; align-items: center; gap: 12px; padding: 12px 24px; color: rgba(255,255,255,0.7); text-decoration: none; transition: all 0.2s; font-size: 14px; }
-        .sidebar-menu li a:hover, .sidebar-menu li a.active { background: rgba(255,255,255,0.1); color: white; }
-        .admin-main { flex: 1; margin-left: 260px; padding: 32px; }
-        .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; }
-        .admin-header h1 { font-size: 28px; font-weight: 700; color: #181d27; margin: 0; }
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 32px; }
-        .stat-card { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); display: flex; align-items: center; gap: 16px; }
-        .stat-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; }
-        .stat-icon svg { width: 24px; height: 24px; }
-        .stat-content h3 { font-size: 28px; font-weight: 700; margin: 0; color: #181d27; }
-        .stat-content p { font-size: 13px; color: #5f5f5f; margin: 4px 0 0; }
-        .stat-card:nth-child(1) .stat-icon { background: #e3f2fd; color: #1976d2; }
-        .stat-card:nth-child(2) .stat-icon { background: #fff3e0; color: #f57c00; }
-        .stat-card:nth-child(3) .stat-icon { background: #e8f5e9; color: #388e3c; }
-        .stat-card:nth-child(4) .stat-icon { background: #ffebee; color: #d32f2f; }
-        .stat-card:nth-child(5) .stat-icon { background: #f3e5f5; color: #7b1fa2; }
-        .stat-card:nth-child(6) .stat-icon { background: #e0f7fa; color: #0097a7; }
-        .filter-section { background: white; border-radius: 12px; padding: 20px; margin-bottom: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); display: flex; gap: 16px; flex-wrap: wrap; align-items: center; }
-        .search-box { flex: 1; min-width: 250px; position: relative; }
-        .search-box svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #5f5f5f; }
-        .search-box input { width: 100%; padding: 12px 12px 12px 40px; border: 2px solid #d5d7da; border-radius: 8px; font-size: 14px; outline: none; }
-        .search-box input:focus { border-color: #687975; }
-        .filter-select { padding: 12px 16px; border: 2px solid #d5d7da; border-radius: 8px; font-size: 14px; outline: none; cursor: pointer; min-width: 150px; }
-        .refresh-btn { padding: 12px 20px; background: #687975; color: white; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; }
-        .refresh-btn:hover { background: #4e5e5a; }
-        .orders-table { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
-        .table-header { display: grid; grid-template-columns: 2fr 2fr 1.5fr 1.5fr 1fr 1fr 1fr; padding: 16px 24px; background: #f8f9fa; font-size: 13px; font-weight: 600; color: #5f5f5f; text-transform: uppercase; letter-spacing: 0.5px; }
-        .order-row { display: grid; grid-template-columns: 2fr 2fr 1.5fr 1.5fr 1fr 1fr 1fr; padding: 16px 24px; border-bottom: 1px solid #f0f0f0; align-items: center; font-size: 14px; }
-        .order-row:hover { background: #f8f9fa; }
-        .order-id { font-family: monospace; font-weight: 600; color: #687975; }
-        .customer-info { display: flex; flex-direction: column; gap: 2px; }
-        .customer-name { font-weight: 600; color: #181d27; }
-        .customer-email { font-size: 12px; color: #5f5f5f; }
-        .order-total { font-weight: 700; color: #181d27; }
-        .order-date { color: #5f5f5f; font-size: 13px; }
-        .status-badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; text-transform: capitalize; }
-        .status-approved { background: #e8f5e9; color: #2e7d32; }
-        .status-pending { background: #fff3e0; color: #e65100; }
-        .status-rejected { background: #ffebee; color: #c62828; }
-        .action-btns { display: flex; gap: 8px; }
-        .btn { padding: 8px 12px; border: none; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; }
-        .btn-view { background: #e3f2fd; color: #1976d2; }
-        .btn-view:hover { background: #1976d2; color: white; }
-        .btn-approve { background: #e8f5e9; color: #2e7d32; }
-        .btn-approve:hover { background: #2e7d32; color: white; }
-        .btn-reject { background: #ffebee; color: #c62828; }
-        .btn-reject:hover { background: #c62828; color: white; }
-        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
-        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; }
-        .modal-content { background: white; border-radius: 16px; width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; }
-        .modal-header { padding: 24px; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between; align-items: center; }
-        .modal-header h2 { font-size: 20px; font-weight: 700; margin: 0; color: #181d27; }
-        .close-btn { background: none; border: none; cursor: pointer; color: #5f5f5f; padding: 8px; border-radius: 8px; }
-        .close-btn:hover { background: #f0f0f0; }
-        .modal-body { padding: 24px; }
-        .detail-section { margin-bottom: 24px; }
-        .detail-section h4 { font-size: 14px; font-weight: 600; color: #5f5f5f; margin: 0 0 12px; text-transform: uppercase; }
-        .detail-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f0f0f0; }
-        .detail-row:last-child { border-bottom: none; }
-        .detail-label { color: #5f5f5f; font-size: 14px; }
-        .detail-value { font-weight: 600; color: #181d27; font-size: 14px; }
-        .items-list { background: #f8f9fa; border-radius: 8px; padding: 16px; }
-        .item-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #d5d7da; }
-        .item-row:last-child { border-bottom: none; }
-        .item-name { font-weight: 600; color: #181d27; }
-        .item-price { font-weight: 700; color: #687975; }
-        .modal-footer { padding: 24px; border-top: 1px solid #f0f0f0; display: flex; gap: 12px; justify-content: flex-end; }
-        .btn-success { background: #2e7d32; color: white; padding: 12px 24px; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; }
-        .btn-success:hover { background: #1b5e20; }
-        .btn-danger { background: #c62828; color: white; padding: 12px 24px; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; }
-        .btn-danger:hover { background: #b71c1c; }
-        .btn-secondary { background: #f0f0f0; color: #181d27; padding: 12px 24px; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; }
-        .empty-state { text-align: center; padding: 60px 20px; color: #5f5f5f; }
-        .logout-btn { position: fixed; bottom: 24px; left: 24px; padding: 12px 24px; background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 8px; }
-        .logout-btn:hover { background: rgba(255,255,255,0.2); }
-        .spin { animation: spin 1s linear infinite; }
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .admin-layout { display: flex; min-height: 100vh; background: #f5f7f6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        .sidebar { width: 260px; background: #1a1a2e; color: white; position: fixed; height: 100vh; overflow-y: auto; z-index: 10; }
+        .sidebar-brand { padding: 24px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .sidebar-brand h2 { font-size: 22px; font-weight: 700; margin: 0; }
+        .sidebar-brand p { font-size: 11px; color: rgba(255,255,255,0.5); margin: 4px 0 0; text-transform: uppercase; letter-spacing: 1px; }
+        .sidebar-nav { padding: 16px 0; }
+        .sidebar-nav a { display: flex; align-items: center; gap: 12px; padding: 12px 24px; color: rgba(255,255,255,0.6); text-decoration: none; font-size: 14px; transition: all 0.15s; }
+        .sidebar-nav a:hover, .sidebar-nav a.active { background: rgba(255,255,255,0.08); color: white; }
+        .sidebar-footer { position: absolute; bottom: 0; left: 0; right: 0; padding: 16px 24px; border-top: 1px solid rgba(255,255,255,0.1); }
+        .sidebar-footer a { display: flex; align-items: center; gap: 10px; color: rgba(255,255,255,0.5); text-decoration: none; font-size: 13px; padding: 8px 0; }
+        .sidebar-footer a:hover { color: white; }
+        .main { flex: 1; margin-left: 260px; padding: 32px; }
+        .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; }
+        .top-bar h1 { font-size: 26px; font-weight: 700; color: #181d27; margin: 0; }
+        .refresh-btn { padding: 10px 18px; background: #1a1a2e; color: white; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+        .refresh-btn:hover { background: #2a2a4e; }
+        .stats-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 16px; margin-bottom: 28px; }
+        .stat-card { background: white; border-radius: 10px; padding: 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); display: flex; align-items: center; gap: 14px; }
+        .stat-icon { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .stat-icon svg { width: 22px; height: 22px; }
+        .stat-card h3 { font-size: 24px; font-weight: 700; margin: 0; color: #181d27; }
+        .stat-card p { font-size: 12px; color: #666; margin: 2px 0 0; }
+        .sc1 .stat-icon { background: #e3f2fd; color: #1976d2; }
+        .sc2 .stat-icon { background: #fff3e0; color: #f57c00; }
+        .sc3 .stat-icon { background: #e8f5e9; color: #388e3c; }
+        .sc4 .stat-icon { background: #ffebee; color: #d32f2f; }
+        .sc5 .stat-icon { background: #f3e5f5; color: #7b1fa2; }
+        .sc6 .stat-icon { background: #e0f7fa; color: #0097a7; }
+        .toolbar { background: white; border-radius: 10px; padding: 16px 20px; margin-bottom: 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+        .search-wrap { flex: 1; min-width: 220px; position: relative; }
+        .search-wrap svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #999; }
+        .search-wrap input { width: 100%; padding: 10px 12px 10px 38px; border: 1.5px solid #e0e0e0; border-radius: 8px; font-size: 13px; outline: none; }
+        .search-wrap input:focus { border-color: #687975; }
+        .filter-sel { padding: 10px 14px; border: 1.5px solid #e0e0e0; border-radius: 8px; font-size: 13px; outline: none; cursor: pointer; background: white; }
+        .table-wrap { background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+        .table-head { display: grid; grid-template-columns: 140px 1.5fr 1fr 120px 100px 110px 140px; padding: 12px 20px; background: #fafafa; font-size: 11px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 0.5px; }
+        .table-row { display: grid; grid-template-columns: 140px 1.5fr 1fr 120px 100px 110px 140px; padding: 14px 20px; border-bottom: 1px solid #f0f0f0; align-items: center; font-size: 13px; transition: background 0.1s; }
+        .table-row:hover { background: #f9fafb; }
+        .oid { font-family: monospace; font-weight: 600; color: #687975; font-size: 12px; }
+        .cust strong { display: block; color: #181d27; }
+        .cust span { font-size: 11px; color: #888; }
+        .total { font-weight: 700; }
+        .date { color: #666; font-size: 12px; }
+        .badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+        .badge-pending { background: #fff3cd; color: #856404; }
+        .badge-approved { background: #d4edda; color: #155724; }
+        .badge-rejected { background: #f8d7da; color: #721c24; }
+        .actions { display: flex; gap: 6px; }
+        .btn-sm { padding: 6px 10px; border: none; border-radius: 5px; font-size: 11px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; }
+        .btn-view { background: #e3f2fd; color: #1976d2; }
+        .btn-ok { background: #e8f5e9; color: #2e7d32; }
+        .btn-no { background: #ffebee; color: #c62828; }
+        .btn-view:hover { background: #1976d2; color: white; }
+        .btn-ok:hover { background: #2e7d32; color: white; }
+        .btn-no:hover { background: #c62828; color: white; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .empty { text-align: center; padding: 60px; color: #888; }
+        .modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 100; }
+        .modal { background: white; border-radius: 14px; width: 92%; max-width: 640px; max-height: 88vh; overflow-y: auto; }
+        .modal-top { padding: 20px 24px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+        .modal-top h2 { margin: 0; font-size: 18px; }
+        .modal-close { background: none; border: none; cursor: pointer; color: #666; padding: 6px; border-radius: 6px; }
+        .modal-close:hover { background: #f0f0f0; }
+        .modal-body { padding: 24px; }
+        .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+        .detail-item { display: flex; flex-direction: column; gap: 2px; }
+        .detail-item label { font-size: 11px; color: #888; text-transform: uppercase; font-weight: 600; }
+        .detail-item span { font-size: 14px; font-weight: 600; color: #181d27; }
+        .items-section { margin-top: 20px; }
+        .items-section h3 { font-size: 14px; margin: 0 0 12px; color: #181d27; }
+        .item-card { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: #f8f9fa; border-radius: 8px; margin-bottom: 8px; }
+        .item-card strong { font-size: 14px; }
+        .item-card .price { color: #687975; font-weight: 700; }
+        .dl-section { margin-top: 20px; padding: 16px; background: #f0f7f4; border-radius: 8px; border: 1px solid #c3e6cb; }
+        .dl-section h4 { font-size: 13px; margin: 0 0 10px; color: #155724; }
+        .dl-input { width: 100%; padding: 10px 12px; border: 1.5px solid #c3e6cb; border-radius: 6px; font-size: 13px; outline: none; margin-top: 6px; }
+        .dl-input:focus { border-color: #687975; }
+        .dl-label { font-size: 12px; font-weight: 600; color: #181d27; }
+        .modal-foot { padding: 16px 24px; border-top: 1px solid #eee; display: flex; gap: 10px; justify-content: flex-end; }
+        .btn-main { padding: 10px 20px; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+        .btn-green { background: #28a745; color: white; }
+        .btn-red { background: #dc3545; color: white; }
+        .btn-gray { background: #f0f0f0; color: #333; }
+        .btn-green:hover { background: #218838; }
+        .btn-red:hover { background: #c82333; }
+        @media (max-width: 1100px) { .stats-grid { grid-template-columns: repeat(3, 1fr); } .table-head, .table-row { grid-template-columns: 100px 1fr 80px 90px 120px; } .table-head > :nth-child(4), .table-head > :nth-child(5), .table-row > :nth-child(4), .table-row > :nth-child(5) { display: none; } }
+        @media (max-width: 700px) { .stats-grid { grid-template-columns: 1fr 1fr; } .main { padding: 16px; } .sidebar { display: none; } .main { margin-left: 0; } }
       `}</style>
 
-      <aside className="admin-sidebar">
+      <aside className="sidebar">
         <div className="sidebar-brand">
           <h2>EduBazar</h2>
           <p>Admin Panel</p>
         </div>
-        <ul className="sidebar-menu">
-          <li><Link href="/admin" className="active"><LayoutDashboard size={18} /> Dashboard</Link></li>
-          <li><Link href="/"><ShoppingCart size={18} /> View Store</Link></li>
-          <li><Link href="/admin/seo"><TrendingUp size={18} /> SEO Settings</Link></li>
-        </ul>
+        <nav className="sidebar-nav">
+          <a href="/admin" className="active"><LayoutDashboard size={18} /> Dashboard</a>
+          <a href="/"><ShoppingCart size={18} /> View Store</a>
+          <a href="/admin/seo"><TrendingUp size={18} /> SEO Tools</a>
+        </nav>
+        <div className="sidebar-footer">
+          <a href="/api/admin/logout"><LogOut size={16} /> Logout</a>
+        </div>
       </aside>
 
-      <main className="admin-main">
-        <div className="admin-header">
-          <h1>Admin Dashboard</h1>
-          <button className="refresh-btn" onClick={fetchOrders}><RefreshCw size={16} /> Refresh</button>
+      <main className="main">
+        <div className="top-bar">
+          <h1>Dashboard</h1>
+          <button className="refresh-btn" onClick={fetchOrders}><RefreshCw size={15} /> Refresh</button>
         </div>
 
         <div className="stats-grid">
-          <div className="stat-card"><div className="stat-icon"><Package size={24} /></div><div className="stat-content"><h3>{stats.totalOrders}</h3><p>Total Orders</p></div></div>
-          <div className="stat-card"><div className="stat-icon"><Clock size={24} /></div><div className="stat-content"><h3>{stats.pendingOrders}</h3><p>Pending</p></div></div>
-          <div className="stat-card"><div className="stat-icon"><CheckCircle size={24} /></div><div className="stat-content"><h3>{stats.approvedOrders}</h3><p>Approved</p></div></div>
-          <div className="stat-card"><div className="stat-icon"><XCircle size={24} /></div><div className="stat-content"><h3>{stats.rejectedOrders}</h3><p>Rejected</p></div></div>
-          <div className="stat-card"><div className="stat-icon"><IndianRupee size={24} /></div><div className="stat-content"><h3>₹{stats.totalRevenue.toLocaleString()}</h3><p>Revenue</p></div></div>
-          <div className="stat-card"><div className="stat-icon"><TrendingUp size={24} /></div><div className="stat-content"><h3>{stats.todayOrders}</h3><p>Today</p></div></div>
+          <div className="stat-card sc1"><div className="stat-icon"><Package size={22} /></div><div><h3>{stats.totalOrders}</h3><p>Total Orders</p></div></div>
+          <div className="stat-card sc2"><div className="stat-icon"><Clock size={22} /></div><div><h3>{stats.pendingOrders}</h3><p>Pending</p></div></div>
+          <div className="stat-card sc3"><div className="stat-icon"><CheckCircle size={22} /></div><div><h3>{stats.approvedOrders}</h3><p>Approved</p></div></div>
+          <div className="stat-card sc4"><div className="stat-icon"><XCircle size={22} /></div><div><h3>{stats.rejectedOrders}</h3><p>Rejected</p></div></div>
+          <div className="stat-card sc5"><div className="stat-icon"><IndianRupee size={22} /></div><div><h3>₹{stats.totalRevenue.toLocaleString()}</h3><p>Revenue</p></div></div>
+          <div className="stat-card sc6"><div className="stat-icon"><TrendingUp size={22} /></div><div><h3>{stats.todayOrders}</h3><p>Today</p></div></div>
         </div>
 
-        <div className="filter-section">
-          <div className="search-box">
-            <Search size={18} />
-            <input type="text" placeholder="Search Order ID, Name, Email, UTR..." value={search} onChange={(e) => setSearch(e.target.value)} />
-          </div>
-          <select className="filter-select" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+        <div className="toolbar">
+          <div className="search-wrap"><Search size={16} /><input placeholder="Search order, name, email, UTR..." value={search} onChange={e => setSearch(e.target.value)} /></div>
+          <select className="filter-sel" value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
             <option value="all">All Status</option>
             <option value="pending">Pending</option>
             <option value="approved">Approved</option>
             <option value="rejected">Rejected</option>
           </select>
-          <select className="filter-select" value={dateFilter} onChange={(e) => setDateFilter(e.target.value)}>
-            <option value="all">All Time</option>
-            <option value="today">Today</option>
-            <option value="week">This Week</option>
-            <option value="month">This Month</option>
-          </select>
         </div>
 
-        {filteredOrders.length === 0 ? (
-          <div className="orders-table"><div className="empty-state"><ShoppingCart size={64} /><h3>No Orders Found</h3><p>Try adjusting your filters.</p></div></div>
+        {error ? (
+          <div style={{ background: "#fff", borderRadius: 10, padding: 40, textAlign: "center" }}>
+            <p style={{ color: "#c62828", marginBottom: 16 }}>{error}</p>
+            <button className="refresh-btn" onClick={fetchOrders}>Retry</button>
+          </div>
+        ) : loading ? (
+          <div style={{ background: "white", borderRadius: 10, padding: 60, textAlign: "center" }}><RefreshCw size={32} style={{ color: "#687975", animation: "spin 1s linear infinite" }} /></div>
+        ) : filteredOrders.length === 0 ? (
+          <div className="table-wrap"><div className="empty"><ShoppingCart size={48} style={{ marginBottom: 12, color: "#ccc" }} /><p>No orders found</p></div></div>
         ) : (
-          <div className="orders-table">
-            <div className="table-header">
-              <div>Order ID</div>
-              <div>Customer</div>
-              <div>Total</div>
-              <div>Date</div>
-              <div>UTR</div>
-              <div>Status</div>
-              <div>Actions</div>
+          <div className="table-wrap">
+            <div className="table-head">
+              <div>Order ID</div><div>Customer</div><div>Total</div><div>Date</div><div>Status</div><div>UTR</div><div>Actions</div>
             </div>
-            {filteredOrders.map((order) => (
-              <div className="order-row" key={order.order_id}>
-                <div className="order-id">{order.order_id}</div>
-                <div className="customer-info">
-                  <span className="customer-name">{order.name}</span>
-                  <span className="customer-email">{order.email}</span>
-                </div>
-                <div className="order-total">₹{order.total.toLocaleString()}</div>
-                <div className="order-date">{formatDate(order.date)}</div>
-                <div>{order.utr || "—"}</div>
-                <div>
-                  <span className={`status-badge status-${order.status}`}>
-                    {order.status === "approved" && <CheckCircle size={12} />}
-                    {order.status === "pending" && <Clock size={12} />}
-                    {order.status === "rejected" && <XCircle size={12} />}
-                    {order.status}
-                  </span>
-                </div>
-                <div className="action-btns">
-                  <button className="btn btn-view" onClick={() => viewOrderDetails(order)}><Eye size={14} /> View</button>
-                  {order.status === "pending" && (
-                    <>
-                      <button className="btn btn-approve" onClick={() => handleApprove(order.order_id)} disabled={processing === order.order_id}>
-                        <Check size={14} /> {processing === order.order_id ? "..." : "Approve"}
-                      </button>
-                      <button className="btn btn-reject" onClick={() => handleReject(order.order_id)} disabled={processing === order.order_id}>
-                        <X size={14} /> Reject
-                      </button>
-                    </>
-                  )}
+            {filteredOrders.map(o => (
+              <div className="table-row" key={o.order_id}>
+                <div className="oid">#{o.order_id}</div>
+                <div className="cust"><strong>{o.name}</strong><span>{o.email}</span></div>
+                <div className="total">₹{o.total.toLocaleString()}</div>
+                <div className="date">{formatDate(o.date)}</div>
+                <div><span className={`badge badge-${o.status}`}>{o.status}</span></div>
+                <div style={{ fontSize: 12, fontFamily: "monospace" }}>{o.utr || "—"}</div>
+                <div className="actions">
+                  <button className="btn-sm btn-view" onClick={() => { setSelectedOrder(o); setShowModal(true); }}><Eye size={12} /> View</button>
+                  {o.status === "pending" && <>
+                    <button className="btn-sm btn-ok" onClick={() => { setSelectedOrder(o); setShowModal(true); }} disabled={processing === o.order_id}><Check size={12} /> Approve</button>
+                    <button className="btn-sm btn-no" onClick={() => handleReject(o.order_id)} disabled={processing === o.order_id}><X size={12} /></button>
+                  </>}
                 </div>
               </div>
             ))}
           </div>
         )}
-
-        <Link href="/api/admin/logout" className="logout-btn"><LogOut size={16} /> Logout</Link>
       </main>
 
       {showModal && selectedOrder && (
-        <div className="modal-overlay" onClick={() => setShowModal(false)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2>Order Details</h2>
-              <button className="close-btn" onClick={() => setShowModal(false)}><X size={24} /></button>
+        <div className="modal-bg" onClick={() => setShowModal(false)}>
+          <div className="modal" onClick={e => e.stopPropagation()}>
+            <div className="modal-top">
+              <h2>Order #{selectedOrder.order_id}</h2>
+              <button className="modal-close" onClick={() => setShowModal(false)}><X size={20} /></button>
             </div>
             <div className="modal-body">
-              <div className="detail-section">
-                <h4>Order Information</h4>
-                <div className="detail-row"><span className="detail-label">Order ID</span><span className="detail-value">{selectedOrder.order_id}</span></div>
-                <div className="detail-row"><span className="detail-label">Date</span><span className="detail-value">{formatDate(selectedOrder.date)}</span></div>
-                <div className="detail-row"><span className="detail-label">Status</span><span className={`status-badge status-${selectedOrder.status}`}>{selectedOrder.status}</span></div>
-                <div className="detail-row"><span className="detail-label">UTR</span><span className="detail-value">{selectedOrder.utr || "Not provided"}</span></div>
+              <div className="detail-grid">
+                <div className="detail-item"><label>Status</label><span className={`badge badge-${selectedOrder.status}`}>{selectedOrder.status}</span></div>
+                <div className="detail-item"><label>Date</label><span>{formatDate(selectedOrder.date)}</span></div>
+                <div className="detail-item"><label>Customer</label><span>{selectedOrder.name}</span></div>
+                <div className="detail-item"><label>Email</label><span>{selectedOrder.email}</span></div>
+                <div className="detail-item"><label>Total</label><span>₹{selectedOrder.total.toLocaleString()}</span></div>
+                <div className="detail-item"><label>UTR</label><span>{selectedOrder.utr || "Not provided"}</span></div>
               </div>
-              <div className="detail-section">
-                <h4>Customer</h4>
-                <div className="detail-row"><span className="detail-label">Name</span><span className="detail-value">{selectedOrder.name}</span></div>
-                <div className="detail-row"><span className="detail-label">Email</span><span className="detail-value">{selectedOrder.email}</span></div>
-                {selectedOrder.phone && <div className="detail-row"><span className="detail-label">Phone</span><span className="detail-value">{selectedOrder.phone}</span></div>}
-              </div>
-              <div className="detail-section">
-                <h4>Items</h4>
-                <div className="items-list">
-                  {Array.isArray(selectedOrder.items) && selectedOrder.items.map((item: OrderItem, idx: number) => (
-                    <div className="item-row" key={idx}><span className="item-name">{item.name}</span><span className="item-price">₹{item.price}</span></div>
-                  ))}
-                  <div className="item-row" style={{ borderTop: "2px solid #d5d7da", marginTop: "8px", paddingTop: "16px" }}>
-                    <span className="item-name" style={{ fontWeight: 700 }}>Total</span>
-                    <span className="item-price" style={{ fontSize: "18px", color: "#687975" }}>₹{selectedOrder.total.toLocaleString()}</span>
+
+              <div className="items-section">
+                <h3>Items</h3>
+                {parseItems(selectedOrder).map((item, i) => (
+                  <div className="item-card" key={i}>
+                    <strong>{item.name}</strong>
+                    <span className="price">₹{item.price}</span>
                   </div>
-                </div>
+                ))}
               </div>
-            </div>
-            <div className="modal-footer">
-              <button className="btn-secondary" onClick={() => setShowModal(false)}>Close</button>
+
               {selectedOrder.status === "pending" && (
-                <>
-                  <button className="btn-danger" onClick={() => { handleReject(selectedOrder.order_id); setShowModal(false); }} disabled={processing === selectedOrder.order_id}>
-                    <X size={16} /> Reject
-                  </button>
-                  <button className="btn-success" onClick={() => { handleApprove(selectedOrder.order_id); setShowModal(false); }} disabled={processing === selectedOrder.order_id}>
-                    <Check size={16} /> Approve
-                  </button>
-                </>
+                <div className="dl-section">
+                  <h4>Download Links (dene ke baad approve karein)</h4>
+                  {parseItems(selectedOrder).map((item, i) => (
+                    <div key={i} style={{ marginBottom: 10 }}>
+                      <div className="dl-label">{item.name}</div>
+                      <input
+                        className="dl-input"
+                        placeholder="https://drive.google.com/file/d/... ya koi bhi link"
+                        value={downloadInputs[item.id || item.name] || item.downloadUrl || ""}
+                        onChange={e => setDownloadInputs(prev => ({ ...prev, [item.id || item.name]: e.target.value }))}
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {selectedOrder.status === "approved" && (
+                <div className="items-section">
+                  <h3>Approved Download Links</h3>
+                  {parseItems(selectedOrder).map((item, i) => (
+                    <div className="item-card" key={i}>
+                      <span>{item.name}</span>
+                      {item.downloadUrl ? <a href={item.downloadUrl} target="_blank" rel="noreferrer" className="btn-sm btn-ok"><ChevronRight size={12} /> Open Link</a> : <span style={{ color: "#999", fontSize: 12 }}>No link</span>}
+                    </div>
+                  ))}
+                </div>
               )}
             </div>
+
+            {selectedOrder.status === "pending" && (
+              <div className="modal-foot">
+                <button className="btn-main btn-gray" onClick={() => setShowModal(false)}>Cancel</button>
+                <button className="btn-main btn-red" onClick={() => { handleReject(selectedOrder.order_id); setShowModal(false); }} disabled={processing === selectedOrder.order_id}><X size={14} /> Reject</button>
+                <button className="btn-main btn-green" onClick={() => { handleApprove(selectedOrder.order_id); setShowModal(false); }} disabled={processing === selectedOrder.order_id}><Send size={14} /> Approve & Send</button>
+              </div>
+            )}
           </div>
         </div>
       )}
