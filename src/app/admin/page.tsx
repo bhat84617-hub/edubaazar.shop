@@ -67,9 +67,21 @@ export default function AdminDashboard() {
     todayOrders: 0
   });
   const [error, setError] = useState<string | null>(null);
+  const [envCheck, setEnvCheck] = useState<string>("Checking...");
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  useEffect(() => {
+    setEnvCheck(`SUPABASE_URL: ${process.env.NEXT_PUBLIC_SUPABASE_URL ? "✓" : "✗"}, SUPABASE_KEY: ${process.env.SUPABASE_SERVICE_ROLE_KEY ? "✓" : "✗"}, ADMIN_PWD: ${process.env.ADMIN_PASSWORD ? "✓" : "✗"}`);
+  }, []);
+
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
+  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
+  const adminPassword = process.env.ADMIN_PASSWORD || "";
+
+  console.log("Environment check:", { 
+    supabaseUrl: supabaseUrl ? "SET" : "MISSING",
+    supabaseKey: supabaseKey ? "SET" : "MISSING",
+    adminPassword: adminPassword ? "SET" : "MISSING"
+  });
 
   const supabase = supabaseUrl && supabaseKey
     ? createClient(supabaseUrl, supabaseKey, { auth: { autoRefreshToken: false, persistSession: false } })

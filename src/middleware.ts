@@ -20,7 +20,7 @@ export async function middleware(request: NextRequest) {
       if (isNaN(expires) || expires < Math.floor(Date.now() / 1000)) return false;
       
       const payload = `${role}.${expiresText}`;
-      const secret = process.env.ADMIN_SESSION_SECRET || process.env.ADMIN_PASSWORD || "";
+      const secret = process.env.ADMIN_PASSWORD || "";
       if (!secret) return false;
       
       const crypto = require("node:crypto");
