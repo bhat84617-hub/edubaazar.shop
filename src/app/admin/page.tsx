@@ -1,20 +1,34 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { createClient } from "@supabase/supabase-js";
 import Link from "next/link";
 import {
   LayoutDashboard, ShoppingCart, CheckCircle, Clock, XCircle,
   IndianRupee, Search, RefreshCw, LogOut, Eye, Check, X,
   TrendingUp, Package, ChevronRight, Send, AlertCircle
 } from "lucide-react";
-import { useStore } from "@/lib/store";
-import type { Order } from "@/lib/store";
+
+const SUPABASE_URL = "https://zzkjeimlnawgrkuwbban.supabase.co";
+const SUPABASE_SERVICE_ROLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp6a2plaW1sbmF3Z3JrdXdiYmFuIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4Nzg5MzkwOCwiZXhwIjoyMTAzNDY5OTA4fQ.fdZwR_6gi2rjOTN2EIMlu12n49H-99h2x0Dh_t5Goic";
 
 interface OrderItem {
   id: string;
   name: string;
   price: number;
   downloadUrl?: string;
+}
+
+interface Order {
+  order_id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  items: OrderItem[];
+  total: number;
+  utr: string | null;
+  status: string;
+  date: string;
 }
 
 interface Stats {
@@ -27,7 +41,6 @@ interface Stats {
 }
 
 export default function AdminDashboard() {
-  const { allOrders, updateOrderStatus, adminLogout } = useStore();
   const [orders, setOrders] = useState<Order[]>([]);
   const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
@@ -38,7 +51,12 @@ export default function AdminDashboard() {
   const [processing, setProcessing] = useState<string | null>(null);
   const [downloadInputs, setDownloadInputs] = useState<Record<string, string>>({});
   const [stats, setStats] = useState<Stats>({ totalOrders: 0, pendingOrders: 0, approvedOrders: 0, rejectedOrders: 0, totalRevenue: 0, todayOrders: 0 });
+  const [error, setError] = useState<string | null>(null);
   const [toast, setToast] = useState<{ msg: string; type: "success" | "error" } | null>(null);
+
+  const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
+    auth: { autoRefreshToken: false, persistSession: false }
+  });
 
   const showToast = (msg: string, type: "success" | "error" = "success") => {
     setToast({ msg, type });
@@ -57,20 +75,46 @@ export default function AdminDashboard() {
     });
   }, []);
 
-  const fetchOrders = useCallback(() => {
+  const fetchOrders = useCallback(async () => {
     setLoading(true);
+    setError(null);
     try {
-      const all = allOrders;
-      setOrders(all);
-      setFilteredOrders(all);
-      calculateStats(all);
-    } catch {
-      setOrders([]);
-      setFilteredOrders([]);
-      calculateStats([]);
+      const { data, error: fetchError } = await supabase
+        .from("orders")
+        .select("*")
+        .order("date", { ascending: false });
+
+      if (fetchError) {
+        setError(`Database error: ${fetchError.message}`);
+        setLoading(false);
+        return;
+      }
+
+      if (data && data.length > 0) {
+        const formatted = data.map(o => ({
+          order_id: o.order_id || "",
+          name: o.name || "",
+          email: o.email || "",
+          phone: o.phone || "",
+          items: Array.isArray(o.items) ? o.items : (typeof o.items === "string" ? JSON.parse(o.items) : []),
+          total: Number(o.total) || 0,
+          utr: o.utr || "",
+          status: o.status || "pending",
+          date: o.date || new Date().toISOString(),
+        })) as Order[];
+        setOrders(formatted);
+        setFilteredOrders(formatted);
+        calculateStats(formatted);
+      } else {
+        setOrders([]);
+        setFilteredOrders([]);
+        calculateStats([]);
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Database error");
     }
     setLoading(false);
-  }, [allOrders, calculateStats]);
+  }, [calculateStats]);
 
   useEffect(() => { fetchOrders(); }, [fetchOrders]);
 
@@ -79,7 +123,7 @@ export default function AdminDashboard() {
     if (search) {
       const s = search.toLowerCase();
       result = result.filter(o =>
-        o.orderId.toLowerCase().includes(s) ||
+        o.order_id.toLowerCase().includes(s) ||
         o.name.toLowerCase().includes(s) ||
         o.email.toLowerCase().includes(s) ||
         (o.utr && o.utr.toLowerCase().includes(s))
@@ -92,22 +136,27 @@ export default function AdminDashboard() {
   const handleApprove = async (orderId: string) => {
     setProcessing(orderId);
     try {
-      const order = orders.find(o => o.orderId === orderId);
+      const order = orders.find(o => o.order_id === orderId);
       if (!order) return;
 
-      const missingLinks = order.items.filter(item => !downloadInputs[item.id] && !item.downloadUrl);
+      const missingLinks = order.items.filter(item => !downloadInputs[item.id || item.name] && !item.downloadUrl);
       if (missingLinks.length > 0) {
         showToast(`Please enter download links for all items (${missingLinks.length} missing)`, "error");
         setProcessing(null);
         return;
       }
 
-      const downloadUrls: Record<string, string> = {};
-      order.items.forEach(item => {
-        downloadUrls[item.id] = downloadInputs[item.id] || item.downloadUrl || "";
-      });
+      const updatedItems = order.items.map(item => ({
+        ...item,
+        downloadUrl: downloadInputs[item.id || item.name] || item.downloadUrl || ""
+      }));
 
-      await updateOrderStatus(orderId, "approved", downloadUrls);
+      const { error: updateError } = await supabase
+        .from("orders")
+        .update({ status: "approved", items: JSON.stringify(updatedItems) })
+        .eq("order_id", orderId);
+
+      if (updateError) throw updateError;
 
       await fetch("/api/send-email", {
         method: "POST",
@@ -118,14 +167,14 @@ export default function AdminDashboard() {
           name: order.name,
           email: order.email,
           status: "approved",
-          downloadUrls,
+          downloadUrls: Object.fromEntries(updatedItems.map(i => [i.id, i.downloadUrl])),
         }),
       }).catch(() => {});
 
       showToast("Order approved! User will receive download links.");
-      fetchOrders();
+      await fetchOrders();
       setShowModal(false);
-    } catch {
+    } catch (err) {
       showToast("Failed to approve order", "error");
     }
     setProcessing(null);
@@ -134,10 +183,15 @@ export default function AdminDashboard() {
   const handleReject = async (orderId: string) => {
     setProcessing(orderId);
     try {
-      const order = orders.find(o => o.orderId === orderId);
+      const order = orders.find(o => o.order_id === orderId);
       if (!order) return;
 
-      await updateOrderStatus(orderId, "rejected");
+      const { error: updateError } = await supabase
+        .from("orders")
+        .update({ status: "rejected" })
+        .eq("order_id", orderId);
+
+      if (updateError) throw updateError;
 
       await fetch("/api/send-email", {
         method: "POST",
@@ -153,9 +207,9 @@ export default function AdminDashboard() {
       }).catch(() => {});
 
       showToast("Order rejected. User will be notified.");
-      fetchOrders();
+      await fetchOrders();
       setShowModal(false);
-    } catch {
+    } catch (err) {
       showToast("Failed to reject order", "error");
     }
     setProcessing(null);
@@ -193,7 +247,7 @@ export default function AdminDashboard() {
           <a href="/"><ShoppingCart size={18} /> View Store</a>
         </nav>
         <div className="admin-sidebar-footer">
-          <a onClick={adminLogout} style={{ cursor: "pointer" }}><LogOut size={16} /> Logout</a>
+          <a href="/api/admin/logout"><LogOut size={16} /> Logout</a>
         </div>
       </aside>
 
@@ -217,11 +271,7 @@ export default function AdminDashboard() {
         <div className="admin-toolbar">
           <div className="search-wrap">
             <Search size={16} />
-            <input
-              placeholder="Search order, name, email, UTR..."
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-            />
+            <input placeholder="Search order, name, email, UTR..." value={search} onChange={e => setSearch(e.target.value)} />
           </div>
           <select className="filter-sel" value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
             <option value="all">All Status</option>
@@ -231,7 +281,13 @@ export default function AdminDashboard() {
           </select>
         </div>
 
-        {loading ? (
+        {error ? (
+          <div className="admin-empty">
+            <AlertCircle size={48} style={{ marginBottom: 12, color: "#dc3545" }} />
+            <p style={{ color: "#c62828", marginBottom: 16 }}>{error}</p>
+            <button className="btn btn-primary" onClick={fetchOrders}>Retry</button>
+          </div>
+        ) : loading ? (
           <div className="admin-empty">
             <RefreshCw size={32} className="spin" />
             <p>Loading orders...</p>
@@ -247,25 +303,19 @@ export default function AdminDashboard() {
               <div>Order ID</div><div>Customer</div><div>Total</div><div>Date</div><div>Status</div><div>UTR</div><div>Actions</div>
             </div>
             {filteredOrders.map(o => (
-              <div className="admin-table-row" key={o.orderId}>
-                <div className="oid">#{o.orderId}</div>
+              <div className="admin-table-row" key={o.order_id}>
+                <div className="oid">#{o.order_id}</div>
                 <div className="cust"><strong>{o.name}</strong><span>{o.email}</span></div>
                 <div className="total">₹{o.total.toLocaleString()}</div>
                 <div className="date">{formatDate(o.date)}</div>
                 <div><span className={`badge badge-${o.status}`}>{o.status}</span></div>
                 <div className="utr">{o.utr || "—"}</div>
                 <div className="actions">
-                  <button className="btn-sm btn-view" onClick={() => openModal(o)}>
-                    <Eye size={12} /> View
-                  </button>
+                  <button className="btn-sm btn-view" onClick={() => openModal(o)}><Eye size={12} /> View</button>
                   {o.status === "pending" && (
                     <>
-                      <button className="btn-sm btn-ok" onClick={() => openModal(o)} disabled={processing === o.orderId}>
-                        <Check size={12} /> Approve
-                      </button>
-                      <button className="btn-sm btn-no" onClick={() => handleReject(o.orderId)} disabled={processing === o.orderId}>
-                        <X size={12} /> Reject
-                      </button>
+                      <button className="btn-sm btn-ok" onClick={() => openModal(o)} disabled={processing === o.order_id}><Check size={12} /> Approve</button>
+                      <button className="btn-sm btn-no" onClick={() => handleReject(o.order_id)} disabled={processing === o.order_id}><X size={12} /> Reject</button>
                     </>
                   )}
                 </div>
@@ -279,7 +329,7 @@ export default function AdminDashboard() {
         <div className="modal-bg" onClick={() => setShowModal(false)}>
           <div className="modal" onClick={e => e.stopPropagation()}>
             <div className="modal-top">
-              <h2>Order #{selectedOrder.orderId}</h2>
+              <h2>Order #{selectedOrder.order_id}</h2>
               <button className="modal-close" onClick={() => setShowModal(false)}><X size={20} /></button>
             </div>
             <div className="modal-body">
@@ -311,8 +361,8 @@ export default function AdminDashboard() {
                       <input
                         className="dl-input"
                         placeholder="https://drive.google.com/file/d/... or any link"
-                        value={downloadInputs[item.id] || item.downloadUrl || ""}
-                        onChange={e => setDownloadInputs(prev => ({ ...prev, [item.id]: e.target.value }))}
+                        value={downloadInputs[item.id || item.name] || item.downloadUrl || ""}
+                        onChange={e => setDownloadInputs(prev => ({ ...prev, [item.id || item.name]: e.target.value }))}
                       />
                     </div>
                   ))}
@@ -326,9 +376,7 @@ export default function AdminDashboard() {
                     <div className="item-card" key={i}>
                       <span>{item.name}</span>
                       {item.downloadUrl ? (
-                        <a href={item.downloadUrl} target="_blank" rel="noreferrer" className="btn-sm btn-ok">
-                          <ChevronRight size={12} /> Open Link
-                        </a>
+                        <a href={item.downloadUrl} target="_blank" rel="noreferrer" className="btn-sm btn-ok"><ChevronRight size={12} /> Open Link</a>
                       ) : (
                         <span style={{ color: "#999", fontSize: 12 }}>No link</span>
                       )}
@@ -341,12 +389,8 @@ export default function AdminDashboard() {
             {selectedOrder.status === "pending" && (
               <div className="modal-foot">
                 <button className="btn-main btn-gray" onClick={() => setShowModal(false)}>Cancel</button>
-                <button className="btn-main btn-red" onClick={() => handleReject(selectedOrder.orderId)} disabled={processing === selectedOrder.orderId}>
-                  <X size={14} /> Reject Order
-                </button>
-                <button className="btn-main btn-green" onClick={() => handleApprove(selectedOrder.orderId)} disabled={processing === selectedOrder.orderId}>
-                  <Send size={14} /> Approve & Send Links
-                </button>
+                <button className="btn-main btn-red" onClick={() => handleReject(selectedOrder.order_id)} disabled={processing === selectedOrder.order_id}><X size={14} /> Reject Order</button>
+                <button className="btn-main btn-green" onClick={() => handleApprove(selectedOrder.order_id)} disabled={processing === selectedOrder.order_id}><Send size={14} /> Approve & Send Links</button>
               </div>
             )}
           </div>

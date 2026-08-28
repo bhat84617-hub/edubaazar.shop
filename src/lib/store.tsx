@@ -2,6 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { getProductById, products } from "./products";
+import { supabase } from "./config";
 
 export type CartItem = { id: string; qty: number; variant?: string };
 export type User = { name: string; email: string } | null;
@@ -20,8 +21,6 @@ export type Order = {
   utr?: string;
   date: string;
 };
-
-export type AdminUser = { email: string; role: string };
 
 type StoreCtx = {
   mounted: boolean;
@@ -44,12 +43,9 @@ type StoreCtx = {
   showToast: (msg: string, type?: "success" | "error") => void;
   placeOrder: (data: { name: string; email: string; phone: string; utr?: string }) => Promise<Order | null>;
   updateOrderStatus: (orderId: string, status: string, downloadUrls?: Record<string, string>) => Promise<void>;
-  allOrders: Order[];
-  registerUser: (name: string, email: string, password: string) => boolean;
-  loginUser: (email: string, password: string) => boolean;
+  isAdmin: boolean;
   adminLogin: (password: string) => boolean;
   adminLogout: () => void;
-  isAdmin: boolean;
 };
 
 const Ctx = createContext<StoreCtx | null>(null);
@@ -62,11 +58,6 @@ function read<T>(key: string, fallback: T): T {
   } catch {
     return fallback;
   }
-}
-
-function write<T>(key: string, value: T) {
-  if (typeof window === "undefined") return;
-  window.localStorage.setItem(key, JSON.stringify(value));
 }
 
 const ADMIN_PASSWORD = "Admin@123";
@@ -92,12 +83,24 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     setMounted(true);
   }, []);
 
-  useEffect(() => { if (mounted) write("edubazar_cart", cart); }, [cart, mounted]);
-  useEffect(() => { if (mounted) write("edubazar_wishlist", wishlist); }, [wishlist, mounted]);
-  useEffect(() => { if (mounted) write("edubazar_compare", compare); }, [compare, mounted]);
-  useEffect(() => { if (mounted) write("edubazar_user_auth", user); }, [user, mounted]);
-  useEffect(() => { if (mounted) write("edubazar_orders", orders); }, [orders, mounted]);
-  useEffect(() => { if (mounted) write("edubazar_admin_auth", isAdmin); }, [isAdmin, mounted]);
+  useEffect(() => {
+    if (mounted) localStorage.setItem("edubazar_cart", JSON.stringify(cart));
+  }, [cart, mounted]);
+  useEffect(() => {
+    if (mounted) localStorage.setItem("edubazar_wishlist", JSON.stringify(wishlist));
+  }, [wishlist, mounted]);
+  useEffect(() => {
+    if (mounted) localStorage.setItem("edubazar_compare", JSON.stringify(compare));
+  }, [compare, mounted]);
+  useEffect(() => {
+    if (mounted) localStorage.setItem("edubazar_user_auth", JSON.stringify(user));
+  }, [user, mounted]);
+  useEffect(() => {
+    if (mounted) localStorage.setItem("edubazar_orders", JSON.stringify(orders));
+  }, [orders, mounted]);
+  useEffect(() => {
+    if (mounted) localStorage.setItem("edubazar_admin_auth", JSON.stringify(isAdmin));
+  }, [isAdmin, mounted]);
 
   const showToast = useCallback((msg: string, type: "success" | "error" = "success") => {
     const id = ++toastId.current;
@@ -133,26 +136,6 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const login = useCallback((u: NonNullable<User>) => setUser(u), []);
   const logout = useCallback(() => setUser(null), []);
 
-  const registerUser = useCallback((name: string, email: string, password: string): boolean => {
-    const users = read<{ name: string; email: string; password: string }[]>("edubazar_users", []);
-    if (users.find((u) => u.email.toLowerCase() === email.toLowerCase())) {
-      return false;
-    }
-    users.push({ name, email: email.toLowerCase(), password });
-    write("edubazar_users", users);
-    return true;
-  }, []);
-
-  const loginUser = useCallback((email: string, password: string): boolean => {
-    const users = read<{ name: string; email: string; password: string }[]>("edubazar_users", []);
-    const found = users.find((u) => u.email.toLowerCase() === email.toLowerCase() && u.password === password);
-    if (found) {
-      setUser({ name: found.name, email: found.email });
-      return true;
-    }
-    return false;
-  }, []);
-
   const adminLogin = useCallback((password: string): boolean => {
     if (password === ADMIN_PASSWORD) {
       setIsAdmin(true);
@@ -178,13 +161,20 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     };
     setOrders((prev) => [order, ...prev]);
     setCart([]);
-    return order;
-  }, [cart, user]);
 
-  const allOrders = useMemo(() => {
-    const all = read<Order[]>("edubazar_orders", []);
-    return all;
-  }, [orders]);
+    try {
+      const { error } = await supabase.from("orders").insert([{
+        order_id: order.orderId, name: order.name, email: order.email, phone: order.phone,
+        items: JSON.stringify(order.items), total: order.total, status: order.status,
+        payment_method: order.paymentMethod, utr: order.utr, date: order.date,
+      }]);
+      if (error) throw error;
+    } catch {
+      showToast("Order saved locally, but server sync failed.", "error");
+    }
+
+    return order;
+  }, [cart, user, showToast]);
 
   const updateOrderStatus = useCallback(async (orderId: string, status: string, downloadUrls?: Record<string, string>) => {
     setOrders((prev) => {
@@ -196,10 +186,26 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         }
         return updated;
       });
-      write("edubazar_orders", next);
+      localStorage.setItem("edubazar_orders", JSON.stringify(next));
       return next;
     });
-  }, []);
+
+    try {
+      const updatePayload: Record<string, unknown> = { status };
+      if (downloadUrls) {
+        const order = orders.find((o) => o.orderId === orderId);
+        if (order) {
+          updatePayload.items = JSON.stringify(order.items.map((item) => ({
+            ...item, downloadUrl: downloadUrls[item.id] || item.downloadUrl
+          })));
+        }
+      }
+      const { error } = await supabase.from("orders").update(updatePayload).eq("order_id", orderId);
+      if (error) throw error;
+    } catch {
+      showToast("Order updated locally.", "success");
+    }
+  }, [orders, showToast]);
 
   const cartCount = cart.reduce((s, i) => s + i.qty, 0);
   const cartSubtotal = cart.reduce((s, i) => { const p = getProductById(i.id); return s + (p?.price ?? 0) * i.qty; }, 0);
@@ -207,8 +213,8 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const value = useMemo<StoreCtx>(() => ({
     mounted, cart, wishlist, compare, user, orders, toasts, addToCart, removeFromCart, setQty, clearCart,
     cartCount, cartSubtotal, toggleWishlist, toggleCompare, login, logout, showToast, placeOrder,
-    updateOrderStatus, allOrders, registerUser, loginUser, adminLogin, adminLogout, isAdmin,
-  }), [mounted, cart, wishlist, compare, user, orders, toasts, addToCart, removeFromCart, setQty, clearCart, cartCount, cartSubtotal, toggleWishlist, toggleCompare, login, logout, showToast, placeOrder, updateOrderStatus, allOrders, registerUser, loginUser, adminLogin, adminLogout, isAdmin]);
+    updateOrderStatus, isAdmin, adminLogin, adminLogout,
+  }), [mounted, cart, wishlist, compare, user, orders, toasts, addToCart, removeFromCart, setQty, clearCart, cartCount, cartSubtotal, toggleWishlist, toggleCompare, login, logout, showToast, placeOrder, updateOrderStatus, isAdmin, adminLogin, adminLogout]);
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

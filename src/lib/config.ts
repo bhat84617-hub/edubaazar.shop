@@ -1,16 +1,9 @@
 import { createClient } from "@supabase/supabase-js";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
+const supabaseUrl = "https://zzkjeimlnawgrkuwbban.supabase.co";
+const supabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp6a2plaW1sbmF3Z3JrdXdiYmFuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc4OTM5MDgsImV4cCI6MjEwMzQ2OTkwOH0.JCfX_z6d--Tq5kXZ4Xc-nNm6LusJzgfhnLqlQ26sVMI";
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.warn("[config] Supabase env vars missing. Please set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in .env.local");
-}
-
-export const supabase = createClient(
-  supabaseUrl || "https://placeholder.supabase.co",
-  supabaseAnonKey || "placeholder-anon-key"
-);
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export const ADMIN_EMAIL = "admin@edubazar.shop";
 

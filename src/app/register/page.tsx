@@ -4,11 +4,12 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { User, Mail, Lock, UserPlus, ArrowLeft } from "lucide-react";
+import { supabase } from "@/lib/config";
 import { useStore } from "@/lib/store";
 
 export default function RegisterPage() {
   const router = useRouter();
-  const { login, showToast, registerUser } = useStore();
+  const { login, showToast } = useStore();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -20,12 +21,16 @@ export default function RegisterPage() {
     setError("");
     setLoading(true);
     try {
-      const success = registerUser(name.trim(), email.trim().toLowerCase(), password);
-      if (!success) {
+      const { data: existing } = await supabase.from("users").select("id").eq("email", email.trim().toLowerCase()).single();
+      if (existing) {
         setError("This email is already registered. Please login.");
         setLoading(false);
         return;
       }
+      const { error: insErr } = await supabase
+        .from("users")
+        .insert([{ name: name.trim(), email: email.trim().toLowerCase(), password }]);
+      if (insErr) throw new Error(insErr.message);
       login({ name: name.trim(), email: email.trim().toLowerCase() });
       showToast("Account created! Welcome to EduBazar.");
       try {
@@ -36,8 +41,9 @@ export default function RegisterPage() {
         }).catch(() => {});
       } catch {}
       router.push("/account");
-    } catch {
-      setError("Something went wrong.");
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Something went wrong.";
+      setError("Signup failed: " + msg);
       setLoading(false);
     }
   };
