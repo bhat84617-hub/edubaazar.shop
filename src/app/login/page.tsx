@@ -4,12 +4,11 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Lock, Mail, LogIn, ArrowLeft } from "lucide-react";
-import { supabase } from "@/lib/config";
 import { useStore } from "@/lib/store";
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login, showToast } = useStore();
+  const { login, showToast, loginUser } = useStore();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -20,19 +19,13 @@ export default function LoginPage() {
     setError("");
     setLoading(true);
     try {
-      const { data, error: sbErr } = await supabase
-        .from("users")
-        .select("name, email")
-        .eq("email", email.trim().toLowerCase())
-        .eq("password", password)
-        .single();
-      if (sbErr || !data) {
+      const success = loginUser(email.trim().toLowerCase(), password);
+      if (!success) {
         setError("Invalid email or password. Please try again.");
         setLoading(false);
         return;
       }
-      login({ name: data.name, email: data.email });
-      showToast(`Welcome back, ${data.name}!`);
+      showToast(`Welcome back!`);
       router.push("/account");
     } catch {
       setError("Something went wrong. Please try again.");

@@ -3,8 +3,10 @@
 import Link from "next/link";
 import { useState } from "react";
 import { ShieldCheck, Lock, ArrowLeft } from "lucide-react";
+import { useStore } from "@/lib/store";
 
 export default function AdminLoginPage() {
+  const { adminLogin } = useStore();
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
@@ -14,18 +16,12 @@ export default function AdminLoginPage() {
     setBusy(true);
     setError("");
     try {
-      const r = await fetch("/api/admin/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "same-origin",
-        body: JSON.stringify({ password }),
-      });
-      const data = await r.json().catch(() => null);
-      if (r.ok) {
+      const success = adminLogin(password);
+      if (success) {
         window.location.href = "/admin";
         return;
       }
-      setError(data?.error || "Login failed");
+      setError("Galat password");
     } catch {
       setError("Network error");
     }
@@ -51,11 +47,8 @@ export default function AdminLoginPage() {
             value={password}
             onChange={e => setPassword(e.target.value)}
             placeholder="Enter admin password"
-            autoFocus
             required
             style={{ width: "100%", padding: "14px 16px", border: "1.5px solid #e0e0e0", borderRadius: 10, fontSize: 15, outline: "none", marginBottom: 20, boxSizing: "border-box", transition: "border 0.2s" }}
-            onFocus={e => e.target.style.borderColor = "#687975"}
-            onBlur={e => e.target.style.borderColor = "#e0e0e0"}
           />
           {error && (
             <div style={{ padding: "12px 16px", background: "#fef2f2", color: "#dc2626", fontSize: 13, marginBottom: 16, borderRadius: 8, border: "1px solid #fecaca" }}>

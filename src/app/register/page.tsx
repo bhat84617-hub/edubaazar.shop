@@ -4,12 +4,11 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { User, Mail, Lock, UserPlus, ArrowLeft } from "lucide-react";
-import { supabase } from "@/lib/config";
 import { useStore } from "@/lib/store";
 
 export default function RegisterPage() {
   const router = useRouter();
-  const { login, showToast } = useStore();
+  const { login, showToast, registerUser } = useStore();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -21,19 +20,12 @@ export default function RegisterPage() {
     setError("");
     setLoading(true);
     try {
-      if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-        throw new Error("Database not configured. Please contact support.");
-      }
-      const { data: existing } = await supabase.from("users").select("id").eq("email", email.trim().toLowerCase()).single();
-      if (existing) {
+      const success = registerUser(name.trim(), email.trim().toLowerCase(), password);
+      if (!success) {
         setError("This email is already registered. Please login.");
         setLoading(false);
         return;
       }
-      const { error: insErr } = await supabase
-        .from("users")
-        .insert([{ name: name.trim(), email: email.trim().toLowerCase(), password }]);
-      if (insErr) throw new Error(insErr.message);
       login({ name: name.trim(), email: email.trim().toLowerCase() });
       showToast("Account created! Welcome to EduBazar.");
       try {
@@ -44,9 +36,8 @@ export default function RegisterPage() {
         }).catch(() => {});
       } catch {}
       router.push("/account");
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : "Something went wrong.";
-      setError("Signup failed: " + msg);
+    } catch {
+      setError("Something went wrong.");
       setLoading(false);
     }
   };
