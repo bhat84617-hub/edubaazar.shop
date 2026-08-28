@@ -1,6 +1,4 @@
--- Run this in Supabase SQL Editor: https://supabase.com/dashboard/project/zzkjeimlnawgrkuwbban/sql/new
-
--- Create orders table
+-- Step 1: Create orders table (run this first)
 CREATE TABLE IF NOT EXISTS public.orders (
   id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   order_id text UNIQUE NOT NULL,
@@ -15,27 +13,16 @@ CREATE TABLE IF NOT EXISTS public.orders (
   date timestamptz NOT NULL DEFAULT now()
 );
 
--- Enable RLS (Row Level Security)
-ALTER TABLE public.orders ENABLE ROW LEVEL SECURITY;
-
--- Policy: Allow anyone to insert orders (for checkout)
-CREATE POLICY "Allow insert for everyone" ON public.orders
-  FOR INSERT WITH CHECK (true);
-
--- Policy: Allow anyone to read orders by email (for user dashboard)
-CREATE POLICY "Allow read by email" ON public.orders
-  FOR SELECT USING (true);
-
--- Policy: Allow service role to do everything (for admin panel)
--- Note: Service role key bypasses RLS automatically, but we add this for safety
-CREATE POLICY "Allow service role full access" ON public.orders
-  FOR ALL USING (true);
-
--- Create index for faster queries
+-- Step 2: Create indexes
 CREATE INDEX IF NOT EXISTS idx_orders_email ON public.orders(email);
 CREATE INDEX IF NOT EXISTS idx_orders_status ON public.orders(status);
 CREATE INDEX IF NOT EXISTS idx_orders_date ON public.orders(date DESC);
 
--- Insert a test order (optional, remove in production)
--- INSERT INTO public.orders (order_id, name, email, phone, items, total, status, utr)
--- VALUES ('EDU-TEST123', 'Test User', 'test@example.com', '9876543210', '[{"id":"1","name":"Test Course","price":999}]'::jsonb, 999, 'pending', '1234567890');
+-- Step 3: Enable RLS
+ALTER TABLE public.orders ENABLE ROW LEVEL SECURITY;
+
+-- Step 4: Create policies one by one (run each separately if needed)
+CREATE POLICY "allow_insert" ON public.orders FOR INSERT WITH CHECK (true);
+CREATE POLICY "allow_select" ON public.orders FOR SELECT USING (true);
+CREATE POLICY "allow_update" ON public.orders FOR UPDATE USING (true);
+CREATE POLICY "allow_delete" ON public.orders FOR DELETE USING (true);

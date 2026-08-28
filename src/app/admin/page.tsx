@@ -96,10 +96,27 @@ export default function AdminDashboard() {
 
       if (data && data.length > 0) {
         setDebug(`Found ${data.length} orders`);
-        const formatted = data.map(o => ({
-          ...o,
-          items: typeof o.items === "string" ? JSON.parse(o.items) : o.items
-        })) as Order[];
+        const formatted = data.map(o => {
+          let parsedItems = o.items;
+          if (typeof o.items === "string") {
+            try { parsedItems = JSON.parse(o.items); } catch { parsedItems = []; }
+          } else if (o.items && typeof o.items === "object") {
+            parsedItems = o.items;
+          } else {
+            parsedItems = [];
+          }
+          return {
+            order_id: o.order_id || "",
+            name: o.name || "",
+            email: o.email || "",
+            phone: o.phone || "",
+            items: parsedItems,
+            total: Number(o.total) || 0,
+            utr: o.utr || "",
+            status: o.status || "pending",
+            date: o.date || new Date().toISOString(),
+          };
+        }) as Order[];
         setOrders(formatted);
         setFilteredOrders(formatted);
         calculateStats(formatted);
