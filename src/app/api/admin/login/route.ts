@@ -1,16 +1,25 @@
 import { NextRequest, NextResponse } from "next/server";
+import { createAdminSession } from "@/lib/admin-session";
 
-const ADMIN_PASSWORD = "Admin@123";
+const FALLBACK_PASSWORD = "Admin@123";
 
 export async function POST(request: NextRequest) {
   const body = await request.json().catch(() => null) as { password?: string } | null;
 
-  if (!body?.password || body.password !== ADMIN_PASSWORD) {
+  if (!body?.password) {
+    return NextResponse.json({ error: "Password required" }, { status: 400 });
+  }
+
+  const expected = process.env.ADMIN_PASSWORD || FALLBACK_PASSWORD;
+
+  if (body.password !== expected) {
     return NextResponse.json({ error: "Galat password" }, { status: 401 });
   }
 
+  const token = createAdminSession();
+
   const res = NextResponse.json({ ok: true });
-  res.cookies.set("edubazar_admin_session", "valid_admin_session", {
+  res.cookies.set("edubazar_admin_session", token, {
     httpOnly: true,
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
