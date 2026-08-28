@@ -9,8 +9,8 @@ import {
   TrendingUp, Package, ChevronRight, Send, AlertCircle
 } from "lucide-react";
 
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://zzkjeimlnawgrkuwbban.supabase.co";
-const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
+const SUPABASE_URL = "https://zzkjeimlnawgrkuwbban.supabase.co";
+const SUPABASE_SERVICE_ROLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp6a2plaW1sbmF3Z3JrdXdiYmFuIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4Nzg5MzkwOCwiZXhwIjoyMTAzNDY5OTA4fQ.fdZwR_6gi2rjOTN2EIMlu12n49H-99h2x0Dh_t5Goic";
 
 interface OrderItem {
   id: string;
@@ -53,10 +53,12 @@ export default function AdminDashboard() {
   const [stats, setStats] = useState<Stats>({ totalOrders: 0, pendingOrders: 0, approvedOrders: 0, rejectedOrders: 0, totalRevenue: 0, todayOrders: 0 });
   const [error, setError] = useState<string | null>(null);
   const [toast, setToast] = useState<{ msg: string; type: "success" | "error" } | null>(null);
+  const [debug, setDebug] = useState<string>("");
 
-  const supabase = SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY
-    ? createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, { auth: { autoRefreshToken: false, persistSession: false } })
-    : null;
+  const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
+    auth: { autoRefreshToken: false, persistSession: false },
+    db: { schema: "public" }
+  });
 
   const showToast = (msg: string, type: "success" | "error" = "success") => {
     setToast({ msg, type });
@@ -76,27 +78,39 @@ export default function AdminDashboard() {
   }, []);
 
   const fetchOrders = useCallback(async () => {
-    if (!supabase) {
-      setError("Admin panel not configured. Missing Supabase service role key.");
-      setLoading(false);
-      return;
-    }
     setLoading(true);
     setError(null);
+    setDebug("Connecting to Supabase...");
     try {
-      const { data, error: fetchError } = await supabase.from("orders").select("*").order("date", { ascending: false });
+      const { data, error: fetchError } = await supabase
+        .from("orders")
+        .select("*")
+        .order("date", { ascending: false });
+
       if (fetchError) {
-        setError("Database error: " + fetchError.message);
+        setDebug(`Error: ${fetchError.message}`);
+        setError(`Database error: ${fetchError.message}`);
         setLoading(false);
         return;
       }
-      if (data) {
-        const formatted = data.map(o => ({ ...o, items: typeof o.items === "string" ? JSON.parse(o.items) : o.items })) as Order[];
+
+      if (data && data.length > 0) {
+        setDebug(`Found ${data.length} orders`);
+        const formatted = data.map(o => ({
+          ...o,
+          items: typeof o.items === "string" ? JSON.parse(o.items) : o.items
+        })) as Order[];
         setOrders(formatted);
         setFilteredOrders(formatted);
         calculateStats(formatted);
+      } else {
+        setDebug("No orders found in database");
+        setOrders([]);
+        setFilteredOrders([]);
+        calculateStats([]);
       }
     } catch (err) {
+      setDebug(`Exception: ${err instanceof Error ? err.message : "Unknown error"}`);
       setError(err instanceof Error ? err.message : "Database error");
     }
     setLoading(false);
@@ -108,7 +122,12 @@ export default function AdminDashboard() {
     let result = orders;
     if (search) {
       const s = search.toLowerCase();
-      result = result.filter(o => o.order_id.toLowerCase().includes(s) || o.name.toLowerCase().includes(s) || o.email.toLowerCase().includes(s) || (o.utr && o.utr.toLowerCase().includes(s)));
+      result = result.filter(o =>
+        o.order_id.toLowerCase().includes(s) ||
+        o.name.toLowerCase().includes(s) ||
+        o.email.toLowerCase().includes(s) ||
+        (o.utr && o.utr.toLowerCase().includes(s))
+      );
     }
     if (statusFilter !== "all") result = result.filter(o => o.status === statusFilter);
     setFilteredOrders(result);
@@ -122,7 +141,7 @@ export default function AdminDashboard() {
       if (!order) return;
 
       const items = Array.isArray(order.items) ? order.items : JSON.parse(order.items as string);
-      
+
       const missingLinks = items.filter((item: OrderItem) => !downloadInputs[item.id || item.name] && !item.downloadUrl);
       if (missingLinks.length > 0) {
         showToast(`Please enter download links for all items (${missingLinks.length} missing)`, "error");
@@ -135,7 +154,11 @@ export default function AdminDashboard() {
         downloadUrl: downloadInputs[item.id || item.name] || item.downloadUrl || ""
       }));
 
-      const { error: updateError } = await supabase.from("orders").update({ status: "approved", items: JSON.stringify(updatedItems) }).eq("order_id", orderId);
+      const { error: updateError } = await supabase
+        .from("orders")
+        .update({ status: "approved", items: JSON.stringify(updatedItems) })
+        .eq("order_id", orderId);
+
       if (updateError) throw updateError;
 
       await fetch("/api/admin/send-notification", {
@@ -160,7 +183,11 @@ export default function AdminDashboard() {
       const order = orders.find(o => o.order_id === orderId);
       if (!order) return;
 
-      const { error: updateError } = await supabase.from("orders").update({ status: "rejected" }).eq("order_id", orderId);
+      const { error: updateError } = await supabase
+        .from("orders")
+        .update({ status: "rejected" })
+        .eq("order_id", orderId);
+
       if (updateError) throw updateError;
 
       await fetch("/api/admin/send-notification", {
@@ -178,7 +205,10 @@ export default function AdminDashboard() {
     setProcessing(null);
   };
 
-  const formatDate = (d: string) => new Date(d).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
+  const formatDate = (d: string) => new Date(d).toLocaleDateString("en-IN", {
+    day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit"
+  });
+
   const parseItems = (o: Order): OrderItem[] => Array.isArray(o.items) ? o.items : JSON.parse(o.items as string);
 
   const openModal = (order: Order) => {
@@ -190,7 +220,11 @@ export default function AdminDashboard() {
   return (
     <div className="admin-shell">
       {toast && (
-        <div style={{ position: "fixed", top: 20, right: 20, zIndex: 1000, padding: "14px 24px", borderRadius: 8, background: toast.type === "success" ? "#28a745" : "#dc3545", color: "#fff", fontSize: 14, fontWeight: 600, boxShadow: "0 4px 12px rgba(0,0,0,0.15)" }}>
+        <div style={{
+          position: "fixed", top: 20, right: 20, zIndex: 1000, padding: "14px 24px", borderRadius: 8,
+          background: toast.type === "success" ? "#28a745" : "#dc3545", color: "#fff", fontSize: 14, fontWeight: 600,
+          boxShadow: "0 4px 12px rgba(0,0,0,0.15)"
+        }}>
           {toast.msg}
         </div>
       )}
@@ -213,7 +247,9 @@ export default function AdminDashboard() {
       <main className="admin-main">
         <div className="admin-top-bar">
           <h1>Payment Verification Dashboard</h1>
-          <button className="btn btn-primary btn-sm" onClick={fetchOrders}><RefreshCw size={15} /> Refresh</button>
+          <button className="btn btn-primary btn-sm" onClick={fetchOrders}>
+            <RefreshCw size={15} /> Refresh
+          </button>
         </div>
 
         <div className="admin-stats-grid">
@@ -226,7 +262,14 @@ export default function AdminDashboard() {
         </div>
 
         <div className="admin-toolbar">
-          <div className="search-wrap"><Search size={16} /><input placeholder="Search order, name, email, UTR..." value={search} onChange={e => setSearch(e.target.value)} /></div>
+          <div className="search-wrap">
+            <Search size={16} />
+            <input
+              placeholder="Search order, name, email, UTR..."
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+            />
+          </div>
           <select className="filter-sel" value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
             <option value="all">All Status</option>
             <option value="pending">Pending</option>
@@ -235,16 +278,25 @@ export default function AdminDashboard() {
           </select>
         </div>
 
-        {error ? (
-          <div className="admin-empty">
-            <AlertCircle size={48} style={{ marginBottom: 12, color: "#dc3545" }} />
-            <p style={{ color: "#c62828", marginBottom: 16 }}>{error}</p>
-            <button className="btn btn-primary" onClick={fetchOrders}>Retry</button>
+        {error && (
+          <div style={{ padding: "12px 16px", background: "#fef2f2", color: "#dc2626", fontSize: 13, marginBottom: 16, borderRadius: 8, border: "1px solid #fecaca" }}>
+            {error}
+            {debug && <div style={{ marginTop: 4, fontSize: 11, color: "#666" }}>Debug: {debug}</div>}
           </div>
-        ) : loading ? (
-          <div className="admin-empty"><RefreshCw size={32} className="spin" /><p>Loading orders...</p></div>
+        )}
+
+        {loading ? (
+          <div className="admin-empty">
+            <RefreshCw size={32} className="spin" />
+            <p>Loading orders...</p>
+            {debug && <p style={{ fontSize: 11, color: "#999", marginTop: 8 }}>{debug}</p>}
+          </div>
         ) : filteredOrders.length === 0 ? (
-          <div className="admin-empty"><ShoppingCart size={48} style={{ marginBottom: 12, color: "#ccc" }} /><p>No orders found</p></div>
+          <div className="admin-empty">
+            <ShoppingCart size={48} style={{ marginBottom: 12, color: "#ccc" }} />
+            <p>No orders found</p>
+            {debug && <p style={{ fontSize: 11, color: "#999", marginTop: 8 }}>{debug}</p>}
+          </div>
         ) : (
           <div className="admin-table-wrap">
             <div className="admin-table-head">
@@ -259,11 +311,17 @@ export default function AdminDashboard() {
                 <div><span className={`badge badge-${o.status}`}>{o.status}</span></div>
                 <div className="utr">{o.utr || "—"}</div>
                 <div className="actions">
-                  <button className="btn-sm btn-view" onClick={() => openModal(o)}><Eye size={12} /> View</button>
+                  <button className="btn-sm btn-view" onClick={() => openModal(o)}>
+                    <Eye size={12} /> View
+                  </button>
                   {o.status === "pending" && (
                     <>
-                      <button className="btn-sm btn-ok" onClick={() => openModal(o)} disabled={processing === o.order_id}><Check size={12} /> Approve</button>
-                      <button className="btn-sm btn-no" onClick={() => handleReject(o.order_id)} disabled={processing === o.order_id}><X size={12} /> Reject</button>
+                      <button className="btn-sm btn-ok" onClick={() => openModal(o)} disabled={processing === o.order_id}>
+                        <Check size={12} /> Approve
+                      </button>
+                      <button className="btn-sm btn-no" onClick={() => handleReject(o.order_id)} disabled={processing === o.order_id}>
+                        <X size={12} /> Reject
+                      </button>
                     </>
                   )}
                 </div>
@@ -323,7 +381,13 @@ export default function AdminDashboard() {
                   {parseItems(selectedOrder).map((item, i) => (
                     <div className="item-card" key={i}>
                       <span>{item.name}</span>
-                      {item.downloadUrl ? <a href={item.downloadUrl} target="_blank" rel="noreferrer" className="btn-sm btn-ok"><ChevronRight size={12} /> Open Link</a> : <span style={{ color: "#999", fontSize: 12 }}>No link</span>}
+                      {item.downloadUrl ? (
+                        <a href={item.downloadUrl} target="_blank" rel="noreferrer" className="btn-sm btn-ok">
+                          <ChevronRight size={12} /> Open Link
+                        </a>
+                      ) : (
+                        <span style={{ color: "#999", fontSize: 12 }}>No link</span>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -333,8 +397,12 @@ export default function AdminDashboard() {
             {selectedOrder.status === "pending" && (
               <div className="modal-foot">
                 <button className="btn-main btn-gray" onClick={() => setShowModal(false)}>Cancel</button>
-                <button className="btn-main btn-red" onClick={() => handleReject(selectedOrder.order_id)} disabled={processing === selectedOrder.order_id}><X size={14} /> Reject Order</button>
-                <button className="btn-main btn-green" onClick={() => handleApprove(selectedOrder.order_id)} disabled={processing === selectedOrder.order_id}><Send size={14} /> Approve & Send Links</button>
+                <button className="btn-main btn-red" onClick={() => handleReject(selectedOrder.order_id)} disabled={processing === selectedOrder.order_id}>
+                  <X size={14} /> Reject Order
+                </button>
+                <button className="btn-main btn-green" onClick={() => handleApprove(selectedOrder.order_id)} disabled={processing === selectedOrder.order_id}>
+                  <Send size={14} /> Approve & Send Links
+                </button>
               </div>
             )}
           </div>
