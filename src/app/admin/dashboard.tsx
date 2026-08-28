@@ -295,7 +295,19 @@ export default function AdminDashboard({ initialOrders }: { initialOrders: Recor
                   <button className="btn-sm btn-view" onClick={() => openModal(o)}><Eye size={12} /> View</button>
                   {o.status === "pending" && (
                     <>
-                      <button className="btn-sm btn-ok" onClick={() => openModal(o)} disabled={processing === o.orderId}><Check size={12} /> Approve</button>
+                      <button
+                        className="btn-sm btn-ok"
+                        disabled={processing === o.orderId}
+                        onClick={() => {
+                          const missing = o.items.filter(i => !i.downloadUrl);
+                          if (missing.length > 0) {
+                            openModal(o);
+                            showToast(`Download link missing: ${missing.map(m => m.name).join(", ")}. Link add karke approve karo.`, "error");
+                          } else {
+                            handleApprove(o.orderId);
+                          }
+                        }}
+                      ><Check size={12} /> {processing === o.orderId ? "..." : "Approve"}</button>
                       <button className="btn-sm btn-no" onClick={() => handleReject(o.orderId)} disabled={processing === o.orderId}><X size={12} /> Reject</button>
                     </>
                   )}

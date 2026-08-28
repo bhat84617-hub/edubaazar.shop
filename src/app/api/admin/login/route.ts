@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminSession } from "@/lib/admin-session";
 
-const FALLBACK_PASSWORD = "Admin@123";
-
 export async function POST(request: NextRequest) {
   const body = await request.json().catch(() => null) as { password?: string } | null;
 
@@ -10,7 +8,11 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Password required" }, { status: 400 });
   }
 
-  const expected = process.env.ADMIN_PASSWORD || FALLBACK_PASSWORD;
+  const expected = process.env.ADMIN_PASSWORD;
+
+  if (!expected) {
+    return NextResponse.json({ error: "ADMIN_PASSWORD env not set" }, { status: 503 });
+  }
 
   if (body.password !== expected) {
     return NextResponse.json({ error: "Galat password" }, { status: 401 });

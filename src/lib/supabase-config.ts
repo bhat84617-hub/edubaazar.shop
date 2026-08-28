@@ -1,2 +1,2 @@
-export const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://zzkjeimlnawgrkuwbban.supabase.co";
-export const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp6a2plaW1sbmF3Z3JrdXdiYmFuIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4Nzg5MzkwOCwiZXhwIjoyMTAzNDY5OTA4fQ.fdZwR_6gi2rjOTN2EIMlu12n49H-99h2x0Dh_t5Goic";
+export const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
+export const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
