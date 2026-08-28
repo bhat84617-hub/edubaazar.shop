@@ -17,10 +17,10 @@ export default function AdminLoginPage() {
     setError("");
     
     if (password === ADMIN_PASSWORD) {
-      document.cookie = "edubazar_admin_session=valid_admin_session; path=/; max-age=28800";
-      window.location.href = "/admin";
+      document.cookie = "edubazar_admin_session=admin_logged_in; path=/; max-age=28800; SameSite=Lax";
+      window.location.replace("/admin");
     } else {
-      setError("Galat password");
+      setError("Galat password. Phir se try karo.");
       setBusy(false);
     }
   };
@@ -45,6 +45,7 @@ export default function AdminLoginPage() {
             onChange={e => setPassword(e.target.value)}
             placeholder="Enter admin password"
             required
+            autoComplete="current-password"
             style={{ width: "100%", padding: "14px 16px", border: "1.5px solid #e0e0e0", borderRadius: 10, fontSize: 15, outline: "none", marginBottom: 20, boxSizing: "border-box", transition: "border 0.2s" }}
           />
           {error && (

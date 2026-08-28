@@ -5,8 +5,11 @@ export function proxy(request: NextRequest) {
 
   if (pathname.startsWith("/admin") && pathname !== "/admin/login") {
     const session = request.cookies.get("edubazar_admin_session")?.value;
-    if (session !== "valid_admin_session") {
-      return NextResponse.redirect(new URL("/admin/login", request.url));
+    const isAdmin = session === "valid_admin_session" || session === "admin_logged_in";
+    if (!isAdmin) {
+      const loginUrl = new URL("/admin/login", request.url);
+      loginUrl.searchParams.set("from", pathname);
+      return NextResponse.redirect(loginUrl);
     }
   }
 
