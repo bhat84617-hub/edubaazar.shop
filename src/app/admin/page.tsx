@@ -8,7 +8,9 @@ import {
   IndianRupee, Search, RefreshCw, LogOut, Eye, Check, X,
   TrendingUp, Package, ChevronRight, Send, AlertCircle
 } from "lucide-react";
-import { SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY } from "@/lib/supabase-config";
+
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://zzkjeimlnawgrkuwbban.supabase.co";
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
 
 interface OrderItem {
   id: string;
@@ -74,11 +76,20 @@ export default function AdminDashboard() {
   }, []);
 
   const fetchOrders = useCallback(async () => {
-    if (!supabase) return;
+    if (!supabase) {
+      setError("Admin panel not configured. Missing Supabase service role key.");
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     setError(null);
     try {
-      const { data } = await supabase.from("orders").select("*").order("date", { ascending: false });
+      const { data, error: fetchError } = await supabase.from("orders").select("*").order("date", { ascending: false });
+      if (fetchError) {
+        setError("Database error: " + fetchError.message);
+        setLoading(false);
+        return;
+      }
       if (data) {
         const formatted = data.map(o => ({ ...o, items: typeof o.items === "string" ? JSON.parse(o.items) : o.items })) as Order[];
         setOrders(formatted);
@@ -112,7 +123,6 @@ export default function AdminDashboard() {
 
       const items = Array.isArray(order.items) ? order.items : JSON.parse(order.items as string);
       
-      // Check if all items have download links
       const missingLinks = items.filter((item: OrderItem) => !downloadInputs[item.id || item.name] && !item.downloadUrl);
       if (missingLinks.length > 0) {
         showToast(`Please enter download links for all items (${missingLinks.length} missing)`, "error");

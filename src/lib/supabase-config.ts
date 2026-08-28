@@ -1,2 +1,2 @@
-export const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://trscqdizztkfupntqplo.supabase.co";
-export const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyc2NxZGl6emtma3VucXRwcWxvIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTcyNzQxOTI0NCwiZXhwIjoyMDQyOTk1MjQ0fQ.MHqGvJ8V7J8Z5K4GzR8Y8U7T8Z5J4K3H6M9N0O2P4Q6R8S0T2U4V6W8X0Y2Z4";
+export const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://zzkjeimlnawgrkuwbban.supabase.co";
+export const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp6a2plaW1sbmF3Z3JrdXdiYmFuIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4Nzg5MzkwOCwiZXhwIjoyMTAzNDY5OTA4fQ.fdZwR_6gi2rjOTN2EIMlu12n49H-99h2x0Dh_t5Goic";
