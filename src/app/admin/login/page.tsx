@@ -3,29 +3,26 @@
 import Link from "next/link";
 import { useState } from "react";
 import { ShieldCheck, Lock, ArrowLeft } from "lucide-react";
-import { useStore } from "@/lib/store";
+
+const ADMIN_PASSWORD = "Admin@123";
 
 export default function AdminLoginPage() {
-  const { adminLogin } = useStore();
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
 
-  const submit = async (e: React.FormEvent) => {
+  const submit = (e: React.FormEvent) => {
     e.preventDefault();
     setBusy(true);
     setError("");
-    try {
-      const success = adminLogin(password);
-      if (success) {
-        window.location.href = "/admin";
-        return;
-      }
+    
+    if (password === ADMIN_PASSWORD) {
+      document.cookie = "edubazar_admin_session=valid_admin_session; path=/; max-age=28800";
+      window.location.href = "/admin";
+    } else {
       setError("Galat password");
-    } catch {
-      setError("Network error");
+      setBusy(false);
     }
-    setBusy(false);
   };
 
   return (
