@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
   res.cookies.set("edubazar_admin_session", createAdminSession(), {
     httpOnly: true,
     sameSite: "lax",
-    secure: true,
+    secure: process.env.NODE_ENV === "production",
     path: "/",
     maxAge: 60 * 60 * 8,
   });
