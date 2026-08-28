@@ -33,11 +33,13 @@ export default function RegisterPage() {
       if (insErr) throw new Error(insErr.message);
       login({ name: name.trim(), email: email.trim().toLowerCase() });
       showToast("Account created! Welcome to EduBazar.");
-      fetch("/api/send-email", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type: "signup", name: name.trim(), email: email.trim().toLowerCase() }),
-      }).catch(() => {});
+      try {
+        fetch("/api/send-email", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ type: "signup", name: name.trim(), email: email.trim().toLowerCase() }),
+        }).catch(() => {});
+      } catch {}
       router.push("/account");
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Something went wrong.";
