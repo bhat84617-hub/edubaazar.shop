@@ -21,6 +21,9 @@ export default function RegisterPage() {
     setError("");
     setLoading(true);
     try {
+      if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+        throw new Error("Database not configured. Please contact support.");
+      }
       const { data: existing } = await supabase.from("users").select("id").eq("email", email.trim().toLowerCase()).single();
       if (existing) {
         setError("This email is already registered. Please login.");
