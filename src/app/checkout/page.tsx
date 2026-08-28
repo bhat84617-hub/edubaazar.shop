@@ -34,7 +34,7 @@ export default function CheckoutPage() {
     if (total > 0) {
       const digits = utr.trim().replace(/\D/g, "");
       if (digits.length < 10) {
-        showToast("Please enter a valid UPI Transaction ID (10-13 digits)", "error");
+        showToast("Please enter a valid UPI Transaction ID (10-14 digits)", "error");
         return;
       }
       if (digits.length > 14) {
@@ -43,30 +43,36 @@ export default function CheckoutPage() {
       }
     }
     setPlacing(true);
-    const order = await placeOrder({ name: form.name, email: form.email, phone: form.phone, utr });
-    setPlacing(false);
-    if (order) {
-      setPlaced({ id: order.orderId, total: order.total });
-      setStep(3);
-      fetch("/api/send-email", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          type: "order",
-          orderId: order.orderId,
-          name: form.name,
-          email: form.email,
-          items: order.items.map((i) => ({ name: i.name, price: i.price, qty: i.qty })),
-          total: order.total,
-          utr,
-          downloadUrls: Object.fromEntries(
-            order.items
-              .filter((item) => item.downloadUrl)
-              .map((item) => [item.name, item.downloadUrl])
-          ),
-        }),
-      }).catch(() => {});
+    try {
+      const order = await placeOrder({ name: form.name, email: form.email, phone: form.phone, utr: utr.trim() });
+      if (order) {
+        setPlaced({ id: order.orderId, total: order.total });
+        setStep(3);
+        fetch("/api/send-email", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            type: "order",
+            orderId: order.orderId,
+            name: form.name,
+            email: form.email,
+            items: order.items.map((i) => ({ name: i.name, price: i.price, qty: i.qty })),
+            total: order.total,
+            utr,
+            downloadUrls: Object.fromEntries(
+              order.items
+                .filter((item) => item.downloadUrl)
+                .map((item) => [item.name, item.downloadUrl])
+            ),
+          }),
+        }).catch(() => {});
+      } else {
+        showToast("Failed to place order. Please try again.", "error");
+      }
+    } catch {
+      showToast("Something went wrong. Please try again.", "error");
     }
+    setPlacing(false);
   };
 
   if (mounted && !user) {

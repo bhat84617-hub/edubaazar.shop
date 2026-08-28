@@ -20,7 +20,7 @@ export const STORE = {
   phoneRaw: "9759131256",
   whatsapp: "919759131256",
   email: "edubazarshop@gmail.com",
-  upiId: "edubazar@upi",
+  upiId: "paytm.s34cntn@pty",
   address: "India",
   instagram: "https://instagram.com",
 };

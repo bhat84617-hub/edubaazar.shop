@@ -111,9 +111,18 @@ export default function AdminDashboard() {
       if (!order) return;
 
       const items = Array.isArray(order.items) ? order.items : JSON.parse(order.items as string);
+      
+      // Check if all items have download links
+      const missingLinks = items.filter((item: OrderItem) => !downloadInputs[item.id || item.name] && !item.downloadUrl);
+      if (missingLinks.length > 0) {
+        showToast(`Please enter download links for all items (${missingLinks.length} missing)`, "error");
+        setProcessing(null);
+        return;
+      }
+
       const updatedItems = items.map((item: OrderItem) => ({
         ...item,
-        downloadUrl: downloadInputs[item.id || item.name] || item.downloadUrl || `https://www.edubaazar.shop/account`
+        downloadUrl: downloadInputs[item.id || item.name] || item.downloadUrl || ""
       }));
 
       const { error: updateError } = await supabase.from("orders").update({ status: "approved", items: JSON.stringify(updatedItems) }).eq("order_id", orderId);
