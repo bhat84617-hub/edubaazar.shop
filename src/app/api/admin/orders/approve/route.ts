@@ -1,10 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { isValidAdminSession } from "@/lib/admin-session";
-import { SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY } from "@/lib/supabase-config";
+import { getProductById } from "@/lib/products";
 
 function getDb() {
-  return createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, { auth: { autoRefreshToken: false, persistSession: false } });
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !key) return null;
+  return createClient(url, key, { auth: { autoRefreshToken: false, persistSession: false } });
 }
 
 function htmlResponse(body: string) {
@@ -28,6 +31,9 @@ export async function GET(request: NextRequest) {
   }
 
   const db = getDb();
+  if (!db) {
+    return htmlResponse("Database not configured.");
+  }
 
   const { data: order } = await db
     .from("orders")
@@ -37,7 +43,11 @@ export async function GET(request: NextRequest) {
 
   if (order) {
     const items = typeof order.items === "string" ? JSON.parse(order.items) : order.items;
-    const updatedItems = items.map((item: { id: string; name?: string; downloadUrl?: string | null }) => ({ ...item, downloadUrl: item.downloadUrl || "" }));
+    const updatedItems = items.map((item: { id: string; name?: string; downloadUrl?: string | null }) => {
+      const productDefault = getProductById(item.id)?.downloadUrl ?? "";
+      const finalUrl = item.downloadUrl || productDefault || "";
+      return { ...item, downloadUrl: finalUrl };
+    });
 
     await db
       .from("orders")

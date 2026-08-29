@@ -6,6 +6,7 @@ import {
   IndianRupee, Search, RefreshCw, LogOut, Eye, Check, X,
   TrendingUp, Package, Download, ExternalLink, Bell, Menu, XIcon,
 } from "lucide-react";
+import { getProductById } from "@/lib/products";
 
 /* ── types ─────────────────────────────────────────────────────────── */
 interface OrderItem {
@@ -159,11 +160,13 @@ export default function AdminDashboard() {
   const parseItems = (o: Order) =>
     Array.isArray(o.items) ? o.items : JSON.parse(o.items as string);
 
-  /* ── open modal: pre-fill download URLs from items ─────────────── */
+  /* ── open modal: pre-fill download URLs from items + product catalog ── */
   const openDetail = (o: Order) => {
     const merged: Record<string, string> = {};
     parseItems(o).forEach((it: OrderItem) => {
-      merged[it.id || it.name] = it.downloadUrl || "";
+      const productUrl = getProductById(it.id)?.downloadUrl || "";
+      // Admin can always override. Auto-fill from product if nothing set yet.
+      merged[it.id || it.name] = it.downloadUrl || productUrl || "";
     });
     setDownloadUrls(merged);
     setSelected(o);

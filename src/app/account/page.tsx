@@ -69,7 +69,7 @@ export default function AccountPage() {
   const totalDownloads = merged
     .filter((o) => o.status === "approved")
     .flatMap((o) => o.items || [])
-    .filter((item) => item.downloadUrl && item.downloadUrl !== "#").length;
+    .filter((item) => item.downloadUrl && /^https?:\/\//i.test(item.downloadUrl) && !/\/account$/.test(item.downloadUrl) && item.downloadUrl !== "#").length;
   const approved = merged.filter((o) => o.status === "approved").length;
 
   if (!user) {
@@ -192,12 +192,12 @@ export default function AccountPage() {
                           <td>
                             {isApproved ? (
                               items.map((i) =>
-                                i.downloadUrl && i.downloadUrl !== "#" ? (
+                                i.downloadUrl && /^https?:\/\//i.test(i.downloadUrl) && !/\/account$/.test(i.downloadUrl) && i.downloadUrl !== "#" ? (
                                   <a key={i.name} href={i.downloadUrl} target="_blank" rel="noreferrer" className="btn btn-accent btn-sm" style={{ margin: "2px 4px 2px 0" }}>
                                     <DownloadCloud size={13} /> Download
                                   </a>
                                 ) : (
-                                  <a key={i.name} href="https://wa.me/919759131256?text=Hi%20EduBazar%2C%20I%20need%20download%20link%20for%20my%20approved%20order%20${order.orderId}" target="_blank" rel="noreferrer" className="btn btn-outline btn-sm" style={{ margin: "2px 4px 2px 0", fontSize: 11 }}>
+                                  <a key={i.name} href={`https://wa.me/919759131256?text=Hi%20EduBazar%2C%20I%20need%20download%20link%20for%20my%20approved%20order%20${order.orderId}`} target="_blank" rel="noreferrer" className="btn btn-outline btn-sm" style={{ margin: "2px 4px 2px 0", fontSize: 11 }}>
                                     <MessageCircle size={12} /> Get Download Link
                                   </a>
                                 )

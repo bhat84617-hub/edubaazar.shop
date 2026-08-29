@@ -77,16 +77,17 @@ export async function PATCH(request: NextRequest) {
   let updatedItems = items;
 
   if (body.status === "approved") {
-    const urls = body.downloadUrls || {};
-    updatedItems = items.map((item) => {
-      const adminUrl = urls[item.id]?.trim() || (item.name ? (urls[item.name]?.trim() ?? "") : "");
-      // fallback: item already has a downloadUrl, else look up product, else dashboard
-      const productDefault = getProductById(item.id)?.downloadUrl ?? "";
-      const finalUrl = adminUrl || item.downloadUrl || productDefault || "https://www.edubaazar.shop/account";
-      return { ...item, downloadUrl: finalUrl };
-    });
-    update.items = JSON.stringify(updatedItems);
-  }
+      const urls = body.downloadUrls || {};
+      updatedItems = items.map((item) => {
+        // Priority: 1. Admin provided URL, 2. Existing item downloadUrl, 3. Product's downloadUrl, 4. Empty string
+        const adminUrl = urls[item.id]?.trim() || (item.name ? (urls[item.name]?.trim() ?? "") : "");
+        const productDefault = getProductById(item.id)?.downloadUrl ?? "";
+        // Use admin URL if provided, otherwise keep existing, otherwise use product default
+        const finalUrl = adminUrl || item.downloadUrl || productDefault || "";
+        return { ...item, downloadUrl: finalUrl };
+      });
+      update.items = JSON.stringify(updatedItems);
+    }
 
   const { error: updateErr } = await db
     .from("orders")
@@ -98,7 +99,13 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json({ error: updateErr.message }, { status: 500 });
   }
 
-  const downloadMap = Object.fromEntries(updatedItems.map((i) => [i.name || i.id, i.downloadUrl || ""]));
+  // Build download map for email - only include valid URLs
+  const downloadMap = Object.fromEntries(
+    updatedItems
+      .filter((i) => i.downloadUrl && i.downloadUrl.startsWith("http"))
+      .map((i) => [i.name || i.id, i.downloadUrl!])
+  );
+  
   sendOrderStatusUpdate({
     orderId: body.orderId,
     name: order.name,
