@@ -4,6 +4,7 @@ import { StoreProvider } from "@/lib/store";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Toaster from "@/components/Toaster";
+import AIChatWidget from "@/components/AIChatWidget";
 import "./globals.css";
 
 const jost = Jost({
@@ -110,6 +111,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <main className="flex-1">{children}</main>
           <Footer />
           <Toaster />
+          <AIChatWidget />
         </StoreProvider>
       </body>
     </html>
