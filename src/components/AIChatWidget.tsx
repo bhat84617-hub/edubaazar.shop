@@ -25,28 +25,28 @@ interface Message {
 // ============ DESIGN TOKENS ============
 const DESIGN = {
   colors: {
-    bg: "#0a0e1a",
-    surface: "#111827",
-    surfaceElevated: "#1a2235",
-    surfaceHover: "#1e2942",
-    border: "rgba(59, 130, 246, 0.15)",
-    borderHover: "rgba(59, 130, 246, 0.3)",
-    primary: "#3b82f6",
-    primaryGlow: "rgba(59, 130, 246, 0.4)",
-    primaryLight: "#60a5fa",
-    accent: "#f59e0b",
-    accentGlow: "rgba(245, 158, 11, 0.4)",
-    success: "#10b981",
-    error: "#ef4444",
-    warning: "#f59e0b",
-    text: "#f1f5f9",
-    textSecondary: "#94a3b8",
-    textMuted: "#64748b",
+    bg: "#F4F1EA",
+    surface: "#F9F6F0",
+    surfaceElevated: "#F5F2EB",
+    surfaceHover: "#EFECE3",
+    border: "#DDD8CE",
+    borderHover: "#C4BBAA",
+    primary: "#2C5F7A",
+    primaryGlow: "rgba(44, 95, 122, 0.25)",
+    primaryLight: "#3A7A9A",
+    accent: "#C4953A",
+    accentGlow: "rgba(196, 149, 58, 0.3)",
+    success: "#2A7A4E",
+    error: "#A83D3D",
+    warning: "#C4953A",
+    text: "#1E1E1E",
+    textSecondary: "#5A5350",
+    textMuted: "#8A827A",
   },
   gradients: {
     primary: "linear-gradient(135deg, #3b82f6 0%, #2563eb 50%, #1d4ed8 100%)",
     accent: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
-    glow: "radial-gradient(circle, rgba(59, 130, 246, 0.3) 0%, transparent 70%)",
+    glow: "radial-gradient(circle, rgba(44, 95, 122, 0.25) 0%, transparent 70%)",
     surface: "linear-gradient(180deg, rgba(26, 34, 53, 0.8) 0%, rgba(17, 24, 39, 0.95) 100%)",
   }
 };
@@ -913,27 +913,27 @@ export default function AIChatWidget() {
       <style>{`
         /* === DESIGN TOKENS === */
         .edubot-* {
-          --edubot-bg: #0a0e1a;
-          --edubot-surface: #111827;
-          --edubot-surface-elevated: #1a2235;
-          --edubot-surface-hover: #1e2942;
-          --edubot-border: rgba(59, 130, 246, 0.15);
-          --edubot-border-hover: rgba(59, 130, 246, 0.3);
-          --edubot-primary: #3b82f6;
-          --edubot-primary-glow: rgba(59, 130, 246, 0.4);
-          --edubot-primary-light: #60a5fa;
-          --edubot-accent: #f59e0b;
-          --edubot-accent-glow: rgba(245, 158, 11, 0.4);
-          --edubot-success: #10b981;
-          --edubot-text: #f1f5f9;
-          --edubot-text-secondary: #94a3b8;
-          --edubot-text-muted: #64748b;
+          --edubot-bg: #F4F1EA;
+          --edubot-surface: #F9F6F0;
+          --edubot-surface-elevated: #F5F2EB;
+          --edubot-surface-hover: #EFECE3;
+          --edubot-border: #DDD8CE;
+          --edubot-border-hover: #C4BBAA;
+          --edubot-primary: #2C5F7A;
+          --edubot-primary-glow: rgba(44, 95, 122, 0.25);
+          --edubot-primary-light: #3A7A9A;
+          --edubot-accent: #C4953A;
+          --edubot-accent-glow: rgba(196, 149, 58, 0.3);
+          --edubot-success: #2A7A4E;
+          --edubot-text: #1E1E1E;
+          --edubot-text-secondary: #5A5350;
+          --edubot-text-muted: #8A827A;
         }
 
         /* === ANIMATIONS === */
         @keyframes edubot-glow-pulse {
-          0%, 100% { box-shadow: 0 0 20px var(--edubot-primary-glow), 0 0 40px rgba(59, 130, 246, 0.2); }
-          50% { box-shadow: 0 0 30px var(--edubot-primary-glow), 0 0 60px rgba(59, 130, 246, 0.3); }
+          0%, 100% { box-shadow: 0 0 20px var(--edubot-primary-glow), 0 0 40px rgba(44, 95, 122, 0.2); }
+          50% { box-shadow: 0 0 30px var(--edubot-primary-glow), 0 0 60px rgba(44, 95, 122, 0.25); }
         }
 
         @keyframes edubot-slide-in {
@@ -959,21 +959,21 @@ export default function AIChatWidget() {
           width: 60px;
           height: 60px;
           border-radius: 50%;
-          background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+          background: linear-gradient(135deg, #2C5F7A 0%, #1E4058 100%);
           border: none;
           cursor: pointer;
           display: flex;
           align-items: center;
           justify-content: center;
-          color: white;
-          box-shadow: 0 4px 20px rgba(59, 130, 246, 0.4);
+          color: #F4F1EA;
+          box-shadow: 0 4px 20px rgba(44, 95, 122, 0.4);
           transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
           animation: edubot-glow-pulse 3s ease-in-out infinite;
         }
 
         .edubot-launcher:hover {
           transform: scale(1.1);
-          box-shadow: 0 6px 30px rgba(59, 130, 246, 0.5);
+          box-shadow: 0 6px 30px rgba(44, 95, 122, 0.5);
         }
 
         .edubot-launcher svg {
@@ -1001,7 +1001,7 @@ export default function AIChatWidget() {
           align-items: center;
           justify-content: center;
           animation: edubot-slide-in 0.3s ease;
-          border: 2px solid var(--edubot-bg);
+          border: 2px solid #F4F1EA;
         }
 
         /* === CHAT WINDOW === */
@@ -1014,24 +1014,24 @@ export default function AIChatWidget() {
           max-width: calc(100vw - 48px);
           height: 600px;
           max-height: calc(100vh - 140px);
-          background: var(--edubot-bg);
+          background: #F4F1EA;
           border-radius: 20px;
-          border: 1px solid var(--edubot-border);
+          border: 1px solid #DDD8CE;
           display: flex;
           flex-direction: column;
           overflow: hidden;
           animation: edubot-slide-in 0.4s cubic-bezier(0.4, 0, 0.2, 1);
           box-shadow:
-            0 25px 50px -12px rgba(0, 0, 0, 0.5),
-            0 0 0 1px rgba(255, 255, 255, 0.05),
-            inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            0 25px 50px -12px rgba(0, 0, 0, 0.15),
+            0 0 0 1px rgba(255, 255, 255, 0.5),
+            inset 0 1px 0 rgba(255, 255, 255, 0.5);
         }
 
         /* === HEADER === */
         .edubot-header {
           padding: 20px;
-          background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(30, 41, 66, 0.8) 100%);
-          border-bottom: 1px solid var(--edubot-border);
+          background: linear-gradient(135deg, #F5F2EB 0%, #F9F6F0 100%);
+          border-bottom: 1px solid #DDD8CE;
           display: flex;
           align-items: center;
           justify-content: space-between;
@@ -1052,7 +1052,7 @@ export default function AIChatWidget() {
           align-items: center;
           justify-content: center;
           color: white;
-          box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+          box-shadow: 0 4px 15px rgba(44, 95, 122, 0.25);
           position: relative;
           overflow: hidden;
         }
@@ -1078,7 +1078,7 @@ export default function AIChatWidget() {
         .edubot-header-info h3 {
           font-size: 16px;
           font-weight: 600;
-          color: var(--edubot-text);
+          color: #1E1E1E;
           margin: 0 0 4px 0;
           letter-spacing: -0.02em;
         }
@@ -1088,15 +1088,15 @@ export default function AIChatWidget() {
           align-items: center;
           gap: 6px;
           font-size: 12px;
-          color: var(--edubot-text-secondary);
+          color: #5A5350;
         }
 
         .edubot-status-dot {
           width: 8px;
           height: 8px;
           border-radius: 50%;
-          background: var(--edubot-success);
-          box-shadow: 0 0 8px var(--edubot-success);
+          background: #2A7A4E;
+          box-shadow: 0 0 8px #2A7A4E;
           animation: edubot-glow-pulse 2s ease-in-out infinite;
         }
 
@@ -1104,9 +1104,9 @@ export default function AIChatWidget() {
           width: 36px;
           height: 36px;
           border-radius: 10px;
-          background: var(--edubot-surface-elevated);
-          border: 1px solid var(--edubot-border);
-          color: var(--edubot-text-secondary);
+          background: #F9F6F0;
+          border: 1px solid #DDD8CE;
+          color: #5A5350;
           cursor: pointer;
           display: flex;
           align-items: center;
@@ -1115,9 +1115,9 @@ export default function AIChatWidget() {
         }
 
         .edubot-close:hover {
-          background: var(--edubot-surface-hover);
-          color: var(--edubot-text);
-          border-color: var(--edubot-border-hover);
+          background: #EFECE3;
+          color: #1E1E1E;
+          border-color: #C4BBAA;
         }
 
         /* === MESSAGES === */
@@ -1140,12 +1140,12 @@ export default function AIChatWidget() {
         }
 
         .edubot-messages::-webkit-scrollbar-thumb {
-          background: var(--edubot-border);
+          background: #DDD8CE;
           border-radius: 3px;
         }
 
         .edubot-messages::-webkit-scrollbar-thumb:hover {
-          background: var(--edubot-border-hover);
+          background: #C4BBAA;
         }
 
         /* === WELCOME MESSAGE === */
@@ -1164,17 +1164,17 @@ export default function AIChatWidget() {
           width: 40px;
           height: 40px;
           border-radius: 12px;
-          background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+          background: linear-gradient(135deg, #2C5F7A 0%, #1E4058 100%);
           display: flex;
           align-items: center;
           justify-content: center;
-          color: white;
+          color: #F4F1EA;
           flex-shrink: 0;
         }
 
         .edubot-welcome-bubble {
-          background: var(--edubot-surface-elevated);
-          border: 1px solid var(--edubot-border);
+          background: #F9F6F0;
+          border: 1px solid #DDD8CE;
           border-radius: 16px;
           border-top-left-radius: 4px;
           padding: 16px;
@@ -1182,7 +1182,7 @@ export default function AIChatWidget() {
         }
 
         .edubot-welcome-bubble p {
-          color: var(--edubot-text);
+          color: #1E1E1E;
           font-size: 14px;
           line-height: 1.6;
           margin: 0 0 12px 0;
@@ -1203,9 +1203,9 @@ export default function AIChatWidget() {
         .edubot-quick-btn {
           padding: 8px 14px;
           border-radius: 20px;
-          background: var(--edubot-surface-elevated);
-          border: 1px solid var(--edubot-border);
-          color: var(--edubot-text-secondary);
+          background: #F9F6F0;
+          border: 1px solid #DDD8CE;
+          color: #5A5350;
           font-size: 12px;
           cursor: pointer;
           transition: all 0.2s ease;
@@ -1215,9 +1215,9 @@ export default function AIChatWidget() {
         }
 
         .edubot-quick-btn:hover {
-          background: var(--edubot-surface-hover);
-          border-color: var(--edubot-primary);
-          color: var(--edubot-primary-light);
+          background: #EFECE3;
+          border-color: #2C5F7A;
+          color: #3A7A9A;
           transform: translateY(-1px);
         }
 
@@ -1236,16 +1236,16 @@ export default function AIChatWidget() {
           width: 32px;
           height: 32px;
           border-radius: 10px;
-          background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+          background: linear-gradient(135deg, #2C5F7A 0%, #1E4058 100%);
           display: flex;
           align-items: center;
           justify-content: center;
-          color: white;
+          color: #F4F1EA;
           flex-shrink: 0;
         }
 
         .edubot-message.user .edubot-message-avatar {
-          background: var(--edubot-surface-hover);
+          background: #EFECE3;
         }
 
         .edubot-message-content {
@@ -1260,26 +1260,26 @@ export default function AIChatWidget() {
           border-radius: 16px;
           font-size: 14px;
           line-height: 1.6;
-          color: var(--edubot-text);
+          color: #1E1E1E;
           white-space: pre-wrap;
           word-break: break-word;
         }
 
         .edubot-message.assistant .edubot-message-bubble {
-          background: var(--edubot-surface-elevated);
-          border: 1px solid var(--edubot-border);
+          background: #F9F6F0;
+          border: 1px solid #DDD8CE;
           border-radius: 16px 16px 16px 4px;
         }
 
         .edubot-message.user .edubot-message-bubble {
-          background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-          color: white;
+          background: linear-gradient(135deg, #2C5F7A 0%, #1E4058 100%);
+          color: #F4F1EA;
           border-radius: 16px 16px 4px 16px;
         }
 
         .edubot-message-time {
           font-size: 10px;
-          color: var(--edubot-text-muted);
+          color: #8A827A;
           padding: 0 4px;
         }
 
@@ -1298,17 +1298,17 @@ export default function AIChatWidget() {
           width: 32px;
           height: 32px;
           border-radius: 10px;
-          background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+          background: linear-gradient(135deg, #2C5F7A 0%, #1E4058 100%);
           display: flex;
           align-items: center;
           justify-content: center;
-          color: white;
+          color: #F4F1EA;
           flex-shrink: 0;
         }
 
         .edubot-typing-bubble {
-          background: var(--edubot-surface-elevated);
-          border: 1px solid var(--edubot-border);
+          background: #F9F6F0;
+          border: 1px solid #DDD8CE;
           border-radius: 16px 16px 16px 4px;
           padding: 14px 18px;
           display: flex;
@@ -1320,7 +1320,7 @@ export default function AIChatWidget() {
           width: 6px;
           height: 6px;
           border-radius: 50%;
-          background: var(--edubot-primary);
+          background: #2C5F7A;
           animation: edubot-typing-dot 1.4s ease-in-out infinite;
         }
 
@@ -1336,7 +1336,7 @@ export default function AIChatWidget() {
 
         .edubot-products-title {
           font-size: 12px;
-          color: var(--edubot-text-secondary);
+          color: #5A5350;
           font-weight: 500;
           text-transform: uppercase;
           letter-spacing: 0.05em;
@@ -1344,15 +1344,15 @@ export default function AIChatWidget() {
         }
 
         .product-card {
-          background: var(--edubot-surface-elevated);
-          border: 1px solid var(--edubot-border);
+          background: #F9F6F0;
+          border: 1px solid #DDD8CE;
           border-radius: 14px;
           overflow: hidden;
           transition: all 0.2s ease;
         }
 
         .product-card:hover {
-          border-color: var(--edubot-border-hover);
+          border-color: #C4BBAA;
           transform: translateY(-2px);
           box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
         }
@@ -1385,7 +1385,7 @@ export default function AIChatWidget() {
           display: flex;
           align-items: center;
           justify-content: center;
-          color: var(--edubot-text-muted);
+          color: #8A827A;
         }
 
         .product-badge {
@@ -1400,18 +1400,18 @@ export default function AIChatWidget() {
         }
 
         .product-badge.hot {
-          background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-          color: white;
+          background: linear-gradient(135deg, #A83D3D 0%, #7A2B2B 100%);
+          color: #F4F1EA;
         }
 
         .product-badge.bestseller {
-          background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-          color: white;
+          background: linear-gradient(135deg, #C4953A 0%, #95752C 100%);
+          color: #F4F1EA;
         }
 
         .product-badge.new {
-          background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-          color: white;
+          background: linear-gradient(135deg, #2A7A4E 0%, #1E5E3A 100%);
+          color: #F4F1EA;
         }
 
         .product-info {
@@ -1422,7 +1422,7 @@ export default function AIChatWidget() {
         .product-title {
           font-size: 13px;
           font-weight: 600;
-          color: var(--edubot-text);
+          color: #1E1E1E;
           margin: 0 0 4px 0;
           white-space: nowrap;
           overflow: hidden;
@@ -1441,12 +1441,12 @@ export default function AIChatWidget() {
           padding: 2px 6px;
           border-radius: 4px;
           background: var(--edubot-surface);
-          color: var(--edubot-text-secondary);
+          color: #5A5350;
         }
 
         .product-desc {
           font-size: 11px;
-          color: var(--edubot-text-muted);
+          color: #8A827A;
           margin: 0 0 6px 0;
           line-height: 1.4;
           display: -webkit-box;
@@ -1459,7 +1459,7 @@ export default function AIChatWidget() {
           display: flex;
           gap: 10px;
           font-size: 10px;
-          color: var(--edubot-text-secondary);
+          color: #5A5350;
         }
 
         .product-footer {
@@ -1468,7 +1468,7 @@ export default function AIChatWidget() {
           justify-content: space-between;
           padding: 10px 12px;
           background: var(--edubot-surface);
-          border-top: 1px solid var(--edubot-border);
+          border-top: 1px solid #DDD8CE;
         }
 
         .product-price {
@@ -1480,20 +1480,20 @@ export default function AIChatWidget() {
         .price-current {
           font-size: 15px;
           font-weight: 700;
-          color: var(--edubot-accent);
+          color: #C4953A;
         }
 
         .price-old {
           font-size: 11px;
-          color: var(--edubot-text-muted);
+          color: #8A827A;
           text-decoration: line-through;
         }
 
         .price-discount {
           font-size: 10px;
           font-weight: 600;
-          color: var(--edubot-success);
-          background: rgba(16, 185, 129, 0.1);
+          color: #2A7A4E;
+          background: rgba(42, 122, 78, 0.15);
           padding: 2px 6px;
           border-radius: 4px;
         }
@@ -1504,13 +1504,13 @@ export default function AIChatWidget() {
           gap: 4px;
           font-size: 12px;
           font-weight: 500;
-          color: var(--edubot-primary-light);
+          color: #3A7A9A;
           text-decoration: none;
           transition: all 0.2s ease;
         }
 
         .product-action:hover {
-          color: var(--edubot-primary);
+          color: #2C5F7A;
         }
 
         /* === SUGGESTED ACTIONS === */
@@ -1524,9 +1524,9 @@ export default function AIChatWidget() {
         .edubot-suggestion-btn {
           padding: 6px 12px;
           border-radius: 8px;
-          background: rgba(59, 130, 246, 0.1);
-          border: 1px solid rgba(59, 130, 246, 0.2);
-          color: var(--edubot-primary-light);
+          background: rgba(44, 95, 122, 0.1);
+          border: 1px solid rgba(44, 95, 122, 0.25);
+          color: #3A7A9A;
           font-size: 11px;
           cursor: pointer;
           transition: all 0.2s ease;
@@ -1536,8 +1536,8 @@ export default function AIChatWidget() {
         }
 
         .edubot-suggestion-btn:hover {
-          background: rgba(59, 130, 246, 0.2);
-          border-color: var(--edubot-primary);
+          background: rgba(44, 95, 122, 0.2);
+          border-color: #2C5F7A;
           transform: translateY(-1px);
         }
 
@@ -1545,7 +1545,7 @@ export default function AIChatWidget() {
         .edubot-input-area {
           padding: 16px 20px;
           background: var(--edubot-surface);
-          border-top: 1px solid var(--edubot-border);
+          border-top: 1px solid #DDD8CE;
         }
 
         .edubot-input-wrapper {
@@ -1563,10 +1563,10 @@ export default function AIChatWidget() {
           width: 100%;
           padding: 12px 16px;
           padding-right: 40px;
-          background: var(--edubot-surface-elevated);
-          border: 1px solid var(--edubot-border);
+          background: #F9F6F0;
+          border: 1px solid #DDD8CE;
           border-radius: 12px;
-          color: var(--edubot-text);
+          color: #1E1E1E;
           font-size: 14px;
           font-family: inherit;
           resize: none;
@@ -1577,12 +1577,12 @@ export default function AIChatWidget() {
         }
 
         .edubot-input::placeholder {
-          color: var(--edubot-text-muted);
+          color: #8A827A;
         }
 
         .edubot-input:focus {
-          border-color: var(--edubot-primary);
-          box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+          border-color: #2C5F7A;
+          box-shadow: 0 0 0 3px rgba(44, 95, 122, 0.2);
         }
 
         .edubot-char-count {
@@ -1590,7 +1590,7 @@ export default function AIChatWidget() {
           right: 12px;
           bottom: 12px;
           font-size: 10px;
-          color: var(--edubot-text-muted);
+          color: #8A827A;
         }
 
         .edubot-send-btn {
@@ -1625,24 +1625,24 @@ export default function AIChatWidget() {
           gap: 12px;
           margin-top: 10px;
           font-size: 10px;
-          color: var(--edubot-text-muted);
+          color: #8A827A;
         }
 
         .edubot-footer a {
-          color: var(--edubot-primary-light);
+          color: #3A7A9A;
           text-decoration: none;
           transition: color 0.2s ease;
         }
 
         .edubot-footer a:hover {
-          color: var(--edubot-primary);
+          color: #2C5F7A;
         }
 
         .edubot-footer-divider {
           width: 3px;
           height: 3px;
           border-radius: 50%;
-          background: var(--edubot-text-muted);
+          background: #8A827A;
         }
 
         /* === DARK MODE OVERRIDES === */
@@ -1741,8 +1741,8 @@ export default function AIChatWidget() {
 
                 {/* Stats Card */}
                 <div className="edubot-stats-card" style={{
-                  background: 'var(--edubot-surface-elevated)',
-                  border: '1px solid var(--edubot-border)',
+                  background: '#F9F6F0',
+                  border: '1px solid #DDD8CE',
                   borderRadius: '14px',
                   padding: '16px',
                   marginLeft: '52px'
@@ -1753,11 +1753,11 @@ export default function AIChatWidget() {
                     gap: '8px',
                     marginBottom: '12px'
                   }}>
-                    <Sparkles size={16} style={{ color: 'var(--edubot-accent)' }} />
+                    <Sparkles size={16} style={{ color: '#C4953A' }} />
                     <span style={{
                       fontSize: '12px',
                       fontWeight: '600',
-                      color: 'var(--edubot-text)'
+                      color: '#1E1E1E'
                     }}>EduBazar Statistics</span>
                   </div>
                   <div style={{
@@ -1769,25 +1769,25 @@ export default function AIChatWidget() {
                       <div style={{
                         fontSize: '20px',
                         fontWeight: '700',
-                        color: 'var(--edubot-primary-light)'
+                        color: '#3A7A9A'
                       }}>{getCourseStats().courses}+</div>
-                      <div style={{ fontSize: '10px', color: 'var(--edubot-text-muted)' }}>Courses</div>
+                      <div style={{ fontSize: '10px', color: '#8A827A' }}>Courses</div>
                     </div>
                     <div style={{ textAlign: 'center' }}>
                       <div style={{
                         fontSize: '20px',
                         fontWeight: '700',
-                        color: 'var(--edubot-accent)'
+                        color: '#C4953A'
                       }}>{getCourseStats().categories}</div>
-                      <div style={{ fontSize: '10px', color: 'var(--edubot-text-muted)' }}>Categories</div>
+                      <div style={{ fontSize: '10px', color: '#8A827A' }}>Categories</div>
                     </div>
                     <div style={{ textAlign: 'center' }}>
                       <div style={{
                         fontSize: '20px',
                         fontWeight: '700',
-                        color: 'var(--edubot-success)'
+                        color: '#2A7A4E'
                       }}>2.5L+</div>
-                      <div style={{ fontSize: '10px', color: 'var(--edubot-text-muted)' }}>Students</div>
+                      <div style={{ fontSize: '10px', color: '#8A827A' }}>Students</div>
                     </div>
                   </div>
                 </div>
@@ -1825,22 +1825,22 @@ export default function AIChatWidget() {
                             justifyContent: 'center',
                             gap: '6px',
                             padding: '10px',
-                            background: 'var(--edubot-surface-elevated)',
-                            border: '1px solid var(--edubot-border)',
+                            background: '#F9F6F0',
+                            border: '1px solid #DDD8CE',
                             borderRadius: '10px',
-                            color: 'var(--edubot-primary-light)',
+                            color: '#3A7A9A',
                             fontSize: '12px',
                             fontWeight: '500',
                             textDecoration: 'none',
                             transition: 'all 0.2s ease'
                           }}
                           onMouseEnter={(e) => {
-                            e.currentTarget.style.borderColor = 'var(--edubot-primary)';
-                            e.currentTarget.style.background = 'var(--edubot-surface-hover)';
+                            e.currentTarget.style.borderColor = '#2C5F7A';
+                            e.currentTarget.style.background = '#EFECE3';
                           }}
                           onMouseLeave={(e) => {
-                            e.currentTarget.style.borderColor = 'var(--edubot-border)';
-                            e.currentTarget.style.background = 'var(--edubot-surface-elevated)';
+                            e.currentTarget.style.borderColor = '#DDD8CE';
+                            e.currentTarget.style.background = '#F9F6F0';
                           }}
                         >
                           View all {msg.products.length} results <ArrowRight size={14} />
