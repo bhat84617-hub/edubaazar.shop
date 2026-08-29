@@ -49,6 +49,9 @@ export default function AccountPage() {
   useEffect(() => {
     if (!user) return;
     fetchOrders();
+    // Auto-refresh every 12s so approved courses & links appear instantly
+    const t = setInterval(fetchOrders, 12000);
+    return () => clearInterval(t);
   }, [user]);
 
   const merged: (PublicOrder | Order)[] = useMemo(() => {

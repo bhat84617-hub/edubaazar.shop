@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { isValidAdminSession } from "@/lib/admin-session";
 import { sendOrderStatusUpdate } from "@/lib/email";
+import { getProductById } from "@/lib/products";
 
 function getDb() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -77,11 +78,13 @@ export async function PATCH(request: NextRequest) {
 
   if (body.status === "approved") {
     const urls = body.downloadUrls || {};
-    const missing = items.some((item) => !/^https?:\/\//i.test(urls[item.id] || item.downloadUrl || ""));
-    if (missing) {
-      return NextResponse.json({ error: "Download URL required for every item" }, { status: 400 });
-    }
-    updatedItems = items.map((item) => ({ ...item, downloadUrl: urls[item.id] || item.downloadUrl || "" }));
+    updatedItems = items.map((item) => {
+      const adminUrl = urls[item.id]?.trim() || (item.name ? (urls[item.name]?.trim() ?? "") : "");
+      // fallback: item already has a downloadUrl, else look up product, else dashboard
+      const productDefault = getProductById(item.id)?.downloadUrl ?? "";
+      const finalUrl = adminUrl || item.downloadUrl || productDefault || "https://www.edubaazar.shop/account";
+      return { ...item, downloadUrl: finalUrl };
+    });
     update.items = JSON.stringify(updatedItems);
   }
 
