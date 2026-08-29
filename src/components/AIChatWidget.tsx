@@ -1,40 +1,55 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { 
-  MessageSquare, X, Send, Bot, User, Loader2, 
+import {
+  MessageSquare, X, Send, Bot, User, Loader2,
   ChevronDown, ChevronUp, Star, Tag, IndianRupee,
-  CheckCircle, AlertCircle, Zap, BookOpen, Code, Shield, Search
+  CheckCircle, AlertCircle, Zap, BookOpen, Code, Shield, Search,
+  GraduationCap, Sparkles, HeadphonesIcon, ShieldCheck, Clock,
+  CreditCard, Package, FileText, RefreshCw, Phone, Mail,
+  ShoppingCart, Gift, TrendingUp, ArrowRight, Info, MapPin,
+  Award, Users, Globe, Lock, ExternalLink, Copy, Check
 } from "lucide-react";
 import { products, getProductById, CATEGORIES } from "@/lib/products";
 
+// ============ TYPES ============
 interface Message {
+  id: string;
   role: "user" | "assistant";
   content: string;
   timestamp: Date;
   products?: any[];
+  suggestedActions?: string[];
 }
 
-const CATEGORY_ICONS: Record<string, any> = {
-  Hacking: Shield,
-  Programming: Code,
-  Trading: Zap,
-  Books: BookOpen,
-  Tools: Tag,
-  Design: Star,
-  Marketing: Star
+// ============ DESIGN TOKENS ============
+const DESIGN = {
+  colors: {
+    bg: "#0a0e1a",
+    surface: "#111827",
+    surfaceElevated: "#1a2235",
+    surfaceHover: "#1e2942",
+    border: "rgba(59, 130, 246, 0.15)",
+    borderHover: "rgba(59, 130, 246, 0.3)",
+    primary: "#3b82f6",
+    primaryGlow: "rgba(59, 130, 246, 0.4)",
+    primaryLight: "#60a5fa",
+    accent: "#f59e0b",
+    accentGlow: "rgba(245, 158, 11, 0.4)",
+    success: "#10b981",
+    error: "#ef4444",
+    warning: "#f59e0b",
+    text: "#f1f5f9",
+    textSecondary: "#94a3b8",
+    textMuted: "#64748b",
+  },
+  gradients: {
+    primary: "linear-gradient(135deg, #3b82f6 0%, #2563eb 50%, #1d4ed8 100%)",
+    accent: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
+    glow: "radial-gradient(circle, rgba(59, 130, 246, 0.3) 0%, transparent 70%)",
+    surface: "linear-gradient(180deg, rgba(26, 34, 53, 0.8) 0%, rgba(17, 24, 39, 0.95) 100%)",
+  }
 };
-
-const QUICK_REPLIES = [
-  "Courses dikhao",
-  "Hacking courses kaunse hain?",
-  "Python course price kya hai?",
-  "Sabse bestseller course?",
-  "Free courses hain kya?",
-  "Order kaise track karu?",
-  "Download link nahi mila",
-  "Refund policy kya hai?"
-];
 
 // ============ RULE ENGINE ============
 function formatPrice(price: number): string {
@@ -44,22 +59,24 @@ function formatPrice(price: number): string {
 
 function findProducts(query: string): any[] {
   const q = query.toLowerCase();
-  const results = products.filter(p => 
+  const results = products.filter(p =>
     p.title.toLowerCase().includes(q) ||
     p.desc.toLowerCase().includes(q) ||
     p.tags?.some(t => t.toLowerCase().includes(q)) ||
     p.category.toLowerCase().includes(q) ||
-    p.id.toLowerCase().includes(q)
+    p.id.toLowerCase().includes(q) ||
+    p.instructor?.toLowerCase().includes(q) ||
+    p.level?.toLowerCase().includes(q)
   );
-  return results.slice(0, 8);
+  return results.slice(0, 6);
 }
 
 function findByCategory(category: string): any[] {
-  return products.filter(p => p.category.toLowerCase() === category.toLowerCase());
+  return products.filter(p => p.category.toLowerCase() === category.toLowerCase()).slice(0, 6);
 }
 
 function findByKind(kind: string): any[] {
-  return products.filter(p => p.kind === kind);
+  return products.filter(p => p.kind === kind).slice(0, 6);
 }
 
 function getFeatured(): any[] {
@@ -70,212 +87,785 @@ function getBestsellers(): any[] {
   return products.filter(p => p.badge === "Bestseller").slice(0, 6);
 }
 
+function getNewCourses(): any[] {
+  return products.filter(p => p.badge === "New").slice(0, 6);
+}
+
+function getHotDeals(): any[] {
+  return products.filter(p => p.badge === "Hot" || (p.oldPrice > p.price && p.price > 0)).slice(0, 6);
+}
+
 function getFreeCourses(): any[] {
-  return products.filter(p => p.price === 0 && p.kind === "course").slice(0, 6);
+  return products.filter(p => p.price === 0).slice(0, 6);
 }
 
 function getProductDetail(id: string): any {
   return getProductById(id);
 }
 
+function getCourseStats() {
+  return {
+    total: products.length,
+    courses: products.filter(p => p.kind === "course").length,
+    books: products.filter(p => p.kind === "book").length,
+    tools: products.filter(p => p.kind === "tool").length,
+    categories: CATEGORIES.length,
+    students: "2,50,000+"
+  };
+}
+
+// ============ ENHANCED INTENT MATCHING ============
 function matchIntent(message: string): { intent: string; entities: any } {
-  const msg = message.toLowerCase();
-  
-  // Greeting
-  if (/^(hi|hello|hey|namaste|hii|hlo)/.test(msg)) return { intent: "greeting", entities: {} };
-  
-  // Thanks
-  if (/(thanks|thank you|thx|shukriya|dhanyawad)/.test(msg)) return { intent: "thanks", entities: {} };
-  
-  // Price queries
-  const priceMatch = msg.match(/(price|cost|rate|kitna|kya price|kitne ka)/);
+  const msg = message.toLowerCase().trim();
+
+  // === GREETINGS ===
+  if (/^(hi|hello|hey|namaste|namaskar|greeting|konnichiwa|salaam)/.test(msg)) {
+    return { intent: "greeting", entities: {} };
+  }
+
+  // === THANKS ===
+  if (/(thanks|thank you|thx|shukriya|dhanyawad|appreciate)/.test(msg)) {
+    return { intent: "thanks", entities: {} };
+  }
+
+  // === HELP ===
+  if (/(help|assist|support|guide|main|kaise|kya)/.test(msg) && msg.length < 15) {
+    return { intent: "help", entities: {} };
+  }
+
+  // === PRICE QUERIES ===
+  const priceMatch = msg.match(/(price|cost|rate|kitna|kya price|kitne ka|paisa|rupees)/);
   if (priceMatch) {
-    const productQuery = msg.replace(/(price|cost|rate|kitna|kya price|kitne ka|hai|ka|ki|ke)/g, "").trim();
+    const productQuery = msg
+      .replace(/(price|cost|rate|kitna|kya price|kitne ka|paisa|rupees|hai|ka|ki|ke|the|is|are|a|an)/g, "")
+      .replace(/\s+/g, " ")
+      .trim();
     return { intent: "price_query", entities: { query: productQuery } };
   }
-  
-  // Category queries
-  for (const cat of CATEGORIES) {
-    if (msg.includes(cat.key.toLowerCase())) {
-      if (/(course|book|tool|kaunse|kaun|which|list|show|dikhao|batao)/.test(msg)) {
-        return { intent: "category_list", entities: { category: cat.key } };
+
+  // === CATEGORY QUERIES ===
+  const categoryKeywords: Record<string, string> = {
+    hacking: "Hacking", pentest: "Hacking", cyber: "Hacking", security: "Hacking",
+    programming: "Programming", coding: "Programming", python: "Programming", javascript: "Programming", java: "Programming", react: "Programming",
+    trading: "Trading", share: "Trading", market: "Trading", stock: "Trading", forex: "Trading", crypto: "Trading", bitcoin: "Trading",
+    books: "Books", ebook: "Books", pdf: "Books",
+    design: "Design", ui: "Design", ux: "Design", photoshop: "Design", illustrator: "Design",
+    marketing: "Marketing", seo: "Marketing", ads: "Marketing", facebook: "Marketing", digital: "Marketing",
+    tools: "Tools", software: "Tools", rat: "Tools",
+  };
+
+  for (const [keyword, category] of Object.entries(categoryKeywords)) {
+    if (msg.includes(keyword)) {
+      if (/(course|book|tool|kaunse|kaun|which|list|show|dikhao|batao|sab|all)/.test(msg)) {
+        return { intent: "category_list", entities: { category } };
       }
     }
   }
-  
-  // Bestseller/Featured/Hot
-  if (/(bestseller|best seller|top|popular|hot|featured|sabse achha|sabse best)/.test(msg)) {
+
+  for (const cat of CATEGORIES) {
+    if (msg.includes(cat.key.toLowerCase())) {
+      return { intent: "category_list", entities: { category: cat.key } };
+    }
+  }
+
+  // === FEATURED/BESTSELLER/HOT ===
+  if (/(bestseller|best seller|bestselling|top selling|most popular)/.test(msg)) {
+    return { intent: "bestsellers", entities: {} };
+  }
+  if (/(featured|special|top picks|recommended|handpicked)/.test(msg)) {
     return { intent: "featured", entities: {} };
   }
-  
-  // Free courses
-  if (/(free|muft|free course|free book|0 rs|zero)/.test(msg)) {
+  if (/(hot|deal|offer|discount|reduced|sale)/.test(msg)) {
+    return { intent: "hot_deals", entities: {} };
+  }
+  if (/(new|latest|recent|launch|sabse naya)/.test(msg)) {
+    return { intent: "new_courses", entities: {} };
+  }
+
+  // === FREE ===
+  if (/(free|muft|zero.*cost|0.*rs|no.*charge|freebies)/.test(msg)) {
     return { intent: "free_courses", entities: {} };
   }
-  
-  // Specific product by ID
-  const idMatch = msg.match(/\b(h\d+|p\d+|t\d+|b\d+|d\d+)\b/);
+
+  // === SPECIFIC PRODUCT BY ID ===
+  const idMatch = msg.match(/\b(h\d+|p\d+|t\d+|b\d+|d\d+|m\d+)\b/);
   if (idMatch) {
     return { intent: "product_detail", entities: { id: idMatch[1] } };
   }
-  
-  // Order/Support queries
-  if (/(order|track|download|refund|payment| utr|pending|approved|rejected|status)/.test(msg)) {
+
+  // === COURSE DETAIL BY NAME ===
+  for (const product of products) {
+    const titleWords = product.title.toLowerCase().split(/\s+/).slice(0, 3).join(" ");
+    if (msg.includes(titleWords.substring(0, 15)) || product.title.toLowerCase().includes(msg.substring(0, 20))) {
+      return { intent: "product_detail", entities: { id: product.id } };
+    }
+  }
+
+  // === ORDER/SUPPORT QUERIES ===
+  const supportPatterns = /(order|track|download|refund|payment| utr |pending|approved|rejected|status|cancel|track|delivery|shipping)/;
+  if (supportPatterns.test(msg)) {
+    if (/(download|link|nahi|not.*found|missing)/.test(msg)) {
+      return { intent: "download_issue", entities: {} };
+    }
+    if (/(refund|money.*back|return)/.test(msg)) {
+      return { intent: "refund", entities: {} };
+    }
+    if (/(payment|paise|utr|transaction|transfer)/.test(msg)) {
+      return { intent: "payment_issue", entities: {} };
+    }
     return { intent: "support", entities: {} };
   }
-  
-  // Course recommendation
-  if (/(recommend|suggest|kaunsa|kaun sa|which|best for|beginner|shuru|start)/.test(msg)) {
+
+  // === COURSE RECOMMENDATION ===
+  if (/(recommend|suggest|kaunsa|kaun sa|which.*best|best.*for|beginner|shuru|start|should.*take|interested|take.*course)/.test(msg)) {
     return { intent: "recommendation", entities: {} };
   }
-  
-  // Search fallback
+
+  // === LEVEL-BASED ===
+  if (/(beginner|new.*to|start.*with|basic|foundation|first)/.test(msg)) {
+    return { intent: "beginner_courses", entities: {} };
+  }
+  if (/(advanced|pro|expert|experienced|master)/.test(msg)) {
+    return { intent: "advanced_courses", entities: {} };
+  }
+
+  // === STATS/CATALOG ===
+  if (/(kitne|how many|total|stats|statistics|catalog|库存|kya kya|konsa|konsi)/.test(msg) &&
+      /(course|courses|hain|available|havai)/.test(msg)) {
+    return { intent: "catalog_stats", entities: {} };
+  }
+
+  // === ABOUT/WHO ARE YOU ===
+  if (/(who.*you|what.*you|about.*you|tell.*about|kya hai tu|kon hai)/.test(msg)) {
+    return { intent: "about_bot", entities: {} };
+  }
+
+  // === CONTACT ===
+  if (/(contact|reach|talk|phone|whatsapp|email|mail|connect|call|number)/.test(msg)) {
+    return { intent: "contact", entities: {} };
+  }
+
+  // === PAYMENT INFO ===
+  if (/(pay|payment|upi|gpay|phonepe|paytm|card|bank|how.*buy|buy.*kaise|purchase)/.test(msg)) {
+    return { intent: "how_to_buy", entities: {} };
+  }
+
+  // === SEARCH FALLBACK ===
   if (msg.length > 2) {
     return { intent: "search", entities: { query: msg } };
   }
-  
+
   return { intent: "unknown", entities: {} };
 }
 
-function generateResponse(message: string): { text: string; products?: any[] } {
+// ============ COMPREHENSIVE RESPONSE GENERATOR ============
+function generateResponse(message: string): { text: string; products?: any[]; suggestedActions?: string[] } {
   const { intent, entities } = matchIntent(message);
-  
+  const stats = getCourseStats();
+
   switch (intent) {
+    // === GREETING ===
     case "greeting":
       return {
-        text: `Namaste! 👋 Main **EduBazar Assistant** hoon — aapka course guide.\n\nMain aapki help kar sakta hoon:\n• 📚 **Courses dhundne mein** — "Hacking courses dikhao"\n• 💰 **Price check karne mein** — "Python course kitne ka hai?"\n• 🏷️ **Category browse** — "Trading books kaunse hain?"\n• ⭐ **Best sellers** — "Sabse popular course?"\n• 🆓 **Free courses** — "Free courses hain kya?"\n• 📦 **Order support** — "Download link nahi mila"\n\nKya dhundh rahe hain aaj?`
+        text: `🙏 *Namaste!* Main hoon *EduBot* — aapka personal course guide!
+
+Main aapki har sawal ka jawaab de sakta hoon, bina kisi API ke, bilkul free!
+
+📚 *Mere paas hain:*
+• ${stats.courses}+ Premium Courses
+• ${stats.books}+ Digital Books
+• ${stats.categories} Categories (Hacking, Programming, Trading, Design, Marketing & more)
+• ${stats.students}+ Happy Students
+
+🔥 *Popular queries:*
+"Kya free courses hain?" • "Python course dikhao"
+"Hacking courses ka price kya hai?" • "Best seller batao"
+"Order track kaise karu?" • "Payment kaise karu?"
+
+Kya poochna hai aapko? 😊`,
+        suggestedActions: ["Free courses dikhao", "Hacking courses dekho", "Payment kaise karu?", "Best seller course"]
       };
-    
+
+    // === HELP ===
+    case "help":
+      return {
+        text: `🎯 *Main aapki kaise help kar sakta hoon?*
+
+Maine har course ki poori jaankari apne paas:
+• 💰 Price aur discount details
+• ⭐ Rating aur reviews
+• 📚 Course content aur duration
+• 👨‍🏫 Instructor info
+• 🎓 Level (Beginner/Intermediate/Advanced)
+• 📦 Download link aur access info
+
+*Common queries:*
+🔹 "Python course kitne ka hai?" → Price bataunga
+🔹 "Hacking courses dikhao" → Category list
+🔹 "Order track karo" → Order status
+🔹 "Refund chahiye" → Refund policy
+🔹 "Payment kaise karu?" → Step-by-step guide
+
+Apna sawaal poocho! 🚀`,
+        suggestedActions: ["Hacking courses dikhao", "Price check karo", "How to buy guide", "Contact support"]
+      };
+
+    // === THANKS ===
     case "thanks":
       return {
-        text: "Welcome! 😊 Koi aur help chahiye toh pooch sakte hain. Happy learning! 🚀"
+        text: `Aapka shukriya! 🙏
+
+Ye yaad rahe - agar koi aur sawaal ho toh poochna mat hesitate karein. Main 24/7 available hoon!
+
+Agar aapne abhi course purchase kiya hai, toh download link 1-2 hours mein activate ho jayega. Koi issue ho toh WhatsApp karein: +91-9759131256
+
+Happy Learning! 📚✨`,
+        suggestedActions: ["More courses dekho", "Order track karo", "Contact on WhatsApp"]
       };
-    
-    case "price_query":
-      const searchResults = findProducts(entities.query || "");
-      if (searchResults.length === 1) {
-        const p = searchResults[0];
+
+    // === PRICE QUERY ===
+    case "price_query": {
+      const results = findProducts(entities.query || "");
+      if (results.length === 1) {
+        const p = results[0];
+        const discount = p.oldPrice > p.price ? Math.round((1 - p.price/p.oldPrice) * 100) : 0;
         return {
-          text: `"${p.title}" ka price: **${formatPrice(p.price)}**${p.oldPrice > p.price ? ` (MRP: ${formatPrice(p.oldPrice)})` : ""}.\n\n${p.desc}\n\nLevel: ${p.level} | Duration: ${p.duration} | Rating: ⭐ ${p.rating}`,
-          products: [p]
+          text: `💰 *${p.title}*\n\n` +
+            `━━━━━━━━━━━━━━━━━━━━\n` +
+            `📍 Category: ${p.category}\n` +
+            `📊 Level: ${p.level}\n` +
+            `⏱️ Duration: ${p.duration}\n` +
+            `🎓 Students: ${p.students}\n` +
+            `⭐ Rating: ${p.rating}/5 (${p.reviewCount} reviews)\n` +
+            `━━━━━━━━━━━━━━━━━━━━\n` +
+            `💵 *Price:* **${formatPrice(p.price)}**` +
+            (discount > 0 ? ` ~~₹${p.oldPrice}~~ (${discount}% OFF!)` : "") + "\n" +
+            `━━━━━━━━━━━━━━━━━━━━\n\n` +
+            `${p.desc.substring(0, 150)}...\n\n` +
+            `✨ *Includes:*\n${p.includes.slice(0, 3).map((i: string) => `• ${i}`).join("\n")}`,
+          products: [p],
+          suggestedActions: [`Buy now - ${formatPrice(p.price)}`, "Full details dekho", "Similar courses dekho"]
         };
-      } else if (searchResults.length > 1) {
+      } else if (results.length > 1) {
         return {
-          text: `Maine ${searchResults.length} courses dhundhe — niche list hai:`,
-          products: searchResults
+          text: `🔍 *"${entities.query}"* ke liye ${results.length} results milay!\n\n` +
+            `Sorted by relevance:`,
+          products: results,
+          suggestedActions: ["Price range mein dekho", "Free wale filter karo", "Categories dekho"]
         };
       }
-      return { text: "Sorry, us topic ka course nahi mila. Kya aap category ya keyword try karenge?" };
-    
-    case "category_list":
+      return {
+        text: `😕 *Koi exact match nahi mila "${entities.query}" ke liye*\n\n` +
+          `Suggestions:\n` +
+          `• Course ka full naam likhein\n` +
+          `• Category bolo: "Trading courses"\n` +
+          `• Ya direct product ID dein (jaise: h1, p1)\n\n` +
+          `📞 Still stuck? WhatsApp karein: +91-9759131256`,
+        suggestedActions: ["All courses dekho", "Categories browse karo", "Contact support"]
+      };
+    }
+
+    // === CATEGORY LIST ===
+    case "category_list": {
       const catProducts = findByCategory(entities.category);
       if (catProducts.length === 0) {
-        return { text: `"${entities.category}" category mein abhi koi course nahi hai.` };
+        return { text: `📭 *"${entities.category}"* category mein abhi courses nahi hain.\n\nAvailable categories:\n${CATEGORIES.map(c => `• ${c.label}`).join("\n")}` };
       }
+      const priceRange = catProducts.filter(p => p.price > 0);
+      const avgPrice = priceRange.length > 0 ? Math.round(priceRange.reduce((sum, p) => sum + p.price, 0) / priceRange.length) : 0;
       return {
-        text: `"${entities.category}" category ke **${catProducts.length} courses** hain:`,
-        products: catProducts.slice(0, 8)
+        text: `📚 *${entities.category} Courses* — ${catProducts.length} available\n\n` +
+          `💰 Price range: ${formatPrice(Math.min(...catProducts.map(p => p.price)))} - ${formatPrice(Math.max(...catProducts.map(p => p.price)))}\n` +
+          `📊 Avg price: ${formatPrice(avgPrice)}\n\n` +
+          `Showing best matches:`,
+        products: catProducts,
+        suggestedActions: [`${entities.category} mein sab dekho`, "Price se sort karo", "Filter by level"]
       };
-    
+    }
+
+    // === BESTSELLERS ===
+    case "bestsellers": {
+      const bestsellers = getBestsellers();
+      return {
+        text: `🏆 *India's Best Selling Courses!*\n\n` +
+          `Sabse zyada enrolled aur highest rated courses:\n` +
+          `⭐ Rated 4.7+ by thousands of students\n` +
+          `📚 Created by expert instructors\n\n` +
+          `Ye hain top picks:`,
+        products: bestsellers,
+        suggestedActions: ["All bestsellers dekho", "Browse by category", "Compare prices"]
+      };
+    }
+
+    // === FEATURED ===
     case "featured":
-      const featured = getFeatured();
+    case "hot_deals":
+    case "new_courses": {
+      const featured = intent === "featured" ? getFeatured() :
+                       intent === "new_courses" ? getNewCourses() : getHotDeals();
+      const title = intent === "featured" ? "⭐ Featured Courses" :
+                    intent === "new_courses" ? "✨ New Arrivals" : "🔥 Hot Deals & Offers";
       return {
-        text: `Ye rahe hamare **Featured & Bestseller courses** (${featured.length}):`,
-        products: featured
+        text: `${title}!\n\n` +
+          `Handpicked by our experts. Limited time offers! ⏰`,
+        products: featured,
+        suggestedActions: ["All deals dekho", "Category wise dekho", "Price filter karo"]
       };
-    
-    case "free_courses":
+    }
+
+    // === FREE COURSES ===
+    case "free_courses": {
       const free = getFreeCourses();
       return {
-        text: `Ye rahe **${free.length} FREE courses/books**:`,
-        products: free
+        text: `🆓 *FREE Courses & Resources!*\n\n` +
+          `${free.length} completely free items available:\n` +
+          `• Full course content\n` +
+          `• No hidden charges\n` +
+          `• Instant access after order\n\n` +
+          `Best free resources:`,
+        products: free,
+        suggestedActions: ["All free items dekho", "Premium mein upgrade karo", "Course compare karo"]
       };
-    
-    case "product_detail":
+    }
+
+    // === BEGINNER COURSES ===
+    case "beginner_courses": {
+      const beginners = products.filter(p => p.level === "Beginner" || p.level === "All Levels").slice(0, 6);
+      return {
+        text: `🌱 *Beginner Friendly Courses!*\n\n` +
+          `Perfect for those starting fresh. No prior knowledge needed!\n\n` +
+          `Featured beginner courses:`,
+        products: beginners,
+        suggestedActions: ["All beginner courses", "Browse by category", "Get course recommendations"]
+      };
+    }
+
+    // === ADVANCED COURSES ===
+    case "advanced_courses": {
+      const advanced = products.filter(p => p.level === "Advanced" || p.level === "Intermediate").slice(0, 6);
+      return {
+        text: `🎓 *Advanced & Professional Courses!*\n\n` +
+          `For experienced learners ready to master their skills.\n\n` +
+          `Top advanced courses:`,
+        products: advanced,
+        suggestedActions: ["All advanced courses", "Compare skill levels", "Get personalized recommendation"]
+      };
+    }
+
+    // === CATALOG STATS ===
+    case "catalog_stats":
+      return {
+        text: `📊 *EduBazar Catalog Statistics*\n\n` +
+          `━━━━━━━━━━━━━━━━━━━━\n` +
+          `📚 Total Courses: ${stats.courses}\n` +
+          `📖 Digital Books: ${stats.books}\n` +
+          `🔧 Tools & Software: ${stats.tools}\n` +
+          `📂 Categories: ${stats.categories}\n` +
+          `👨‍🎓 Students Enrolled: ${stats.students}\n` +
+          `━━━━━━━━━━━━━━━━━━━━\n\n` +
+          `Categories:\n` +
+          CATEGORIES.map(c => `• ${c.label}: ${products.filter(p => p.category === c.key).length} items`).join("\n") + "\n\n" +
+          `🎁 Sabhi courses pe instant delivery available!`,
+        suggestedActions: ["Browse all courses", "Category mein jao", "Start shopping"]
+      };
+
+    // === PRODUCT DETAIL ===
+    case "product_detail": {
       const product = getProductDetail(entities.id);
       if (!product) {
-        return { text: `Product ID "${entities.id}" nahi mila. Sahi ID try karein (jaise: h1, p1, t1).` };
+        return {
+          text: `❌ Product ID "${entities.id}" nahi mila.\n\n` +
+            `Valid IDs format: h1, h2, p1, p2, t1, b1, d1, m1\n` +
+            `Example: "h1 course details"\n\n` +
+            `📞 Help chahiye? WhatsApp: +91-9759131256`,
+          suggestedActions: ["All courses dekho", "Search karo", "Contact support"]
+        };
       }
+      const discount = product.oldPrice > product.price ? Math.round((1 - product.price/product.oldPrice) * 100) : 0;
       return {
-        text: `**${product.title}**\n\n${product.fullDesc || product.desc}\n\n💰 **Price:** ${formatPrice(product.price)}${product.oldPrice > product.price ? ` (Was ${formatPrice(product.oldPrice)})` : ""}\n📊 **Level:** ${product.level} | ⏱️ **Duration:** ${product.duration}\n⭐ **Rating:** ${product.rating}/5 (${product.reviewCount} reviews)\n👨‍🏫 **Instructor:** ${product.instructor}\n🌐 **Language:** ${product.language}\n\n${product.includes.map((i: string) => `✅ ${i}`).join("\n")}`,
-        products: [product]
+        text: `🎓 *${product.title}*\n\n` +
+          `━━━━━━━━━━━━━━━━━━━━\n` +
+          `🏷️ ID: ${product.id} | Category: ${product.category}\n` +
+          `📊 Level: ${product.level} | Duration: ${product.duration}\n` +
+          `👨‍🏫 Instructor: ${product.instructor}\n` +
+          `🌐 Language: ${product.language}\n` +
+          `👨‍🎓 ${product.students} students enrolled\n` +
+          `⭐ Rating: ${product.rating}/5 (${product.reviewCount} reviews)\n` +
+          `━━━━━━━━━━━━━━━━━━━━\n\n` +
+          `💰 *Price:* **${formatPrice(product.price)}**` +
+          (discount > 0 ? `\n~~₹${product.oldPrice}~~ → Save ${discount}%!` : "") + "\n\n" +
+          `📝 *Description:*\n${product.fullDesc?.substring(0, 300) || product.desc}...\n\n` +
+          `✅ *What you'll get:*\n${product.includes.slice(0, 4).map((i: string) => `• ${i}`).join("\n")}` +
+          (product.lastUpdated ? `\n\n📅 Last updated: ${product.lastUpdated}` : ""),
+        products: [product],
+        suggestedActions: [`Buy now - ${formatPrice(product.price)}`, "Add to cart", "View all details"]
       };
-    
+    }
+
+    // === SUPPORT ===
     case "support":
       return {
-        text: `**Order/Support Help** 📋\n\n**Common Issues:**\n• **Download link nahi mila** → Admin approve karega tab milta hai. Apna Order ID share karein.\n• **Order pending hai** → Admin verify karta hai (usually 1-2 hours).\n• **Refund chahiye** → 7 din ke andar request karein agar course access nahi mila.\n• **Payment verify** → UTR number share karein WhatsApp pe.\n\n**Direct Contact:**\n📱 WhatsApp: +91-9759131256\n📧 Email: support@edubaazar.shop\n\nApna **Order ID** batayein, main check karke bataunga.`
+        text: `📋 *Order & Support Help*\n\n` +
+          `━━━━━━━━━━━━━━━━━━━━\n` +
+          `🔍 *Common Issues & Solutions:*\n\n` +
+          `📥 *Download Link nahi mila?*\n` +
+          `→ Admin approve karta hai order ko\n` +
+          `→ Usually 1-2 hours lagta hai\n` +
+          `→ WhatsApp pe Order ID share karein\n\n` +
+          `⏳ *Order Status:*\n` +
+          `→ Pending: Admin verification mein\n` +
+          `→ Approved: Download link mil jayega\n` +
+          `→ Issues: WhatsApp pe contact karein\n\n` +
+          `💰 *Payment Issues:*\n` +
+          `→ UTR number share karein WhatsApp pe\n` +
+          `→ Payment verify hoti hai 1-2 hours mein\n\n` +
+          `🔄 *Refund Policy:*\n` +
+          `→ 7 din ke andar request karein\n` +
+          `→ Course access nahi mila toh refund possible\n\n` +
+          `━━━━━━━━━━━━━━━━━━━━\n\n` +
+          `📞 *Direct Contact:*\n` +
+          `WhatsApp: +91-9759131256\n` +
+          `Email: support@edubaazar.shop`,
+        suggestedActions: ["Track my order", "Report payment issue", "Request refund", "Contact on WhatsApp"]
       };
-    
+
+    // === DOWNLOAD ISSUE ===
+    case "download_issue":
+      return {
+        text: `📥 *Download Link Issue?*\n\n` +
+          `Steps to resolve:\n\n` +
+          `1️⃣ *Check email* - Download link email pe bhi jaata hai\n\n` +
+          `2️⃣ *Wait 1-2 hours* - Order approval time leti hai\n\n` +
+          `3️⃣ *Check spam folder* - Email spam mein bhi check karo\n\n` +
+          `4️⃣ *WhatsApp pe contact karo* - Apna Order ID share karein\n\n` +
+          `━━━━━━━━━━━━━━━━━━━━\n\n` +
+          `📱 WhatsApp: +91-9759131256\n\n` +
+          `Format: "Hi, mera Order ID [number] hai, download link nahi mila"\n\n` +
+          `⏰ Working hours: 10 AM - 10 PM`,
+        suggestedActions: ["Contact on WhatsApp", "Track order status", "Report issue via email"]
+      };
+
+    // === REFUND ===
+    case "refund":
+      return {
+        text: `💰 *Refund Policy & Process*\n\n` +
+          `━━━━━━━━━━━━━━━━━━━━\n\n` +
+          `✅ *Refund possible hai agar:*\n` +
+          `• Course download/link nahi mila\n` +
+          `• Technical issue hai jo resolve nahi ho raha\n` +
+          `• Wrong course deliver hua hai\n\n` +
+          `⏰ *Timeline:*\n` +
+          `• 7 din ke andar request karein\n` +
+          `• 3-5 din mein refund process hota hai\n\n` +
+          `📋 *Process:*\n` +
+          `1. WhatsApp pe refund request karein\n` +
+          `2. Order ID aur reason batao\n` +
+          `3. UPI/bank details provide karein\n` +
+          `4. Refund initiate hoga\n\n` +
+          `━━━━━━━━━━━━━━━━━━━━\n\n` +
+          `📱 WhatsApp: +91-9759131256\n` +
+          `📧 Email: support@edubaazar.shop`,
+        suggestedActions: ["Request refund via WhatsApp", "Check refund status", "Learn about policy"]
+      };
+
+    // === PAYMENT ISSUE ===
+    case "payment_issue":
+      return {
+        text: `💳 *Payment & UTR Help*\n\n` +
+          `━━━━━━━━━━━━━━━━━━━━\n\n` +
+          `📱 *Payment Methods:*\n` +
+          `• UPI (GPay, PhonePe, Paytm)\n` +
+          `• Bank Transfer\n` +
+          `• QR Code Payment\n\n` +
+          `📋 *After Payment:*\n` +
+          `1. Screenshot lo payment ka\n` +
+          `2. UTR number note karo\n` +
+          `3. WhatsApp pe bhejo:\n` +
+          `   Order ID + UTR Number + Screenshot\n\n` +
+          `⏱️ *Verification:*\n` +
+          `• Usually 1-2 hours mein approve hota hai\n` +
+          `• Download link mil jayega\n\n` +
+          `⚠️ *Common Issues:*\n` +
+          `• Payment failed → Try again with different method\n` +
+          `• Amount deducted but no confirmation → Wait 24 hours\n` +
+          `• UTR not received → Contact your bank\n\n` +
+          `━━━━━━━━━━━━━━━━━━━━\n\n` +
+          `📞 WhatsApp: +91-9759131256`,
+        suggestedActions: ["Send UTR on WhatsApp", "Retry payment", "Contact support"]
+      };
+
+    // === HOW TO BUY ===
+    case "how_to_buy":
+      return {
+        text: `🛒 *How to Buy Courses - Step by Step*\n\n` +
+          `━━━━━━━━━━━━━━━━━━━━\n\n` +
+          `📋 *Step 1: Choose Course*\n` +
+          `Browse courses ya direct product ID se dhundho\n\n` +
+          `📋 *Step 2: Add to Cart*\n` +
+          `Click "Add to Cart" ya "Buy Now"\n\n` +
+          `📋 *Step 3: Make Payment*\n` +
+          `• UPI: edu@okicici / @edubazaar\n` +
+          `• Bank: Account details dekhenge aapko\n` +
+          `• QR Code: Available on request\n\n` +
+          `📋 *Step 4: Share Details*\n` +
+          `WhatsApp pe bhejo:\n` +
+          `• Order ID\n` +
+          `• Course Name\n` +
+          `• Payment UTR Number\n` +
+          `• Payment Screenshot\n\n` +
+          `📋 *Step 5: Get Access*\n` +
+          `• 1-2 hours mein approve hoga\n` +
+          `• Download link WhatsApp pe milega\n` +
+          `• Email bhi hoga\n\n` +
+          `━━━━━━━━━━━━━━━━━━━━\n\n` +
+          `💡 *Pro Tip:* WhatsApp pe order karo - fastest response!\n\n` +
+          `📱 WhatsApp: +91-9759131256`,
+        suggestedActions: ["Browse courses", "Send order on WhatsApp", "View payment options"]
+      };
+
+    // === CONTACT ===
+    case "contact":
+      return {
+        text: `📞 *Contact EduBazar Support*\n\n` +
+          `━━━━━━━━━━━━━━━━━━━━\n\n` +
+          `📱 *WhatsApp (Fastest):*\n` +
+          `+91-9759131256\n` +
+          `Timing: 10 AM - 10 PM\n\n` +
+          `📧 *Email:*\n` +
+          `support@edubaazar.shop\n` +
+          `Response: Within 24 hours\n\n` +
+          `💬 *What we help with:*\n` +
+          `• Order status & tracking\n` +
+          `• Download link issues\n` +
+          `• Payment verification\n` +
+          `• Refund requests\n` +
+          `• Course recommendations\n\n` +
+          `━━━━━━━━━━━━━━━━━━━━\n\n` +
+          `⚡ *For fastest response:*\n` +
+          `WhatsApp pe message karein with:\n` +
+          `• Your Name\n` +
+          `• Order ID (if existing)\n` +
+          `• Issue description\n\n` +
+          `⏰ Usually 1-2 hours mein reply aata hai!`,
+        suggestedActions: ["Open WhatsApp", "Send email", "Browse FAQ"]
+      };
+
+    // === ABOUT BOT ===
+    case "about_bot":
+      return {
+        text: `🤖 *Meet EduBot - Your Course Guide!*\n\n` +
+          `━━━━━━━━━━━━━━━━━━━━\n\n` +
+          `Main hoon EduBot - EduBazar ka AI assistant!\n\n` +
+          `✨ *What I can do:*\n` +
+          `• 📚 Course recommendations\n` +
+          `• 💰 Price aur discount info\n` +
+          `• 📋 Order support & tracking\n` +
+          `• 💳 Payment guidance\n` +
+          `• ❓ General queries\n\n` +
+          `🎯 *My specialties:*\n` +
+          `• ${stats.courses}+ courses ki jaankari\n` +
+          `• Sabhi categories ka knowledge\n` +
+          `• Real-time availability check\n` +
+          `• Student reviews & ratings\n\n` +
+          `⚡ *Best part:*\n` +
+          `Bina kisi API key ke, bilkul FREE!\n` +
+          `Instant replies, 24/7 available\n\n` +
+          `━━━━━━━━━━━━━━━━━━━━\n\n` +
+          `Still have questions? Human support available!\n` +
+          `📱 WhatsApp: +91-9759131256`,
+        suggestedActions: ["Show me courses", "Help me find course", "Contact human support"]
+      };
+
+    // === RECOMMENDATION ===
     case "recommendation":
       const beginnerCourses = products.filter(p => p.level === "Beginner" || p.level === "All Levels").slice(0, 6);
       return {
-        text: `Shuru kar rahe hain? Ye **Beginner-friendly courses** best hain:\n\nAgar specific field batao (hacking, programming, trading, design) toh better suggest kar paunga.`,
-        products: beginnerCourses
+        text: `🎯 *Personalized Course Recommendations*\n\n` +
+          `Based on your interest, here are some great starting points:\n\n` +
+          `🌱 *For Beginners:*\n` +
+          `No prior knowledge needed. Start here!\n\n` +
+          `Let me know your interest area:\n` +
+          `• 🛡️ Hacking & Cybersecurity\n` +
+          `• 💻 Programming & Development\n` +
+          `• 📈 Trading & Investment\n` +
+          `• 🎨 Design & Creative\n` +
+          `• 📢 Marketing & Growth\n\n` +
+          `Batao ki aap kis field mein interested hain, main best courses recommend karunga! 🚀`,
+        products: beginnerCourses,
+        suggestedActions: ["Hacking courses recommed", "Programming suggest karo", "Trading courses dekho"]
       };
-    
-    case "search":
+
+    // === SEARCH ===
+    case "search": {
       const results = findProducts(entities.query);
       if (results.length === 0) {
-        return { text: `"${entities.query}" ke liye koi course nahi mila. Alag keywords try karein ya category bolo.` };
+        return {
+          text: `🔍 *"${entities.query}"* ke liye koi result nahi mila.\n\n` +
+            `Tips for better search:\n` +
+            `• Course ka full naam likhein\n` +
+            `• Category name try karo\n` +
+            `• Ya product ID use karo\n\n` +
+            `Examples:\n` +
+            `• "Python programming course"\n` +
+            `• "Trading books"\n` +
+            `• "h1" (for specific product)`,
+          suggestedActions: ["Try different search", "Browse categories", "Contact support"]
+        };
       }
       return {
-        text: `"${entities.query}" ke liye **${results.length} results** mile:`,
-        products: results
+        text: `🔍 *Search Results for "${entities.query}"*\n\n` +
+          `${results.length} courses found:\n` +
+          `Showing most relevant:`,
+        products: results,
+        suggestedActions: ["Show more results", "Filter by price", "Browse category"]
       };
-    
+    }
+
+    // === UNKNOWN ===
     default:
       return {
-        text: `Samajh nahi aaya 😅 Thoda alag puchhein jaise:\n\n• "Hacking courses dikhao"\n• "Python course price kya hai?"\n• "Free courses hain kya?"\n• "Bestseller course batao"\n• "Order ID #1234 track karo"\n• "h1 course ke bare mein batao"\n\nYa WhatsApp karein: +91-9759131256`
+        text: `🤔 *Hmm, main samajh nahi paaya completely*\n\n` +
+          `Try these common queries:\n\n` +
+          `📚 *Courses:*\n` +
+          `• "Python course dikhao"\n` +
+          `• "Hacking courses ka price kya hai?"\n` +
+          `• "Free courses hain kya?"\n` +
+          `• "Bestseller courses batao"\n\n` +
+          `🛒 *Orders & Support:*\n` +
+          `• "Order track karo"\n` +
+          `• "Payment kaise karu?"\n` +
+          `• "Refund policy kya hai?"\n\n` +
+          `💡 *Tips:*\n` +
+          `• Specific keywords use karo\n` +
+          `• Ya product ID directly dein (jaise: h1)\n\n` +
+          `━━━━━━━━━━━━━━━━━━━━\n\n` +
+          `📞 *Still need help?*\n` +
+          `WhatsApp: +91-9759131256`,
+        suggestedActions: ["Courses browse karo", "How to buy", "Contact support"]
       };
   }
 }
 
-// ============ COMPONENT ============
+// ============ PRODUCT CARD COMPONENT ============
+const ProductCard = ({ product, onBuy }: { product: any; onBuy?: () => void }) => {
+  const discount = product.oldPrice > product.price ? Math.round((1 - product.price/product.oldPrice) * 100) : 0;
+
+  return (
+    <div className="product-card">
+      <div className="product-header">
+        <div className="product-image">
+          {product.images?.[0] ? (
+            <img src={product.images[0]} alt={product.title} />
+          ) : (
+            <div className="product-image-placeholder">
+              <BookOpen size={20} />
+            </div>
+          )}
+          {product.badge && (
+            <span className={`product-badge ${product.badge.toLowerCase()}`}>
+              {product.badge}
+            </span>
+          )}
+        </div>
+        <div className="product-info">
+          <h4 className="product-title">{product.title}</h4>
+          <div className="product-meta">
+            <span className="product-category">{product.category}</span>
+            <span className="product-level">{product.level}</span>
+          </div>
+          <p className="product-desc">{product.desc.substring(0, 80)}...</p>
+          <div className="product-stats">
+            <span className="product-rating">⭐ {product.rating}</span>
+            <span className="product-students">👨‍🎓 {product.students}</span>
+          </div>
+        </div>
+      </div>
+      <div className="product-footer">
+        <div className="product-price">
+          <span className="price-current">{formatPrice(product.price)}</span>
+          {discount > 0 && (
+            <>
+              <span className="price-old">₹{product.oldPrice}</span>
+              <span className="price-discount">{discount}% OFF</span>
+            </>
+          )}
+        </div>
+        <a
+          href={`/product/${product.slug}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="product-action"
+        >
+          View <ArrowRight size={14} />
+        </a>
+      </div>
+    </div>
+  );
+};
+
+// ============ MAIN COMPONENT ============
 export default function AIChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [hasUnread, setHasUnread] = useState(false);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
   const [showQuickReplies, setShowQuickReplies] = useState(true);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
   };
 
-  useEffect(() => { scrollToBottom(); }, [messages]);
-  useEffect(() => { if (isOpen) setHasUnread(false); }, [isOpen]);
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  useEffect(() => {
+    if (isOpen) {
+      setHasUnread(false);
+      setTimeout(() => inputRef.current?.focus(), 300);
+    }
+  }, [isOpen]);
+
+  const generateId = () => Math.random().toString(36).substring(2, 9);
 
   const sendMessage = () => {
     if (!input.trim() || isLoading) return;
-    
-    const userMessage = input.trim();
+
+    const userMessageText = input.trim();
     setInput("");
     setShowQuickReplies(false);
-    
-    const newUserMsg: Message = {
+
+    const userMsg: Message = {
+      id: generateId(),
       role: "user",
-      content: userMessage,
+      content: userMessageText,
       timestamp: new Date()
     };
-    
-    setMessages(prev => [...prev, newUserMsg]);
+
+    setMessages(prev => [...prev, userMsg]);
     setIsLoading(true);
 
-    // Simulate thinking delay
+    // Simulate thinking with realistic delay
+    const thinkingTime = 500 + Math.random() * 800;
     setTimeout(() => {
-      const response = generateResponse(userMessage);
+      const response = generateResponse(userMessageText);
       const assistantMsg: Message = {
+        id: generateId(),
         role: "assistant",
         content: response.text,
         timestamp: new Date(),
-        products: response.products
+        products: response.products,
+        suggestedActions: response.suggestedActions
       };
       setMessages(prev => [...prev, assistantMsg]);
       setIsLoading(false);
       if (!isOpen) setHasUnread(true);
-    }, 400 + Math.random() * 600);
+    }, thinkingTime);
   };
 
   const handleQuickReply = (text: string) => {
@@ -283,187 +873,1028 @@ export default function AIChatWidget() {
     sendMessage();
   };
 
-  const renderProductCard = (product: any) => (
-    <div key={product.id} className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-3 flex flex-col gap-2 hover:border-primary/50 transition-colors">
-      <div className="flex items-start gap-2">
-        <div className="w-16 h-16 rounded-lg bg-gray-100 dark:bg-gray-700 flex-shrink-0 overflow-hidden">
-          {product.images?.[0] && (
-            <img src={product.images[0]} alt={product.title} className="w-full h-full object-cover" />
-          )}
-        </div>
-        <div className="flex-1 min-w-0">
-          <h4 className="font-medium text-sm text-gray-900 dark:text-white truncate">{product.title}</h4>
-          <div className="flex items-center gap-2 mt-1">
-            <span className="text-primary font-semibold">{formatPrice(product.price)}</span>
-            {product.oldPrice && product.oldPrice > product.price && (
-              <span className="text-gray-400 line-through text-xs">{formatPrice(product.oldPrice)}</span>
-            )}
-            {product.badge && (
-              <span className="px-1.5 py-0.5 text-xs rounded-full bg-primary/10 text-primary font-medium">
-                {product.badge}
-              </span>
-            )}
-          </div>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">{product.desc}</p>
-        </div>
-      </div>
-      <div className="flex items-center justify-between pt-1 border-t border-gray-100 dark:border-gray-700">
-        <span className="text-xs text-gray-500 dark:text-gray-400 capitalize">{product.category}</span>
-        <a 
-          href={`/product/${product.slug}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-xs text-primary hover:underline font-medium"
-        >
-          View Details →
-        </a>
-      </div>
-    </div>
-  );
+  const handleSuggestedAction = (action: string) => {
+    setInput(action);
+    sendMessage();
+  };
+
+  const copyToClipboard = async (text: string, id: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedId(id);
+      setTimeout(() => setCopiedId(null), 2000);
+    } catch (err) {
+      console.error('Failed to copy');
+    }
+  };
+
+  const QUICK_REPLIES = [
+    { icon: "📚", text: "All courses dekho" },
+    { icon: "💰", text: "Free courses dikhao" },
+    { icon: "🔥", text: "Hot deals batao" },
+    { icon: "🛒", text: "How to buy?" },
+    { icon: "📞", text: "Contact support" },
+    { icon: "⭐", text: "Best seller courses" },
+  ];
+
+  const parseMarkdown = (text: string) => {
+    // Parse **bold**
+    const parts = text.split(/(\*\*[^*]+\*\*)/g);
+    return parts.map((part, i) => {
+      if (part.startsWith('**') && part.endsWith('**')) {
+        return <strong key={i}>{part.slice(2, -2)}</strong>;
+      }
+      return part;
+    });
+  };
 
   return (
     <>
-      {/* Floating Button */}
+      <style>{`
+        /* === DESIGN TOKENS === */
+        .edubot-* {
+          --edubot-bg: #0a0e1a;
+          --edubot-surface: #111827;
+          --edubot-surface-elevated: #1a2235;
+          --edubot-surface-hover: #1e2942;
+          --edubot-border: rgba(59, 130, 246, 0.15);
+          --edubot-border-hover: rgba(59, 130, 246, 0.3);
+          --edubot-primary: #3b82f6;
+          --edubot-primary-glow: rgba(59, 130, 246, 0.4);
+          --edubot-primary-light: #60a5fa;
+          --edubot-accent: #f59e0b;
+          --edubot-accent-glow: rgba(245, 158, 11, 0.4);
+          --edubot-success: #10b981;
+          --edubot-text: #f1f5f9;
+          --edubot-text-secondary: #94a3b8;
+          --edubot-text-muted: #64748b;
+        }
+
+        /* === ANIMATIONS === */
+        @keyframes edubot-glow-pulse {
+          0%, 100% { box-shadow: 0 0 20px var(--edubot-primary-glow), 0 0 40px rgba(59, 130, 246, 0.2); }
+          50% { box-shadow: 0 0 30px var(--edubot-primary-glow), 0 0 60px rgba(59, 130, 246, 0.3); }
+        }
+
+        @keyframes edubot-slide-in {
+          from { opacity: 0; transform: translateY(20px) scale(0.95); }
+          to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        @keyframes edubot-typing-dot {
+          0%, 100% { transform: translateY(0); opacity: 0.5; }
+          50% { transform: translateY(-4px); opacity: 1; }
+        }
+
+        @keyframes edubot-shimmer {
+          0% { background-position: -200% 0; }
+          100% { background-position: 200% 0; }
+        }
+
+        .edubot-launcher {
+          position: fixed;
+          bottom: 24px;
+          right: 24px;
+          z-index: 9999;
+          width: 60px;
+          height: 60px;
+          border-radius: 50%;
+          background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+          border: none;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: white;
+          box-shadow: 0 4px 20px rgba(59, 130, 246, 0.4);
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          animation: edubot-glow-pulse 3s ease-in-out infinite;
+        }
+
+        .edubot-launcher:hover {
+          transform: scale(1.1);
+          box-shadow: 0 6px 30px rgba(59, 130, 246, 0.5);
+        }
+
+        .edubot-launcher svg {
+          width: 28px;
+          height: 28px;
+          transition: transform 0.3s ease;
+        }
+
+        .edubot-launcher:hover svg {
+          transform: rotate(10deg);
+        }
+
+        .edubot-badge {
+          position: absolute;
+          top: -4px;
+          right: -4px;
+          width: 22px;
+          height: 22px;
+          border-radius: 50%;
+          background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+          color: white;
+          font-size: 12px;
+          font-weight: 700;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          animation: edubot-slide-in 0.3s ease;
+          border: 2px solid var(--edubot-bg);
+        }
+
+        /* === CHAT WINDOW === */
+        .edubot-window {
+          position: fixed;
+          bottom: 100px;
+          right: 24px;
+          z-index: 9998;
+          width: 420px;
+          max-width: calc(100vw - 48px);
+          height: 600px;
+          max-height: calc(100vh - 140px);
+          background: var(--edubot-bg);
+          border-radius: 20px;
+          border: 1px solid var(--edubot-border);
+          display: flex;
+          flex-direction: column;
+          overflow: hidden;
+          animation: edubot-slide-in 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+          box-shadow:
+            0 25px 50px -12px rgba(0, 0, 0, 0.5),
+            0 0 0 1px rgba(255, 255, 255, 0.05),
+            inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        }
+
+        /* === HEADER === */
+        .edubot-header {
+          padding: 20px;
+          background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(30, 41, 66, 0.8) 100%);
+          border-bottom: 1px solid var(--edubot-border);
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+        }
+
+        .edubot-header-left {
+          display: flex;
+          align-items: center;
+          gap: 14px;
+        }
+
+        .edubot-avatar {
+          width: 48px;
+          height: 48px;
+          border-radius: 14px;
+          background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: white;
+          box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+          position: relative;
+          overflow: hidden;
+        }
+
+        .edubot-avatar::after {
+          content: '';
+          position: absolute;
+          top: -50%;
+          left: -50%;
+          width: 200%;
+          height: 200%;
+          background: linear-gradient(45deg, transparent 40%, rgba(255,255,255,0.1) 50%, transparent 60%);
+          animation: edubot-shimmer 3s infinite;
+        }
+
+        .edubot-avatar svg {
+          width: 26px;
+          height: 26px;
+          position: relative;
+          z-index: 1;
+        }
+
+        .edubot-header-info h3 {
+          font-size: 16px;
+          font-weight: 600;
+          color: var(--edubot-text);
+          margin: 0 0 4px 0;
+          letter-spacing: -0.02em;
+        }
+
+        .edubot-status {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          font-size: 12px;
+          color: var(--edubot-text-secondary);
+        }
+
+        .edubot-status-dot {
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+          background: var(--edubot-success);
+          box-shadow: 0 0 8px var(--edubot-success);
+          animation: edubot-glow-pulse 2s ease-in-out infinite;
+        }
+
+        .edubot-close {
+          width: 36px;
+          height: 36px;
+          border-radius: 10px;
+          background: var(--edubot-surface-elevated);
+          border: 1px solid var(--edubot-border);
+          color: var(--edubot-text-secondary);
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: all 0.2s ease;
+        }
+
+        .edubot-close:hover {
+          background: var(--edubot-surface-hover);
+          color: var(--edubot-text);
+          border-color: var(--edubot-border-hover);
+        }
+
+        /* === MESSAGES === */
+        .edubot-messages {
+          flex: 1;
+          overflow-y: auto;
+          padding: 20px;
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+          scroll-behavior: smooth;
+        }
+
+        .edubot-messages::-webkit-scrollbar {
+          width: 6px;
+        }
+
+        .edubot-messages::-webkit-scrollbar-track {
+          background: transparent;
+        }
+
+        .edubot-messages::-webkit-scrollbar-thumb {
+          background: var(--edubot-border);
+          border-radius: 3px;
+        }
+
+        .edubot-messages::-webkit-scrollbar-thumb:hover {
+          background: var(--edubot-border-hover);
+        }
+
+        /* === WELCOME MESSAGE === */
+        .edubot-welcome {
+          display: flex;
+          flex-direction: column;
+          gap: 20px;
+        }
+
+        .edubot-welcome-header {
+          display: flex;
+          gap: 12px;
+        }
+
+        .edubot-welcome-avatar {
+          width: 40px;
+          height: 40px;
+          border-radius: 12px;
+          background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: white;
+          flex-shrink: 0;
+        }
+
+        .edubot-welcome-bubble {
+          background: var(--edubot-surface-elevated);
+          border: 1px solid var(--edubot-border);
+          border-radius: 16px;
+          border-top-left-radius: 4px;
+          padding: 16px;
+          max-width: 100%;
+        }
+
+        .edubot-welcome-bubble p {
+          color: var(--edubot-text);
+          font-size: 14px;
+          line-height: 1.6;
+          margin: 0 0 12px 0;
+        }
+
+        .edubot-welcome-bubble p:last-child {
+          margin-bottom: 0;
+        }
+
+        /* === QUICK REPLIES === */
+        .edubot-quick-replies {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 8px;
+          padding-left: 52px;
+        }
+
+        .edubot-quick-btn {
+          padding: 8px 14px;
+          border-radius: 20px;
+          background: var(--edubot-surface-elevated);
+          border: 1px solid var(--edubot-border);
+          color: var(--edubot-text-secondary);
+          font-size: 12px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          display: flex;
+          align-items: center;
+          gap: 6px;
+        }
+
+        .edubot-quick-btn:hover {
+          background: var(--edubot-surface-hover);
+          border-color: var(--edubot-primary);
+          color: var(--edubot-primary-light);
+          transform: translateY(-1px);
+        }
+
+        /* === MESSAGE BUBBLES === */
+        .edubot-message {
+          display: flex;
+          gap: 10px;
+          animation: edubot-slide-in 0.3s ease;
+        }
+
+        .edubot-message.user {
+          flex-direction: row-reverse;
+        }
+
+        .edubot-message-avatar {
+          width: 32px;
+          height: 32px;
+          border-radius: 10px;
+          background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: white;
+          flex-shrink: 0;
+        }
+
+        .edubot-message.user .edubot-message-avatar {
+          background: var(--edubot-surface-hover);
+        }
+
+        .edubot-message-content {
+          max-width: 85%;
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
+
+        .edubot-message-bubble {
+          padding: 14px 16px;
+          border-radius: 16px;
+          font-size: 14px;
+          line-height: 1.6;
+          color: var(--edubot-text);
+          white-space: pre-wrap;
+          word-break: break-word;
+        }
+
+        .edubot-message.assistant .edubot-message-bubble {
+          background: var(--edubot-surface-elevated);
+          border: 1px solid var(--edubot-border);
+          border-radius: 16px 16px 16px 4px;
+        }
+
+        .edubot-message.user .edubot-message-bubble {
+          background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+          color: white;
+          border-radius: 16px 16px 4px 16px;
+        }
+
+        .edubot-message-time {
+          font-size: 10px;
+          color: var(--edubot-text-muted);
+          padding: 0 4px;
+        }
+
+        .edubot-message.user .edubot-message-time {
+          text-align: right;
+        }
+
+        /* === TYPING INDICATOR === */
+        .edubot-typing {
+          display: flex;
+          gap: 10px;
+          animation: edubot-slide-in 0.3s ease;
+        }
+
+        .edubot-typing-avatar {
+          width: 32px;
+          height: 32px;
+          border-radius: 10px;
+          background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: white;
+          flex-shrink: 0;
+        }
+
+        .edubot-typing-bubble {
+          background: var(--edubot-surface-elevated);
+          border: 1px solid var(--edubot-border);
+          border-radius: 16px 16px 16px 4px;
+          padding: 14px 18px;
+          display: flex;
+          gap: 5px;
+          align-items: center;
+        }
+
+        .edubot-typing-dot {
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+          background: var(--edubot-primary);
+          animation: edubot-typing-dot 1.4s ease-in-out infinite;
+        }
+
+        .edubot-typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .edubot-typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        /* === PRODUCT CARDS === */
+        .edubot-products {
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+        }
+
+        .edubot-products-title {
+          font-size: 12px;
+          color: var(--edubot-text-secondary);
+          font-weight: 500;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+          padding: 0 4px;
+        }
+
+        .product-card {
+          background: var(--edubot-surface-elevated);
+          border: 1px solid var(--edubot-border);
+          border-radius: 14px;
+          overflow: hidden;
+          transition: all 0.2s ease;
+        }
+
+        .product-card:hover {
+          border-color: var(--edubot-border-hover);
+          transform: translateY(-2px);
+          box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .product-header {
+          display: flex;
+          gap: 12px;
+          padding: 12px;
+        }
+
+        .product-image {
+          width: 70px;
+          height: 70px;
+          border-radius: 10px;
+          overflow: hidden;
+          flex-shrink: 0;
+          background: var(--edubot-surface);
+          position: relative;
+        }
+
+        .product-image img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+
+        .product-image-placeholder {
+          width: 100%;
+          height: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: var(--edubot-text-muted);
+        }
+
+        .product-badge {
+          position: absolute;
+          top: 4px;
+          left: 4px;
+          padding: 2px 6px;
+          border-radius: 4px;
+          font-size: 9px;
+          font-weight: 600;
+          text-transform: uppercase;
+        }
+
+        .product-badge.hot {
+          background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+          color: white;
+        }
+
+        .product-badge.bestseller {
+          background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+          color: white;
+        }
+
+        .product-badge.new {
+          background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+          color: white;
+        }
+
+        .product-info {
+          flex: 1;
+          min-width: 0;
+        }
+
+        .product-title {
+          font-size: 13px;
+          font-weight: 600;
+          color: var(--edubot-text);
+          margin: 0 0 4px 0;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        .product-meta {
+          display: flex;
+          gap: 6px;
+          margin-bottom: 4px;
+        }
+
+        .product-category,
+        .product-level {
+          font-size: 10px;
+          padding: 2px 6px;
+          border-radius: 4px;
+          background: var(--edubot-surface);
+          color: var(--edubot-text-secondary);
+        }
+
+        .product-desc {
+          font-size: 11px;
+          color: var(--edubot-text-muted);
+          margin: 0 0 6px 0;
+          line-height: 1.4;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+        }
+
+        .product-stats {
+          display: flex;
+          gap: 10px;
+          font-size: 10px;
+          color: var(--edubot-text-secondary);
+        }
+
+        .product-footer {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 10px 12px;
+          background: var(--edubot-surface);
+          border-top: 1px solid var(--edubot-border);
+        }
+
+        .product-price {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+
+        .price-current {
+          font-size: 15px;
+          font-weight: 700;
+          color: var(--edubot-accent);
+        }
+
+        .price-old {
+          font-size: 11px;
+          color: var(--edubot-text-muted);
+          text-decoration: line-through;
+        }
+
+        .price-discount {
+          font-size: 10px;
+          font-weight: 600;
+          color: var(--edubot-success);
+          background: rgba(16, 185, 129, 0.1);
+          padding: 2px 6px;
+          border-radius: 4px;
+        }
+
+        .product-action {
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          font-size: 12px;
+          font-weight: 500;
+          color: var(--edubot-primary-light);
+          text-decoration: none;
+          transition: all 0.2s ease;
+        }
+
+        .product-action:hover {
+          color: var(--edubot-primary);
+        }
+
+        /* === SUGGESTED ACTIONS === */
+        .edubot-suggestions {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 6px;
+          padding-left: 42px;
+        }
+
+        .edubot-suggestion-btn {
+          padding: 6px 12px;
+          border-radius: 8px;
+          background: rgba(59, 130, 246, 0.1);
+          border: 1px solid rgba(59, 130, 246, 0.2);
+          color: var(--edubot-primary-light);
+          font-size: 11px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          display: flex;
+          align-items: center;
+          gap: 4px;
+        }
+
+        .edubot-suggestion-btn:hover {
+          background: rgba(59, 130, 246, 0.2);
+          border-color: var(--edubot-primary);
+          transform: translateY(-1px);
+        }
+
+        /* === INPUT AREA === */
+        .edubot-input-area {
+          padding: 16px 20px;
+          background: var(--edubot-surface);
+          border-top: 1px solid var(--edubot-border);
+        }
+
+        .edubot-input-wrapper {
+          display: flex;
+          gap: 10px;
+          align-items: flex-end;
+        }
+
+        .edubot-input-container {
+          flex: 1;
+          position: relative;
+        }
+
+        .edubot-input {
+          width: 100%;
+          padding: 12px 16px;
+          padding-right: 40px;
+          background: var(--edubot-surface-elevated);
+          border: 1px solid var(--edubot-border);
+          border-radius: 12px;
+          color: var(--edubot-text);
+          font-size: 14px;
+          font-family: inherit;
+          resize: none;
+          outline: none;
+          transition: all 0.2s ease;
+          min-height: 46px;
+          max-height: 120px;
+        }
+
+        .edubot-input::placeholder {
+          color: var(--edubot-text-muted);
+        }
+
+        .edubot-input:focus {
+          border-color: var(--edubot-primary);
+          box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .edubot-char-count {
+          position: absolute;
+          right: 12px;
+          bottom: 12px;
+          font-size: 10px;
+          color: var(--edubot-text-muted);
+        }
+
+        .edubot-send-btn {
+          width: 46px;
+          height: 46px;
+          border-radius: 12px;
+          background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+          border: none;
+          color: white;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: all 0.2s ease;
+          flex-shrink: 0;
+        }
+
+        .edubot-send-btn:hover:not(:disabled) {
+          transform: scale(1.05);
+          box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+        }
+
+        .edubot-send-btn:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+
+        .edubot-footer {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 12px;
+          margin-top: 10px;
+          font-size: 10px;
+          color: var(--edubot-text-muted);
+        }
+
+        .edubot-footer a {
+          color: var(--edubot-primary-light);
+          text-decoration: none;
+          transition: color 0.2s ease;
+        }
+
+        .edubot-footer a:hover {
+          color: var(--edubot-primary);
+        }
+
+        .edubot-footer-divider {
+          width: 3px;
+          height: 3px;
+          border-radius: 50%;
+          background: var(--edubot-text-muted);
+        }
+
+        /* === DARK MODE OVERRIDES === */
+        @media (prefers-color-scheme: light) {
+          .edubot-window,
+          .edubot-launcher {
+            /* Keep dark theme always */
+          }
+        }
+
+        /* === RESPONSIVE === */
+        @media (max-width: 480px) {
+          .edubot-window {
+            width: calc(100vw - 16px);
+            right: 8px;
+            bottom: 80px;
+            height: calc(100vh - 100px);
+            max-height: none;
+            border-radius: 16px;
+          }
+
+          .edubot-launcher {
+            bottom: 16px;
+            right: 16px;
+            width: 54px;
+            height: 54px;
+          }
+        }
+      `}</style>
+
+      {/* Launcher Button */}
       <button
-        onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-gradient-to-br from-primary to-primary/80 text-white shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 flex items-center justify-center"
-        aria-label="Open chat with EduBazar Assistant"
+        onClick={() => setIsOpen(!isOpen)}
+        className="edubot-launcher"
+        aria-label={isOpen ? "Close EduBot" : "Open EduBot - Your course assistant"}
       >
-        <MessageSquare className="w-7 h-7" />
-        {hasUnread && (
-          <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center animate-pulse">
-            1
-          </span>
-        )}
+        {isOpen ? <X size={24} /> : <MessageSquare size={24} />}
+        {!isOpen && hasUnread && <span className="edubot-badge">1</span>}
       </button>
 
       {/* Chat Window */}
       {isOpen && (
-        <div
-          ref={messagesEndRef}
-          className="fixed bottom-6 right-6 z-50 w-full max-w-sm md:max-w-md lg:max-w-lg h-[calc(100vh-3rem)] max-h-[600px] bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 flex flex-col overflow-hidden animate-slide-up"
-          role="dialog"
-          aria-label="EduBazar Assistant"
-        >
+        <div className="edubot-window" role="dialog" aria-label="EduBot - Course Assistant">
           {/* Header */}
-          <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-primary/5 to-secondary/5 dark:from-primary/10 dark:to-secondary/10">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center">
-                <Bot className="w-5 h-5 text-white" />
+          <div className="edubot-header">
+            <div className="edubot-header-left">
+              <div className="edubot-avatar">
+                <GraduationCap />
               </div>
-              <div>
-                <h3 className="font-semibold text-gray-900 dark:text-white">EduBazar Assistant</h3>
-                <p className="text-xs text-green-500 flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
-                  Online • Instant replies (no API key needed)
-                </p>
+              <div className="edubot-header-info">
+                <h3>EduBot</h3>
+                <div className="edubot-status">
+                  <span className="edubot-status-dot" />
+                  <span>Online • Free & Instant</span>
+                </div>
               </div>
             </div>
             <button
               onClick={() => setIsOpen(false)}
-              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 transition-colors"
+              className="edubot-close"
               aria-label="Close chat"
             >
-              <X className="w-5 h-5" />
+              <X size={18} />
             </button>
           </div>
 
-          {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4">
-            {messages.length === 0 && showQuickReplies && (
-              <div className="space-y-3">
-                <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <Bot className="w-4 h-4 text-primary" />
+          {/* Messages Area */}
+          <div className="edubot-messages" ref={chatContainerRef}>
+            {/* Welcome State */}
+            {messages.length === 0 && (
+              <div className="edubot-welcome">
+                <div className="edubot-welcome-header">
+                  <div className="edubot-welcome-avatar">
+                    <Bot size={20} />
                   </div>
-                  <div className="bg-gray-100 dark:bg-gray-800 rounded-2xl rounded-tl-sm px-4 py-3 max-w-xs">
-                    <p className="text-sm text-gray-900 dark:text-white">
-                      Namaste! 👋 Main **EduBazar Assistant** hoon — bina kisi API key ke, fully free.\n\nSab courses mere paas hain. Kya help chahiye?
-                    </p>
+                  <div className="edubot-welcome-bubble">
+                    <p>🙏 *Namaste!* Main hoon <strong>EduBot</strong> — aapka personal course guide!</p>
+                    <p>Bina kisi API key ke, bilkul free! Sab courses ki jaankari turant available. 💡</p>
+                    <p>Kya poochna hai aapko? Type karo ya niche options mein se choose karo!</p>
                   </div>
                 </div>
-                <div className="flex flex-wrap gap-2 justify-start">
-                  {QUICK_REPLIES.slice(0, 4).map((reply) => (
+
+                {/* Quick Replies */}
+                <div className="edubot-quick-replies">
+                  {QUICK_REPLIES.map((reply, idx) => (
                     <button
-                      key={reply}
-                      onClick={() => handleQuickReply(reply)}
-                      className="px-3 py-1.5 text-xs rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-primary/5 hover:border-primary/50 hover:text-primary transition-all"
+                      key={idx}
+                      onClick={() => handleQuickReply(reply.text)}
+                      className="edubot-quick-btn"
                     >
-                      {reply}
+                      <span>{reply.icon}</span>
+                      <span>{reply.text}</span>
                     </button>
                   ))}
                 </div>
-                <div className="flex flex-wrap gap-2 justify-start">
-                  {QUICK_REPLIES.slice(4).map((reply) => (
-                    <button
-                      key={reply}
-                      onClick={() => handleQuickReply(reply)}
-                      className="px-3 py-1.5 text-xs rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-primary/5 hover:border-primary/50 hover:text-primary transition-all"
-                    >
-                      {reply}
-                    </button>
-                  ))}
+
+                {/* Stats Card */}
+                <div className="edubot-stats-card" style={{
+                  background: 'var(--edubot-surface-elevated)',
+                  border: '1px solid var(--edubot-border)',
+                  borderRadius: '14px',
+                  padding: '16px',
+                  marginLeft: '52px'
+                }}>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    marginBottom: '12px'
+                  }}>
+                    <Sparkles size={16} style={{ color: 'var(--edubot-accent)' }} />
+                    <span style={{
+                      fontSize: '12px',
+                      fontWeight: '600',
+                      color: 'var(--edubot-text)'
+                    }}>EduBazar Statistics</span>
+                  </div>
+                  <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(3, 1fr)',
+                    gap: '12px'
+                  }}>
+                    <div style={{ textAlign: 'center' }}>
+                      <div style={{
+                        fontSize: '20px',
+                        fontWeight: '700',
+                        color: 'var(--edubot-primary-light)'
+                      }}>{getCourseStats().courses}+</div>
+                      <div style={{ fontSize: '10px', color: 'var(--edubot-text-muted)' }}>Courses</div>
+                    </div>
+                    <div style={{ textAlign: 'center' }}>
+                      <div style={{
+                        fontSize: '20px',
+                        fontWeight: '700',
+                        color: 'var(--edubot-accent)'
+                      }}>{getCourseStats().categories}</div>
+                      <div style={{ fontSize: '10px', color: 'var(--edubot-text-muted)' }}>Categories</div>
+                    </div>
+                    <div style={{ textAlign: 'center' }}>
+                      <div style={{
+                        fontSize: '20px',
+                        fontWeight: '700',
+                        color: 'var(--edubot-success)'
+                      }}>2.5L+</div>
+                      <div style={{ fontSize: '10px', color: 'var(--edubot-text-muted)' }}>Students</div>
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
-            
-            {messages.map((msg, idx) => (
-              <div key={idx} className={`flex gap-3 ${msg.role === "user" ? "justify-end" : ""}`}>
-                {msg.role === "assistant" && (
-                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <Bot className="w-4 h-4 text-primary" />
+
+            {/* Chat Messages */}
+            {messages.map((msg) => (
+              <div key={msg.id} className={`edubot-message ${msg.role}`}>
+                <div className="edubot-message-avatar">
+                  {msg.role === "assistant" ? <Bot size={16} /> : <User size={16} />}
+                </div>
+                <div className="edubot-message-content">
+                  <div className="edubot-message-bubble">
+                    {parseMarkdown(msg.content)}
                   </div>
-                )}
-                <div className={`max-w-[75%] ${msg.role === "user" ? "order-2" : ""}`}>
-                  <div className={`rounded-2xl px-4 py-3 ${
-                    msg.role === "user"
-                      ? "bg-primary text-white rounded-br-sm"
-                      : "bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white rounded-bl-sm"
-                  }`}>
-                    <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
-                    <p className={`text-xs mt-1 opacity-70 ${msg.role === "user" ? "text-primary-100" : "text-gray-500 dark:text-gray-400"}`}>
-                      {msg.timestamp.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}
-                    </p>
-                  </div>
-                  
-                  {/* Product Cards */}
+
+                  {/* Products */}
                   {msg.products && msg.products.length > 0 && (
-                    <div className="mt-2 space-y-2">
-                      {msg.products.map(renderProductCard)}
+                    <div className="edubot-products">
+                      <div className="edubot-products-title">
+                        {msg.products.length} result{msg.products.length > 1 ? 's' : ''} found
+                      </div>
+                      {msg.products.slice(0, 3).map((product) => (
+                        <ProductCard key={product.id} product={product} />
+                      ))}
+                      {msg.products.length > 3 && (
+                        <a
+                          href="/shop"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '6px',
+                            padding: '10px',
+                            background: 'var(--edubot-surface-elevated)',
+                            border: '1px solid var(--edubot-border)',
+                            borderRadius: '10px',
+                            color: 'var(--edubot-primary-light)',
+                            fontSize: '12px',
+                            fontWeight: '500',
+                            textDecoration: 'none',
+                            transition: 'all 0.2s ease'
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.borderColor = 'var(--edubot-primary)';
+                            e.currentTarget.style.background = 'var(--edubot-surface-hover)';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.borderColor = 'var(--edubot-border)';
+                            e.currentTarget.style.background = 'var(--edubot-surface-elevated)';
+                          }}
+                        >
+                          View all {msg.products.length} results <ArrowRight size={14} />
+                        </a>
+                      )}
                     </div>
                   )}
+
+                  {/* Suggested Actions */}
+                  {msg.suggestedActions && msg.suggestedActions.length > 0 && (
+                    <div className="edubot-suggestions">
+                      {msg.suggestedActions.slice(0, 4).map((action, idx) => (
+                        <button
+                          key={idx}
+                          onClick={() => handleSuggestedAction(action)}
+                          className="edubot-suggestion-btn"
+                        >
+                          <ArrowRight size={10} />
+                          {action}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
+                  <span className="edubot-message-time">
+                    {msg.timestamp.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}
+                  </span>
                 </div>
-                {msg.role === "user" && (
-                  <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center flex-shrink-0">
-                    <User className="w-4 h-4 text-gray-600 dark:text-gray-300" />
-                  </div>
-                )}
               </div>
             ))}
-            
+
+            {/* Typing Indicator */}
             {isLoading && (
-              <div className="flex items-start gap-3">
-                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                  <Loader2 className="w-4 h-4 text-primary animate-spin" />
+              <div className="edubot-typing">
+                <div className="edubot-typing-avatar">
+                  <Bot size={16} />
                 </div>
-                <div className="bg-gray-100 dark:bg-gray-800 rounded-2xl rounded-tl-sm px-4 py-3">
-                  <div className="flex gap-1">
-                    <div className="w-2 h-2 rounded-full bg-primary/50 animate-bounce" style={{animationDelay: "0ms"}} />
-                    <div className="w-2 h-2 rounded-full bg-primary/50 animate-bounce" style={{animationDelay: "150ms"}} />
-                    <div className="w-2 h-2 rounded-full bg-primary/50 animate-bounce" style={{animationDelay: "300ms"}} />
-                  </div>
+                <div className="edubot-typing-bubble">
+                  <span className="edubot-typing-dot" />
+                  <span className="edubot-typing-dot" />
+                  <span className="edubot-typing-dot" />
                 </div>
               </div>
             )}
-            
+
             <div ref={messagesEndRef} />
           </div>
 
           {/* Input Area */}
-          <div className="border-t border-gray-200 dark:border-gray-700 p-3 bg-white dark:bg-gray-900">
-            <div className="flex items-end gap-2">
-              <div className="flex-1 relative">
+          <div className="edubot-input-area">
+            <div className="edubot-input-wrapper">
+              <div className="edubot-input-container">
                 <textarea
+                  ref={inputRef}
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={(e) => {
@@ -472,37 +1903,48 @@ export default function AIChatWidget() {
                       sendMessage();
                     }
                   }}
-                  placeholder="Type a message... (Enter to send, Shift+Enter for new line)"
+                  placeholder="Type your message... (Enter to send)"
+                  className="edubot-input"
                   rows={1}
-                  className="w-full px-4 py-2.5 bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent resize-none"
                   disabled={isLoading}
+                  maxLength={500}
                 />
               </div>
               <button
                 onClick={sendMessage}
                 disabled={!input.trim() || isLoading}
-                className="p-2.5 rounded-xl bg-primary text-white hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex-shrink-0"
+                className="edubot-send-btn"
                 aria-label="Send message"
               >
-                <Send className="w-5 h-5" />
+                {isLoading ? (
+                  <Loader2 size={18} style={{ animation: 'spin 1s linear infinite' }} />
+                ) : (
+                  <Send size={18} />
+                )}
               </button>
             </div>
-            <p className="text-xs text-gray-400 text-center mt-2">
-              🆓 **100% Free** • No API key • Powered by EduBazar catalog •{" "}
-              <a href="https://wa.me/919759131256" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+            <div className="edubot-footer">
+              <span>🆓 100% Free</span>
+              <span className="edubot-footer-divider" />
+              <span>No API key needed</span>
+              <span className="edubot-footer-divider" />
+              <a
+                href="https://wa.me/919759131256"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 Human support
               </a>
-            </p>
+            </div>
           </div>
         </div>
       )}
 
       <style jsx global>{`
-        @keyframes slide-up {
-          from { opacity: 0; transform: translateY(20px) scale(0.95); }
-          to { opacity: 1; transform: translateY(0) scale(1); }
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
         }
-        .animate-slide-up { animation: slide-up 0.3s ease-out; }
       `}</style>
     </>
   );
