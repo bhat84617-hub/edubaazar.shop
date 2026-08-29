@@ -4,8 +4,9 @@ import { useState, useRef, useEffect } from "react";
 import { 
   MessageSquare, X, Send, Bot, User, Loader2, 
   ChevronDown, ChevronUp, Star, Tag, IndianRupee,
-  CheckCircle, AlertCircle, Zap, BookOpen, Code, Shield
+  CheckCircle, AlertCircle, Zap, BookOpen, Code, Shield, Search
 } from "lucide-react";
+import { products, getProductById, CATEGORIES } from "@/lib/products";
 
 interface Message {
   role: "user" | "assistant";
@@ -35,6 +36,201 @@ const QUICK_REPLIES = [
   "Refund policy kya hai?"
 ];
 
+// ============ RULE ENGINE ============
+function formatPrice(price: number): string {
+  if (price === 0) return "FREE";
+  return `₹${price.toLocaleString("en-IN")}`;
+}
+
+function findProducts(query: string): any[] {
+  const q = query.toLowerCase();
+  const results = products.filter(p => 
+    p.title.toLowerCase().includes(q) ||
+    p.desc.toLowerCase().includes(q) ||
+    p.tags?.some(t => t.toLowerCase().includes(q)) ||
+    p.category.toLowerCase().includes(q) ||
+    p.id.toLowerCase().includes(q)
+  );
+  return results.slice(0, 8);
+}
+
+function findByCategory(category: string): any[] {
+  return products.filter(p => p.category.toLowerCase() === category.toLowerCase());
+}
+
+function findByKind(kind: string): any[] {
+  return products.filter(p => p.kind === kind);
+}
+
+function getFeatured(): any[] {
+  return products.filter(p => p.featured).slice(0, 6);
+}
+
+function getBestsellers(): any[] {
+  return products.filter(p => p.badge === "Bestseller").slice(0, 6);
+}
+
+function getFreeCourses(): any[] {
+  return products.filter(p => p.price === 0 && p.kind === "course").slice(0, 6);
+}
+
+function getProductDetail(id: string): any {
+  return getProductById(id);
+}
+
+function matchIntent(message: string): { intent: string; entities: any } {
+  const msg = message.toLowerCase();
+  
+  // Greeting
+  if (/^(hi|hello|hey|namaste|hii|hlo)/.test(msg)) return { intent: "greeting", entities: {} };
+  
+  // Thanks
+  if (/(thanks|thank you|thx|shukriya|dhanyawad)/.test(msg)) return { intent: "thanks", entities: {} };
+  
+  // Price queries
+  const priceMatch = msg.match(/(price|cost|rate|kitna|kya price|kitne ka)/);
+  if (priceMatch) {
+    const productQuery = msg.replace(/(price|cost|rate|kitna|kya price|kitne ka|hai|ka|ki|ke)/g, "").trim();
+    return { intent: "price_query", entities: { query: productQuery } };
+  }
+  
+  // Category queries
+  for (const cat of CATEGORIES) {
+    if (msg.includes(cat.key.toLowerCase())) {
+      if (/(course|book|tool|kaunse|kaun|which|list|show|dikhao|batao)/.test(msg)) {
+        return { intent: "category_list", entities: { category: cat.key } };
+      }
+    }
+  }
+  
+  // Bestseller/Featured/Hot
+  if (/(bestseller|best seller|top|popular|hot|featured|sabse achha|sabse best)/.test(msg)) {
+    return { intent: "featured", entities: {} };
+  }
+  
+  // Free courses
+  if (/(free|muft|free course|free book|0 rs|zero)/.test(msg)) {
+    return { intent: "free_courses", entities: {} };
+  }
+  
+  // Specific product by ID
+  const idMatch = msg.match(/\b(h\d+|p\d+|t\d+|b\d+|d\d+)\b/);
+  if (idMatch) {
+    return { intent: "product_detail", entities: { id: idMatch[1] } };
+  }
+  
+  // Order/Support queries
+  if (/(order|track|download|refund|payment| utr|pending|approved|rejected|status)/.test(msg)) {
+    return { intent: "support", entities: {} };
+  }
+  
+  // Course recommendation
+  if (/(recommend|suggest|kaunsa|kaun sa|which|best for|beginner|shuru|start)/.test(msg)) {
+    return { intent: "recommendation", entities: {} };
+  }
+  
+  // Search fallback
+  if (msg.length > 2) {
+    return { intent: "search", entities: { query: msg } };
+  }
+  
+  return { intent: "unknown", entities: {} };
+}
+
+function generateResponse(message: string): { text: string; products?: any[] } {
+  const { intent, entities } = matchIntent(message);
+  
+  switch (intent) {
+    case "greeting":
+      return {
+        text: `Namaste! 👋 Main **EduBazar Assistant** hoon — aapka course guide.\n\nMain aapki help kar sakta hoon:\n• 📚 **Courses dhundne mein** — "Hacking courses dikhao"\n• 💰 **Price check karne mein** — "Python course kitne ka hai?"\n• 🏷️ **Category browse** — "Trading books kaunse hain?"\n• ⭐ **Best sellers** — "Sabse popular course?"\n• 🆓 **Free courses** — "Free courses hain kya?"\n• 📦 **Order support** — "Download link nahi mila"\n\nKya dhundh rahe hain aaj?`
+      };
+    
+    case "thanks":
+      return {
+        text: "Welcome! 😊 Koi aur help chahiye toh pooch sakte hain. Happy learning! 🚀"
+      };
+    
+    case "price_query":
+      const searchResults = findProducts(entities.query || "");
+      if (searchResults.length === 1) {
+        const p = searchResults[0];
+        return {
+          text: `"${p.title}" ka price: **${formatPrice(p.price)}**${p.oldPrice > p.price ? ` (MRP: ${formatPrice(p.oldPrice)})` : ""}.\n\n${p.desc}\n\nLevel: ${p.level} | Duration: ${p.duration} | Rating: ⭐ ${p.rating}`,
+          products: [p]
+        };
+      } else if (searchResults.length > 1) {
+        return {
+          text: `Maine ${searchResults.length} courses dhundhe — niche list hai:`,
+          products: searchResults
+        };
+      }
+      return { text: "Sorry, us topic ka course nahi mila. Kya aap category ya keyword try karenge?" };
+    
+    case "category_list":
+      const catProducts = findByCategory(entities.category);
+      if (catProducts.length === 0) {
+        return { text: `"${entities.category}" category mein abhi koi course nahi hai.` };
+      }
+      return {
+        text: `"${entities.category}" category ke **${catProducts.length} courses** hain:`,
+        products: catProducts.slice(0, 8)
+      };
+    
+    case "featured":
+      const featured = getFeatured();
+      return {
+        text: `Ye rahe hamare **Featured & Bestseller courses** (${featured.length}):`,
+        products: featured
+      };
+    
+    case "free_courses":
+      const free = getFreeCourses();
+      return {
+        text: `Ye rahe **${free.length} FREE courses/books**:`,
+        products: free
+      };
+    
+    case "product_detail":
+      const product = getProductDetail(entities.id);
+      if (!product) {
+        return { text: `Product ID "${entities.id}" nahi mila. Sahi ID try karein (jaise: h1, p1, t1).` };
+      }
+      return {
+        text: `**${product.title}**\n\n${product.fullDesc || product.desc}\n\n💰 **Price:** ${formatPrice(product.price)}${product.oldPrice > product.price ? ` (Was ${formatPrice(product.oldPrice)})` : ""}\n📊 **Level:** ${product.level} | ⏱️ **Duration:** ${product.duration}\n⭐ **Rating:** ${product.rating}/5 (${product.reviewCount} reviews)\n👨‍🏫 **Instructor:** ${product.instructor}\n🌐 **Language:** ${product.language}\n\n${product.includes.map((i: string) => `✅ ${i}`).join("\n")}`,
+        products: [product]
+      };
+    
+    case "support":
+      return {
+        text: `**Order/Support Help** 📋\n\n**Common Issues:**\n• **Download link nahi mila** → Admin approve karega tab milta hai. Apna Order ID share karein.\n• **Order pending hai** → Admin verify karta hai (usually 1-2 hours).\n• **Refund chahiye** → 7 din ke andar request karein agar course access nahi mila.\n• **Payment verify** → UTR number share karein WhatsApp pe.\n\n**Direct Contact:**\n📱 WhatsApp: +91-9759131256\n📧 Email: support@edubaazar.shop\n\nApna **Order ID** batayein, main check karke bataunga.`
+      };
+    
+    case "recommendation":
+      const beginnerCourses = products.filter(p => p.level === "Beginner" || p.level === "All Levels").slice(0, 6);
+      return {
+        text: `Shuru kar rahe hain? Ye **Beginner-friendly courses** best hain:\n\nAgar specific field batao (hacking, programming, trading, design) toh better suggest kar paunga.`,
+        products: beginnerCourses
+      };
+    
+    case "search":
+      const results = findProducts(entities.query);
+      if (results.length === 0) {
+        return { text: `"${entities.query}" ke liye koi course nahi mila. Alag keywords try karein ya category bolo.` };
+      }
+      return {
+        text: `"${entities.query}" ke liye **${results.length} results** mile:`,
+        products: results
+      };
+    
+    default:
+      return {
+        text: `Samajh nahi aaya 😅 Thoda alag puchhein jaise:\n\n• "Hacking courses dikhao"\n• "Python course price kya hai?"\n• "Free courses hain kya?"\n• "Bestseller course batao"\n• "Order ID #1234 track karo"\n• "h1 course ke bare mein batao"\n\nYa WhatsApp karein: +91-9759131256`
+      };
+  }
+}
+
+// ============ COMPONENT ============
 export default function AIChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -42,24 +238,16 @@ export default function AIChatWidget() {
   const [isLoading, setIsLoading] = useState(false);
   const [hasUnread, setHasUnread] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const chatRef = useRef<HTMLDivElement>(null);
   const [showQuickReplies, setShowQuickReplies] = useState(true);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+  useEffect(() => { scrollToBottom(); }, [messages]);
+  useEffect(() => { if (isOpen) setHasUnread(false); }, [isOpen]);
 
-  useEffect(() => {
-    if (isOpen) {
-      setHasUnread(false);
-    }
-  }, [isOpen]);
-
-  const sendMessage = async () => {
+  const sendMessage = () => {
     if (!input.trim() || isLoading) return;
     
     const userMessage = input.trim();
@@ -75,43 +263,24 @@ export default function AIChatWidget() {
     setMessages(prev => [...prev, newUserMsg]);
     setIsLoading(true);
 
-    try {
-      const response = await fetch("/api/ai-chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-          messages: [...messages, newUserMsg].map(m => ({ role: m.role, content: m.content }))
-        })
-      });
-      
-      const data = await response.json();
-      
+    // Simulate thinking delay
+    setTimeout(() => {
+      const response = generateResponse(userMessage);
       const assistantMsg: Message = {
         role: "assistant",
-        content: data.reply || data.error || "Sorry, kuch error aaya.",
-        timestamp: new Date()
+        content: response.text,
+        timestamp: new Date(),
+        products: response.products
       };
-      
       setMessages(prev => [...prev, assistantMsg]);
-    } catch (error) {
-      setMessages(prev => [...prev, {
-        role: "assistant",
-        content: "Sorry, connection error. Please try again or WhatsApp us at +91-9759131256",
-        timestamp: new Date()
-      }]);
-    } finally {
       setIsLoading(false);
-    }
+      if (!isOpen) setHasUnread(true);
+    }, 400 + Math.random() * 600);
   };
 
   const handleQuickReply = (text: string) => {
     setInput(text);
     sendMessage();
-  };
-
-  const formatPrice = (price: number) => {
-    if (price === 0) return "FREE";
-    return `₹${price.toLocaleString("en-IN")}`;
   };
 
   const renderProductCard = (product: any) => (
@@ -171,7 +340,7 @@ export default function AIChatWidget() {
       {/* Chat Window */}
       {isOpen && (
         <div
-          ref={chatRef}
+          ref={messagesEndRef}
           className="fixed bottom-6 right-6 z-50 w-full max-w-sm md:max-w-md lg:max-w-lg h-[calc(100vh-3rem)] max-h-[600px] bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 flex flex-col overflow-hidden animate-slide-up"
           role="dialog"
           aria-label="EduBazar Assistant"
@@ -186,7 +355,7 @@ export default function AIChatWidget() {
                 <h3 className="font-semibold text-gray-900 dark:text-white">EduBazar Assistant</h3>
                 <p className="text-xs text-green-500 flex items-center gap-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
-                  Online • Typically replies in seconds
+                  Online • Instant replies (no API key needed)
                 </p>
               </div>
             </div>
@@ -200,7 +369,7 @@ export default function AIChatWidget() {
           </div>
 
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4" ref={messagesEndRef}>
+          <div className="flex-1 overflow-y-auto p-4 space-y-4">
             {messages.length === 0 && showQuickReplies && (
               <div className="space-y-3">
                 <div className="flex items-start gap-3">
@@ -209,7 +378,7 @@ export default function AIChatWidget() {
                   </div>
                   <div className="bg-gray-100 dark:bg-gray-800 rounded-2xl rounded-tl-sm px-4 py-3 max-w-xs">
                     <p className="text-sm text-gray-900 dark:text-white">
-                      Namaste! 👋 Main EduBazar Assistant hoon. Aapko course dhundne, purchase karne, ya kisi bhi sawal mein help karunga.
+                      Namaste! 👋 Main **EduBazar Assistant** hoon — bina kisi API key ke, fully free.\n\nSab courses mere paas hain. Kya help chahiye?
                     </p>
                   </div>
                 </div>
@@ -256,6 +425,13 @@ export default function AIChatWidget() {
                       {msg.timestamp.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}
                     </p>
                   </div>
+                  
+                  {/* Product Cards */}
+                  {msg.products && msg.products.length > 0 && (
+                    <div className="mt-2 space-y-2">
+                      {msg.products.map(renderProductCard)}
+                    </div>
+                  )}
                 </div>
                 {msg.role === "user" && (
                   <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center flex-shrink-0">
@@ -312,7 +488,10 @@ export default function AIChatWidget() {
               </button>
             </div>
             <p className="text-xs text-gray-400 text-center mt-2">
-              Powered by AI • Data from EduBazar catalog • <a href="https://wa.me/919759131256" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Human support</a>
+              🆓 **100% Free** • No API key • Powered by EduBazar catalog •{" "}
+              <a href="https://wa.me/919759131256" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                Human support
+              </a>
             </p>
           </div>
         </div>
