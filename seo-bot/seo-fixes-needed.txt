@@ -1,0 +1,19 @@
+
+// FIX: Add Meta Description
+// Recommended: "Buy premium online courses in Ethical Hacking, Programming, Trading, Digital Marketing & more. Instant access, secure UPI payment."
+
+
+// FIX: Add Hreflang Tags
+// Add to layout.tsx:
+// alternates: { languages: { en: SITE_URL, hi: `${SITE_URL}/hi` } }
+
+
+// FIX: Add LocalBusiness Schema
+// Add to layout.tsx:
+{
+  "@context": "https://schema.org",
+  "@type": "LocalBusiness",
+  "name": "EduBazar.shop",
+  "address": { "@type": "PostalAddress", "addressCountry": "IN" },
+  "priceRange": "₹₹"
+}

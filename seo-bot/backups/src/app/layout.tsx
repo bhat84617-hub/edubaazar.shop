@@ -57,9 +57,7 @@ export const metadata: Metadata = {
     follow: true,
     googleBot: { index: true, follow: true, "max-video-preview": -1, "max-image-preview": "large", "max-snippet": -1 },
   },
-  alternates: { canonical: SITE_URL, languages: {
-      en: SITE_URL,
-      hi: `${SITE_URL}/hi`, "en": SITE_URL } },
+  alternates: { canonical: SITE_URL, languages: { "en": SITE_URL } },
   icons: { icon: "/logo/edulogo.jpeg" },
 };
 
@@ -106,34 +104,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdOrg) }} />
-      
-        <script type="application/ld+json">
-          {
-            "@context": "https://schema.org",
-            "@type": "LocalBusiness",
-            "name": "EduBazar.shop",
-            "url": SITE_URL,
-            "logo": {
-              "@type": "ImageObject",
-              "url": SITE_URL + "/logo/edulogo.jpeg"
-            },
-            "address": {
-              "@type": "PostalAddress",
-              "addressCountry": "IN"
-            },
-            "priceRange": "₹₹",
-            "telephone": "+91-9759131256",
-            "contactPoint": {
-              "@type": "ContactPoint",
-              "telephone": "+91-9759131256",
-              "contactType": "customer service"
-            },
-            "sameAs": [
-              "https://instagram.com/edubazarshop",
-              "https://wa.me/919759131256"
-            ]
-          }
-        </script>
       </head>
       <body className="min-h-screen flex flex-col">
         <StoreProvider>

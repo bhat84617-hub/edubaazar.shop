@@ -32,6 +32,17 @@ export default function SeoDashboardPage() {
   useEffect(() => {
     fetch("/api/admin/session").then((response) => setAuthed(response.ok)).catch(() => setAuthed(false)).finally(() => setSessionChecked(true));
   }, []);
+  const runAutoFix = async () => {
+    if (!confirm("Run SEO Auto-Fix? This will modify layout files and add schema.")) return;
+    try {
+      const res = await fetch("/api/admin/seo-bot", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "fix" }) });
+      const data = await res.json();
+      alert(data.success ? "Auto-fix completed! Check console/logs." : (data.error || "Failed"));
+    } catch (e: any) {
+      alert("Auto-fix error: " + (e.message || String(e)));
+    }
+  };
+
   const filteredIssues = useMemo(() => localIssues
     .filter((issue) => filter === "all" || issue.severity === filter)
     .filter((issue) => `${issue.title} ${issue.url} ${issue.evidence}`.toLowerCase().includes(query.toLowerCase())), [filter, localIssues, query]);
@@ -67,6 +78,7 @@ export default function SeoDashboardPage() {
         <div className="seo-actions">
           <span className="seo-fresh"><span className="seo-dot" /> Repository audit · 23 Aug 2026</span>
           <button className="btn btn-primary btn-sm" onClick={() => downloadReport(filteredIssues)}><Download size={14} /> Export issues</button>
+          <button className="btn btn-primary btn-sm" onClick={runAutoFix}><Gauge size={14} /> Auto-Fix SEO</button>
         </div>
       </header>
 

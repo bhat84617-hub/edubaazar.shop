@@ -1,0 +1,175 @@
+{
+  "timestamp": "2026-08-31T08:47:04.525Z",
+  "siteUrl": "https://www.edubaazar.shop",
+  "seoChecks": [
+    {
+      "name": "Title Tag",
+      "passed": true,
+      "value": "EduBazar.shop — Online Courses, Digital Books &amp; Hacking Tools",
+      "message": "Found: \"EduBazar.shop — Online Courses, Digital Books &amp...\""
+    },
+    {
+      "name": "Meta Description",
+      "passed": false,
+      "value": "Buy premium online courses in Ethical Hacking, Programming, Python, JavaScript, Stock Market Trading, Digital Marketing &amp; more. Instant delivery, secure UPI payment.",
+      "message": "Found (169 chars)"
+    },
+    {
+      "name": "Canonical URL",
+      "passed": true,
+      "value": "https://www.edubaazar.shop",
+      "message": "Canonical: https://www.edubaazar.shop..."
+    },
+    {
+      "name": "Hreflang Tags",
+      "passed": false,
+      "value": [
+        "<link rel=\"alternate\" hrefLang=\"en\""
+      ],
+      "message": "Found 1 hreflang tags (EN ✓) (HI ✗)"
+    },
+    {
+      "name": "Open Graph Tags",
+      "passed": true,
+      "value": [
+        "og:title",
+        "og:description",
+        "og:image",
+        "og:url",
+        "og:type"
+      ],
+      "message": "OG Tags: 5/5 (og:title, og:description, og:image, og:url, og:type)"
+    },
+    {
+      "name": "Twitter Cards",
+      "passed": true,
+      "value": {
+        "card": true,
+        "image": true
+      },
+      "message": "Twitter Card: ✓, Image: ✓"
+    },
+    {
+      "name": "Schema.org JSON-LD",
+      "passed": true,
+      "value": [
+        "WebSite",
+        "WebSite"
+      ],
+      "message": "JSON-LD: 2 schema(s) - WebSite, WebSite"
+    },
+    {
+      "name": "Image Alt Attributes",
+      "passed": false,
+      "value": {
+        "total": 77,
+        "withAlt": 74,
+        "withoutAlt": 3
+      },
+      "message": "Images: 77 total, 74 with alt, 3 missing alt"
+    },
+    {
+      "name": "Heading Structure (H1)",
+      "passed": false,
+      "value": 2,
+      "message": "H1 tags: 2 (✗ Should be exactly 1)"
+    },
+    {
+      "name": "SSL/HTTPS",
+      "passed": true,
+      "value": true,
+      "message": "Site URL: ✓ HTTPS"
+    },
+    {
+      "name": "Robots.txt",
+      "passed": true,
+      "value": "User-Agent: *\nAllow: /\nDisallow: /api/\nDisallow: /admin/\nDisallow: /checkout/\nDisallow: /account/\nDisallow: /login\nDisallow: /register\n\nUser-Agent: Googlebot\nAllow: /\nDisallow: /api/\nDisallow: /admin/\nDisallow: /checkout/\n\nHost: https://www.edubaazar.shop\nSitemap: https://www.edubaazar.shop/sitemap.xml\n",
+      "message": "robots.txt: ✓ Found (Sitemap directive ✓)"
+    },
+    {
+      "name": "Sitemap.xml",
+      "passed": true,
+      "value": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n<url>\n<loc>https://www.edubaazar.shop</loc>\n<lastmod>2026-08-23</lastmod>\n<changefreq>weekly</changefreq>\n<priority>1</priority>\n</url>\n<url>\n<loc>https://www.edubaazar.shop/shop</loc>\n<lastmod>2026-08-23</lastmod>\n<changefreq>daily</changefreq>\n<priority>0.9</priority>\n</url>\n<url>\n<loc>https://www.edubaazar.shop/about</loc>\n<lastmod>2026-08-23</lastmod>\n<changefreq>monthly</changefreq>\n<priority>0.7</priority>\n</url>\n<url>\n<loc>https://www.edubaazar.shop/contact</loc>\n<lastmod>2026-08-23</lastmod>\n<changefreq>monthly</changefreq>\n<priority>0.7</priority>\n</url>\n<url>\n<loc>https://www.edubaazar.shop/terms</loc>\n<lastmod>2026-08-23</lastmod>\n<changefreq>yearly</changefreq>\n<priority>0.3</priority>\n</url>\n<url>\n<loc>https://www.edubaazar.shop/privacy</loc>\n<lastmod>2026-08-23</lastmod>\n<changefreq>yearly</changefreq>\n<priority>0.3</priority>\n</url>\n<url>\n<loc>https://www.edubaazar.shop/refund</loc>\n<lastmod>2026-08-23</lastmod>\n<changefreq>yearly</changefreq>\n<priority>0.4</priority>\n</url>\n<url>\n<loc>https://www.edubaazar.shop/product/complete-ethical-hacking-penetration-testing</loc>\n<lastmod>2024-12-01</lastmod>\n<changefreq>weekly</changefreq>\n<priority>0.8</priority>\n</url>\n<url>\n<loc>https://www.edubaazar.shop/product/web-application-hacking-security</loc>\n<lastmod>2024-11-15</lastmod>\n<changefreq>weekly</changefreq>\n<priority>0.8</priority>\n</url>\n<url>\n<loc>https://www.edubaazar.shop/product/complete-hacking-course-beginner-to-pro</loc>\n<lastmod>2024-12-10</lastmod>\n<changefreq>weekly</changefreq>\n<priority>0.8</priority>\n</url>\n<url>\n<loc>https://www.edubaazar.shop/product/masters-in-ethical-hacking-course-2</loc>\n<lastmod>2024-11-20</lastmod>\n<changefreq>weekly</changefreq>\n<priority>0.8</priority>\n</url>\n<url>\n<loc>https://www.edubaazar.shop/product/dedsec-antivirus-evasion-course</loc>\n<lastmod>2024-11-10</lastmod>\n<changefreq>weekly</changefreq>\n<priority>0.8</priority>\n</url>\n<url>\n<loc>https://www.edubaazar.shop/product/advance-practical-phishing-course</loc>\n<lastmod>2024-12-05</lastmod>\n<changefreq>weekly</changefreq>\n<priority>0.8</priority>\n</url>\n<url>\n<loc>https://www.edubaazar.shop/product/python-complete-course-beginner-to-advanced</loc>\n<lastmod>2024-12-15</lastmod>\n<changefreq>weekly</changefreq>\n<priority>0.8</priority>\n</url>\n<url>\n<loc>https://www.edubaazar.shop/product/complete-javascript-mastery</loc>\n<lastmod>2024-12-01</lastmod>\n<changefreq>weekly</changefreq>\n<priority>0.8</priority>\n</url>\n<url>\n<loc>https://www.edubaazar.shop/product/react-nextjs-developer-guide</loc>\n<lastmod>2024-12-10</lastmod>\n<changefreq>weekly</changefreq>\n<priority>0.8</priority>\n</url>\n<url>\n<loc>https://www.edubaazar.shop/product/complete-java-coding-course</loc>\n<lastmod>2024-11-25</lastmod>\n<changefreq>weekly</changefreq>\n<priority>0.8</priority>\n</url>\n<url>\n<loc>https://www.edubaazar.shop/product/stock-market-mastery-zero-to-pro</loc>\n<lastmod>2024-12-08</lastmod>\n<changefreq>weekly</changefreq>\n<priority>0.8</priority>\n</url>\n<url>\n<loc>https://www.edubaazar.shop/product/crypto-trading-pro-bitcoin-altcoins</loc>\n<lastmod>2024-12-01</lastmod>\n<changefreq>weekly</changefreq>\n<priority>0.8</priority>\n</url>\n<url>\n<loc>https://www.edubaazar.shop/product/forex-trading-complete-beginners-guide</loc>\n<lastmod>2024-11-15</lastmod>\n<changefreq>weekly</changefreq>\n<priority>0.8</priority>\n</url>\n<url>\n<loc>https://www.edubaazar.shop/product/complete-stock-market-course</loc>\n<lastmod>2024-12-05</lastmod>\n<changefreq>weekly</changefreq>\n<priority>0.8</priority>\n</url>\n<url>\n<loc>https://www.edubaazar.shop/product/mindfluential-trading-psychology-strategy</loc>\n<lastmod>2024-10-15</lastmod>\n<changefreq>weekly</changefreq>\n<priority>0.8</priority>\n</url>\n<url>\n<loc>https://www.edubaazar.shop/product/the-hacking-bible-complete-guide</loc>\n<lastmod>2024-12-01</lastmod>\n<changefreq>weekly</changefreq>\n<priority>0.8</priority>\n</url>\n<url>\n<loc>https://www.edubaazar.shop/product/trading-psychology-master-your-mind</loc>\n<lastmod>2024-10-20</lastmod>\n<changefreq>weekly</changefreq>\n<priority>0.8</priority>\n</url>\n<url>\n<loc>https://www.edubaazar.shop/product/python-crash-course-complete-guide</loc>\n<lastmod>2024-11-10</lastmod>\n<changefreq>weekly</changefreq>\n<priority>0.8</priority>\n</url>\n<url>\n<loc>https://www.edubaazar.shop/product/woocommerce-wordpress-tutorial-hindi</loc>\n<lastmod>2024-11-01</lastmod>\n<changefreq>weekly</changefreq>\n<priority>0.8</priority>\n</url>\n<url>\n<loc>https://www.edubaazar.shop/product/ui-ux-design-complete-course</loc>\n<lastmod>2024-12-10</lastmod>\n<changefreq>weekly</changefreq>\n<priority>0.8</priority>\n</url>\n<url>\n<loc>https://www.edubaazar.shop/product/ui-ux-design-fundamentals</loc>\n<lastmod>2024-11-20</lastmod>\n<changefreq>weekly</changefreq>\n<priority>0.8</priority>\n</url>\n<url>\n<loc>https://www.edubaazar.shop/product/digital-marketing-masterclass</loc>\n<lastmod>2024-12-05</lastmod>\n<changefreq>weekly</changefreq>\n<priority>0.8</priority>\n</url>\n<url>\n<loc>https://www.edubaazar.shop/product/digital-marketing-video-course</loc>\n<lastmod>2024-11-25</lastmod>\n<changefreq>weekly</changefreq>\n<priority>0.8</priority>\n</url>\n<url>\n<loc>https://www.edubaazar.shop/product/kali-linux-for-ethical-hackers</loc>\n<lastmod>2024-12-20</lastmod>\n<changefreq>weekly</changefreq>\n<priority>0.8</priority>\n</url>\n<url>\n<loc>https://www.edubaazar.shop/product/complete-windows-password-cracking</loc>\n<lastmod>2024-12-15</lastmod>\n<changefreq>weekly</changefreq>\n<priority>0.8</priority>\n</url>\n<url>\n<loc>https://www.edubaazar.shop/product/master-website-creation-15-platforms</loc>\n<lastmod>2024-12-20</lastmod>\n<changefreq>weekly</changefreq>\n<priority>0.8</priority>\n</url>\n<url>\n<loc>https://www.edubaazar.shop/product/seo-masterclass-onpage-offpage-technical</loc>\n<lastmod>2024-12-18</lastmod>\n<changefreq>weekly</changefreq>\n<priority>0.8</priority>\n</url>\n<url>\n<loc>https://www.edubaazar.shop/product/forex-scalping-m15-grabber-trading</loc>\n<lastmod>2024-12-22</lastmod>\n<changefreq>weekly</changefreq>\n<priority>0.8</priority>\n</url>\n<url>\n<loc>https://www.edubaazar.shop/product/learn-shopify-now-beginners</loc>\n<lastmod>2024-12-20</lastmod>\n<changefreq>weekly</changefreq>\n<priority>0.8</priority>\n</url>\n<url>\n<loc>https://www.edubaazar.shop/product/telegram-bot-course-python</loc>\n<lastmod>2024-12-22</lastmod>\n<changefreq>weekly</changefreq>\n<priority>0.8</priority>\n</url>\n<url>\n<loc>https://www.edubaazar.shop/product/japanese-candlesticks-trading-mastery</loc>\n<lastmod>2024-12-18</lastmod>\n<changefreq>weekly</changefreq>\n<priority>0.8</priority>\n</url>\n<url>\n<loc>https://www.edubaazar.shop/product/become-a-forex-trader-professional</loc>\n<lastmod>2024-12-20</lastmod>\n<changefreq>weekly</changefreq>\n<priority>0.8</priority>\n</url>\n<url>\n<loc>https://www.edubaazar.shop/product/t-shirt-design-beginner-to-expert-photoshop</loc>\n<lastmod>2024-12-22</lastmod>\n<changefreq>weekly</changefreq>\n<priority>0.8</priority>\n</url>\n<url>\n<loc>https://www.edubaazar.shop/product/adobe-photoshop-masterclass-complete-design</loc>\n<lastmod>2024-12-24</lastmod>\n<changefreq>weekly</changefreq>\n<priority>0.8</priority>\n</url>\n<url>\n<loc>https://www.edubaazar.shop/product/adobe-illustrator-vector-graphics-masterclass</loc>\n<lastmod>2024-12-24</lastmod>\n<changefreq>weekly</changefreq>\n<priority>0.8</priority>\n</url>\n<url>\n<loc>https://www.edubaazar.shop/product/canva-for-beginners-design-like-pro</loc>\n<lastmod>2024-12-24</lastmod>\n<changefreq>weekly</changefreq>\n<priority>0.8</priority>\n</url>\n<url>\n<loc>https://www.edubaazar.shop/product/graphic-design-masterclass-zero-to-hero</loc>\n<lastmod>2024-12-24</lastmod>\n<changefreq>weekly</changefreq>\n<priority>0.8</priority>\n</url>\n<url>\n<loc>https://www.edubaazar.shop/product/ultimate-facebook-ads-course-2025</loc>\n<lastmod>2024-12-22</lastmod>\n<changefreq>weekly</changefreq>\n<priority>0.8</priority>\n</url>\n</urlset>\n",
+      "message": "sitemap.xml: ✓ Found (45 URLs indexed)"
+    },
+    {
+      "name": "Favicon",
+      "passed": true,
+      "value": true,
+      "message": "Favicon: ✓ Found"
+    },
+    {
+      "name": "Viewport Meta",
+      "passed": true,
+      "value": true,
+      "message": "Viewport: ✓ Found"
+    },
+    {
+      "name": "Language Declaration",
+      "passed": true,
+      "value": true,
+      "message": "Language: ✓ en/en-IN declared"
+    }
+  ],
+  "geoChecks": [
+    {
+      "name": "Geo-Targeted Content (IN)",
+      "passed": true,
+      "value": [
+        "India",
+        "Indian",
+        "+91",
+        "₹"
+      ],
+      "message": "Geo signals: 4 found (India, Indian, +91, ₹)"
+    },
+    {
+      "name": "Local Business Schema",
+      "passed": false,
+      "value": false,
+      "message": "LocalBusiness schema: ✗ Missing"
+    },
+    {
+      "name": "Contact Information",
+      "passed": true,
+      "value": {
+        "phone": true,
+        "address": true
+      },
+      "message": "Contact: Phone ✓, Address ✓"
+    },
+    {
+      "name": "Social Media Links",
+      "passed": true,
+      "value": [
+        "instagram.com",
+        "wa.me",
+        "whatsapp"
+      ],
+      "message": "Social links: 3 found (instagram.com, wa.me, whatsapp)"
+    }
+  ],
+  "perfChecks": [
+    {
+      "name": "GZIP Compression",
+      "passed": true,
+      "value": "gzip",
+      "message": "Compression: gzip"
+    },
+    {
+      "name": "Cache Headers",
+      "passed": true,
+      "value": "public, max-age=0, must-revalidate",
+      "message": "Cache-Control: public, max-age=0, must-revalidate"
+    },
+    {
+      "name": "Response Time",
+      "passed": true,
+      "value": 301,
+      "message": "Response: 301ms (✓ Excellent)"
+    }
+  ],
+  "score": 77,
+  "totalChecks": 22,
+  "passedChecks": 17
+}
