@@ -1,121 +1,217 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
-import { AlertTriangle, ArrowLeft, CheckCircle2, Download, ExternalLink, Gauge, Globe2, LockKeyhole, Search, ShieldAlert } from "lucide-react";
-import { useStore } from "@/lib/store";
-import { seoIssues, seoSummary, seoUrls, type SeoIssue, type SeoSeverity } from "@/lib/seo-audit";
+import { useMemo, useState } from "react";
+import { AlertTriangle, ArrowLeft, CheckCircle2, Download, ExternalLink, Gauge, Globe2, Search, ShieldAlert, Play, Wrench } from "lucide-react";
 
-const severityOrder: SeoSeverity[] = ["critical", "high", "medium", "low"];
+type SeoSeverity = "critical" | "high" | "medium" | "low";
 
-function downloadReport(issues: SeoIssue[]) {
-  const header = "Issue,Severity,URL,Status,Evidence,Recommendation\n";
-  const rows = issues.map((issue) => [issue.title, issue.severity, issue.url, issue.status, issue.evidence, issue.recommendation]
-    .map((value) => `"${value.replaceAll('"', '""')}"`).join(","));
-  const blob = new Blob([header + rows.join("\n")], { type: "text/csv;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-  const anchor = document.createElement("a");
-  anchor.href = url;
-  anchor.download = "edubazar-seo-issues.csv";
-  anchor.click();
-  URL.revokeObjectURL(url);
+interface ScanResult {
+  score: number;
+  totalIssues: number;
+  pages: number;
+  issues: string[];
+}
+
+interface FixResult {
+  score: number;
+  fixes: string[];
+  issues: string[];
 }
 
 export default function SeoDashboardPage() {
-  const { mounted } = useStore();
-  const [filter, setFilter] = useState<"all" | SeoSeverity>("all");
+  const [scanning, setScanning] = useState(false);
+  const [fixing, setFixing] = useState(false);
+  const [scanResult, setScanResult] = useState<ScanResult | null>(null);
+  const [fixResult, setFixResult] = useState<FixResult | null>(null);
   const [query, setQuery] = useState("");
-  const [localIssues, setLocalIssues] = useState(seoIssues);
-  const [sessionChecked, setSessionChecked] = useState(false);
-  const [authed, setAuthed] = useState(false);
 
-  useEffect(() => {
-    fetch("/api/admin/session").then((response) => setAuthed(response.ok)).catch(() => setAuthed(false)).finally(() => setSessionChecked(true));
-  }, []);
-  const runAutoFix = async () => {
-    if (!confirm("Run SEO Auto-Fix? This will modify layout files and add schema.")) return;
+  const runScan = async () => {
+    setScanning(true);
     try {
-      const res = await fetch("/api/admin/seo-bot", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "fix" }) });
+      const res = await fetch("/api/admin/seo-bot", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "scan" }),
+      });
       const data = await res.json();
-      alert(data.success ? "Auto-fix completed! Check console/logs." : (data.error || "Failed"));
-    } catch (e: any) {
-      alert("Auto-fix error: " + (e.message || String(e)));
+      if (data.success) {
+        setScanResult(data);
+      } else {
+        alert(data.error || "Scan failed");
+      }
+    } catch (e: unknown) {
+      alert("Scan error: " + (e instanceof Error ? e.message : String(e)));
     }
+    setScanning(false);
   };
 
-  const filteredIssues = useMemo(() => localIssues
-    .filter((issue) => filter === "all" || issue.severity === filter)
-    .filter((issue) => `${issue.title} ${issue.url} ${issue.evidence}`.toLowerCase().includes(query.toLowerCase())), [filter, localIssues, query]);
-
-  const markAcknowledged = (id: string) => {
-    setLocalIssues((current) => current.map((issue) => issue.id === id ? { ...issue, status: "acknowledged" } : issue));
+  const runFix = async () => {
+    setFixing(true);
+    try {
+      const res = await fetch("/api/admin/seo-bot", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "fix" }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setFixResult(data);
+      } else {
+        alert(data.error || "Fix failed");
+      }
+    } catch (e: unknown) {
+      alert("Fix error: " + (e instanceof Error ? e.message : String(e)));
+    }
+    setFixing(false);
   };
 
-  if (!mounted || !sessionChecked) {
-    return <main className="seo-loading"><Gauge size={24} /> Loading SEO control center...</main>;
-  }
+  const downloadReport = () => {
+    if (!scanResult) return;
+    const csv = "Issue,Category\n" + scanResult.issues.map(i => `"${i.replace(/"/g, '""')}","SEO"`).join("\n");
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "edubazar-seo-report.csv";
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
-  if (!authed) {
-    return (
-      <main className="seo-locked">
-        <LockKeyhole size={42} />
-        <h1>SEO Control Center</h1>
-        <p>Admin authentication is required to view technical SEO data.</p>
-        <Link href="/admin/login" className="btn btn-primary">Go to Admin Login</Link>
-      </main>
-    );
-  }
+  const scoreColor = (score: number) => score >= 80 ? "#2e7d32" : score >= 50 ? "#f57c00" : "#c62828";
+  const scoreLabel = (score: number) => score >= 80 ? "Excellent" : score >= 60 ? "Good" : score >= 40 ? "Needs Work" : "Critical";
 
   return (
-    <main className="seo-shell">
-      <header className="seo-header">
-        <div>
-          <Link href="/admin" className="seo-back"><ArrowLeft size={15} /> Admin dashboard</Link>
-          <p className="seo-kicker">EDUBAZAR.SHOP / SEARCH HEALTH</p>
-          <h1>SEO Control Center</h1>
-          <p className="seo-subtitle">Technical visibility snapshot for your public catalog.</p>
+    <main style={{ minHeight: "100vh", background: "#f5f7f6", fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}>
+      <style jsx>{`
+        .seo-container { max-width: 1100px; margin: 0 auto; padding: 32px 24px; }
+        .seo-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 32px; flex-wrap: wrap; gap: 16px; }
+        .seo-top h1 { font-size: 28px; font-weight: 700; margin: 0; color: #181d27; }
+        .seo-top p { color: #666; margin: 4px 0 0; font-size: 14px; }
+        .back-link { display: inline-flex; align-items: center; gap: 6px; color: #687975; font-size: 13px; font-weight: 600; text-decoration: none; margin-bottom: 12px; }
+        .back-link:hover { text-decoration: underline; }
+        .btn-primary { padding: 10px 20px; background: #1a1a2e; color: white; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+        .btn-primary:hover { background: #2a2a4e; }
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-outline { padding: 10px 20px; background: white; color: #181d27; border: 1.5px solid #d5d7da; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+        .btn-outline:hover { background: #f5f5f5; }
+        .actions-bar { display: flex; gap: 10px; flex-wrap: wrap; }
+        .score-card { background: white; border-radius: 12px; padding: 32px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); display: flex; align-items: center; gap: 24px; margin-bottom: 24px; }
+        .score-circle { width: 100px; height: 100px; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 6px solid; flex-shrink: 0; }
+        .score-circle h2 { font-size: 32px; font-weight: 800; margin: 0; line-height: 1; }
+        .score-circle small { font-size: 11px; color: #666; margin-top: 2px; }
+        .score-info h3 { font-size: 18px; margin: 0 0 4px; color: #181d27; }
+        .score-info p { font-size: 13px; color: #666; margin: 0; }
+        .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
+        .stat-box { background: white; border-radius: 10px; padding: 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); text-align: center; }
+        .stat-box h4 { font-size: 28px; font-weight: 700; margin: 0; color: #181d27; }
+        .stat-box p { font-size: 12px; color: #666; margin: 4px 0 0; }
+        .issues-panel { background: white; border-radius: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); margin-bottom: 24px; overflow: hidden; }
+        .issues-head { padding: 20px 24px; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between; align-items: center; }
+        .issues-head h3 { margin: 0; font-size: 16px; }
+        .issue-item { padding: 14px 24px; border-bottom: 1px solid #f8f8f8; display: flex; align-items: center; gap: 12px; font-size: 13px; }
+        .issue-item:last-child { border-bottom: none; }
+        .issue-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+        .fixes-panel { background: white; border-radius: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); margin-bottom: 24px; }
+        .fixes-head { padding: 20px 24px; border-bottom: 1px solid #f0f0f0; }
+        .fixes-head h3 { margin: 0; font-size: 16px; }
+        .fix-item { padding: 12px 24px; border-bottom: 1px solid #f8f8f8; font-size: 13px; color: #333; }
+        .fix-item:last-child { border-bottom: none; }
+        .empty-state { text-align: center; padding: 60px 24px; color: #888; }
+        .empty-state h3 { margin: 0 0 8px; color: #181d27; font-size: 18px; }
+        .empty-state p { font-size: 14px; margin: 0; }
+        .loading { display: flex; align-items: center; justify-content: center; padding: 40px; gap: 10px; color: #666; }
+        @media (max-width: 700px) { .stats-row { grid-template-columns: 1fr; } .seo-top { flex-direction: column; } }
+      `}</style>
+
+      <div className="seo-container">
+        <Link href="/admin" className="back-link"><ArrowLeft size={15} /> Back to Admin Dashboard</Link>
+
+        <div className="seo-top">
+          <div>
+            <h1>SEO Control Center</h1>
+            <p>Scan your site for SEO issues and get fix suggestions.</p>
+          </div>
+          <div className="actions-bar">
+            <button className="btn-primary" onClick={runScan} disabled={scanning}>
+              <Play size={14} /> {scanning ? "Scanning..." : "Run SEO Scan"}
+            </button>
+            <button className="btn-primary" onClick={runFix} disabled={fixing}>
+              <Wrench size={14} /> {fixing ? "Fixing..." : "Auto-Fix SEO"}
+            </button>
+            {scanResult && (
+              <button className="btn-outline" onClick={downloadReport}>
+                <Download size={14} /> Export CSV
+              </button>
+            )}
+          </div>
         </div>
-        <div className="seo-actions">
-          <span className="seo-fresh"><span className="seo-dot" /> Repository audit · 23 Aug 2026</span>
-          <button className="btn btn-primary btn-sm" onClick={() => downloadReport(filteredIssues)}><Download size={14} /> Export issues</button>
-          <button className="btn btn-primary btn-sm" onClick={runAutoFix}><Gauge size={14} /> Auto-Fix SEO</button>
-        </div>
-      </header>
 
-      <section className="seo-connection" aria-label="Data connections">
-        <div className="seo-connection-icon"><Search size={20} /></div>
-        <div><strong>Search Console is not connected</strong><span>Technical audit is live. Connect Search Console, GA4 and PageSpeed APIs to unlock real ranking, click, impression and Core Web Vitals data.</span></div>
-        <button className="btn btn-outline btn-sm" disabled>Connection setup · Phase 2</button>
-      </section>
+        {scanning && <div className="loading"><Gauge size={20} style={{ animation: "spin 1s linear infinite" }} /> Scanning your site...</div>}
 
-      <section className="seo-kpis" aria-label="SEO summary">
-        <div className="seo-kpi"><span>Indexable URLs</span><strong>{seoSummary.indexableUrls}</strong><small>Public routes in current audit</small></div>
-        <div className="seo-kpi"><span>Sitemap coverage</span><strong>{Math.round((seoSummary.sitemapUrls / seoSummary.indexableUrls) * 100)}%</strong><small>{seoSummary.sitemapUrls} URLs listed</small></div>
-        <div className="seo-kpi seo-kpi-alert"><span>Critical issues</span><strong>{seoSummary.critical}</strong><small>Immediate action required</small></div>
-        <div className="seo-kpi"><span>Missing assets</span><strong>{seoSummary.missingAssets}</strong><small>Broken image references</small></div>
-      </section>
+        {fixing && <div className="loading"><Wrench size={20} style={{ animation: "spin 1s linear infinite" }} /> Generating fix suggestions...</div>}
 
-      <div className="seo-grid">
-        <section className="seo-panel seo-health">
-          <div className="seo-panel-head"><div><p className="seo-kicker">HEALTH SCORE</p><h2>Technical readiness</h2></div><Gauge size={21} /></div>
-          <div className="seo-score-row"><strong>62</strong><span>/ 100</span><b>Needs attention</b></div>
-          <div className="seo-progress"><span style={{ width: "62%" }} /></div>
-          <div className="seo-breakdown"><span><i className="pass" /> Crawlability <b>82%</b></span><span><i className="warn" /> Metadata <b>68%</b></span><span><i className="fail" /> Security <b>36%</b></span><span><i className="warn" /> Assets <b>54%</b></span></div>
-        </section>
-        <section className="seo-panel seo-coverage">
-          <div className="seo-panel-head"><div><p className="seo-kicker">INDEXATION</p><h2>URL coverage</h2></div><Globe2 size={21} /></div>
-          <div className="seo-bars"><div><span>Indexable public URLs</span><b>{seoSummary.indexableUrls}</b><em><i style={{ width: "100%" }} /></em></div><div><span>In sitemap</span><b>{seoSummary.sitemapUrls}</b><em><i style={{ width: "100%" }} /></em></div><div><span>Private URLs excluded</span><b>8</b><em><i className="muted" style={{ width: "35%" }} /></em></div></div>
-          <p className="seo-note"><ShieldAlert size={14} /> Rankings are unavailable until a provider is connected.</p>
-        </section>
+        {!scanResult && !scanning && !fixing && (
+          <div className="empty-state" style={{ background: "white", borderRadius: 12, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+            <Gauge size={48} style={{ color: "#d5d7da", marginBottom: 16 }} />
+            <h3>SEO Scanner Ready</h3>
+            <p>Click "Run SEO Scan" to analyze your site for SEO issues.</p>
+          </div>
+        )}
+
+        {scanResult && (
+          <>
+            <div className="score-card">
+              <div className="score-circle" style={{ borderColor: scoreColor(scanResult.score) }}>
+                <h2 style={{ color: scoreColor(scanResult.score) }}>{scanResult.score}</h2>
+                <small>/ 100</small>
+              </div>
+              <div className="score-info">
+                <h3>SEO Score: {scoreLabel(scanResult.score)}</h3>
+                <p>Found {scanResult.totalIssues} issues across {scanResult.pages} pages. Review and fix the highest priority items first.</p>
+              </div>
+            </div>
+
+            <div className="stats-row">
+              <div className="stat-box">
+                <h4>{scanResult.score}/100</h4>
+                <p>SEO Score</p>
+              </div>
+              <div className="stat-box">
+                <h4>{scanResult.totalIssues}</h4>
+                <p>Issues Found</p>
+              </div>
+              <div className="stat-box">
+                <h4>{scanResult.pages}</h4>
+                <p>Pages Scanned</p>
+              </div>
+            </div>
+
+            <div className="issues-panel">
+              <div className="issues-head"><h3>SEO Issues ({scanResult.issues.length})</h3></div>
+              {scanResult.issues.length === 0 ? (
+                <div style={{ padding: 24, textAlign: "center", color: "#888" }}>No issues found! Your SEO looks good.</div>
+              ) : (
+                scanResult.issues.map((issue, i) => (
+                  <div className="issue-item" key={i}>
+                    <div className="issue-dot" style={{ background: issue.includes("FIX") ? "#c62828" : issue.includes("Check") ? "#f57c00" : "#388e3c" }} />
+                    <span>{issue}</span>
+                  </div>
+                ))
+              )}
+            </div>
+          </>
+        )}
+
+        {fixResult && (
+          <div className="fixes-panel">
+            <div className="fixes-head"><h3>Fix Suggestions ({fixResult.fixes.length})</h3></div>
+            {fixResult.fixes.map((fix, i) => (
+              <div className="fix-item" key={i}>{fix}</div>
+            ))}
+          </div>
+        )}
       </div>
-
-      <section className="seo-panel seo-issues-panel">
-        <div className="seo-panel-head seo-issues-head"><div><p className="seo-kicker">ACTION QUEUE</p><h2>SEO issues</h2><p>Evidence from the code and live sitemap audit. Fix the highest-impact items first.</p></div><AlertTriangle size={21} /></div>
-        <div className="seo-toolbar"><div className="seo-search"><Search size={16} /><input aria-label="Search SEO issues" placeholder="Search issues or URLs" value={query} onChange={(event) => setQuery(event.target.value)} /></div><div className="seo-filters" role="group" aria-label="Filter issue severity">{["all", ...severityOrder.slice(0, 3)].map((item) => <button key={item} className={filter === item ? "active" : ""} onClick={() => setFilter(item as "all" | SeoSeverity)}>{item}</button>)}</div></div>
-        <div className="seo-issue-list">{filteredIssues.map((issue) => <article className="seo-issue" key={issue.id}><div className={`seo-severity ${issue.severity}`}>{issue.severity}</div><div className="seo-issue-copy"><div className="seo-issue-title"><strong>{issue.title}</strong><span>{issue.id}</span></div><Link href={issue.url.startsWith("http") ? issue.url : issue.url} className="seo-issue-url">{issue.url}<ExternalLink size={12} /></Link><p>{issue.evidence}</p><small>Fix: {issue.recommendation}</small></div><div className="seo-issue-action"><span className={`seo-status ${issue.status}`}>{issue.status}</span>{issue.status === "open" && <button onClick={() => markAcknowledged(issue.id)}>Acknowledge</button>}</div></article>)}{filteredIssues.length === 0 && <p className="seo-empty">No issues match this filter.</p>}</div>
-      </section>
-
-      <section className="seo-panel seo-url-panel"><div className="seo-panel-head"><div><p className="seo-kicker">URL INVENTORY</p><h2>Public pages</h2></div><span className="seo-count">{seoUrls.length} audited</span></div><div className="seo-table-wrap"><table className="seo-table"><thead><tr><th>URL</th><th>Type</th><th>Indexable</th><th>Sitemap</th><th>Issues</th><th>Status</th></tr></thead><tbody>{seoUrls.slice(0, 12).map((item) => <tr key={item.url}><td><strong>{item.url}</strong><small>{item.title}</small></td><td>{item.type}</td><td><CheckCircle2 size={15} className="seo-table-pass" /> Yes</td><td>{item.inSitemap ? "Yes" : "No"}</td><td>{item.issues || "—"}</td><td><span className={`seo-pill ${item.status}`}>{item.status}</span></td></tr>)}</tbody></table></div><p className="seo-note">Showing the first 12 URLs. Full inventory contains {seoUrls.length} public routes from the current catalog.</p></section>
     </main>
   );
 }
