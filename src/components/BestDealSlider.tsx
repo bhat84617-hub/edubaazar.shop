@@ -6,19 +6,27 @@ import { products } from "@/lib/products";
 import { formatINR } from "@/lib/products";
 
 const DEAL_SLUGS = [
-  "888rat-remote-access-tool",
-  "digital-marketing-masterclass",
-  "stock-market-mastery-zero-to-pro",
-  "dedsec-facebook-instagram-hacking",
+  "ultimate-facebook-ads-course-2025",
+  "seo-masterclass-onpage-offpage-technical",
+  "dedsec-antivirus-evasion-course",
+  "complete-windows-password-cracking",
+  "kali-linux-for-ethical-hackers",
+  "learn-shopify-now-beginners",
+  "telegram-bot-course-python",
+  "master-website-creation-15-platforms",
 ];
 
 const dealProducts = DEAL_SLUGS.map((slug) => products.find((p) => p.slug === slug)).filter(Boolean) as typeof products;
 
 const OFFERS: Record<string, { badge: string; discount: string }> = {
-  "888rat-remote-access-tool": { badge: "Hot Deal", discount: "60% OFF" },
-  "digital-marketing-masterclass": { badge: "Bestseller", discount: "50% OFF" },
-  "stock-market-mastery-zero-to-pro": { badge: "Trending", discount: "45% OFF" },
-  "dedsec-facebook-instagram-hacking": { badge: "Limited", discount: "55% OFF" },
+  "ultimate-facebook-ads-course-2025": { badge: "Hot Deal", discount: "52% OFF" },
+  "seo-masterclass-onpage-offpage-technical": { badge: "Bestseller", discount: "49% OFF" },
+  "dedsec-antivirus-evasion-course": { badge: "Limited", discount: "58% OFF" },
+  "complete-windows-password-cracking": { badge: "Trending", discount: "50% OFF" },
+  "kali-linux-for-ethical-hackers": { badge: "New", discount: "48% OFF" },
+  "learn-shopify-now-beginners": { badge: "Bestseller", discount: "45% OFF" },
+  "telegram-bot-course-python": { badge: "Hot", discount: "46% OFF" },
+  "master-website-creation-15-platforms": { badge: "Bundle", discount: "62% OFF" },
 };
 
 export default function BestDealSlider() {
@@ -35,8 +43,9 @@ export default function BestDealSlider() {
         </div>
       </div>
 
-      <div className="ws-deal-track">
-        {doubled.map((p, i) => {
+      <div className="ws-deal-viewport">
+        <div className="ws-deal-track">
+          {doubled.map((p, i) => {
           const offer = OFFERS[p.slug];
           const free = p.price <= 0;
           return (
@@ -66,8 +75,9 @@ export default function BestDealSlider() {
                 </Link>
               </div>
             </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
     </section>
   );

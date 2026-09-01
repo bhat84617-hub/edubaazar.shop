@@ -1178,6 +1178,12 @@
   background: var(--ink);
   overflow: hidden;
 }
+.ws-deal-viewport {
+  overflow: hidden;
+  padding: 10px 0 20px;
+  -webkit-mask-image: linear-gradient(to right, transparent 0, black 40px, black calc(100% - 40px), transparent 100%);
+  mask-image: linear-gradient(to right, transparent 0, black 40px, black calc(100% - 40px), transparent 100%);
+}
 .ws-deal-head {
   text-align: center;
   margin-bottom: 48px;
