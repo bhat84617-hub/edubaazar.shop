@@ -68,11 +68,11 @@ function findProducts(query: string): any[] {
     p.instructor?.toLowerCase().includes(q) ||
     p.level?.toLowerCase().includes(q)
   );
-  return results.slice(0, 6);
+  return results.slice(0, 10);
 }
 
 function findByCategory(category: string): any[] {
-  return products.filter(p => p.category.toLowerCase() === category.toLowerCase()).slice(0, 6);
+  return products.filter(p => p.category.toLowerCase() === category.toLowerCase());
 }
 
 function findByKind(kind: string): any[] {
@@ -144,21 +144,24 @@ function matchIntent(message: string): { intent: string; entities: any } {
   }
 
   // === CATEGORY QUERIES ===
+  if (/(sab|all|all categories|saari|poori|list|kya kya|hain|available|catalog|kitni|categories)/.test(msg) && /(category|categories|cat|kya hai|kaun|kaunsi|konsi)/.test(msg)) {
+    return { intent: "all_categories", entities: {} };
+  }
+
+  // === SPECIFIC CATEGORY ===
   const categoryKeywords: Record<string, string> = {
-    hacking: "Hacking", pentest: "Hacking", cyber: "Hacking", security: "Hacking",
+    hacking: "Hacking", pentest: "Hacking", cyber: "Hacking", security: "Hacking", ethical: "Hacking",
     programming: "Programming", coding: "Programming", python: "Programming", javascript: "Programming", java: "Programming", react: "Programming",
     trading: "Trading", share: "Trading", market: "Trading", stock: "Trading", forex: "Trading", crypto: "Trading", bitcoin: "Trading",
-    books: "Books", ebook: "Books", pdf: "Books",
+    books: "Books", ebook: "Books", pdf: "Books", book: "Books",
     design: "Design", ui: "Design", ux: "Design", photoshop: "Design", illustrator: "Design",
     marketing: "Marketing", seo: "Marketing", ads: "Marketing", facebook: "Marketing", digital: "Marketing",
-    tools: "Tools", software: "Tools", rat: "Tools",
+    tools: "Tools", software: "Tools", rat: "Tools", tool: "Tools",
   };
 
   for (const [keyword, category] of Object.entries(categoryKeywords)) {
     if (msg.includes(keyword)) {
-      if (/(course|book|tool|kaunse|kaun|which|list|show|dikhao|batao|sab|all)/.test(msg)) {
-        return { intent: "category_list", entities: { category } };
-      }
+      return { intent: "category_list", entities: { category } };
     }
   }
 
@@ -185,6 +188,11 @@ function matchIntent(message: string): { intent: string; entities: any } {
   // === FREE ===
   if (/(free|muft|zero.*cost|0.*rs|no.*charge|freebies)/.test(msg)) {
     return { intent: "free_courses", entities: {} };
+  }
+
+  // === ALL COURSES ===
+  if (/(sab|all|poore|pura|saare|saari|everything|dikhao|list|show|browse|shop|dekhna|catalog|kitne|kitni|kya kya)/.test(msg) && /(course|courses|product|products|item|items|hai|hain|available|dekhna|browse)/.test(msg)) {
+    return { intent: "all_courses", entities: {} };
   }
 
   // === SPECIFIC PRODUCT BY ID ===
@@ -272,18 +280,20 @@ function generateResponse(message: string): { text: string; products?: any[]; su
 Main aapki har sawal ka jawaab de sakta hoon!
 
 📚 *Mere paas hain:*
-• ${stats.courses}+ Premium Courses
-• ${stats.books}+ Digital Books
-• ${stats.categories} Categories (Hacking, Programming, Trading, Design, Marketing & more)
-• ${stats.students}+ Happy Students
+• ${stats.courses}+ Premium Courses & Books
+• ${stats.categories} Categories
+
+🗂️ *Categories:*
+${CATEGORIES.map(c => `• ${c.label}: ${products.filter(p => p.category === c.key).length} items`).join("\n")}
 
 🔥 *Popular queries:*
-"Kya free courses hain?" • "Python course dikhao"
-"Hacking courses ka price kya hai?" • "Best seller batao"
-"Order track kaise karu?" • "Payment kaise karu?"
+"Saari categories dikhao" • "Hacking courses dekho"
+"Python course ka price?" • "Free courses hain?"
+"Best seller batao" • "Payment kaise karu?"
+"Order track kaise karu?" • "Contact info do"
 
 Kya poochna hai aapko? 😊`,
-        suggestedActions: ["Free courses dikhao", "Hacking courses dekho", "Payment kaise karu?", "Best seller course"]
+        suggestedActions: ["Saari categories", "Free courses dikhao", "Hacking courses", "Best seller course"]
       };
 
     // === HELP ===
@@ -365,21 +375,82 @@ Happy Learning! 📚✨`,
       };
     }
 
+    // === ALL CATEGORIES ===
+    case "all_categories": {
+      const catList = CATEGORIES.map(cat => {
+        const catProducts = products.filter(p => p.category === cat.key);
+        const freeCount = catProducts.filter(p => p.price === 0).length;
+        const minPrice = catProducts.length > 0 ? Math.min(...catProducts.map(p => p.price)) : 0;
+        const maxPrice = catProducts.length > 0 ? Math.max(...catProducts.map(p => p.price)) : 0;
+        return `📂 *${cat.label}*\n   → ${catProducts.length} items | ₹${minPrice} - ₹${maxPrice}` + (freeCount > 0 ? ` | ${freeCount} FREE` : "");
+      }).join("\n\n");
+      const allProducts = products.slice(0, 10);
+      return {
+        text: `🗂️ *EduBazar - ALL Categories*\n\n` +
+          `Total: ${CATEGORIES.length} categories | ${products.length} products\n\n` +
+          `${catList}\n\n` +
+          `━━━━━━━━━━━━━━━━━━━━\n\n` +
+          `🔍 *Kisi bhi category mein detail dekhne ke liye bolo:*\n` +
+          `• "Hacking courses dikhao"\n` +
+          `• "Programming ka sab dikha"\n` +
+          `• "Trading mein kya hai?"\n` +
+          `• "Books list karo"\n` +
+          `• "Design courses"\n` +
+          `• "Marketing courses"\n` +
+          `• "Tools & Software"\n\n` +
+          `Ya koi bhi course ka naam pucho - poori detail milegi! 🚀`,
+        products: allProducts,
+        suggestedActions: ["Hacking courses", "Programming courses", "Trading courses", "Free courses", "Books dekho"]
+      };
+    }
+
     // === CATEGORY LIST ===
     case "category_list": {
       const catProducts = findByCategory(entities.category);
+      const catInfo = CATEGORIES.find(c => c.key.toLowerCase() === entities.category.toLowerCase());
+      const catLabel = catInfo?.label || entities.category;
       if (catProducts.length === 0) {
-        return { text: `📭 *"${entities.category}"* category mein abhi courses nahi hain.\n\nAvailable categories:\n${CATEGORIES.map(c => `• ${c.label}`).join("\n")}` };
+        return {
+          text: `📭 *"${catLabel}"* mein abhi koi product nahi hai.\n\nAvailable categories:\n${CATEGORIES.map(c => `• ${c.label}`).join("\n")}`,
+          suggestedActions: CATEGORIES.slice(0, 4).map(c => `${c.label} courses`)
+        };
       }
-      const priceRange = catProducts.filter(p => p.price > 0);
-      const avgPrice = priceRange.length > 0 ? Math.round(priceRange.reduce((sum, p) => sum + p.price, 0) / priceRange.length) : 0;
+      const freeItems = catProducts.filter(p => p.price === 0);
+      const paidItems = catProducts.filter(p => p.price > 0);
+      const priceRange = paidItems.length > 0 ? `₹${Math.min(...paidItems.map(p => p.price))} - ₹${Math.max(...paidItems.map(p => p.price))}` : "FREE only";
+      const avgPrice = paidItems.length > 0 ? Math.round(paidItems.reduce((s, p) => s + p.price, 0) / paidItems.length) : 0;
+
+      const itemsList = catProducts.map(p => {
+        const disc = p.oldPrice > p.price ? ` (${Math.round((1 - p.price / p.oldPrice) * 100)}% OFF)` : "";
+        const badge = p.badge ? ` [${p.badge}]` : "";
+        return `  • *${p.title}* — ${formatPrice(p.price)}${p.oldPrice > p.price ? ` ~~₹${p.oldPrice}~~` : ""}${disc}${badge}\n    Level: ${p.level} | Duration: ${p.duration} | ⭐ ${p.rating}`;
+      }).join("\n\n");
+
       return {
-        text: `📚 *${entities.category} Courses* — ${catProducts.length} available\n\n` +
-          `💰 Price range: ${formatPrice(Math.min(...catProducts.map(p => p.price)))} - ${formatPrice(Math.max(...catProducts.map(p => p.price)))}\n` +
-          `📊 Avg price: ${formatPrice(avgPrice)}\n\n` +
-          `Showing best matches:`,
-        products: catProducts,
-        suggestedActions: [`${entities.category} mein sab dekho`, "Price se sort karo", "Filter by level"]
+        text: `📚 *${catLabel} - ${catProducts.length} items found*\n\n` +
+          `💰 Price range: ${priceRange}\n` +
+          `📊 Avg price: ${formatPrice(avgPrice)}` +
+          (freeItems.length > 0 ? `\n🆓 ${freeItems.length} FREE items available!` : "") +
+          `\n\n━━━━━━━━━━━━━━━━━━━━\n\n` +
+          `${itemsList}\n\n` +
+          `━━━━━━━━━━━━━━━━━━━━\n\n` +
+          `💡 Kisi course ki full details ke liye naam bolo!`,
+        products: catProducts.slice(0, 8),
+        suggestedActions: [`${catLabel} mein sab dekho`, "Free courses", "Compare karo", "Back to all categories"]
+      };
+    }
+
+    // === ALL COURSES ===
+    case "all_courses": {
+      const topProducts = products.slice(0, 10);
+      const totalFree = products.filter(p => p.price === 0).length;
+      return {
+        text: `📚 *EduBazar - ALL ${products.length} Products*\n\n` +
+          `📂 ${CATEGORIES.length} Categories | ${totalFree} FREE items\n\n` +
+          `Showing top products across all categories:\n` +
+          `Bolo kisi specific category ka naam aur saari details milengi! 🚀`,
+        products: topProducts,
+        suggestedActions: ["Saari categories", "Free courses", "Hacking courses", "Programming courses", "Trading courses"]
       };
     }
 
@@ -455,18 +526,21 @@ Happy Learning! 📚✨`,
     // === CATALOG STATS ===
     case "catalog_stats":
       return {
-        text: `📊 *EduBazar Catalog Statistics*\n\n` +
+        text: `📊 *EduBazar Complete Catalog*\n\n` +
           `━━━━━━━━━━━━━━━━━━━━\n` +
-          `📚 Total Courses: ${stats.courses}\n` +
-          `📖 Digital Books: ${stats.books}\n` +
-          `🔧 Tools & Software: ${stats.tools}\n` +
-          `📂 Categories: ${stats.categories}\n` +
-          `👨‍🎓 Students Enrolled: ${stats.students}\n` +
+          `📚 Total Products: ${products.length}\n` +
+          `📖 Courses: ${stats.courses} | Books: ${stats.books} | Tools: ${stats.tools}\n` +
+          `👨‍🎓 Students: ${stats.students}\n` +
           `━━━━━━━━━━━━━━━━━━━━\n\n` +
-          `Categories:\n` +
-          CATEGORIES.map(c => `• ${c.label}: ${products.filter(p => p.category === c.key).length} items`).join("\n") + "\n\n" +
-          `🎁 Sabhi courses pe instant delivery available!`,
-        suggestedActions: ["Browse all courses", "Category mein jao", "Start shopping"]
+          `📂 *Categories Breakdown:*\n\n` +
+          CATEGORIES.map(c => {
+            const items = products.filter(p => p.category === c.key);
+            const free = items.filter(p => p.price === 0).length;
+            return `*${c.label}* — ${items.length} items` + (free > 0 ? ` (${free} FREE)` : "");
+          }).join("\n") +
+          `\n\n━━━━━━━━━━━━━━━━━━━━\n\n` +
+          `💡 *Tip:* "saari categories" bolo aur sab dekho!`,
+        suggestedActions: ["Saari categories dekho", "Free courses", "Browse shop", "Bestsellers"]
       };
 
     // === PRODUCT DETAIL ===
@@ -725,22 +799,21 @@ Happy Learning! 📚✨`,
       return {
         text: `🤔 *Hmm, main samajh nahi paaya completely*\n\n` +
           `Try these common queries:\n\n` +
-          `📚 *Courses:*\n` +
-          `• "Python course dikhao"\n` +
-          `• "Hacking courses ka price kya hai?"\n` +
+          `📚 *Categories:*\n` +
+          `• "Saari categories dikhao" → All categories\n` +
+          `• "Hacking courses" → Hacking category\n` +
+          `• "Programming mein kya hai?"\n` +
+          `• "Trading courses list"\n\n` +
+          `🔍 *Search & Details:*\n` +
+          `• "Python course ka price?"\n` +
           `• "Free courses hain kya?"\n` +
           `• "Bestseller courses batao"\n\n` +
           `🛒 *Orders & Support:*\n` +
           `• "Order track karo"\n` +
           `• "Payment kaise karu?"\n` +
-          `• "Refund policy kya hai?"\n\n` +
-          `💡 *Tips:*\n` +
-          `• Specific keywords use karo\n` +
-          `• Ya product ID directly dein (jaise: h1)\n\n` +
-          `━━━━━━━━━━━━━━━━━━━━\n\n` +
-          `📞 *Still need help?*\n` +
-          `WhatsApp: +91-9759131256`,
-        suggestedActions: ["Courses browse karo", "How to buy", "Contact support"]
+          `• "Contact info do"\n\n` +
+          `📞 *WhatsApp:* +91-9759131256`,
+        suggestedActions: ["Saari categories", "Free courses", "How to buy", "Contact support"]
       };
   }
 }
@@ -1003,7 +1076,7 @@ export default function AIChatWidget() {
           border: 2px solid #F4F1EA;
         }
 
-        /* === CHAT WINDOW === */
+        /* === CHAT WINDOW (Robot Body) === */
         .edubot-window {
           position: fixed;
           bottom: 100px;
@@ -1014,16 +1087,89 @@ export default function AIChatWidget() {
           height: 520px;
           max-height: calc(100vh - 120px);
           background: #F4F1EA;
-          border-radius: 20px;
-          border: 1px solid #DDD8CE;
+          border-radius: 30px;
+          border: 2px solid #DDD8CE;
           display: flex;
           flex-direction: column;
           overflow: hidden;
           animation: edubot-slide-in 0.4s cubic-bezier(0.4, 0, 0.2, 1);
           box-shadow:
-            0 25px 50px -12px rgba(0, 0, 0, 0.15),
-            0 0 0 1px rgba(255, 255, 255, 0.5),
-            inset 0 1px 0 rgba(255, 255, 255, 0.5);
+            0 20px 40px rgba(0, 0, 0, 0.15),
+            0 0 0 4px #F4F1EA;
+        }
+
+        /* Robot antenna */
+        .edubot-antenna {
+          position: absolute;
+          top: -14px;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 4px;
+          height: 14px;
+          background: #2C5F7A;
+          border-radius: 2px;
+          z-index: -1;
+        }
+
+        .edubot-antenna-dot {
+          position: absolute;
+          top: -6px;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 10px;
+          height: 10px;
+          border-radius: 50%;
+          background: #C4953A;
+          border: 2px solid #2C5F7A;
+        }
+
+        /* Robot eyes */
+        .edubot-eyes {
+          position: absolute;
+          top: 22px;
+          right: 70px;
+          display: flex;
+          gap: 16px;
+          z-index: 10;
+        }
+
+        .edubot-eye {
+          width: 10px;
+          height: 10px;
+          border-radius: 50%;
+          background: #2C5F7A;
+          box-shadow: 0 0 8px rgba(44, 95, 122, 0.5);
+        }
+
+        /* Robot chest panel */
+        .edubot-chest {
+          position: absolute;
+          bottom: 70px;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 120px;
+          height: 40px;
+          background: #2C5F7A;
+          border-radius: 8px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          border: 2px solid #1E4058;
+          box-shadow: 0 4px 12px rgba(44, 95, 122, 0.3);
+        }
+
+        .edubot-chest .led {
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+          background: #2A7A4E;
+          animation: edubot-led-pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes edubot-led-pulse {
+          0%, 100% { box-shadow: 0 0 6px #2A7A4E, 0 0 12px rgba(42, 122, 78, 0.5); }
+          50% { box-shadow: 0 0 12px #2A7A4E, 0 0 20px rgba(42, 122, 78, 0.8); }
         }
 
         /* === HEADER === */
@@ -1685,6 +1831,15 @@ export default function AIChatWidget() {
       {/* Chat Window */}
       {isOpen && (
         <div className="edubot-window" role="dialog" aria-label="EduBot - Course Assistant">
+          {/* Robot Decorations */}
+          <div className="edubot-antenna">
+            <div className="edubot-antenna-dot" />
+          </div>
+          <div className="edubot-eyes">
+            <div className="edubot-eye" />
+            <div className="edubot-eye" />
+          </div>
+
           {/* Header */}
           <div className="edubot-header">
             <div className="edubot-header-left">
