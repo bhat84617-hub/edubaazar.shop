@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { Phone, Mail, MapPin, Camera, MessageCircle, Send } from "lucide-react";
 import { STORE } from "@/lib/config";
-import { CATEGORIES } from "@/lib/products";
 import { useStore } from "@/lib/store";
 
 export default function Footer() {
@@ -58,16 +57,15 @@ export default function Footer() {
         </div>
       </section>
 
-      {/* Main Footer minimal light 5 cols with rounded cards */}
+      {/* Main Footer minimal light 4 cols with rounded cards */}
       <footer className="ws-footer">
         <div className="container">
-          <div className="ws-footer-top" style={{ gridTemplateColumns: "1.4fr 1fr 1fr 1fr 1.2fr" }}>
+          <div className="ws-footer-top" style={{ gridTemplateColumns: "1.4fr 1fr 1fr 1.2fr" }}>
             <div className="ws-footer-col ws-footer-about">
               <div className="ws-footer-logo">
                 <img src="/logo/edulogo.jpeg" alt="EduBazar Logo" />
                 <span>EduBazar<span style={{ color: "#2A74ED" }}>.shop</span></span>
               </div>
-              <p>India&apos;s affordable learning platform. Premium courses in Hacking, Programming, Trading & more — instant access after payment.</p>
               <div className="ws-social-row">
                 <a href="https://instagram.com/edubazarshop" target="_blank" rel="noreferrer" aria-label="Instagram"><Camera size={14} /></a>
                 <a href="https://wa.me/919759131256" target="_blank" rel="noreferrer" aria-label="WhatsApp"><MessageCircle size={14} /></a>
@@ -76,22 +74,13 @@ export default function Footer() {
             </div>
 
             <div className="ws-footer-col">
-              <h4>Shop</h4>
+              <h4>Explore</h4>
               <ul>
                 <li><Link href="/shop">All Products</Link></li>
                 <li><Link href="/shop?kind=course">Courses</Link></li>
                 <li><Link href="/shop?kind=book">Digital Books</Link></li>
                 <li><Link href="/shop?kind=tool">Software Tools</Link></li>
                 <li><Link href="/shop?q=free">Free Downloads</Link></li>
-              </ul>
-            </div>
-
-            <div className="ws-footer-col">
-              <h4>Categories</h4>
-              <ul>
-                {CATEGORIES.slice(0, 6).map((c) => (
-                  <li key={c.key}><Link href={`/shop?cat=${encodeURIComponent(c.key)}`}>{c.label}</Link></li>
-                ))}
               </ul>
             </div>
 
@@ -125,8 +114,13 @@ export default function Footer() {
             </div>
           </div>
 
+          {/* Full-width tagline - India's affordable learning platform */}
+          <div style={{ textAlign: "center", padding: "14px 16px", borderTop: "1px solid #E5E5E5", borderBottom: "1px solid #E5E5E5", fontSize: 13, color: "#777", lineHeight: 1.6, width: "100%" }}>
+            India&apos;s affordable learning platform. Premium courses in Hacking, Programming, Trading & more — instant access after payment.
+          </div>
+
           <div className="ws-footer-bottom">
-            <p>© {new Date().getFullYear()} EduBazar.shop. All rights reserved. • Minimal Electronics by <span style={{ color: "#2A74ED", fontWeight: 700 }}>XStore</span></p>
+            <p>© {new Date().getFullYear()} EduBazar.shop. All rights reserved.</p>
             <div className="ws-footer-links">
               <Link href="/privacy">Privacy</Link>
               <Link href="/terms">Terms</Link>

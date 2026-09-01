@@ -9,9 +9,9 @@ import NewsletterBox from "@/components/NewsletterBox";
 import { products, CATEGORIES } from "@/lib/products";
 
 const STATS = [
-  { value: 15000, suffix: "+", label: "Happy Students" },
-  { value: 5000, suffix: "+", label: "Courses Delivered" },
-  { value: 25000, suffix: "+", label: "Downloads" },
+  { value: 1000, suffix: "+", label: "Happy Students" },
+  { value: 1500, suffix: "+", label: "Courses Delivered" },
+  { value: 5500, suffix: "+", label: "Downloads" },
   { value: 33, suffix: "+", label: "Expert Courses" },
 ];
 
@@ -176,12 +176,12 @@ export default function HomePage() {
       </section>
 
       {/* Stats */}
-      <section style={{ background: "#242424", padding: "28px 0", borderRadius: 20, margin: "0 16px" }}>
-        <div className="container" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16, textAlign: "center" }}>
+      <section className="stats-strip-wrap" style={{ background: "#242424", padding: "28px 0", borderRadius: 20, margin: "0 16px", overflow: "visible" }}>
+        <div className="container stats-strip" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16, textAlign: "center" }}>
           {STATS.map((s) => (
-            <div key={s.label}>
-              <div style={{ fontSize: 28, fontWeight: 800, lineHeight: 1, color: "#fff" }}><CountUp value={s.value} suffix={s.suffix} /></div>
-              <div style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: 0.8, opacity: 0.7, marginTop: 6, color: "#fff" }}>{s.label}</div>
+            <div key={s.label} style={{ minWidth: 0, overflow: "visible" }}>
+              <div style={{ fontSize: "clamp(22px, 5vw, 28px)", fontWeight: 800, lineHeight: 1, color: "#fff", whiteSpace: "nowrap" }}><CountUp value={s.value} suffix={s.suffix} /></div>
+              <div style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: 0.8, opacity: 0.7, marginTop: 6, color: "#fff", wordBreak: "break-word" }}>{s.label}</div>
             </div>
           ))}
         </div>
@@ -289,15 +289,24 @@ export default function HomePage() {
       <style>{`
         a:hover .ig-hover{ opacity:1 !important; }
         .cat-hover:hover{ border-color:#2A74ED !important; box-shadow:0 4px 16px rgba(42,116,237,0.12); }
+        .stats-strip-wrap{ box-sizing:border-box; overflow:visible; }
+        .stats-strip{ overflow:visible; }
         @media (max-width: 1080px){
           .p-grid{ grid-template-columns: repeat(3, 1fr) !important; }
         }
         @media (max-width: 640px){
           .p-grid{ grid-template-columns: repeat(2, 1fr) !important; gap: 10px !important; }
           div[style*="grid-template-columns: 1.4fr 1fr"]{ grid-template-columns: 1fr !important; }
-          div[style*="grid-template-columns: repeat(4, 1fr)"]{ grid-template-columns: repeat(2, 1fr) !important; }
+          .stats-strip{ grid-template-columns: repeat(2, 1fr) !important; gap: 14px !important; padding: 0 !important; }
+          .stats-strip-wrap{ padding: 20px 14px !important; margin: 0 12px !important; }
           div[style*="grid-template-columns: repeat(3, 1fr)"]{ grid-template-columns: 1fr !important; }
           div[style*="grid-template-columns: repeat(6, 1fr)"]{ grid-template-columns: repeat(3, 1fr) !important; }
+        }
+        @media (max-width: 480px){
+          .stats-strip{ grid-template-columns: repeat(2, 1fr) !important; gap: 12px !important; }
+        }
+        @media (max-width: 360px){
+          .stats-strip{ gap: 8px !important; }
         }
       `}</style>
     </>
