@@ -43,6 +43,12 @@ const SLIDES = [
   },
 ];
 
+const MOBILE_SLIDES = [
+  { image: "/images/phoneslidehacking.jpeg", alt: "Hacking", title: "Hacking", href: "/shop?cat=Hacking" },
+  { image: "/images/phoneslideprogramming.jpeg", alt: "Programming", title: "Programming", href: "/shop?cat=Programming" },
+  { image: "/images/phoneslidetrading.jpeg", alt: "Trading", title: "Trading", href: "/shop?cat=Trading" },
+];
+
 export default function Hero() {
   const [idx, setIdx] = useState(0);
 
@@ -55,7 +61,8 @@ export default function Hero() {
 
   return (
     <section style={{ background: "#fff", padding: "14px 0 8px" }}>
-      <div className="container">
+      {/* Desktop Slider - unchanged */}
+      <div className="container desktop-hero">
         <div
           style={{
             position: "relative",
@@ -191,11 +198,44 @@ export default function Hero() {
       </div>
 
       <style>{`
+        .mobile-hero{ display:none; }
         @media (max-width: 768px){
-          div[style*="grid-template-columns: 1fr 1fr"]{ grid-template-columns:1fr !important; text-align:center; }
-          div[style*="grid-template-columns: 1fr 1fr"] > div:last-child{ display:none !important; }
+          .desktop-hero{ display:none !important; }
+          .mobile-hero{ display:block !important; }
+        }
+        @media (min-width: 769px){
+          .mobile-hero{ display:none !important; }
         }
       `}</style>
+
+      {/* Mobile Slider - phoneslide images full, text overlay only Hacking/Programming/Trading + Explore Now */}
+      <div className="container mobile-hero" style={{ padding: "0 12px" }}>
+        <div style={{ position: "relative", overflow: "hidden", borderRadius: 20, border: "1px solid #E5E5E5" }}>
+          {MOBILE_SLIDES.map((m, i) => (
+            <div
+              key={i}
+              style={{
+                display: i === idx ? "block" : "none",
+                position: "relative",
+                width: "100%",
+              }}
+            >
+              <img src={m.image} alt={m.alt} style={{ width: "100%", height: "auto", display: "block", borderRadius: 20 }} />
+              <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", background: "linear-gradient(to bottom, rgba(0,0,0,0.15), rgba(0,0,0,0.45))", borderRadius: 20, textAlign: "center", padding: 16 }}>
+                <h2 style={{ color: "#fff", fontSize: "clamp(28px, 8vw, 38px)", fontWeight: 800, letterSpacing: "-0.5px", margin: "0 0 14px", textShadow: "0 2px 12px rgba(0,0,0,0.35)", textTransform: "capitalize" }}>{m.title}</h2>
+                <Link href={m.href} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", padding: "10px 22px", background: "#2A74ED", color: "#fff", fontSize: 13, fontWeight: 700, borderRadius: 20, textDecoration: "none" }}>Explore Now</Link>
+              </div>
+            </div>
+          ))}
+          <button onClick={() => setIdx((idx - 1 + MOBILE_SLIDES.length) % MOBILE_SLIDES.length)} aria-label="Previous" style={{ position: "absolute", left: 8, top: "50%", transform: "translateY(-50%)", width: 32, height: 32, borderRadius: "50%", background: "rgba(255,255,255,0.92)", border: "1px solid #E5E5E5", display: "flex", alignItems: "center", justifyContent: "center", color: "#242424" }}><ChevronLeft size={14} /></button>
+          <button onClick={() => setIdx((idx + 1) % MOBILE_SLIDES.length)} aria-label="Next" style={{ position: "absolute", right: 8, top: "50%", transform: "translateY(-50%)", width: 32, height: 32, borderRadius: "50%", background: "rgba(255,255,255,0.92)", border: "1px solid #E5E5E5", display: "flex", alignItems: "center", justifyContent: "center", color: "#242424" }}><ChevronRight size={14} /></button>
+          <div style={{ position: "absolute", bottom: 10, left: "50%", transform: "translateX(-50%)", display: "flex", gap: 6 }}>
+            {MOBILE_SLIDES.map((_, i) => (
+              <button key={i} onClick={() => setIdx(i)} aria-label={`Slide ${i + 1}`} style={{ width: i === idx ? 18 : 8, height: 8, borderRadius: 20, background: i === idx ? "#2A74ED" : "rgba(255,255,255,0.9)", border: "1px solid #E5E5E5" }} />
+            ))}
+          </div>
+        </div>
+      </div>
     </section>
   );
 }
