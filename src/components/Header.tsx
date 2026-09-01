@@ -103,54 +103,57 @@ export default function Header() {
             <Menu size={22} strokeWidth={1.5} />
           </button>
 
-          {/* Logo - center */}
+          {/* Logo - left */}
           <Link href="/" className="ws-logo">
             <img src="/logo/edulogo.jpeg" alt="EduBazar" />
             <span className="ws-logo-text">EduBazar</span>
           </Link>
 
+          {/* Search bar - center */}
+          <div className="ws-search-bar" ref={searchRef}>
+            <input
+              className="ws-search-bar-input"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && doSearch()}
+              placeholder="Search courses, books, tools..."
+            />
+            <button className="ws-search-bar-btn" onClick={() => doSearch()} aria-label="Search">
+              <Search size={18} strokeWidth={2} />
+            </button>
+            {results.length > 0 && (
+              <div className="ws-search-results-dropdown">
+                {results.slice(0, 6).map((p) => (
+                  <div
+                    key={p.id}
+                    className="ws-search-item"
+                    onClick={() => {
+                      router.push(`/product/${p.slug}`);
+                      setQuery("");
+                      setResults([]);
+                      setDrawerOpen(false);
+                    }}
+                  >
+                    <img src={p.images[0]} alt={p.title} />
+                    <div className="ws-search-content">
+                      <h4>{p.title}</h4>
+                      <p>{p.category} &bull; {formatINR(p.price)}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
           {/* Right section */}
           <div className="ws-header-right">
-            {/* Search */}
-            <div className="ws-search" ref={searchRef}>
-              <button className="ws-search-toggle" aria-label="Search">
-                <Search size={20} strokeWidth={1.5} />
-              </button>
-              <div className="ws-search-panel">
-                <input
-                  className="ws-search-input"
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && doSearch()}
-                  placeholder="Search courses, books, tools..."
-                />
-                <button className="ws-search-close" onClick={() => { setQuery(""); setResults([]); }}>
-                  <X size={16} />
-                </button>
-                {results.length > 0 && (
-                  <div className="ws-search-results">
-                    {results.map((p) => (
-                      <div
-                        key={p.id}
-                        className="ws-search-item"
-                        onClick={() => {
-                          router.push(`/product/${p.slug}`);
-                          setQuery("");
-                          setResults([]);
-                          setDrawerOpen(false);
-                        }}
-                      >
-                        <img src={p.images[0]} alt={p.title} />
-                        <div className="ws-search-content">
-                          <h4>{p.title}</h4>
-                          <p>{p.category} • {formatINR(p.price)}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
+            {/* Mobile search toggle */}
+            <button className="ws-mobile-search-toggle" aria-label="Search" onClick={() => {
+              const searchInput = document.querySelector('.ws-search-bar-input') as HTMLInputElement;
+              if (searchInput) searchInput.focus();
+            }}>
+              <Search size={20} strokeWidth={1.5} />
+            </button>
 
             <Link href="/wishlist" className="ws-icon-btn" aria-label="Wishlist">
               <Heart size={20} strokeWidth={1.5} />
