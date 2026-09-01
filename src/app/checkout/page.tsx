@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CheckCircle2, Copy, ExternalLink, ShieldCheck, Wallet, ArrowRight, ArrowLeft, LayoutDashboard, ShoppingBag, PartyPopper, Lock } from "lucide-react";
 import { getProductById, formatINR } from "@/lib/products";
 import { useStore } from "@/lib/store";
@@ -15,8 +15,20 @@ export default function CheckoutPage() {
   const [form, setForm] = useState({ name: user?.name ?? "", email: user?.email ?? "", phone: "" });
   const [err, setErr] = useState("");
   const [utr, setUtr] = useState("");
+  const [utrError, setUtrError] = useState("");
   const [placing, setPlacing] = useState(false);
   const [placed, setPlaced] = useState<{ id: string; total: number } | null>(null);
+
+  // Sync form with user when user loads after mount (fixes stale closure / empty fields)
+  useEffect(() => {
+    if (user) {
+      setForm((f) => ({
+        ...f,
+        name: f.name || user.name,
+        email: user.email,
+      }));
+    }
+  }, [user]);
 
   const total = cartSubtotal;
 
@@ -31,19 +43,27 @@ export default function CheckoutPage() {
   };
 
   const submitPayment = async () => {
+    setUtrError("");
+    setErr("");
     if (total > 0) {
       const digits = utr.trim().replace(/\D/g, "");
       if (digits.length < 10) {
-        showToast("Please enter a valid UPI Transaction ID (10-13 digits)", "error");
+        const msg = "Please enter a valid UPI Transaction ID (10-12 digits)";
+        setUtrError(msg);
+        setErr(msg);
+        showToast(msg, "error");
         return;
       }
       if (digits.length > 14) {
-        showToast("Transaction ID too long. Please check and try again.", "error");
+        const msg = "Transaction ID too long. Please check and try again.";
+        setUtrError(msg);
+        setErr(msg);
+        showToast(msg, "error");
         return;
       }
     }
     setPlacing(true);
-    const order = await placeOrder({ name: form.name, email: form.email, phone: form.phone, utr });
+    const order = await placeOrder({ name: form.name, email: user?.email ?? form.email, phone: form.phone, utr });
     setPlacing(false);
     if (order) {
       setPlaced({ id: order.orderId, total: order.total });
@@ -169,7 +189,7 @@ export default function CheckoutPage() {
                     <label>Email Address</label>
                     <input
                       type="email"
-                      value={user?.email ?? form.email}
+                      value={form.email}
                       readOnly
                       required
                     />
@@ -243,11 +263,15 @@ export default function CheckoutPage() {
                       onChange={(e) => {
                         const cleaned = e.target.value.replace(/[^0-9]/g, "").slice(0, 14);
                         setUtr(cleaned);
+                        if (utrError) setUtrError("");
+                        if (err) setErr("");
                       }}
                       inputMode="numeric"
                       pattern="[0-9]*"
                       maxLength={14}
+                      style={utrError ? { borderColor: "#c0392b" } : undefined}
                     />
+                    {utrError && <div style={{ color: "#c0392b", fontSize: 12, marginTop: 6, fontWeight: 600 }}>{utrError}</div>}
                     <small style={{ color: "var(--muted)", fontSize: 11.5, display: "block", marginTop: 4 }}>
                       UPI app me transaction ID copy karein aur yahan paste karein. Sirf numbers dalein.
                     </small>
@@ -258,7 +282,8 @@ export default function CheckoutPage() {
                   </p>
                 )}
 
-                <button className="btn btn-primary btn-block" onClick={submitPayment} disabled={placing}>
+                {err && <div className="auth-alert show error" style={{ display: "block", marginBottom: 12 }}>{err}</div>}
+                <button type="button" className="btn btn-primary btn-block" onClick={submitPayment} disabled={placing} style={{ minHeight: 44, position: "relative", zIndex: 1, opacity: placing ? 0.7 : 1 }}>
                   <CheckCircle2 size={16} /> {placing ? "Placing order..." : total > 0 ? "I Have Paid — Submit" : "Get Free Access"}
                 </button>
                 <button className="btn btn-outline btn-block" style={{ marginTop: 10 }} onClick={() => setStep(1)}>

@@ -27,7 +27,7 @@ export default function AccountPage() {
     if (!user) return;
     setRefreshing(true);
     try {
-      const { data } = await supabase.from("orders").select("*").eq("email", user.email).order("date", { ascending: false });
+      const { data } = await supabase.from("orders").select("*").eq("email", user.email.trim().toLowerCase()).order("date", { ascending: false });
       if (data && data.length > 0) {
         setRemoteOrders(
           data.map((o) => ({
@@ -39,26 +39,32 @@ export default function AccountPage() {
             date: o.date,
           }))
         );
+      } else {
+        setRemoteOrders([]);
       }
     } catch {
-      // fallback to local orders
+      // fallback to local orders - keep remote as is but local filtering will handle
     }
     setRefreshing(false);
   };
 
   useEffect(() => {
-    if (!user) return;
+    if (!user) {
+      setRemoteOrders([]);
+      return;
+    }
     fetchOrders();
     // Auto-refresh every 12s so approved courses & links appear instantly
     const t = setInterval(fetchOrders, 12000);
     return () => clearInterval(t);
-  }, [user]);
+  }, [user?.email]);
 
   const merged: (PublicOrder | Order)[] = useMemo(() => {
-    const local = localOrders.filter((o) => user && o.email.toLowerCase() === user.email.toLowerCase());
-    if (remoteOrders.length > 0) return remoteOrders as PublicOrder[];
+    const local = localOrders.filter((o) => user && o.email.trim().toLowerCase() === user.email.trim().toLowerCase());
+    const remote = remoteOrders.filter((o) => user && o.email.trim().toLowerCase() === user.email.trim().toLowerCase());
+    if (remote.length > 0) return remote as PublicOrder[];
     return local;
-  }, [localOrders, remoteOrders, user]);
+  }, [localOrders, remoteOrders, user?.email]);
 
   const filtered = merged.filter((o) =>
     (o.orderId || "").toLowerCase().includes(q.toLowerCase()) ||

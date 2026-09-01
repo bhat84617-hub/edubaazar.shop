@@ -754,3 +754,13 @@ h3 { font-size:clamp(16px, 4vw, 20px); }
   .dash-stat{ padding:12px; }
   .dash-stat .n{ font-size:18px; }
 }
+
+/* Fix: checkout UTR submit tappable on phone & PC - ensure visible and not hidden behind fixed nav */
+.pay-card .btn { min-height:44px; touch-action:manipulation; -webkit-tap-highlight-color:transparent; position:relative; z-index:1; }
+.checkout-grid { align-items:start; }
+@media (max-width:900px){
+  .checkout-grid{ grid-template-columns:1fr; }
+  .pay-card, .summary-card{ position:static; }
+}
+.toasts { z-index:9999; top:max(12px, env(safe-area-inset-top)); max-width:calc(100vw - 24px); pointer-events:none; }
+.toast { pointer-events:auto; max-width:100%; word-break:break-word; }

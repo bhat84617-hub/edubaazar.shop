@@ -150,11 +150,13 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const login = useCallback((u: NonNullable<User>) => setUser(u), []);
+  // Keep local orders in storage but dashboard filters by user.email, so new users see empty history
   const logout = useCallback(() => setUser(null), []);
 
   const placeOrder = useCallback(
     async (data: { name: string; email: string; phone: string; utr?: string }): Promise<Order | null> => {
       if (!user) {
+        showToast("Please login to place order", "error");
         return null;
       }
       const cartSnapshot = [...cart];
@@ -208,7 +210,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
 
       return order;
     },
-    [cart, setCart, setOrders]
+    [cart, user, showToast]
   );
 
   const updateOrderStatus = useCallback(async (orderId: string, status: string, downloadUrls?: Record<string, string>) => {
