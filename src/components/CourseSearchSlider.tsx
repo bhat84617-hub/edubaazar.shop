@@ -3,19 +3,14 @@
 import Link from "next/link";
 import { useState, useRef } from "react";
 import { Search, ChevronLeft, ChevronRight, Clock, Signal, Star } from "lucide-react";
-import { products, formatINR } from "@/lib/products";
+import { products, formatINR, productMatchesQuery } from "@/lib/products";
 
 export default function CourseSearchSlider() {
   const [query, setQuery] = useState("");
   const trackRef = useRef<HTMLDivElement>(null);
 
   const filtered = query.trim()
-    ? products.filter(
-        (p) =>
-          p.title.toLowerCase().includes(query.toLowerCase()) ||
-          p.category.toLowerCase().includes(query.toLowerCase()) ||
-          p.desc.toLowerCase().includes(query.toLowerCase())
-      )
+    ? products.filter((p) => productMatchesQuery(p, query))
     : products.slice(0, 12);
 
   const scroll = (dir: number) => {

@@ -2,7 +2,7 @@ import Link from "next/link";
 import { ChevronRight, ChevronDown } from "lucide-react";
 import ProductCard from "@/components/ProductCard";
 import { ShopControls } from "@/components/ShopControls";
-import { products, CATEGORIES } from "@/lib/products";
+import { products, CATEGORIES, productMatchesQuery } from "@/lib/products";
 import type { Metadata } from "next";
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.edubaazar.shop";
@@ -55,7 +55,7 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
   if (cat) list = list.filter((p) => p.category.toLowerCase() === cat.toLowerCase());
   if (kind) list = list.filter((p) => p.kind === kind);
   if (freeOnly) list = list.filter((p) => p.price <= 0);
-  if (q) list = list.filter((p) => p.title.toLowerCase().includes(q) || p.category.toLowerCase().includes(q) || p.desc.toLowerCase().includes(q));
+  if (q) list = list.filter((p) => productMatchesQuery(p, q));
 
   switch (sort) {
     case "price_low":
@@ -136,7 +136,7 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
                   return (
                     <Link
                       key={c.key}
-                      href={`/shop?${sidebarLink({ cat: c.key, free: "" })}`}
+                      href={`/shop?cat=${encodeURIComponent(c.key)}`}
                       className="filter-option"
                       style={{ display: "flex", justifyContent: "space-between", color: active ? "var(--primary)" : "var(--body)", fontWeight: active ? 700 : 400 }}
                       aria-current={active ? "page" : undefined}

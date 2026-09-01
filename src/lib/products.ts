@@ -1283,18 +1283,42 @@ export function getFeaturedProducts(limit = 8): Product[] {
   return products.filter((p) => p.price > 0).slice(0, limit);
 }
 
+export const CATEGORY_KEYWORDS: Record<string, string[]> = {
+  Hacking: ["hacking","hack","hacker","pentest","penetration","cyber","security","exploit","kali","ethical","phishing","hydra","keylogger","antivirus","reverse","cracking","password","rat","bypass","vulnerability","nmap","burp","metasploit","brute","osint"],
+  Programming: ["programming","coding","code","python","javascript","js","java","react","next","next.js","shopify","wordpress","telegram","bot","website","developer","html","css","node","typescript","django","flask"],
+  Trading: ["trading","trade","trader","stock","share","market","forex","crypto","bitcoin","altcoin","altcoins","candlestick","scalping","investment","invest","grabber","psychology","mindfluential","forex","nse","bse","deriv"],
+  Books: ["book","books","ebook","pdf","guide","bible","crash","manual"],
+  Tools: ["tool","tools","software","rat","888rat","ahmyth","androrat","cerberus","droidjack","nanocore","payload","remote","access"],
+  Design: ["design","photoshop","illustrator","ui","ux","ui/ux","canva","t-shirt","tshirt","graphic","figma","adobe","vector","illustration"],
+  Marketing: ["marketing","seo","facebook","ads","digital","analytics","instagram","youtube","social","affiliate","campaign"],
+};
+
+export function productMatchesQuery(p: Product, rawQuery: string): boolean {
+  const q = rawQuery.trim().toLowerCase();
+  if (!q) return false;
+  const words = q.split(/\s+/).filter(Boolean);
+  const haystack = (
+    p.title + " " +
+    p.desc + " " +
+    (p.fullDesc || "") + " " +
+    p.category + " " +
+    (p.tags || []).join(" ") + " " +
+    p.kind + " " +
+    p.level
+  ).toLowerCase();
+  if (haystack.includes(q)) return true;
+  if (words.some((w) => haystack.includes(w))) return true;
+  if (p.category.toLowerCase().includes(q) || q.includes(p.category.toLowerCase())) return true;
+  const catKeywords = CATEGORY_KEYWORDS[p.category] || [];
+  if (words.some((w) => catKeywords.some((kw) => kw === w || kw.includes(w) || w.includes(kw)))) return true;
+  if (catKeywords.some((kw) => q.includes(kw))) return true;
+  return false;
+}
+
 export function searchProducts(query: string): Product[] {
   const q = query.trim().toLowerCase();
   if (!q) return [];
-  return products
-    .filter(
-      (p) =>
-        p.title.toLowerCase().includes(q) ||
-        p.category.toLowerCase().includes(q) ||
-        p.desc.toLowerCase().includes(q) ||
-        (p.tags || []).some((t) => t.includes(q))
-    )
-    .slice(0, 6);
+  return products.filter((p) => productMatchesQuery(p, q)).slice(0, 8);
 }
 
 export function formatINR(n: number): string {
