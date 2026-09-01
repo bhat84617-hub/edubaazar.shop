@@ -96,24 +96,24 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
   return (
     <div>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionLd) }} />
-      <div style={{ background: "var(--primary-dark)", color: "#fff", padding: "38px 0 30px" }}>
+      <div style={{ background: "#f8f9fb", borderBottom: "1px solid #E5E5E5", padding: "22px 0 18px" }}>
         <div className="container">
-          <div className="breadcrumb" style={{ color: "rgba(255,255,255,0.7)", marginBottom: 10 }}>
+          <div className="breadcrumb" style={{ marginBottom: 8 }}>
             <Link href="/">Home</Link>
-            <ChevronRight size={13} />
+            <ChevronRight size={12} />
             <Link href="/shop">Shop</Link>
             {cat && (
               <>
-                <ChevronRight size={13} />
-                <span style={{ color: "var(--accent)" }}>{cat}</span>
+                <ChevronRight size={12} />
+                <span style={{ color: "#2A74ED", fontWeight: 700 }}>{cat}</span>
               </>
             )}
           </div>
-          <h1 style={{ color: "#fff", fontSize: "clamp(28px,4vw,40px)" }}>
+          <h1 style={{ color: "#242424", fontSize: "clamp(22px,3vw,28px)", fontWeight: 800, letterSpacing: "-0.4px" }}>
             {q ? `Results for "${sp.q}"` : cat || "All Products"}
           </h1>
-          <p style={{ color: "rgba(255,255,255,0.8)", marginTop: 6 }}>
-            {list.length} products available
+          <p style={{ color: "#777", marginTop: 4, fontSize: 13 }}>
+            {list.length} products • Premium minimal electronics style
           </p>
         </div>
       </div>

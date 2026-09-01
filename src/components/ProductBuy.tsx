@@ -47,30 +47,31 @@ export default function ProductBuy({ product }: { product: Product }) {
         </div>
       )}
 
-      <div className="qv-price-row">
+      <div className="qv-price-row" style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: 14 }}>
         {!free && product.oldPrice > 0 && (
           <span className="old">{formatINR(product.oldPrice * qty)}</span>
         )}
-        <span className="new">{free ? "FREE" : formatINR(price)}</span>
+        <span className="new" style={{ color: "#2A74ED" }}>{free ? "FREE" : formatINR(price)}</span>
       </div>
 
-      <div style={{ display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap", marginBottom: 18 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap", marginBottom: 16 }}>
         <div className="qty-stepper">
           <button onClick={() => setQty(Math.max(1, qty - 1))} aria-label="Decrease"><Minus size={14} /></button>
           <span>{qty}</span>
           <button onClick={() => setQty(qty + 1)} aria-label="Increase"><Plus size={14} /></button>
         </div>
-        <span style={{ fontSize: 13, color: "var(--muted)" }}>{variant?.stock ?? 999} in stock</span>
+        <span style={{ fontSize: 12, color: "#777", background: "#f8f9fb", padding: "4px 10px", borderRadius: 20, border: "1px solid #E5E5E5" }}>{variant?.stock ?? 999} in stock</span>
       </div>
 
-      <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
         <button
-          className="btn btn-primary"
+          className="btn btn-primary single_add_to_cart_button"
+          style={{ borderRadius: 20, flex: 1, fontWeight: 700, background: "#2A74ED", borderColor: "#2A74ED" }}
           onClick={() => {
             addToCart(product.id, qty, variant?.value);
           }}
         >
-          <ShoppingCart size={16} /> Add to Cart — {free ? "FREE" : formatINR(price)}
+          <ShoppingCart size={15} /> Add to cart — {free ? "FREE" : formatINR(price)}
         </button>
         <button
           className={`p-action-btn ${inWish ? "active" : ""}`}
@@ -97,16 +98,16 @@ export default function ProductBuy({ product }: { product: Product }) {
       </div>
 
       {product.downloadUrl && (
-        <div style={{ marginTop: 16, display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "var(--primary)", fontWeight: 600 }}>
-          <Download size={15} /> Accessible via dashboard download after approval
+        <div style={{ marginTop: 14, display: "flex", alignItems: "center", gap: 8, fontSize: 11, color: "#2A74ED", fontWeight: 700, background: "#eef3ff", padding: "8px 12px", borderRadius: 20, border: "1px solid #d6e3ff" }}>
+          <Download size={13} /> Accessible via dashboard download after approval
         </div>
       )}
 
-      <div className="trust-row" style={{ marginTop: 26 }}>
-        <div className="trust-chip"><ShieldCheck size={18} /> 100% Secure UPI</div>
-        <div className="trust-chip"><ShieldCheck size={18} /> Instant Access</div>
-        <div className="trust-chip"><ShieldCheck size={18} /> Lifetime Validity</div>
-        <div className="trust-chip"><ShieldCheck size={18} /> 24/7 Support</div>
+      <div className="trust-row" style={{ marginTop: 18 }}>
+        <div className="trust-chip"><ShieldCheck size={14} /> 100% Secure UPI</div>
+        <div className="trust-chip"><ShieldCheck size={14} /> Instant Access</div>
+        <div className="trust-chip"><ShieldCheck size={14} /> Lifetime Validity</div>
+        <div className="trust-chip"><ShieldCheck size={14} /> 24/7 Support</div>
       </div>
 
       <div style={{ marginTop: 22, fontSize: 12.5, color: "var(--muted)", lineHeight: 1.7 }}>
