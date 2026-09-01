@@ -231,10 +231,10 @@ export default function HomePage() {
       )}
 
       {/* Testimonials XStore cards rounded */}
-      <section className="ws-section" style={{ background: "#f8f9fb", padding: "28px 0", borderTop: "1px solid #E5E5E5" }}>
-        <div className="container">
+      <section className="ws-section" style={{ background: "#f8f9fb", padding: "28px 0", borderTop: "1px solid #E5E5E5", overflow: "visible" }}>
+        <div className="container" style={{ maxWidth: "100%", overflow: "visible" }}>
           <h2 style={{ fontSize: 18, fontWeight: 800, color: "#242424", textAlign: "center", marginBottom: 18 }}>What Our Students Say</h2>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 14 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 14, maxWidth: "100%", overflow: "visible" }}>
             {TESTIMONIALS.map((t, i) => (
               <div key={i} style={{ background: "#fff", border: "1px solid #E5E5E5", borderRadius: 20, padding: 18 }}>
                 <div style={{ color: "#FFBD3C", display: "flex", gap: 2, marginBottom: 10 }}>
@@ -273,17 +273,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Newsletter minimal bottom */}
-      <section className="ws-section" style={{ background: "#fff", padding: "28px 0", borderTop: "1px solid #E5E5E5" }}>
-        <div className="container">
-          <div style={{ textAlign: "center", maxWidth: 520, margin: "0 auto", background: "#f8f9fb", border: "1px solid #E5E5E5", borderRadius: 20, padding: 24 }}>
-            <h2 style={{ fontSize: 18, fontWeight: 800, color: "#242424", marginBottom: 6 }}>Subscribe & Get 10% Off</h2>
-            <p style={{ fontSize: 12, color: "#777", marginBottom: 16 }}>Get the latest courses, deals & updates straight to your inbox.</p>
-            <NewsletterBox />
-          </div>
-        </div>
-      </section>
-
       <NewsletterPopup />
 
       <style>{`
@@ -294,12 +283,15 @@ export default function HomePage() {
         @media (max-width: 1080px){
           .p-grid{ grid-template-columns: repeat(3, 1fr) !important; }
         }
+        @media (max-width: 900px){
+          div[style*="grid-template-columns: repeat(3, 1fr)"]{ grid-template-columns: repeat(2, 1fr) !important; max-width:100%; overflow:visible; }
+        }
         @media (max-width: 640px){
           .p-grid{ grid-template-columns: repeat(2, 1fr) !important; gap: 10px !important; }
           div[style*="grid-template-columns: 1.4fr 1fr"]{ grid-template-columns: 1fr !important; }
           .stats-strip{ grid-template-columns: repeat(2, 1fr) !important; gap: 14px !important; padding: 0 !important; }
           .stats-strip-wrap{ padding: 20px 14px !important; margin: 0 12px !important; }
-          div[style*="grid-template-columns: repeat(3, 1fr)"]{ grid-template-columns: 1fr !important; }
+          div[style*="grid-template-columns: repeat(3, 1fr)"]{ grid-template-columns: 1fr !important; max-width:100%; overflow:visible; }
           div[style*="grid-template-columns: repeat(6, 1fr)"]{ grid-template-columns: repeat(3, 1fr) !important; }
         }
         @media (max-width: 480px){

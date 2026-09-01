@@ -57,10 +57,10 @@ export default function Footer() {
         </div>
       </section>
 
-      {/* Main Footer minimal light 4 cols with rounded cards */}
+      {/* Main Footer minimal light 2 cols - About + Contact only */}
       <footer className="ws-footer">
         <div className="container">
-          <div className="ws-footer-top" style={{ gridTemplateColumns: "1.4fr 1fr 1fr 1.2fr" }}>
+          <div className="ws-footer-top" style={{ gridTemplateColumns: "1.6fr 1fr" }}>
             <div className="ws-footer-col ws-footer-about">
               <div className="ws-footer-logo">
                 <img src="/logo/edulogo.jpeg" alt="EduBazar Logo" />
@@ -71,29 +71,6 @@ export default function Footer() {
                 <a href="https://wa.me/919759131256" target="_blank" rel="noreferrer" aria-label="WhatsApp"><MessageCircle size={14} /></a>
                 <a href="mailto:edubazarshop@gmail.com" aria-label="Email"><Mail size={14} /></a>
               </div>
-            </div>
-
-            <div className="ws-footer-col">
-              <h4>Explore</h4>
-              <ul>
-                <li><Link href="/shop">All Products</Link></li>
-                <li><Link href="/shop?kind=course">Courses</Link></li>
-                <li><Link href="/shop?kind=book">Digital Books</Link></li>
-                <li><Link href="/shop?kind=tool">Software Tools</Link></li>
-                <li><Link href="/shop?q=free">Free Downloads</Link></li>
-              </ul>
-            </div>
-
-            <div className="ws-footer-col">
-              <h4>Help</h4>
-              <ul>
-                <li><Link href="/about">About Us</Link></li>
-                <li><Link href="/contact">Contact Us</Link></li>
-                <li><Link href="/privacy">Privacy Policy</Link></li>
-                <li><Link href="/terms">Terms of Service</Link></li>
-                <li><Link href="/refund">Refund Policy</Link></li>
-                <li><Link href="/account">My Account</Link></li>
-              </ul>
             </div>
 
             <div className="ws-footer-col">
