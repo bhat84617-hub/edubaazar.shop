@@ -269,7 +269,7 @@ function generateResponse(message: string): { text: string; products?: any[]; su
       return {
         text: `🙏 *Namaste!* Main hoon *EduBot* — aapka personal course guide!
 
-Main aapki har sawal ka jawaab de sakta hoon, bina kisi API ke, bilkul free!
+Main aapki har sawal ka jawaab de sakta hoon!
 
 📚 *Mere paas hain:*
 • ${stats.courses}+ Premium Courses
@@ -668,7 +668,6 @@ Happy Learning! 📚✨`,
           `• Real-time availability check\n` +
           `• Student reviews & ratings\n\n` +
           `⚡ *Best part:*\n` +
-          `Bina kisi API key ke, bilkul FREE!\n` +
           `Instant replies, 24/7 available\n\n` +
           `━━━━━━━━━━━━━━━━━━━━\n\n` +
           `Still have questions? Human support available!\n` +
@@ -1010,10 +1009,10 @@ export default function AIChatWidget() {
           bottom: 100px;
           right: 24px;
           z-index: 9998;
-          width: 420px;
-          max-width: calc(100vw - 48px);
-          height: 600px;
-          max-height: calc(100vh - 140px);
+          width: 360px;
+          max-width: calc(100vw - 32px);
+          height: 520px;
+          max-height: calc(100vh - 120px);
           background: #F4F1EA;
           border-radius: 20px;
           border: 1px solid #DDD8CE;
@@ -1689,8 +1688,8 @@ export default function AIChatWidget() {
           {/* Header */}
           <div className="edubot-header">
             <div className="edubot-header-left">
-              <div className="edubot-avatar">
-                <GraduationCap />
+              <div className="edubot-avatar" style={{ borderRadius: '14px', overflow: 'hidden', background: 'linear-gradient(135deg, #C4953A 0%, #95752C 100%)', border: '2px solid #F4F1EA', boxShadow: '0 4px 15px rgba(196, 149, 58, 0.4)' }}>
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#F4F1EA" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="7" width="18" height="14" rx="2"/><circle cx="8.5" cy="12" r="1.5" fill="#F4F1EA" stroke="none"/><circle cx="15.5" cy="12" r="1.5" fill="#F4F1EA" stroke="none"/><line x1="12" y1="17" x2="12" y2="19"/><line x1="7" y1="5" x2="7" y2="7"/><line x1="17" y1="5" x2="17" y2="7"/></svg>
               </div>
               <div className="edubot-header-info">
                 <h3>EduBot</h3>
@@ -1720,7 +1719,7 @@ export default function AIChatWidget() {
                   </div>
                   <div className="edubot-welcome-bubble">
                     <p>🙏 *Namaste!* Main hoon <strong>EduBot</strong> — aapka personal course guide!</p>
-                    <p>Bina kisi API key ke, bilkul free! Sab courses ki jaankari turant available. 💡</p>
+                    <p>Sab courses ki jaankari turant available! 💡</p>
                     <p>Kya poochna hai aapko? Type karo ya niche options mein se choose karo!</p>
                   </div>
                 </div>
@@ -1924,10 +1923,6 @@ export default function AIChatWidget() {
               </button>
             </div>
             <div className="edubot-footer">
-              <span>🆓 100% Free</span>
-              <span className="edubot-footer-divider" />
-              <span>No API key needed</span>
-              <span className="edubot-footer-divider" />
               <a
                 href="https://wa.me/919759131256"
                 target="_blank"
