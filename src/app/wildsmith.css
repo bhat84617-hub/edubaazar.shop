@@ -1667,3 +1667,63 @@
   .p-card:hover .p-image img { opacity: 1; }
   .p-image img.second { display: none; }
 }
+
+/* ===== PHONE RESPONSIVE OVERRIDES - PREVENT ZOOM & OVERFLOW ===== */
+html { overflow-x:hidden; width:100%; max-width:100vw; -webkit-text-size-adjust:100%; touch-action:manipulation; }
+body { overflow-x:hidden; width:100%; max-width:100vw; position:relative; }
+img { max-width:100%; height:auto; }
+.ws-header, .ws-nav, .ws-footer, section, .ws-deal-section, .ws-hero { max-width:100vw; overflow-x:clip; }
+.container { box-sizing:border-box; }
+
+/* Fix fixed-width elements causing horizontal scroll on 320-375px */
+.ws-mini-cart { width:min(340px, calc(100vw - 16px)) !important; max-width:calc(100vw - 16px) !important; box-sizing:border-box; }
+.ws-search-results, .ws-search-results-dropdown { max-width:calc(100vw - 24px); box-sizing:border-box; }
+.ws-nav-cats-dropdown { width:min(270px, 90vw) !important; max-width:90vw !important; }
+.ws-drawer-panel { width:min(340px, 86vw) !important; max-width:86vw !important; }
+
+/* Deal slider responsive - clamp to prevent overflow at 360px */
+.ws-deal-card { width:clamp(200px, 42vw, 300px); }
+.ws-search-slide { width:clamp(180px, 38vw, 240px); }
+@media (max-width:640px){ .ws-deal-card{ width:240px; } .ws-search-slide{ width:200px; } }
+@media (max-width:480px){ .ws-deal-card{ width:220px; } .ws-search-slide{ width:180px; } }
+@media (max-width:360px){ .ws-deal-card{ width:200px; } .ws-search-slide{ width:165px; } .ws-search-slider-wrap{ padding:0 8px; } }
+
+/* Product grids: ensure 1 col at <480 as per spec, 2 cols 480-768, 3 cols 768-1024, 4 cols >1024 */
+.ws-product-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:20px; }
+@media (max-width:1024px){ .ws-product-grid{ grid-template-columns:repeat(3,1fr); } }
+@media (max-width:768px){ .ws-product-grid{ grid-template-columns:repeat(2,1fr); gap:12px; } }
+@media (max-width:480px){ .ws-product-grid{ grid-template-columns:1fr; gap:12px; } }
+
+/* Shop layout responsive */
+.shop-layout { min-width:0; max-width:100%; }
+.filter-side { min-width:0; box-sizing:border-box; }
+.shop-product-grid { min-width:0; }
+
+/* Modals fit viewport on phone */
+.modal { padding:12px; box-sizing:border-box; }
+.modal-card { width:95vw; max-width:95vw; max-height:90vh; box-sizing:border-box; margin:0 auto; }
+@media (max-width:640px){ .modal-card{ width:95vw; max-width:95vw; } .modal{ padding:10px; } }
+
+/* Tables horizontal scroll */
+.dash-panel { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+.dash-table { min-width:560px; }
+.spec-table { display:block; overflow-x:auto; white-space:nowrap; }
+
+/* Prevent iOS zoom on focus - ensure 16px inputs */
+@media (max-width:640px){
+  input, select, textarea { font-size:16px !important; }
+  .ws-search-bar-input { font-size:16px !important; }
+}
+
+/* Header ensure no overflow at 320px */
+@media (max-width:360px){
+  .ws-header-inner{ gap:6px; padding:8px 0; }
+  .ws-logo-text{ font-size:15px; }
+  .ws-icon-btn{ width:34px; height:34px; }
+}
+
+/* Fix hero, banners, features, testimonials overflow */
+.ws-hero-content, .ws-hero-text, .ws-promo-banner, .ws-features-grid, .ws-testimonial-grid, .ws-stats-strip { min-width:0; max-width:100%; box-sizing:border-box; }
+.ws-hero-text { max-width:min(380px, 90vw); }
+@media (max-width:640px){ .ws-hero-text{ max-width:min(300px, 82vw); } }
+@media (max-width:360px){ .ws-hero-text{ max-width:78vw; padding:16px 18px; } }

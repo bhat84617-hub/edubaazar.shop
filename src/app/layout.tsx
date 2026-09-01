@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Jost } from "next/font/google";
 import { StoreProvider } from "@/lib/store";
 import Header from "@/components/Header";
@@ -63,10 +63,13 @@ export const metadata: Metadata = {
   icons: { icon: "/logo/edulogo.jpeg" },
 };
 
-export const viewport = {
+export const viewport: Viewport = {
   themeColor: "#edece9",
   width: "device-width",
   initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: "cover",
 };
 
 const SITE = SITE_URL;

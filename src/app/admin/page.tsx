@@ -235,8 +235,8 @@ export default function AdminDashboard() {
         .adm-sel option{background:#1a1c25;color:#e4e6eb}
 
         /* table */
-        .adm-table-wrap{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:14px;overflow:hidden}
-        .adm-table{width:100%;border-collapse:collapse}
+        .adm-table-wrap{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:14px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+        .adm-table{width:100%;border-collapse:collapse;min-width:640px}
         .adm-table th{padding:13px 18px;text-align:left;font-size:10.5px;font-weight:700;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.8px;background:rgba(255,255,255,.02);border-bottom:1px solid rgba(255,255,255,.06)}
         .adm-table td{padding:13px 18px;font-size:13px;border-bottom:1px solid rgba(255,255,255,.04);vertical-align:middle}
         .adm-table tr{transition:background .12s}
@@ -302,7 +302,8 @@ export default function AdminDashboard() {
         .adm-toast-err{background:linear-gradient(135deg,#ef4444,#dc2626)}
 
         @media(max-width:1100px){.adm-stats{grid-template-columns:repeat(3,1fr)}.adm-table th:nth-child(6),.adm-table td:nth-child(6){display:none}}
-        @media(max-width:768px){.adm-aside{display:none}.adm-main{margin-left:0;padding:16px}.adm-stats{grid-template-columns:1fr 1fr}.adm-table th:nth-child(5),.adm-table td:nth-child(5),.adm-table th:nth-child(6),.adm-table td:nth-child(6){display:none}}
+        @media(max-width:768px){.adm-aside{display:none}.adm-main{margin-left:0;padding:16px}.adm-stats{grid-template-columns:1fr 1fr}.adm-table th:nth-child(5),.adm-table td:nth-child(5),.adm-table th:nth-child(6),.adm-table td:nth-child(6){display:none}.adm-detail-grid{grid-template-columns:1fr}.adm-modal{width:95vw;max-width:95vw}.adm-toolbar{flex-direction:column;align-items:stretch}.adm-search{min-width:100%}}
+        @media(max-width:480px){.adm-stats{grid-template-columns:1fr 1fr;gap:10px}.adm-stat{padding:12px}.adm-stat h3{font-size:18px}.adm-table-wrap{border-radius:10px}.adm-modal-body{padding:16px}.adm-detail-grid{gap:10px}}
       `}</style>
 
       {/* ── sidebar ──────────────────────────────────────────────── */}
