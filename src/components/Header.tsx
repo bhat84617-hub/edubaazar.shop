@@ -49,7 +49,7 @@ export default function Header() {
 
   useEffect(() => {
     function onScroll() {
-      setScrolled(window.scrollY > 60);
+      setScrolled(window.scrollY > 50);
     }
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
@@ -73,74 +73,83 @@ export default function Header() {
   };
 
   const isActive = (href: string) => pathname === href;
-  const headerTransparent = isHome && !scrolled;
 
   if (pathname.startsWith("/admin")) return null;
 
   return (
     <>
-      {/* Sticky wrapper — ribbon + header stay together */}
-      <div className={`ws-sticky-wrap ${headerTransparent ? "ws-sticky-transparent" : ""} ${scrolled ? "ws-sticky-scrolled" : ""}`}>
-        {/* Promo ribbon */}
-        <div className={`ws-promo-ribbon ${headerTransparent ? "ribbon-transparent" : ""}`}>
-          <div className="ws-promo-inner" key={announceIdx}>
-            <span>{ANNOUNCEMENTS[announceIdx]}</span>
+      {/* Top PROMO Bar - WoodMart style */}
+      <div className="ws-top-bar">
+        <div className="ws-top-inner container">
+          <div className="ws-announcements">
+            <span className="ws-announcement">{ANNOUNCEMENTS[announceIdx]}</span>
+          </div>
+          <div className="ws-top-links">
+            <Link href="/tel:+919876543210" className="ws-top-link">
+              <Phone size={14} /> 98765 43210
+            </Link>
+            <Link href="/mail:info@edubaazar.com" className="ws-top-link">
+              <Mail size={14} /> info@edubaazar.com
+            </Link>
           </div>
         </div>
+      </div>
 
-        {/* Main header */}
-        <header className="ws-header">
-          <div className="ws-header-inner container">
-          {/* Hamburger */}
+      {/* Main Header - WoodMart style */}
+      <header className={`ws-header ${scrolled ? "ws-header-scrolled" : ""}`}>
+        <div className="ws-header-inner container">
+          {/* Hamburger - left */}
           <button className="ws-hamburger" onClick={() => setDrawerOpen(true)} aria-label="Menu">
             <Menu size={22} strokeWidth={1.5} />
           </button>
 
-          {/* Logo — center */}
+          {/* Logo - center */}
           <Link href="/" className="ws-logo">
             <img src="/logo/edulogo.jpeg" alt="EduBazar" />
             <span className="ws-logo-text">EduBazar</span>
           </Link>
 
-          {/* Right icons */}
+          {/* Right section */}
           <div className="ws-header-right">
             {/* Search */}
             <div className="ws-search" ref={searchRef}>
-              <button className="ws-icon-btn" aria-label="Search" onClick={() => {
-                const el = document.querySelector(".ws-search-input") as HTMLInputElement;
-                el?.focus();
-              }}>
+              <button className="ws-search-toggle" aria-label="Search">
                 <Search size={20} strokeWidth={1.5} />
               </button>
-              <input
-                className="ws-search-input"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && doSearch()}
-                placeholder="Search..."
-              />
-              {results.length > 0 && (
-                <div className="ws-search-results">
-                  {results.map((p) => (
-                    <div
-                      key={p.id}
-                      className="ws-search-item"
-                      onClick={() => {
-                        router.push(`/product/${p.slug}`);
-                        setQuery("");
-                        setResults([]);
-                      }}
-                    >
-                      <img src={p.images[0]} alt={p.title} />
-                      <div style={{ flex: 1 }}>
-                        <h4>{p.title}</h4>
-                        <p>{p.category}</p>
+              <div className="ws-search-panel">
+                <input
+                  className="ws-search-input"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && doSearch()}
+                  placeholder="Search courses, books, tools..."
+                />
+                <button className="ws-search-close" onClick={() => { setQuery(""); setResults([]); }}>
+                  <X size={16} />
+                </button>
+                {results.length > 0 && (
+                  <div className="ws-search-results">
+                    {results.map((p) => (
+                      <div
+                        key={p.id}
+                        className="ws-search-item"
+                        onClick={() => {
+                          router.push(`/product/${p.slug}`);
+                          setQuery("");
+                          setResults([]);
+                          setDrawerOpen(false);
+                        }}
+                      >
+                        <img src={p.images[0]} alt={p.title} />
+                        <div className="ws-search-content">
+                          <h4>{p.title}</h4>
+                          <p>{p.category} • {formatINR(p.price)}</p>
+                        </div>
                       </div>
-                      <strong>{formatINR(p.price)}</strong>
-                    </div>
-                  ))}
-                </div>
-              )}
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
 
             <Link href="/wishlist" className="ws-icon-btn" aria-label="Wishlist">
@@ -168,11 +177,11 @@ export default function Header() {
                       return (
                         <div key={item.id} className="ws-mini-cart-item">
                           <img src={p.images[0]} alt={p.title} />
-                          <div style={{ flex: 1 }}>
+                          <div className="ws-mini-cart-info">
                             <h5>{p.title}</h5>
                             <p>{formatINR(p.price)} × {item.qty}</p>
                           </div>
-                          <button onClick={() => removeFromCart(item.id)} aria-label="Remove" className="ws-mini-cart-remove">
+                          <button onClick={() => removeFromCart(item.id)} aria-label="Remove">
                             <Trash2 size={15} />
                           </button>
                         </div>
@@ -184,7 +193,7 @@ export default function Header() {
                         <strong>{formatINR(cartSubtotal)}</strong>
                       </div>
                       <Link href="/cart" className="ws-btn ws-btn-outline ws-btn-sm">View Cart</Link>
-                      <Link href="/checkout" className="ws-btn ws-btn-fill ws-btn-sm" style={{ marginTop: 6 }}>Checkout</Link>
+                      <Link href="/checkout" className="ws-btn ws-btn-fill ws-btn-sm">Checkout</Link>
                     </div>
                   </>
                 )}
@@ -196,80 +205,79 @@ export default function Header() {
             </Link>
           </div>
         </div>
+      </header>
 
-        {/* Navigation */}
-        <nav className={`ws-nav ${headerTransparent ? "ws-nav-transparent" : ""}`}>
-          <div className="container">
-            <ul className="ws-nav-list">
-              <li>
-                <Link href="/" className={isActive("/") ? "active" : ""}>Home</Link>
-              </li>
-              <li className="ws-has-mega">
-                <Link href="/shop">
-                  Shop <ChevronDown size={13} />
-                </Link>
-                <div className="ws-mega">
-                  <div className="container">
-                    <div className="ws-mega-grid">
-                      <div className="ws-mega-col">
-                        <h4>Categories</h4>
-                        <ul>
-                          {CATEGORIES.map((c) => (
-                            <li key={c.key}>
-                              <Link href={`/shop?cat=${encodeURIComponent(c.key)}`}>{c.label}</Link>
-                            </li>
-                          ))}
-                        </ul>
+      {/* Navigation - WoodMart style mega menu */}
+      <nav className="ws-nav">
+        <div className="container">
+          <ul className="ws-nav-list">
+            <li>
+              <Link href="/" className={isActive("/") ? "active" : ""}>Home</Link>
+            </li>
+            <li className="ws-has-mega">
+              <Link href="/shop" className="mega-toggle">
+                Shop <span className="mega-arrow">▾</span>
+              </Link>
+              <div className="ws-mega">
+                <div className="ws-mega-container">
+                  <div className="ws-mega-col">
+                    <h4 className="mega-title">Categories</h4>
+                    <ul className="mega-list">
+                      {CATEGORIES.map((c) => (
+                        <li key={c.key}>
+                          <Link href={`/shop?cat=${encodeURIComponent(c.key)}`}>{c.label}</Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div className="ws-mega-col">
+                    <h4 className="mega-title">Shop By Type</h4>
+                    <ul className="mega-list">
+                      <li><Link href="/shop?kind=course">Courses</Link></li>
+                      <li><Link href="/shop?kind=book">Digital Books</Link></li>
+                      <li><Link href="/shop?kind=tool">Software & Tools</Link></li>
+                      <li><Link href="/shop?sort=price_low">Under ₹200</Link></li>
+                      <li><Link href="/shop?q=free">Free Courses</Link></li>
+                    </ul>
+                  </div>
+                  <div className="ws-mega-col">
+                    <h4 className="mega-title">Popular Courses</h4>
+                    <ul className="mega-list">
+                      <li><Link href="/product/complete-ethical-hacking-penetration-testing">Ethical Hacking Mastery</Link></li>
+                      <li><Link href="/product/python-complete-course-beginner-to-advanced">Python Complete Course</Link></li>
+                      <li><Link href="/product/complete-javascript-mastery">JavaScript Mastery</Link></li>
+                      <li><Link href="/product/stock-market-mastery-zero-to-pro">Stock Market Mastery</Link></li>
+                      <li><Link href="/product/ui-ux-design-complete-course">UI/UX Design Course</Link></li>
+                    </ul>
+                  </div>
+                  <div className="ws-mega-col">
+                    <div className="ws-mega-featured">
+                      <h4 className="mega-title">Featured Deal</h4>
+                      <div className="mega-featured-img">
+                        <img src="/images/complete ethical hacking & penetration testing.jpeg" alt="Ethical Hacking" />
                       </div>
-                      <div className="ws-mega-col">
-                        <h4>Shop By Type</h4>
-                        <ul>
-                          <li><Link href="/shop?kind=course">Courses</Link></li>
-                          <li><Link href="/shop?kind=book">Digital Books</Link></li>
-                          <li><Link href="/shop?kind=tool">Software & Tools</Link></li>
-                          <li><Link href="/shop?sort=price_low">Under ₹200</Link></li>
-                          <li><Link href="/shop?q=free">Free Courses</Link></li>
-                        </ul>
-                      </div>
-                      <div className="ws-mega-col">
-                        <h4>Popular Courses</h4>
-                        <ul>
-                          <li><Link href="/product/complete-ethical-hacking-penetration-testing">Ethical Hacking Mastery</Link></li>
-                          <li><Link href="/product/python-complete-course-beginner-to-advanced">Python Complete Course</Link></li>
-                          <li><Link href="/product/complete-javascript-mastery">JavaScript Mastery</Link></li>
-                          <li><Link href="/product/stock-market-mastery-zero-to-pro">Stock Market Mastery</Link></li>
-                          <li><Link href="/product/ui-ux-design-complete-course">UI/UX Design Course</Link></li>
-                        </ul>
-                      </div>
-                      <div className="ws-mega-col">
-                        <div className="ws-mega-featured">
-                          <h4>Featured Deal</h4>
-                          <img src="/images/ethical-hacking-pentest.jpeg" alt="Ethical Hacking" />
-                          <p>Complete Ethical Hacking &amp; Penetration Testing</p>
-                          <span className="ws-mega-price">₹199 <s>₹499</s></span>
-                          <Link href="/product/complete-ethical-hacking-penetration-testing" className="ws-btn ws-btn-outline ws-btn-sm">
-                            Shop Now
-                          </Link>
-                        </div>
-                      </div>
+                      <h5 className="mega-featured-title">
+                        <Link href="/product/complete-ethical-hacking-penetration-testing">Complete Ethical Hacking</Link>
+                      </h5>
+                      <div className="mega-featured-price">₹199 <span className="old-price">₹499</span></div>
+                      <Link href="/product/complete-ethical-hacking-penetration-testing" className="ws-btn ws-btn-sm">Get Now</Link>
                     </div>
                   </div>
                 </div>
+              </div>
+            </li>
+            {CATEGORIES.map((c) => (
+              <li key={c.key}>
+                <Link href={`/shop?cat=${encodeURIComponent(c.key)}`} className={currentCat.toLowerCase() === c.key.toLowerCase() ? "active" : ""}>{c.label}</Link>
               </li>
-              {CATEGORIES.map((c) => (
-                <li key={c.key}>
-                  <Link href={`/shop?cat=${encodeURIComponent(c.key)}`} className={currentCat.toLowerCase() === c.key.toLowerCase() ? "active" : ""}>{c.label}</Link>
-                </li>
-              ))}
-              <li><Link href="/about">About</Link></li>
-              <li><Link href="/contact">Contact</Link></li>
-            </ul>
-          </div>
-        </nav>
-      </header>
-      </div>
+            ))}
+            <li><Link href="/about">About</Link></li>
+            <li><Link href="/contact">Contact</Link></li>
+          </ul>
+        </div>
+      </nav>
 
-      {/* Mobile drawer */}
+      {/* Mobile drawer - WoodMart style */}
       <div className={`ws-drawer ${drawerOpen ? "open" : ""}`}>
         <div className="ws-drawer-overlay" onClick={() => setDrawerOpen(false)} />
         <div className="ws-drawer-panel">
