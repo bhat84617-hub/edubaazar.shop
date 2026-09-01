@@ -3,21 +3,54 @@ import Link from "next/link";
 import { ChevronRight, MessageCircle, Mail, Phone, Camera } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Contact Us",
-  description: "Get in touch with EduBazar.shop. WhatsApp, email, or DM us for course queries, payment issues, or support. We respond within 24 hours.",
-  keywords: ["contact EduBazar", "EduBazar support", "course help India", "UPI payment issue"],
+  title: "Contact Us — EduBazar.shop Support",
+  description: "Get in touch with EduBazar.shop. WhatsApp 9759131256, email edubazarshop@gmail.com. Course queries, UPI payment issues, support within 24 hours.",
+  keywords: ["contact EduBazar", "EduBazar support", "course help India", "UPI payment issue", "edubazar whatsapp"],
   alternates: { canonical: "https://www.edubaazar.shop/contact" },
-  openGraph: { title: "Contact EduBazar.shop", description: "Get in touch for course queries, payment issues, or support." },
+  openGraph: {
+    title: "Contact EduBazar.shop — We're Here to Help",
+    description: "WhatsApp, email, Instagram — contact EduBazar.shop for course queries and payment support.",
+    url: "https://www.edubaazar.shop/contact",
+    type: "website",
+    images: [{ url: "https://www.edubaazar.shop/logo/edulogo.jpeg", width: 512, height: 512, alt: "Contact EduBazar.shop" }],
+  },
 };
 
 export default function ContactPage() {
+  const SITE = "https://www.edubaazar.shop";
+  const contactLd = {
+    "@context": "https://schema.org",
+    "@type": "ContactPage",
+    "@id": SITE + "/contact#contactpage",
+    name: "Contact EduBazar.shop",
+    description: "Contact EduBazar.shop via WhatsApp, email or Instagram for course queries and support.",
+    url: SITE + "/contact",
+    isPartOf: { "@id": SITE + "/#website" },
+    mainEntity: {
+      "@type": "Organization",
+      name: "EduBazar.shop",
+      email: "edubazarshop@gmail.com",
+      telephone: "+91-9759131256",
+      sameAs: ["https://instagram.com/edubazarshop", "https://wa.me/919759131256"],
+    },
+  };
+  const breadcrumbLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: SITE },
+      { "@type": "ListItem", position: 2, name: "Contact Us", item: SITE + "/contact" },
+    ],
+  };
   return (
     <div>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(contactLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
       <div style={{ background: "var(--primary-dark)", color: "#fff", padding: "38px 0 30px" }}>
         <div className="container">
-          <div className="breadcrumb" style={{ color: "rgba(255,255,255,0.7)", marginBottom: 10 }}>
-            <Link href="/">Home</Link> <ChevronRight size={13} /> <span style={{ color: "var(--accent)" }}>Contact Us</span>
-          </div>
+          <nav aria-label="Breadcrumb" className="breadcrumb" style={{ color: "rgba(255,255,255,0.7)", marginBottom: 10 }}>
+            <Link href="/">Home</Link> <ChevronRight size={13} aria-hidden="true" /> <span style={{ color: "var(--accent)" }} aria-current="page">Contact Us</span>
+          </nav>
           <h1 style={{ color: "#fff", fontSize: "clamp(28px,4vw,40px)" }}>Contact Us</h1>
         </div>
       </div>

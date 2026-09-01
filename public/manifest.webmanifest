@@ -1,0 +1,41 @@
+{
+  "name": "EduBazar.shop — Online Courses, Hacking Tools & Digital Books",
+  "short_name": "EduBazar",
+  "description": "India's affordable learning platform. 30+ premium courses in Ethical Hacking, Programming, Python, JavaScript, Trading from ₹49. Instant UPI delivery, lifetime access.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2A74ED",
+  "orientation": "portrait-primary",
+  "lang": "en-IN",
+  "dir": "ltr",
+  "categories": ["education", "shopping", "lifestyle"],
+  "icons": [
+    {
+      "src": "/logo/edulogo.jpeg",
+      "sizes": "192x192",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/logo/edulogo.jpeg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/images/complete ethical hacking & penetration testing.jpeg",
+      "sizes": "800x600",
+      "type": "image/jpeg",
+      "form_factor": "wide",
+      "label": "Featured Hacking Courses"
+    }
+  ],
+  "shortcuts": [
+    { "name": "Shop All Courses", "url": "/shop", "description": "Browse 30+ courses" },
+    { "name": "My Account", "url": "/account", "description": "Your dashboard" },
+    { "name": "Contact Us", "url": "/contact", "description": "Get support" }
+  ]
+}

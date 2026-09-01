@@ -3,11 +3,18 @@ import Link from "next/link";
 import { ChevronRight, ShieldCheck, Zap, Headset, GraduationCap } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "About Us",
-  description: "Learn about EduBazar.shop — India's affordable online learning platform. We provide premium courses in Ethical Hacking, Programming, Trading & more at prices everyone can afford.",
-  keywords: ["about EduBazar", "online learning platform India", "affordable courses", "EduBazar shop about"],
+  title: "About Us — India's Affordable Learning Platform",
+  description: "Learn about EduBazar.shop — India's affordable online learning platform. 30+ premium courses in Ethical Hacking, Programming, Python, Trading & more from ₹49. Lifetime access.",
+  keywords: ["about EduBazar", "online learning platform India", "affordable courses", "EduBazar shop about", "ethical hacking courses India", "programming courses cheap"],
   alternates: { canonical: "https://www.edubaazar.shop/about" },
-  openGraph: { title: "About EduBazar.shop", description: "India's affordable online learning platform for Hacking, Programming, Trading & more." },
+  openGraph: {
+    title: "About EduBazar.shop — India's Affordable Learning Platform",
+    description: "30+ premium courses in Hacking, Programming, Trading & more from ₹49. Lifetime access, UPI payment.",
+    url: "https://www.edubaazar.shop/about",
+    type: "website",
+    images: [{ url: "https://www.edubaazar.shop/logo/edulogo.jpeg", width: 512, height: 512, alt: "About EduBazar.shop" }],
+  },
+  twitter: { card: "summary_large_image", title: "About EduBazar.shop", description: "India's affordable learning platform for Hacking, Programming, Trading & more." },
 };
 
 const values = [
@@ -18,13 +25,36 @@ const values = [
 ];
 
 export default function AboutPage() {
+  const SITE = "https://www.edubaazar.shop";
+  const aboutLd = {
+    "@context": "https://schema.org",
+    "@type": "AboutPage",
+    "@id": SITE + "/about#aboutpage",
+    name: "About EduBazar.shop",
+    description: "India's affordable online learning platform with 30+ courses in Hacking, Programming, Trading & more from ₹49.",
+    url: SITE + "/about",
+    isPartOf: { "@id": SITE + "/#website" },
+    about: { "@id": SITE + "/#organization" },
+    mainEntity: { "@id": SITE + "/#organization" },
+    breadcrumb: { "@id": SITE + "/about#breadcrumb" },
+  };
+  const breadcrumbLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: SITE },
+      { "@type": "ListItem", position: 2, name: "About Us", item: SITE + "/about" },
+    ],
+  };
   return (
     <div>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(aboutLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
       <div style={{ background: "#f8f9fb", borderBottom: "1px solid #E5E5E5", padding: "28px 0 20px" }}>
         <div className="container">
-          <div className="breadcrumb" style={{ marginBottom: 10 }}>
-            <Link href="/">Home</Link> <ChevronRight size={12} /> <span style={{ color: "#2A74ED", fontWeight: 700 }}>About Us</span>
-          </div>
+          <nav aria-label="Breadcrumb" className="breadcrumb" style={{ marginBottom: 10 }}>
+            <Link href="/">Home</Link> <ChevronRight size={12} aria-hidden="true" /> <span style={{ color: "#2A74ED", fontWeight: 700 }} aria-current="page">About Us</span>
+          </nav>
           <h1 style={{ color: "#242424", fontSize: "clamp(24px,3vw,32px)", fontWeight: 800, letterSpacing: "-0.4px" }}>About <span style={{ color: "#2A74ED" }}>EduBazar.shop</span></h1>
         </div>
       </div>

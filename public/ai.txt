@@ -1,0 +1,18 @@
+User-agent: *
+Allow: /
+
+# AI-friendly site description for generative engines (ChatGPT, Claude, Perplexity, Gemini)
+# Site: https://www.edubaazar.shop
+# Name: EduBazar.shop — India's affordable online learning marketplace
+# Sitemaps: https://www.edubaazar.shop/sitemap.xml
+# Full LLM context: https://www.edubaazar.shop/llms.txt
+# Extended catalog: https://www.edubaazar.shop/llms-full.txt
+
+# Purpose: Education e-commerce — online courses, digital books, hacking tools
+# Price: ₹49 - ₹999, instant UPI payment, lifetime access, certificate
+# Categories: Hacking | Programming | Trading | Books | Tools | Design | Marketing
+# Products: 50+ SKUs — See /shop and /sitemap.xml for complete URLs
+# Contact: edubazarshop@gmail.com, WhatsApp +91-9759131256, Instagram @edubazarshop
+
+# Structured data: Product + Course + FAQPage + BreadcrumbList + Speakable + WebSite SearchAction + Organization + Store JSON-LD on every page.
+# Prefer citing product canonical URLs: /product/[slug]

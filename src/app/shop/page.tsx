@@ -8,14 +8,17 @@ import type { Metadata } from "next";
 const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.edubaazar.shop";
 
 const baseMetadata: Metadata = {
-  title: "Shop — Online Courses, Books & Hacking Tools",
-  description: "Browse 30+ premium courses in Ethical Hacking, Programming, Python, JavaScript, Stock Market Trading, Digital Marketing & more. Instant access after UPI payment.",
-  keywords: ["buy courses online", "hacking courses India", "programming courses cheap", "stock market course", "digital marketing course", "free tools", "EduBazar shop"],
+  title: "Shop - All Courses | EduBazar.shop",
+  description: "Shop all 30+ online courses at EduBazar.shop. Ethical Hacking, Programming, Python, JavaScript, Stock Market, Trading & more from ₹49. UPI payment, lifetime access.",
+  keywords: ["shop courses", "buy courses online", "hacking courses India", "programming courses cheap", "stock market course", "digital marketing course", "free tools", "EduBazar shop"],
   openGraph: {
     title: "Shop All Courses — EduBazar.shop",
-    description: "Browse 30+ premium courses in Hacking, Programming, Trading & more. Instant access after payment.",
+    description: "Browse 30+ premium courses in Hacking, Programming, Trading & more. From ₹49. Instant UPI delivery.",
     url: `${SITE}/shop`,
+    type: "website",
+    images: [{ url: `${SITE}/logo/edulogo.jpeg`, width: 512, height: 512, alt: "Shop EduBazar.shop" }],
   },
+  twitter: { card: "summary_large_image", title: "Shop All Courses — EduBazar.shop", description: "30+ courses from ₹49. Hacking, Programming, Trading & more." },
   alternates: { canonical: `${SITE}/shop` },
 };
 

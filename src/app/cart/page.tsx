@@ -13,7 +13,7 @@ export default function CartPage() {
       <div className="container">
         <div className="section-head">
           <span className="section-tag">Cart</span>
-          <h2>Shopping Cart</h2>
+          <h1 style={{ fontSize: "clamp(22px, 3vw, 28px)", fontWeight: 800, color: "#242424" }}>Shopping Cart</h1>
         </div>
 
         {mounted && cart.length === 0 ? (

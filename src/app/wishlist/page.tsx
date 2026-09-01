@@ -15,7 +15,7 @@ export default function WishlistPage() {
       <div className="container">
         <div className="section-head">
           <span className="section-tag">Saved</span>
-          <h2>My Wishlist</h2>
+          <h1 style={{ fontSize: "clamp(22px, 3vw, 28px)", fontWeight: 800, color: "#242424" }}>My Wishlist</h1>
           <p>{items.length} item{items.length !== 1 ? "s" : ""} saved</p>
         </div>
 

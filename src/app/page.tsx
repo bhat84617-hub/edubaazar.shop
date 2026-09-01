@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { GraduationCap, Zap, Headset, ShieldCheck, Star, ArrowRight, Camera } from "lucide-react";
 import Hero from "@/components/Hero";
@@ -7,6 +8,39 @@ import CountUp from "@/components/CountUp";
 import NewsletterPopup from "@/components/NewsletterPopup";
 import NewsletterBox from "@/components/NewsletterBox";
 import { products, CATEGORIES } from "@/lib/products";
+
+const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.edubaazar.shop";
+
+export const metadata: Metadata = {
+  title: "EduBazar.shop — Premium Online Courses from ₹49 | Hacking, Programming, Trading",
+  description:
+    "India's affordable learning platform. 30+ premium courses in Ethical Hacking, Python, JavaScript, Stock Market & more. Start from ₹49. Lifetime access, certificate, UPI payment, instant delivery.",
+  keywords: [
+    "online courses India",
+    "ethical hacking course",
+    "python course",
+    "javascript course",
+    "stock market course",
+    "programming courses cheap",
+    "hacking tools",
+    "digital marketing course",
+    "UI UX design course",
+  ],
+  alternates: { canonical: SITE },
+  openGraph: {
+    title: "EduBazar.shop — Premium Online Courses from ₹49",
+    description: "30+ courses in Hacking, Programming, Trading & more. Starting at ₹49. Lifetime access.",
+    url: SITE,
+    type: "website",
+    images: [{ url: SITE + "/logo/edulogo.jpeg", width: 512, height: 512, alt: "EduBazar.shop" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "EduBazar.shop — Premium Online Courses from ₹49",
+    description: "30+ courses in Hacking, Programming, Trading & more.",
+    images: [SITE + "/logo/edulogo.jpeg"],
+  },
+};
 
 const STATS = [
   { value: 1000, suffix: "+", label: "Happy Students" },
@@ -35,9 +69,61 @@ const bestSellers = products.filter((p) => p.badge === "Bestseller").slice(0, 8)
 const newest = [...products].sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, 8);
 const freeStuff = products.filter((p) => p.price <= 0).slice(0, 4);
 
+const homeItemListLd = {
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  name: "Featured Courses — EduBazar.shop",
+  itemListElement: products
+    .filter((p) => p.featured)
+    .slice(0, 8)
+    .map((p, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      url: `${SITE}/product/${p.slug}`,
+      name: p.title,
+      image: `${SITE}${p.images[0]}`,
+    })),
+};
+
+const homeFaqLd = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: [
+    {
+      "@type": "Question",
+      name: "What is EduBazar.shop?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "EduBazar.shop is India's affordable online learning platform offering 30+ courses in Ethical Hacking, Programming, Python, JavaScript, Trading, Design and Marketing starting at ₹49 with lifetime access and UPI payment.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "How do I get access after payment?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Pay via UPI (Google Pay, PhonePe, Paytm), enter your transaction ID, admin verifies within 24 hours and grants lifetime access in your Dashboard.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "Are the courses beginner friendly?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Yes, we have Beginner, Intermediate and Advanced levels across all categories with hands-on labs and projects.",
+      },
+    },
+  ],
+};
+
 export default function HomePage() {
   return (
     <>
+      <h1 className="sr-only" style={{ position: "absolute", left: "-9999px", top: "auto", width: 1, height: 1, overflow: "hidden" }}>
+        EduBazar.shop — Affordable Online Courses in Ethical Hacking, Programming, Trading & More from ₹49
+      </h1>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(homeItemListLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(homeFaqLd) }} />
       <Hero />
 
       {/* 3 benefits minimal icons - XStore minimal electronics style */}

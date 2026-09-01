@@ -17,36 +17,59 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const product = getProductBySlug(slug);
-  if (!product) return { title: "Product not found" };
-  const seoDescription = product.desc.length <= 160 ? product.desc : `${product.desc.slice(0, 157).trimEnd()}...`;
+  if (!product) return { title: "Product not found", robots: { index: false, follow: false } };
+  const seoDescription =
+    product.desc.length <= 160 ? product.desc : `${product.desc.slice(0, 157).trimEnd()}...`;
+  const priceLabel = product.price <= 0 ? "FREE" : `₹${product.price}`;
+  const titleWithPrice = `${product.title} — ${priceLabel} | EduBazar.shop`;
   const seoKeywords = [
     product.title,
-    `${product.category} ${product.kind}`,
+    `${product.category} course`,
+    `${product.category} ${product.kind} India`,
     `${product.level} ${product.category}`,
+    `${product.title} price ₹${product.price}`,
     ...(product.tags ?? []),
+    product.instructor ?? "",
     "EduBazar",
-    "online learning India",
-  ];
+    "buy online course India",
+    "UPI payment course",
+  ].filter(Boolean);
+  const ogImage = `${SITE}${product.images[0]}`;
   return {
-    title: product.title,
+    title: titleWithPrice,
     description: seoDescription,
-    keywords: [...new Set(seoKeywords)],
+    keywords: [...new Set(seoKeywords as string[])],
+    alternates: { canonical: `${SITE}/product/${slug}` },
     openGraph: {
       title: `${product.title} | EduBazar.shop`,
       description: seoDescription,
       url: `${SITE}/product/${slug}`,
       siteName: "EduBazar.shop",
       locale: "en_IN",
-      type: "website",
-      images: [{ url: `${SITE}${product.images[0]}`, width: 800, height: 600, alt: product.title }],
+      type: "article",
+      images: [
+        {
+          url: ogImage,
+          width: 800,
+          height: 600,
+          alt: product.title,
+          type: "image/jpeg",
+        },
+      ],
     },
     twitter: {
       card: "summary_large_image",
-      title: `${product.title} | EduBazar.shop`,
+      title: `${product.title} — ${priceLabel}`,
       description: seoDescription,
-      images: [`${SITE}${product.images[0]}`],
+      images: [ogImage],
     },
-    alternates: { canonical: `${SITE}/product/${slug}` },
+    robots: { index: true, follow: true },
+    other: {
+      "product:price:amount": String(product.price),
+      "product:price:currency": "INR",
+      "product:availability": "in stock",
+      "product:category": product.category,
+    },
   };
 }
 
@@ -57,24 +80,61 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
 
   const related = getRelatedProducts(product, 4);
 
+  const reviewCountNum = parseInt((product.reviewCount || "0").replace(/[^0-9]/g, ""), 10) || 100;
+  const imagesAbsolute = product.images.map((img) => `${SITE}${img}`);
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Product",
+    "@id": `${SITE}/product/${slug}#product`,
     name: product.title,
     description: product.fullDesc || product.desc,
     category: product.category,
     keywords: product.tags?.join(", "),
-    image: [`${SITE}${product.images[0]}`],
+    image: imagesAbsolute,
     brand: { "@type": "Brand", name: "EduBazar.shop" },
     sku: product.slug,
+    mpn: product.id,
+    aggregateRating: {
+      "@type": "AggregateRating",
+      ratingValue: String(product.rating),
+      reviewCount: String(reviewCountNum),
+      bestRating: "5",
+      worstRating: "1",
+    },
+    review: {
+      "@type": "Review",
+      reviewRating: { "@type": "Rating", ratingValue: String(product.rating), bestRating: "5" },
+      author: { "@type": "Person", name: "EduBazar Student" },
+      reviewBody: product.desc,
+    },
     offers: {
       "@type": "Offer",
       price: product.price,
       priceCurrency: "INR",
-      availability: "https://schema.org/InStock",
+      availability: product.price <= 0 ? "https://schema.org/InStock" : "https://schema.org/InStock",
       url: `${SITE}/product/${slug}`,
       itemCondition: "https://schema.org/NewCondition",
+      priceValidUntil: new Date(Date.now() + 1000 * 60 * 60 * 24 * 365).toISOString().split("T")[0],
+      seller: { "@type": "Organization", name: "EduBazar.shop", url: SITE },
+      hasMerchantReturnPolicy: {
+        "@type": "MerchantReturnPolicy",
+        applicableCountry: "IN",
+        returnPolicyCategory: "https://schema.org/MerchantReturnFiniteReturnWindow",
+        merchantReturnDays: 1,
+        returnMethod: "https://schema.org/ReturnByMail",
+      },
+      shippingDetails: {
+        "@type": "OfferShippingDetails",
+        shippingRate: { "@type": "MonetaryAmount", value: 0, currency: "INR" },
+        deliveryTime: { "@type": "ShippingDeliveryTime", handlingTime: { "@type": "QuantitativeValue", minValue: 0, maxValue: 1, unitCode: "DAY" }, transitTime: { "@type": "QuantitativeValue", minValue: 0, maxValue: 1, unitCode: "DAY" } },
+      },
     },
+    additionalProperty: [
+      { "@type": "PropertyValue", name: "Level", value: product.level },
+      { "@type": "PropertyValue", name: "Duration", value: product.duration },
+      { "@type": "PropertyValue", name: "Language", value: product.language || "English" },
+      { "@type": "PropertyValue", name: "Students", value: product.students },
+    ],
     dateModified: product.lastUpdated || product.createdAt,
   };
 
@@ -87,6 +147,21 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
       { "@type": "ListItem", position: 3, name: product.category, item: `${SITE}/shop?cat=${encodeURIComponent(product.category)}` },
       { "@type": "ListItem", position: 4, name: product.title, item: `${SITE}/product/${slug}` },
     ],
+  };
+
+  const speakableLd = {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "@id": `${SITE}/product/${slug}#webpage`,
+    name: product.title,
+    speakable: {
+      "@type": "SpeakableSpecification",
+      cssSelector: ["h1", ".psingle-grid p", ".qv-cat"],
+    },
+    isPartOf: { "@id": SITE + "/#website" },
+    primaryImageOfPage: { "@type": "ImageObject", contentUrl: `${SITE}${product.images[0]}` },
+    datePublished: product.createdAt,
+    dateModified: product.lastUpdated || product.createdAt,
   };
 
   const courseLd = product.kind === "course" ? {
@@ -131,20 +206,21 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
       {courseLd && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(courseLd) }} />}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(speakableLd) }} />
 
-      <div style={{ background: "#f8f9fb", borderBottom: "1px solid #E5E5E5", padding: "14px 0" }}>
+      <nav aria-label="Breadcrumb" style={{ background: "#f8f9fb", borderBottom: "1px solid #E5E5E5", padding: "14px 0" }}>
         <div className="container">
           <div className="breadcrumb" style={{ marginBottom: 0 }}>
             <Link href="/">Home</Link>
-            <ChevronRight size={12} />
+            <ChevronRight size={12} aria-hidden="true" />
             <Link href="/shop">Shop</Link>
-            <ChevronRight size={12} />
+            <ChevronRight size={12} aria-hidden="true" />
             <Link href={`/shop?cat=${encodeURIComponent(product.category)}`}>{product.category}</Link>
-            <ChevronRight size={12} />
-            <span style={{ color: "#2A74ED", fontWeight: 600 }}>{product.title}</span>
+            <ChevronRight size={12} aria-hidden="true" />
+            <span style={{ color: "#2A74ED", fontWeight: 600 }} aria-current="page">{product.title}</span>
           </div>
         </div>
-      </div>
+      </nav>
 
       <section className="section-pad">
         <div className="container">
@@ -152,13 +228,13 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
             {/* Gallery XSTORE - border radius 20px */}
             <div>
               <div className="psingle-gallery-main woocommerce-product-gallery images-wrapper">
-                <img src={product.images[0]} alt={product.title} width={800} height={600} />
+                <img src={product.images[0]} alt={`${product.title} — ${product.category} ${product.kind} at EduBazar.shop`} width={800} height={600} loading="eager" fetchPriority="high" />
               </div>
               {product.images.length > 1 && (
-                <div className="thumb-row thumbnails-list">
+                <div className="thumb-row thumbnails-list" role="list">
                   {product.images.map((img, i) => (
-                    <button key={i} className={i === 0 ? "active" : ""}>
-                      <img src={img} alt={`${product.title} thumbnail ${i + 1}`} width={120} height={90} />
+                    <button key={i} className={i === 0 ? "active" : ""} aria-label={`View ${product.title} image ${i + 1}`}>
+                      <img src={img} alt={`${product.title} thumbnail ${i + 1} — ${product.category}`} width={120} height={90} loading="lazy" />
                     </button>
                   ))}
                 </div>

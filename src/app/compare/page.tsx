@@ -25,7 +25,7 @@ export default function ComparePage() {
       <div className="container">
         <div className="section-head">
           <span className="section-tag">Compare</span>
-          <h2>Compare Products</h2>
+          <h1 style={{ fontSize: "clamp(22px, 3vw, 28px)", fontWeight: 800, color: "#242424" }}>Compare Products</h1>
           <p>Compare side-by-side and pick your favourite</p>
         </div>
 
