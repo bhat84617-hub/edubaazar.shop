@@ -461,7 +461,7 @@ input,select,textarea { font-family:inherit; max-width:100%; }
 .spec-table td:first-child { color:#777; font-weight:500; width:40%; background:#f8f9fb; }
 
 /* Mobile drawer */
-.ws-drawer { position:fixed; inset:0; z-index:2000; pointer-events:none; }
+.ws-drawer { position:fixed; inset:0; z-index:10000; pointer-events:none; }
 .ws-drawer.open{ pointer-events:auto; }
 .ws-drawer-overlay{ position:absolute; inset:0; background:rgba(36,36,36,0.45); opacity:0; transition:opacity 0.25s linear; backdrop-filter:blur(2px); }
 .ws-drawer.open .ws-drawer-overlay{ opacity:1; }
@@ -507,6 +507,25 @@ input,select,textarea { font-family:inherit; max-width:100%; }
 .field label{ display:block; font-size:11px; font-weight:700; margin-bottom:6px; color:#242424; text-transform:uppercase; letter-spacing:0.5px; }
 .field input,.field select,.field textarea{ width:100%; padding:11px 14px; border:1px solid #E5E5E5; border-radius:14px; font-size:13px; outline:none; background:#fff; transition:border-color 0.2s linear, box-shadow 0.2s linear; }
 .field input:focus,.field select:focus,.field textarea:focus{ border-color:#2A74ED; box-shadow:0 0 0 3px rgba(42,116,237,0.10); }
+
+/* ===== AUTH PAGES - restore missing styles (signup huge logo bug fix) ===== */
+.auth-wrap { min-height:70vh; display:flex; align-items:center; justify-content:center; padding:32px 16px; background:#f8f9fb; }
+.auth-card { width:100%; max-width:420px; background:#fff; border:1px solid #E5E5E5; border-radius:20px; padding:32px; }
+.auth-logo { text-align:center; margin-bottom:24px; }
+.auth-logo img { width:72px; height:72px; object-fit:contain; border-radius:14px; margin:0 auto 12px; display:block; border:1px solid #E5E5E5; }
+.auth-logo h1 { font-size:22px; font-weight:700; color:#242424; margin:0 0 4px; }
+.auth-logo p { font-size:13px; color:#777; margin:0; }
+.auth-card .field { margin-bottom:14px; }
+.auth-card .field label { display:block; font-size:12px; font-weight:600; color:#242424; margin-bottom:6px; text-transform:none; letter-spacing:0; }
+.auth-card .field input { width:100%; padding:11px 14px; border:1px solid #E5E5E5; border-radius:12px; font-size:14px; outline:none; background:#fff; }
+.auth-card .field input:focus { border-color:#2A74ED; box-shadow:0 0 0 3px rgba(42,116,237,0.12); }
+.btn.btn-primary.btn-block { width:100%; justify-content:center; margin-top:8px; min-height:44px; }
+@media (max-width:640px){
+  .auth-wrap { padding:24px 12px; min-height:60vh; }
+  .auth-card { padding:24px 18px; border-radius:16px; }
+  .auth-logo img { width:64px; height:64px; }
+  .auth-logo h1 { font-size:19px; }
+}
 
 /* Checkout / account */
 .checkout-grid{ display:grid; grid-template-columns:1.5fr 1fr; gap:20px; align-items:start; }
