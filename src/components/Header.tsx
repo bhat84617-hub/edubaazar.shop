@@ -19,7 +19,9 @@ export default function Header() {
   const [drawerTab, setDrawerTab] = useState<"menu" | "categories">("menu");
   const [scrolled, setScrolled] = useState(false);
   const [catsOpen, setCatsOpen] = useState(false);
+  const [headerCatsOpen, setHeaderCatsOpen] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
+  const headerCatsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setResults(searchProducts(query));
@@ -37,6 +39,14 @@ export default function Header() {
     }
     document.addEventListener("click", onDoc);
     return () => document.removeEventListener("click", onDoc);
+  }, []);
+
+  useEffect(() => {
+    function onDocClick(e: MouseEvent) {
+      if (headerCatsRef.current && !headerCatsRef.current.contains(e.target as Node)) setHeaderCatsOpen(false);
+    }
+    document.addEventListener("click", onDocClick);
+    return () => document.removeEventListener("click", onDocClick);
   }, []);
 
   const doSearch = (q?: string) => {
@@ -68,12 +78,29 @@ export default function Header() {
             <span className="ws-logo-text">EduBazar<span>.shop</span></span>
           </Link>
 
-          {/* Nav center (desktop) */}
+          {/* Nav center (desktop) - Home, Categories dropdown, Shop, About, Contact */}
           <nav className="ws-header-nav-center" aria-label="Primary">
             <Link href="/" className={isActive("/") ? "active" : ""}>Home</Link>
+            <div className="ws-header-cats" ref={headerCatsRef} onMouseEnter={() => setHeaderCatsOpen(true)} onMouseLeave={() => setHeaderCatsOpen(false)}>
+              <button className={`ws-cats-trigger ${headerCatsOpen ? "active" : ""}`} onClick={() => setHeaderCatsOpen((v) => !v)} aria-expanded={headerCatsOpen} aria-haspopup="true">
+                Categories <ChevronDown size={12} style={{ transition: "transform 0.2s", transform: headerCatsOpen ? "rotate(180deg)" : "none", marginLeft: 4 }} />
+              </button>
+              <div className={`ws-header-cats-dropdown ${headerCatsOpen ? "open" : ""}`}>
+                {CATEGORIES.map((cat) => (
+                  <div key={cat.key} className={cat.key === "Books" ? "ws-cat-item has-sub" : "ws-cat-item"}>
+                    <Link href={`/shop?cat=${encodeURIComponent(cat.key)}`} onClick={() => setHeaderCatsOpen(false)}>{cat.label}</Link>
+                    {cat.key === "Books" && (
+                      <div className="ws-cat-sub">
+                        <Link href="/shop?cat=Books&q=hacking" onClick={() => setHeaderCatsOpen(false)}>Hacking Books</Link>
+                        <Link href="/shop?cat=Books&q=trading" onClick={() => setHeaderCatsOpen(false)}>Trading Books</Link>
+                        <Link href="/shop?cat=Books&q=programming" onClick={() => setHeaderCatsOpen(false)}>Programming Books</Link>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
             <Link href="/shop" className={pathname.startsWith("/shop") ? "active" : ""}>Shop</Link>
-            <Link href="/shop?cat=Hacking" className={pathname.includes("cat=Hacking") ? "active" : ""}>Hacking</Link>
-            <Link href="/shop?cat=Programming" className={pathname.includes("cat=Programming") ? "active" : ""}>Programming</Link>
             <Link href="/about" className={isActive("/about") ? "active" : ""}>About</Link>
             <Link href="/contact" className={isActive("/contact") ? "active" : ""}>Contact</Link>
           </nav>
@@ -325,12 +352,21 @@ export default function Header() {
             ) : (
               <>
                 {CATEGORIES.map((c) => (
-                  <Link key={c.key} href={`/shop?cat=${encodeURIComponent(c.key)}`} onClick={() => setDrawerOpen(false)} style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                    <span style={{ width: 28, height: 28, borderRadius: "50%", overflow: "hidden", display: "inline-flex", background: "#f8f9fb", border: "1px solid #E5E5E5" }}>
-                      <img src={c.image} alt={c.label} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                    </span>
-                    {c.label}
-                  </Link>
+                  <div key={c.key}>
+                    <Link href={`/shop?cat=${encodeURIComponent(c.key)}`} onClick={() => setDrawerOpen(false)} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                      <span style={{ width: 28, height: 28, borderRadius: "50%", overflow: "hidden", display: "inline-flex", background: "#f8f9fb", border: "1px solid #E5E5E5" }}>
+                        <img src={c.image} alt={c.label} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                      </span>
+                      {c.label}
+                    </Link>
+                    {c.key === "Books" && (
+                      <div style={{ paddingLeft: 38, display: "flex", flexDirection: "column", gap: 4, marginTop: 4, marginBottom: 6 }}>
+                        <Link href="/shop?cat=Books&q=hacking" onClick={() => setDrawerOpen(false)} style={{ fontSize: 12, color: "#555", padding: "6px 12px", background: "#f8f9fb", borderRadius: 10, border: "1px solid #eee", display: "block" }}>Hacking Books</Link>
+                        <Link href="/shop?cat=Books&q=trading" onClick={() => setDrawerOpen(false)} style={{ fontSize: 12, color: "#555", padding: "6px 12px", background: "#f8f9fb", borderRadius: 10, border: "1px solid #eee", display: "block" }}>Trading Books</Link>
+                        <Link href="/shop?cat=Books&q=programming" onClick={() => setDrawerOpen(false)} style={{ fontSize: 12, color: "#555", padding: "6px 12px", background: "#f8f9fb", borderRadius: 10, border: "1px solid #eee", display: "block" }}>Programming Books</Link>
+                      </div>
+                    )}
+                  </div>
                 ))}
                 <Link href="/shop" onClick={() => setDrawerOpen(false)} style={{ fontWeight: 700, color: "#2A74ED", marginTop: 6 }}>View All Products →</Link>
               </>

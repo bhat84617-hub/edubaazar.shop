@@ -152,6 +152,39 @@ input,select,textarea { font-family:inherit; max-width:100%; }
 .ws-header-nav-center a { padding:8px 14px; font-size:14px; font-weight:500; color:#242424; border-radius:20px; transition:all 0.2s linear; }
 .ws-header-nav-center a:hover, .ws-header-nav-center a.active { background:#eef3ff; color:#2A74ED; }
 
+/* Header Categories dropdown (desktop) */
+.ws-header-cats { position:relative; display:flex; align-items:center; }
+.ws-cats-trigger {
+  display:inline-flex; align-items:center; gap:2px;
+  padding:8px 14px; font-size:14px; font-weight:500; color:#242424;
+  background:transparent; border:none; border-radius:20px; cursor:pointer;
+  transition:all 0.2s linear; white-space:nowrap;
+}
+.ws-cats-trigger:hover, .ws-cats-trigger.active { background:#eef3ff; color:#2A74ED; }
+.ws-header-cats-dropdown {
+  position:absolute; top:calc(100% + 10px); left:50%; transform:translateX(-50%) translateY(6px);
+  min-width:220px; background:#fff; border:1px solid #E5E5E5; border-radius:16px;
+  box-shadow:0 12px 40px rgba(0,0,0,0.10); z-index:1001;
+  opacity:0; visibility:hidden; transition:all 0.2s linear;
+  padding:6px; display:flex; flex-direction:column; gap:2px;
+}
+.ws-header-cats-dropdown.open { opacity:1; visibility:visible; transform:translateX(-50%) translateY(0); }
+.ws-header-cats:hover .ws-header-cats-dropdown { opacity:1; visibility:visible; transform:translateX(-50%) translateY(0); }
+.ws-cat-item { position:relative; }
+.ws-cat-item > a { display:block; padding:9px 12px; font-size:13px; font-weight:500; color:#242424; border-radius:10px; transition:all 0.15s linear; }
+.ws-cat-item > a:hover { background:#eef3ff; color:#2A74ED; }
+.ws-cat-item.has-sub > a { font-weight:600; }
+.ws-cat-sub {
+  display:flex; flex-direction:column; gap:2px;
+  margin:2px 0 4px 8px; padding-left:8px; border-left:2px solid #eef3ff;
+}
+.ws-cat-sub a { display:block; padding:7px 10px; font-size:12px; font-weight:500; color:#555; border-radius:8px; background:#f8f9fb; border:1px solid #eee; transition:all 0.15s linear; }
+.ws-cat-sub a:hover { background:#eef3ff; color:#2A74ED; border-color:#d6e3ff; }
+/* Desktop hover submenu: on wide screens show Books submenu on hover as flyout */
+@media (min-width: 769px){
+  .ws-cat-item.has-sub .ws-cat-sub { margin-top:4px; }
+}
+
 .ws-header-right { display:flex; align-items:center; gap:6px; margin-left:auto; }
 
 /* Search bar xstore minimal - pill */
