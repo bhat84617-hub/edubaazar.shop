@@ -148,6 +148,11 @@ function matchIntent(message: string): { intent: string; entities: any } {
     return { intent: "all_categories", entities: {} };
   }
 
+  // === ALL PRODUCTS / EVERYTHING ===
+  if (/(sab|all|everything|poora|complete|full|list|everything|kya kya|details|sab kuch|complete list|full catalog|saari details|site ki details|website ki details)/.test(msg) && /(course|product|item|hai|hain|kya|bata|dikha|show|list)/.test(msg)) {
+    return { intent: "all_products", entities: {} };
+  }
+
   // === SPECIFIC CATEGORY ===
   const categoryKeywords: Record<string, string> = {
     hacking: "Hacking", pentest: "Hacking", cyber: "Hacking", security: "Hacking", ethical: "Hacking",
@@ -404,6 +409,30 @@ Happy Learning! 📚✨`,
       };
     }
 
+    // === ALL PRODUCTS / FULL CATALOG ===
+    case "all_products": {
+      const allList = products.map(p => {
+        const disc = p.oldPrice > p.price ? ` (${Math.round((1 - p.price / p.oldPrice) * 100)}% OFF)` : "";
+        const badge = p.badge ? ` [${p.badge}]` : "";
+        return `• *${p.title}* — ${formatPrice(p.price)}${p.oldPrice > p.price ? ` ~~₹${p.oldPrice}~~` : ""}${disc}${badge}\n  ${p.category} | ${p.level} | ${p.duration} | ⭐ ${p.rating}`;
+      }).join("\n\n");
+      return {
+        text: `📚 *EduBazar - COMPLETE CATALOG (${products.length} Products)*\n\n` +
+          `━━━━━━━━━━━━━━━━━━━━\n` +
+          `📂 Categories: ${CATEGORIES.map(c => c.label).join(", ")}\n` +
+          `💰 Price Range: ₹0 - ₹599\n` +
+          `🆓 Free Items: ${products.filter(p => p.price === 0).length}\n` +
+          `💳 Payment: UPI / Bank Transfer / QR Code\n` +
+          `━━━━━━━━━━━━━━━━━━━━\n\n` +
+          `Showing ALL products with full details:\n\n` +
+          `${allList}\n\n` +
+          `━━━━━━━━━━━━━━━━━━━━\n\n` +
+          `💡 Koi course ke baare mein aur detail chahiye? Course ka naam bolo!`,
+        products: products.slice(0, 8),
+        suggestedActions: ["Free courses", "Best seller", "All categories", "Payment info", "Contact support"]
+      };
+    }
+
     // === CATEGORY LIST ===
     case "category_list": {
       const catProducts = findByCategory(entities.category);
@@ -444,10 +473,17 @@ Happy Learning! 📚✨`,
     case "all_courses": {
       const topProducts = products.slice(0, 10);
       const totalFree = products.filter(p => p.price === 0).length;
+      const coursesList = topProducts.map(p => {
+        const disc = p.oldPrice > p.price ? ` (${Math.round((1 - p.price / p.oldPrice) * 100)}% OFF)` : "";
+        const badge = p.badge ? ` [${p.badge}]` : "";
+        return `• *${p.title}* — ${formatPrice(p.price)}${p.oldPrice > p.price ? ` ~~₹${p.oldPrice}~~` : ""}${disc}${badge}\n  Category: ${p.category} | Level: ${p.level} | Duration: ${p.duration} | ⭐ ${p.rating}`;
+      }).join("\n\n");
       return {
         text: `📚 *EduBazar - ALL ${products.length} Products*\n\n` +
           `📂 ${CATEGORIES.length} Categories | ${totalFree} FREE items\n\n` +
-          `Showing top products across all categories:\n` +
+          `━━━━━━━━━━━━━━━━━━━━\n\n` +
+          `Top Products:\n\n${coursesList}\n\n` +
+          `━━━━━━━━━━━━━━━━━━━━\n\n` +
           `Bolo kisi specific category ka naam aur saari details milengi! 🚀`,
         products: topProducts,
         suggestedActions: ["Saari categories", "Free courses", "Hacking courses", "Programming courses", "Trading courses"]
