@@ -519,61 +519,32 @@
   height: 40px;
 }
 
-/* High-contrast header surface keeps navigation readable over hero artwork. */
+/* WoodMart Accessories header - light theme override (was dark #26332f) */
 .ws-sticky-wrap,
 .ws-header,
 .ws-nav {
-  background: #26332f;
-  color: #f6f3eb;
+  background: #fff;
+  color: #333;
 }
 .ws-sticky-wrap {
-  box-shadow: 0 5px 24px rgba(24, 34, 31, 0.18);
+  box-shadow: none;
 }
-.ws-sticky-transparent {
-  background: transparent;
-}
-.ws-sticky-transparent .ws-header {
-  background: rgba(28, 39, 35, 0.88);
-  backdrop-filter: blur(12px);
-}
-.ws-sticky-transparent .ws-nav {
-  background: rgba(28, 39, 35, 0.94);
-  border-top: 1px solid rgba(246, 243, 235, 0.16);
-}
-.ws-sticky-transparent .ws-promo-ribbon {
-  background: #1c2723;
-  color: #f3d28a;
-  border-bottom-color: rgba(246, 243, 235, 0.14);
+.ws-sticky-wrap.ws-sticky-scrolled {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
 }
 .ws-logo-text,
-.ws-sticky-transparent .ws-logo-text,
 .ws-icon-btn,
-.ws-sticky-transparent .ws-icon-btn,
-.ws-nav-list li a,
-.ws-nav-transparent .ws-nav-list li a {
-  color: #f6f3eb;
+.ws-nav-list li a {
+  color: #333;
 }
-.ws-logo-text { font-weight: 600; }
+.ws-logo-text { font-weight: 700; }
 .ws-logo:hover .ws-logo-text,
 .ws-icon-btn:hover,
 .ws-nav-list li a:hover,
-.ws-nav-list li a.active,
-.ws-nav-transparent .ws-nav-list li a:hover {
-  color: #f3d28a;
+.ws-nav-list li a.active {
+  color: rgb(46,107,198);
 }
-.ws-search-input,
-.ws-sticky-transparent .ws-search-input {
-  color: #f6f3eb;
-  border-bottom: 1px solid rgba(246, 243, 235, 0.42);
-}
-.ws-search-input::placeholder { color: rgba(246, 243, 235, 0.72); }
-.ws-search:hover .ws-search-input,
-.ws-search:focus-within .ws-search-input { border-bottom-color: #f3d28a; }
-.ws-nav-list li a { border-bottom-color: transparent; }
-.ws-nav-list li a:hover,
-.ws-nav-list li a.active { border-bottom-color: #f3d28a; }
-.ws-hamburger,
-.ws-sticky-transparent .ws-hamburger { color: #f6f3eb; }
+.ws-search-input { color: #333; }
 .ws-drawer-head span {
   font-family: var(--font-heading);
   font-weight: 500;
