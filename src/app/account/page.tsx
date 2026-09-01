@@ -120,6 +120,12 @@ export default function AccountPage() {
             </button>
           </div>
         </div>
+        {/* Mobile tabs - visible only on phone since sidebar hidden */}
+        <div className="dash-mobile-tabs">
+          <button className={tab==="orders"?"active":""} onClick={()=>setTab("orders")}><LayoutDashboard size={14}/> Orders</button>
+          <button className={tab==="wishlist"?"active":""} onClick={()=>setTab("wishlist")}><Heart size={14}/> Wishlist</button>
+          <button className={tab==="settings"?"active":""} onClick={()=>setTab("settings")}><Settings size={14}/> Settings</button>
+        </div>
 
         <div className="dash-stats">
           <div className="dash-stat">
@@ -160,7 +166,8 @@ export default function AccountPage() {
                 <Link href="/shop" className="btn btn-primary">Browse Courses</Link>
               </div>
             ) : (
-              <div style={{ overflowX: "auto" }}>
+              <>
+              <div className="dash-table-wrap" style={{ overflowX: "auto" }}>
                 <table className="dash-table">
                   <thead>
                     <tr>
@@ -218,6 +225,39 @@ export default function AccountPage() {
                   </tbody>
                 </table>
               </div>
+              {/* Mobile cards - visible only on phone */}
+              <div className="dash-mobile-cards">
+                {filtered.map((order) => {
+                  const date = new Date(order.date).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
+                  const isApproved = order.status === "approved";
+                  const isPending = order.status === "pending";
+                  const items = (order.items || []) as { name: string; price: number; img: string; qty: number; downloadUrl?: string | null }[];
+                  return (
+                    <div key={order.orderId} className="dash-mcard">
+                      <div className="dash-mcard-head">
+                        <strong>#{order.orderId}</strong>
+                        <span className={`badge ${isApproved ? "approved" : isPending ? "pending" : "rejected"}`} style={{fontSize:10}}>{isApproved ? "Approved" : isPending ? "Pending" : "Rejected"}</span>
+                      </div>
+                      <div className="dash-mcard-items">{items.map(i=>i.name).join(", ")}</div>
+                      <div className="dash-mcard-meta"><span>₹{order.total}</span><span>{date}</span></div>
+                      <div className="dash-mcard-actions">
+                        {isApproved ? items.map((i)=>
+                          i.downloadUrl && /^https?:\/\//i.test(i.downloadUrl) && !/\/account$/.test(i.downloadUrl) && i.downloadUrl !== "#" ? (
+                            <a key={i.name} href={i.downloadUrl} target="_blank" rel="noreferrer" className="btn btn-accent" style={{width:"100%", justifyContent:"center"}}><DownloadCloud size={14}/> Download - {i.name.slice(0,22)}</a>
+                          ) : (
+                            <a key={i.name} href={`https://wa.me/919759131256?text=Hi%20EduBazar%2C%20I%20need%20download%20link%20for%20my%20approved%20order%20${order.orderId}`} target="_blank" rel="noreferrer" className="btn btn-outline" style={{width:"100%", justifyContent:"center", fontSize:12}}><MessageCircle size={13}/> Get Download Link</a>
+                          )
+                        ) : isPending ? (
+                          <span style={{ color: "#b57f0a", fontSize: 13, display: "inline-flex", alignItems: "center", gap: 6, background:"#fef6e8", padding:"8px 12px", borderRadius:20, width:"100%", justifyContent:"center" }}><Clock size={14}/> Verification pending</span>
+                        ) : (
+                          <span style={{ color: "#c0392b", fontSize: 13, display: "inline-flex", alignItems: "center", gap: 6, background:"#feecee", padding:"8px 12px", borderRadius:20, width:"100%", justifyContent:"center" }}><XCircle size={14}/> Payment rejected</span>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              </>
             ))}
 
           {tab === "settings" && (
