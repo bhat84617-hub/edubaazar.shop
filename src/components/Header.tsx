@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { Menu, X, Search, Heart, ShoppingBag, User, ChevronDown, Trash2, LayoutGrid, Scale } from "lucide-react";
+import { Menu, X, Search, Heart, ShoppingBag, User, ChevronDown, Trash2, LayoutGrid, Scale, Send } from "lucide-react";
 import { useStore } from "@/lib/store";
 import { getProductById, searchProducts, formatINR, CATEGORIES } from "@/lib/products";
 
@@ -154,6 +154,33 @@ export default function Header() {
             <button className="ws-icon-btn" aria-label="Search" onClick={() => setDrawerOpen(true)} style={{ display: "none" }} id="mobile-search-btn">
               <Search size={17} strokeWidth={1.8} />
             </button>
+
+            <a
+              href="https://t.me/Edubaazar_bot"
+              target="_blank"
+              rel="noreferrer"
+              aria-label="Chat on Telegram"
+              className="ws-telegram-header-btn"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 6,
+                background: "#2AABEE",
+                color: "#fff",
+                padding: "7px 14px",
+                borderRadius: 20,
+                fontSize: 12,
+                fontWeight: 700,
+                letterSpacing: 0.2,
+                textDecoration: "none",
+                border: "1px solid #2AABEE",
+                whiteSpace: "nowrap",
+                lineHeight: 1,
+              }}
+            >
+              <Send size={14} strokeWidth={2} />
+              <span className="ws-telegram-header-text">Chat on Telegram</span>
+            </a>
 
             <Link href="/compare" className="ws-icon-btn" aria-label="Compare">
               <Scale size={17} strokeWidth={1.7} />
@@ -333,6 +360,9 @@ export default function Header() {
                 <Link href="/shop" onClick={() => setDrawerOpen(false)}>Shop</Link>
                 <Link href="/about" onClick={() => setDrawerOpen(false)}>About Us</Link>
                 <Link href="/contact" onClick={() => setDrawerOpen(false)}>Contact</Link>
+                <a href="https://t.me/Edubaazar_bot" target="_blank" rel="noreferrer" onClick={() => setDrawerOpen(false)} style={{ display: "flex", alignItems: "center", gap: 8, color: "#2AABEE", fontWeight: 700 }}>
+                  <Send size={14} /> Telegram: @Edubaazar_bot
+                </a>
                 <Link href="/wishlist" onClick={() => setDrawerOpen(false)}>Wishlist {mounted && wishlist.length > 0 ? `(${wishlist.length})` : ""}</Link>
                 <Link href="/compare" onClick={() => setDrawerOpen(false)}>Compare {mounted && compare.length > 0 ? `(${compare.length})` : ""}</Link>
                 <Link href="/cart" onClick={() => setDrawerOpen(false)}>Cart {mounted && cartCount > 0 ? `(${cartCount})` : ""}</Link>
@@ -387,6 +417,10 @@ export default function Header() {
         }
         @media (min-width: 1025px){
           .ws-hamburger{ display:none !important; }
+        }
+        @media (max-width: 640px){
+          .ws-telegram-header-text{ display:none !important; }
+          .ws-telegram-header-btn{ padding: 7px 10px !important; }
         }
       `}</style>
     </>

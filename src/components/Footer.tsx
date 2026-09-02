@@ -80,6 +80,7 @@ export default function Footer() {
                 <li><Phone size={14} /><span>+91 {STORE.phoneRaw}</span></li>
                 <li><Mail size={14} /><span>{STORE.email}</span></li>
                 <li><MessageCircle size={14} /><a href={`https://wa.me/${STORE.whatsapp}`} target="_blank" rel="noreferrer">Chat on WhatsApp</a></li>
+                <li><Send size={14} /><a href="https://t.me/Edubaazar_bot" target="_blank" rel="noreferrer">Telegram Bot: @Edubaazar_bot</a></li>
               </ul>
               <div className="ws-payments-row">
                 <span className="ws-pay-chip">UPI</span>

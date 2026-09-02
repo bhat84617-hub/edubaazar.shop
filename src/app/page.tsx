@@ -126,6 +126,79 @@ export default function HomePage() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(homeFaqLd) }} />
       <Hero />
 
+      {/* Telegram promo banner - premium minimal XStore style */}
+      <section style={{ background: "#fff", padding: "14px 0 0" }}>
+        <div className="container">
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: 16,
+              flexWrap: "wrap",
+              background: "#fff",
+              border: "1px solid #E5E5E5",
+              borderRadius: 20,
+              padding: "16px 20px",
+              boxShadow: "0 4px 16px rgba(42,116,237,0.06)",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: 14, minWidth: 0, flex: 1 }}>
+              <span
+                style={{
+                  width: 44,
+                  height: 44,
+                  borderRadius: "50%",
+                  background: "#2AABEE",
+                  color: "#fff",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexShrink: 0,
+                  border: "1px solid #2AABEE",
+                }}
+                aria-hidden
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="white" aria-hidden>
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.16 2.71-2.49 2.76-2.7a.2.2 0 00-.05-.18c-.06-.05-.15-.03-.21-.02-.09.02-1.49.95-4.22 2.79a.57.57 0 01-.32.11.6.6 0 01-.46-.22c-.33-.35-.5-.52-.5-.52s-.13-.13-.29-.02c-.16.1-.01.21-.01.21s2.14 1.38 2.88 1.88c.34.23.66.35.94.35.27 0 .54-.12.88-.35 1.02-.7 2.07-1.42 2.68-1.84.3-.21.58-.46.47-.8-.05-.16-.37-.33-1.02-.7z" />
+                </svg>
+              </span>
+              <div style={{ minWidth: 0 }}>
+                <div style={{ fontSize: 14, fontWeight: 800, color: "#242424", letterSpacing: "-0.2px", lineHeight: 1.2 }}>
+                  Shop on Telegram
+                </div>
+                <div style={{ fontSize: 12, color: "#5a657f", lineHeight: 1.4, marginTop: 2 }}>
+                  Chat, browse, pay & get instant download
+                </div>
+              </div>
+            </div>
+            <a
+              href="https://t.me/Edubaazar_bot"
+              target="_blank"
+              rel="noreferrer"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 8,
+                background: "#2A74ED",
+                color: "#fff",
+                padding: "10px 20px",
+                borderRadius: 20,
+                fontSize: 13,
+                fontWeight: 700,
+                textDecoration: "none",
+                border: "1px solid #2A74ED",
+                whiteSpace: "nowrap",
+                flexShrink: 0,
+              }}
+            >
+              Open @Edubaazar_bot
+            </a>
+          </div>
+        </div>
+      </section>
+
       {/* 3 benefits minimal icons - XStore minimal electronics style */}
       <section style={{ background: "#fff", padding: "16px 0" }}>
         <div className="container">

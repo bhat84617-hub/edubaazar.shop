@@ -194,3 +194,18 @@ export function productActionKeyboard(productId: string, categoryKey: string): R
 }
 
 export const SITE_URL = "https://www.edubaazar.shop";
+
+export const TELEGRAM_BOT_USERNAME = "Edubaazar_bot";
+export const TELEGRAM_BOT_LINK = `https://t.me/${TELEGRAM_BOT_USERNAME}`;
+export const CHANNEL_ID = process.env.TELEGRAM_CHANNEL_ID || process.env.CHANNEL_ID || "";
+
+// Send a message to the Telegram channel if CHANNEL_ID is configured.
+// Channel can be @edubazarshop or -100... id. Bot must be admin in channel.
+export async function sendToChannel(text: string, options: SendMessageOptions = {}) {
+  const channel = CHANNEL_ID?.trim();
+  if (!channel) {
+    console.warn("[telegram] sendToChannel skipped — CHANNEL_ID not set (set TELEGRAM_CHANNEL_ID=@edubazarshop or -100...)");
+    return { ok: false, skipped: true, reason: "CHANNEL_ID not configured" } as const;
+  }
+  return sendMessage(channel, text, options);
+}

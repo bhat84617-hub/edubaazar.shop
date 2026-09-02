@@ -239,11 +239,13 @@ async function fetchAndShowOrders(chatId: string, email: string) {
             .map((it: { name: string; downloadUrl: string }) => `🔗 <a href="${it.downloadUrl}">Download: ${escape(it.name)}</a>`)
             .join("\n") || "\n<i>Download link admin ne approve kiya hai — agar missing lage to support pe bolo</i>"
         : "";
+    // Strip internal |tg:CHATID suffix from UTR for display
+    const displayUtr = (o.utr || "").replace(/\|tg:\d+/, "") || "—";
     const txt =
       `📦 <b>Order ${escape(o.order_id)}</b>\n` +
       `${statusEmoji}\n` +
       `📅 ${new Date(o.date).toLocaleString("en-IN")}\n` +
-      `💰 Total: <b>₹${o.total}</b> • UTR: <code>${escape(o.utr || "—")}</code>\n\n` +
+      `💰 Total: <b>₹${o.total}</b> • UTR: <code>${escape(displayUtr)}</code>\n\n` +
       `Items:\n${lines}\n` +
       (dl ? `\n${dl}\n` : "") +
       (o.status === "pending" ? `\n<i>Admin UTR verify karke approve karega, phir yahi pe download link aa jayega + email bhi jayega.</i>` : "") +
@@ -306,6 +308,11 @@ async function createOrderSupabase(
   const name = sess.name || "Telegram User";
   const db = getSupabase();
 
+  // Store Telegram chatId in utr field as "UTR|tg:CHATID" so approval can notify bot without DB migration
+  const rawUtr = (utr || "").trim();
+  const tgSuffix = `|tg:${chatId}`;
+  const storedUtr = rawUtr ? `${rawUtr}${tgSuffix}` : tgSuffix;
+
   const payload = {
     order_id: orderId,
     name,
@@ -315,7 +322,7 @@ async function createOrderSupabase(
     total,
     status,
     payment_method: "upi_qr",
-    utr: utr || "",
+    utr: storedUtr,
     date,
   };
 

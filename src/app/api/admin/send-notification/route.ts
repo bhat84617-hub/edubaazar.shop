@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { Resend } from "resend";
 import { SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY } from "@/lib/supabase-config";
+import { sendMessage } from "@/lib/telegram";
 
 function getDb() {
   return createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, { auth: { autoRefreshToken: false, persistSession: false } });
@@ -28,6 +29,17 @@ export async function POST(request: NextRequest) {
 
     if (!db) {
       return NextResponse.json({ error: "Database not configured" }, { status: 500 });
+    }
+
+    // Fetch existing order to extract Telegram chatId stored in utr as "|tg:CHATID"
+    let tgChatId: string | null = null;
+    try {
+      const { data: existing } = await db.from("orders").select("utr").eq("order_id", orderId).maybeSingle();
+      const rawUtr: string = (existing as { utr?: string } | null)?.utr || "";
+      const m = rawUtr.match(/\|tg:(\d+)/);
+      if (m) tgChatId = m[1];
+    } catch {
+      // ignore fetch error — still proceed with email
     }
 
     // Update order status in database
@@ -153,9 +165,35 @@ export async function POST(request: NextRequest) {
       });
     }
 
+    // Notify via Telegram bot if order was placed via bot (chatId stored in utr)
+    if (tgChatId) {
+      try {
+        const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        if (status === "approved") {
+          const dlLines = items
+            .filter((it) => it.downloadUrl && it.downloadUrl.startsWith("http"))
+            .map((it) => `🔗 <a href="${it.downloadUrl}">Download: ${esc(it.name || "Course")}</a>`)
+            .join("\n");
+          const fallback = dlLines || `🔗 <a href="https://www.edubaazar.shop/account">Open My Downloads</a>`;
+          await sendMessage(
+            tgChatId,
+            `🎉 <b>Your order ${esc(orderId)} is APPROVED!</b> ✅\n\nPayment verified. Here are your download links:\n\n${fallback}\n\n📧 Also sent to your email: <code>${esc(email)}</code>\nEnjoy! 🚀\n\nNeed help? WhatsApp: 9759131256`,
+          );
+        } else {
+          await sendMessage(
+            tgChatId,
+            `❌ <b>Order ${esc(orderId)} — Payment Not Verified</b>\n\nWe couldn't verify your UTR/payment for this order. Please check the amount and UTR, then contact support on WhatsApp: 9759131256 with the correct UTR.\n\nYou can also re-order via the bot or website.`,
+          );
+        }
+      } catch (e) {
+        console.error("[send-notification] telegram notify failed", e);
+      }
+    }
+
     return NextResponse.json({ 
       success: true, 
-      message: status === "approved" ? "Order approved and email sent" : "Order rejected and email sent" 
+      message: status === "approved" ? "Order approved and email sent" : "Order rejected and email sent",
+      telegramNotified: Boolean(tgChatId),
     });
 
   } catch (error) {
