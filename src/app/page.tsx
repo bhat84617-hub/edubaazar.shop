@@ -199,12 +199,11 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 3 benefits minimal icons - XStore minimal electronics style */}
+      {/* 2 benefits minimal icons - Free Shipping removed as per request */}
       <section style={{ background: "#fff", padding: "16px 0" }}>
         <div className="container">
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 12 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: 12 }}>
             {[
-              { icon: <Zap size={18} />, title: "Free Shipping", desc: "On orders over ₹500" },
               { icon: <ShieldCheck size={18} />, title: "Instant Access", desc: "Immediate delivery" },
               { icon: <Headset size={18} />, title: "24/7 Support", desc: "Dedicated support" },
             ].map((b) => (
@@ -220,10 +219,10 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Categories carousel / grid - XStore pill icons */}
+      {/* Categories - full width grid (no half blank) */}
       <section className="ws-section-sm" style={{ background: "#fff", padding: "18px 0 8px" }}>
         <div className="container">
-          <div style={{ display: "flex", gap: 14, overflowX: "auto", padding: "8px 2px", scrollbarWidth: "none" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 12 }} className="cat-grid">
             {CATEGORIES.map((c) => {
               const count = products.filter((p) => p.category === c.key).length;
               return (
@@ -439,6 +438,10 @@ export default function HomePage() {
         .cat-hover:hover{ border-color:#2A74ED !important; box-shadow:0 4px 16px rgba(42,116,237,0.12); }
         .stats-strip-wrap{ box-sizing:border-box; overflow:visible; }
         .stats-strip{ overflow:visible; }
+        .cat-grid{ gap:12px; }
+        @media (max-width: 900px){ .cat-grid{ grid-template-columns: repeat(4, 1fr) !important; } }
+        @media (max-width: 640px){ .cat-grid{ grid-template-columns: repeat(3, 1fr) !important; } }
+        @media (max-width: 420px){ .cat-grid{ grid-template-columns: repeat(2, 1fr) !important; gap:10px !important; } }
         @media (max-width: 1080px){
           .p-grid{ grid-template-columns: repeat(3, 1fr) !important; }
         }

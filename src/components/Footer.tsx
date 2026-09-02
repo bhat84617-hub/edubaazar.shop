@@ -43,7 +43,6 @@ export default function Footer() {
       <section style={{ background: "#fff", borderBottom: "1px solid #E5E5E5" }}>
         <div className="container" style={{ display: "flex", gap: 12, padding: "14px 0", overflowX: "auto", scrollbarWidth: "none", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap" }}>
           {[
-            { t: "Free Shipping", d: "Orders over ₹500" },
             { t: "Instant Delivery", d: "Immediate access" },
             { t: "Secure Payment", d: "100% Secure UPI" },
             { t: "24/7 Support", d: "Dedicated help" },
