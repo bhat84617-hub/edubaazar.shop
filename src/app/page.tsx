@@ -132,7 +132,7 @@ export default function HomePage() {
           <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 12 }}>
             {[
               { icon: <Zap size={18} />, title: "Free Shipping", desc: "On orders over ₹500" },
-              { icon: <ShieldCheck size={18} />, title: "Money Back", desc: "30 Days guarantee" },
+              { icon: <ShieldCheck size={18} />, title: "Instant Access", desc: "Immediate delivery" },
               { icon: <Headset size={18} />, title: "24/7 Support", desc: "Dedicated support" },
             ].map((b) => (
               <div key={b.title} style={{ display: "flex", alignItems: "center", gap: 12, padding: "14px 16px", background: "#f8f9fb", border: "1px solid #E5E5E5", borderRadius: 20 }}>

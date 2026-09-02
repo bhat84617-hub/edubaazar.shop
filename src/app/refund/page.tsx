@@ -5,7 +5,7 @@ import { ChevronRight } from "lucide-react";
 export const metadata: Metadata = {
   title: "Refund Policy — EduBazar.shop",
   description: "EduBazar.shop refund policy for courses, e-books, and digital tools. Learn how to request a refund for your purchase.",
-  keywords: ["EduBazar refund", "course refund policy", "money back guarantee", "digital product refund", "UPI refund"],
+  keywords: ["EduBazar refund", "course refund policy", "instant delivery guarantee", "digital product refund", "UPI refund"],
   openGraph: {
     title: "Refund Policy — EduBazar.shop",
     description: "EduBazar.shop refund policy for courses, e-books, and digital tools.",

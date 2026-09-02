@@ -44,7 +44,7 @@ export default function Footer() {
         <div className="container" style={{ display: "flex", gap: 12, padding: "14px 0", overflowX: "auto", scrollbarWidth: "none", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap" }}>
           {[
             { t: "Free Shipping", d: "Orders over ₹500" },
-            { t: "Money Back", d: "30 Days guarantee" },
+            { t: "Instant Delivery", d: "Immediate access" },
             { t: "Secure Payment", d: "100% Secure UPI" },
             { t: "24/7 Support", d: "Dedicated help" },
           ].map((b) => (

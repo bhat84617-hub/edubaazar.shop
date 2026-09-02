@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ChevronRight, Tag, ShieldCheck, Truck, RotateCcw } from "lucide-react";
+import { ChevronRight, Tag, ShieldCheck, Truck, Zap } from "lucide-react";
 import ProductBuy from "@/components/ProductBuy";
 import ProductTabs from "@/components/ProductTabs";
 import ProductCard from "@/components/ProductCard";
@@ -248,7 +248,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
               <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 8, marginTop: 14 }}>
                 {[
                   { icon: <Truck size={14} />, t: "Free Shipping", d: "Orders ₹500+" },
-                  { icon: <RotateCcw size={14} />, t: "30 Days Return", d: "Money back" },
+                  { icon: <Zap size={14} />, t: "Instant Access", d: "Immediate delivery" },
                   { icon: <ShieldCheck size={14} />, t: "Secure Payment", d: "UPI protected" },
                 ].map((b) => (
                   <div key={b.t} className="sidebar-widget" style={{ padding: 12, textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
