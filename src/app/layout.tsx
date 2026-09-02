@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import Script from "next/script";
 import { Jost } from "next/font/google";
 import { StoreProvider } from "@/lib/store";
 import Header from "@/components/Header";
@@ -297,6 +298,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdOrganization) }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdLocalBusiness) }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdBreadcrumb) }} />
+        {/* Google tag (gtag.js) - G-EMKR761SSQ - single tag for entire site */}
+        <Script async src="https://www.googletagmanager.com/gtag/js?id=G-EMKR761SSQ" strategy="afterInteractive" />
+        <Script id="gtag-init" strategy="afterInteractive">{`window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'G-EMKR761SSQ');`}</Script>
       </head>
       <body className="min-h-screen flex flex-col">
         <StoreProvider>
