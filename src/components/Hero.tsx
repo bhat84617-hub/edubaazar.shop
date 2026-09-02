@@ -99,7 +99,10 @@ export default function Hero() {
                   {slide.title.split("\n")[0]} <span style={{ color: "#2A74ED" }}>{slide.title.split("\n")[1] ?? ""}</span>
                 </h2>
                 <p style={{ fontSize: 13, color: "#5a657f", lineHeight: 1.6, marginBottom: 14, maxWidth: 400 }}>{slide.desc}</p>
-                <div style={{ fontSize: 20, fontWeight: 800, color: "#2A74ED", marginBottom: 16, letterSpacing: "-0.3px" }}>{slide.price}</div>
+                <div style={{ display: "flex", alignItems: "baseline", gap: 6, marginBottom: 16 }}>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: "#777" }}>From</span>
+                  <span style={{ fontSize: 22, fontWeight: 800, color: "#2A74ED", letterSpacing: "-0.5px" }}>&#8377;{slide.price.replace(/[^0-9]/g, "")}</span>
+                </div>
                 <Link
                   href={slide.ctaHref}
                   style={{
