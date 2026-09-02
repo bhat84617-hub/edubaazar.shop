@@ -39,6 +39,7 @@ export const CATEGORIES = [
   { key: "Trading", label: "Trading", icon: "chart", image: "/images/trading-psychology.jpeg" },
   { key: "Books", label: "Digital Books", icon: "book", image: "/images/hacking-bible.jpeg" },
   { key: "Tools", label: "Software & Tools", icon: "wrench", image: "/images/web-app-hacking.jpeg" },
+  { key: "Software", label: "Software", icon: "cpu", image: "/images/web-app-hacking.jpeg" },
   { key: "Design", label: "Design", icon: "palette", image: "/images/uiux-design.jpeg" },
   { key: "Marketing", label: "Marketing", icon: "megaphone", image: "/images/python-complete.jpeg" },
 ] as const;
