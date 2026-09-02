@@ -3,14 +3,14 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { Menu, X, Search, Heart, ShoppingBag, User, ChevronDown, Trash2, LayoutGrid, Scale, Send } from "lucide-react";
+import { Menu, X, Search, Heart, ShoppingBag, User, ChevronDown, Trash2, LayoutGrid, Send } from "lucide-react";
 import { useStore } from "@/lib/store";
 import { getProductById, searchProducts, formatINR, CATEGORIES } from "@/lib/products";
 
 export default function Header() {
   const pathname = usePathname();
   const router = useRouter();
-  const { cartCount, cartSubtotal, cart, wishlist, compare, user, removeFromCart, mounted } = useStore();
+  const { cartCount, cartSubtotal, cart, wishlist, user, removeFromCart, mounted } = useStore();
 
   const [searchCat, setSearchCat] = useState("All categories");
   const [query, setQuery] = useState("");
@@ -181,11 +181,6 @@ export default function Header() {
               <Send size={14} strokeWidth={2} />
               <span className="ws-telegram-header-text">Chat on Telegram</span>
             </a>
-
-            <Link href="/compare" className="ws-icon-btn" aria-label="Compare">
-              <Scale size={17} strokeWidth={1.7} />
-              {mounted && compare.length > 0 && <span className="ws-badge">{compare.length}</span>}
-            </Link>
 
             <Link href="/wishlist" className="ws-icon-btn" aria-label="Wishlist">
               <Heart size={17} strokeWidth={1.7} />
@@ -364,7 +359,6 @@ export default function Header() {
                   <Send size={14} /> Telegram: @Edubaazar_bot
                 </a>
                 <Link href="/wishlist" onClick={() => setDrawerOpen(false)}>Wishlist {mounted && wishlist.length > 0 ? `(${wishlist.length})` : ""}</Link>
-                <Link href="/compare" onClick={() => setDrawerOpen(false)}>Compare {mounted && compare.length > 0 ? `(${compare.length})` : ""}</Link>
                 <Link href="/cart" onClick={() => setDrawerOpen(false)}>Cart {mounted && cartCount > 0 ? `(${cartCount})` : ""}</Link>
                 <div className="ws-drawer-label">Account</div>
                 {mounted && user ? (
