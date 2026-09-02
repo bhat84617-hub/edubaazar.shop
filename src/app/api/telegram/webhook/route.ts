@@ -71,11 +71,13 @@ function contactText() {
   return `💬 <b>Contact Support — EduBazar.shop</b>\n\n📱 WhatsApp: <b>+91 ${STORE.phoneRaw}</b> (24x7)\n📧 Email: <b>${STORE.email}</b>\n🌐 Website: <b>https://www.edubaazar.shop</b>\n\nKoi bhi doubt ho to WhatsApp pe message karo, team turant reply karegi!`;
 }
 
-function upiText(amount: number, productTitle: string) {
+function upiText(p: { price: number; title: string; id: string; slug: string }) {
   const upiId = STORE.upiId;
-  const note = `EduBazar ${productTitle}`.slice(0, 30);
-  const link = `upi://pay?pa=${upiId}&pn=EduBazar&cu=INR${amount > 0 ? `&am=${amount}` : ""}&tn=${encodeURIComponent(note)}`;
-  return `💳 <b>Payment — UPI (same as website)</b>\n\nCourse: <b>${escape(productTitle)}</b>\nAmount: <b>₹${amount}</b>\nUPI ID: <code>${upiId}</code>\n\n👉 <a href="${link}">Click to Pay via UPI App</a> (PhonePe / GPay / Paytm)\n\nYa QR se pay karo website pe: https://www.edubaazar.shop/checkout\n\nPay karne ke baad jo <b>UTR / Reference No. (12 digits)</b> mile, wahi yahan bhejo ✅\n\n⚠️ UTR bina order confirm nahi hoga.`;
+  const note = `EduBazar ${p.title}`.slice(0, 30);
+  const link = `upi://pay?pa=${upiId}&pn=EduBazar&cu=INR${p.price > 0 ? `&am=${p.price}` : ""}&tn=${encodeURIComponent(note)}`;
+  const productUrl = `https://www.edubaazar.shop/product/${p.slug}`;
+  const checkoutUrl = `https://www.edubaazar.shop/checkout?buy=${p.id}`;
+  return `💳 <b>Payment — UPI (same as website)</b>\n\nCourse: <b>${escape(p.title)}</b>\nAmount: <b>₹${p.price}</b>\nUPI ID: <code>${upiId}</code>\n\n👉 <a href="${link}">Click to Pay via UPI App</a> (PhonePe / GPay / Paytm)\n\nYa website pe kharido: <a href="${productUrl}">View ${escape(p.title)} on Website</a> - wahan Add to Cart karke checkout karo\nYa direct checkout: <a href="${checkoutUrl}">${checkoutUrl}</a>\n\nPay karne ke baad jo <b>UTR / Reference No. (12 digits)</b> mile, wahi yahan bhejo ✅\n\n⚠️ UTR bina order confirm nahi hoga.`;
 }
 
 function escape(s: string) {
@@ -494,7 +496,7 @@ export async function POST(request: NextRequest) {
         }
         sess.step = "awaiting_utr";
         sess.name = sess.name || fromName || "Telegram User";
-        await sendMessage(chatId, upiText(product.price, product.title));
+        await sendMessage(chatId, upiText(product));
         await sendMessage(chatId, `📝 UTR ka wait kar raha hu — pay karte hi yahan UTR bhejo (10-18 characters) 👇`);
         return NextResponse.json({ ok: true });
       }

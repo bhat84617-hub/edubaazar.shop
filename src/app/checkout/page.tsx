@@ -1,16 +1,17 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useRef, useState, Suspense } from "react";
 import { CheckCircle2, Copy, ExternalLink, ShieldCheck, Wallet, ArrowRight, ArrowLeft, LayoutDashboard, ShoppingBag, PartyPopper, Lock } from "lucide-react";
 import { getProductById, formatINR } from "@/lib/products";
 import { useStore } from "@/lib/store";
 import { STORE, upiLink } from "@/lib/config";
 
-export default function CheckoutPage() {
+function CheckoutContent() {
   const router = useRouter();
-  const { cart, cartSubtotal, user, mounted, placeOrder, showToast } = useStore();
+  const searchParams = useSearchParams();
+  const { cart, cartSubtotal, user, mounted, placeOrder, showToast, addToCart } = useStore();
   const [step, setStep] = useState(1);
   const [form, setForm] = useState({ name: user?.name ?? "", email: user?.email ?? "", phone: "" });
   const [err, setErr] = useState("");
@@ -18,6 +19,25 @@ export default function CheckoutPage() {
   const [utrError, setUtrError] = useState("");
   const [placing, setPlacing] = useState(false);
   const [placed, setPlaced] = useState<{ id: string; total: number } | null>(null);
+  const buyHandledRef = useRef(false);
+
+  // Support ?buy=productId to auto-add product to cart (fixes bot checkout empty bug)
+  useEffect(() => {
+    if (buyHandledRef.current) return;
+    if (!mounted) return;
+    const buyId = searchParams.get("buy");
+    if (!buyId) return;
+    const product = getProductById(buyId);
+    if (!product) return;
+    if (cart.some((item) => item.id === buyId)) {
+      buyHandledRef.current = true;
+      router.replace("/checkout");
+      return;
+    }
+    buyHandledRef.current = true;
+    addToCart(buyId, 1);
+    router.replace("/checkout");
+  }, [mounted, searchParams, cart, addToCart, router]);
 
   // Sync form with user when user loads after mount (fixes stale closure / empty fields)
   useEffect(() => {
@@ -322,5 +342,13 @@ export default function CheckoutPage() {
         </div>
       </div>
     </section>
+  );
+}
+
+export default function CheckoutPage() {
+  return (
+    <Suspense fallback={<section className="section-pad"><div className="container" style={{ maxWidth: 520, textAlign: "center", padding: 40 }}>Loading checkout...</div></section>}>
+      <CheckoutContent />
+    </Suspense>
   );
 }
