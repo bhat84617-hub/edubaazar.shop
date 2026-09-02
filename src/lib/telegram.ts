@@ -193,9 +193,4 @@ export function productActionKeyboard(productId: string, categoryKey: string): R
   };
 }
 
-export const SITE_URL = (() => {
-  if (process.env.NEXT_PUBLIC_SITE_URL) return process.env.NEXT_PUBLIC_SITE_URL.replace(/\/$/, "");
-  const v = process.env.VERCEL_URL;
-  if (v) return v.startsWith("http") ? v.replace(/\/$/, "") : `https://${v.replace(/\/$/, "")}`;
-  return "https://www.edubaazar.shop";
-})();
+export const SITE_URL = "https://www.edubaazar.shop";

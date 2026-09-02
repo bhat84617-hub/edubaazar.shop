@@ -4,21 +4,8 @@ import { BOT_TOKEN } from "@/lib/telegram";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-function getSiteUrl(req: NextRequest): string {
-  const envUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.VERCEL_URL || "";
-  if (envUrl) {
-    if (envUrl.startsWith("http")) return envUrl.replace(/\/$/, "");
-    return `https://${envUrl.replace(/\/$/, "")}`;
-  }
-  const host = req.headers.get("host");
-  const proto = req.headers.get("x-forwarded-proto") || "https";
-  if (host) return `${proto}://${host}`;
-  return "https://www.edubaazar.shop";
-}
-
 export async function GET(request: NextRequest) {
-  const siteUrl = getSiteUrl(request);
-  const webhookUrl = `${siteUrl}/api/telegram/webhook`;
+  const webhookUrl = `https://www.edubaazar.shop/api/telegram/webhook`;
   const url = `https://api.telegram.org/bot${BOT_TOKEN}/setWebhook?url=${encodeURIComponent(webhookUrl)}`;
 
   try {
