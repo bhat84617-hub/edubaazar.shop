@@ -58,7 +58,35 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
   if (cat) list = list.filter((p) => p.category.toLowerCase() === cat.toLowerCase());
   if (kind) list = list.filter((p) => p.kind === kind);
   if (freeOnly) list = list.filter((p) => p.price <= 0);
-  if (q) list = list.filter((p) => productMatchesQuery(p, q));
+  if (q) {
+    list = list.filter((p) => productMatchesQuery(p, q));
+    // live fuzzy relevance: title substring first so "888" / "py" / "hack" on top
+    if (!sort) {
+      const tokens = q.split(/\s+/).filter(Boolean);
+      list.sort((a, b) => {
+        const at = a.title.toLowerCase();
+        const bt = b.title.toLowerCase();
+        const aExact = at.includes(q);
+        const bExact = bt.includes(q);
+        if (aExact && !bExact) return -1;
+        if (!aExact && bExact) return 1;
+        if (aExact && bExact) {
+          const aStarts = at.startsWith(q);
+          const bStarts = bt.startsWith(q);
+          if (aStarts && !bStarts) return -1;
+          if (!aStarts && bStarts) return 1;
+        }
+        const aWord = tokens.some((t) => at.split(/[\s\-\/]+/).some((w) => w.includes(t)));
+        const bWord = tokens.some((t) => bt.split(/[\s\-\/]+/).some((w) => w.includes(t)));
+        if (aWord && !bWord) return -1;
+        if (!aWord && bWord) return 1;
+        const ac = a.category.toLowerCase().includes(q) ? 0 : 1;
+        const bc = b.category.toLowerCase().includes(q) ? 0 : 1;
+        if (ac !== bc) return ac - bc;
+        return a.title.localeCompare(b.title);
+      });
+    }
+  }
 
   switch (sort) {
     case "price_low":

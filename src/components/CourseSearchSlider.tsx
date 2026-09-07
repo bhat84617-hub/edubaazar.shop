@@ -9,9 +9,28 @@ export default function CourseSearchSlider() {
   const [query, setQuery] = useState("");
   const trackRef = useRef<HTMLDivElement>(null);
 
-  const filtered = query.trim()
-    ? products.filter((p) => productMatchesQuery(p, query))
-    : products.slice(0, 12);
+  const filtered = (() => {
+    const q = query.trim().toLowerCase();
+    if (!q || q.length < 1) return products.slice(0, 12);
+    const tokens = q.split(/\s+/).filter(Boolean);
+    const matched = products.filter((p) => productMatchesQuery(p, query));
+    // relevance sort for live dropdown: title substring first so "888" / "py" / "hack" tops
+    return matched
+      .map((p) => {
+        const titleLower = p.title.toLowerCase();
+        let score = 10;
+        if (titleLower.includes(q)) {
+          score = titleLower.startsWith(q) ? -1 : 0;
+        } else if (tokens.some((t) => titleLower.includes(t))) {
+          const words = titleLower.split(/[\s\-\/]+/);
+          score = tokens.some((t) => words.some((w) => w.includes(t))) ? 1 : 2;
+        } else if (p.category.toLowerCase().includes(q)) score = 2;
+        else score = 5;
+        return { p, score };
+      })
+      .sort((a, b) => a.score - b.score || a.p.title.localeCompare(b.p.title))
+      .map((x) => x.p);
+  })();
 
   const scroll = (dir: number) => {
     if (!trackRef.current) return;

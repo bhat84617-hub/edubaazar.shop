@@ -2013,30 +2013,74 @@ export const CATEGORY_KEYWORDS: Record<string, string[]> = {
 
 export function productMatchesQuery(p: Product, rawQuery: string): boolean {
   const q = rawQuery.trim().toLowerCase();
-  if (!q) return false;
-  const words = q.split(/\s+/).filter(Boolean);
+  if (!q || q.length < 1) return false;
+  const tokens = q.split(/\s+/).filter(Boolean);
+  // haystack includes title+id+category+desc+tags+kind+level for fuzzy partial matching
   const haystack = (
     p.title + " " +
+    p.id + " " +
+    p.category + " " +
     p.desc + " " +
     (p.fullDesc || "") + " " +
-    p.category + " " +
     (p.tags || []).join(" ") + " " +
     p.kind + " " +
     p.level
   ).toLowerCase();
+
+  // direct substring of full query (covers "888" in "888RAT", "py" in "python")
   if (haystack.includes(q)) return true;
-  if (words.some((w) => haystack.includes(w))) return true;
+
+  // ANY token substring in haystack (e.g. "888 extra" -> matches 888)
+  if (tokens.some((w) => haystack.includes(w))) return true;
+
+  // title words prefix/substring: if query is substring of any word in title (half name)
+  const titleWords = p.title.toLowerCase().split(/[\s\-\/]+/).filter(Boolean);
+  if (tokens.some((tok) => titleWords.some((w) => w.includes(tok) || tok.includes(w)))) return true;
+
+  // also handle numeric partial already via haystack/includes; title word check ensures "888" won't falsely match id "h47" but will match title "888RAT"
   if (p.category.toLowerCase().includes(q) || q.includes(p.category.toLowerCase())) return true;
   const catKeywords = CATEGORY_KEYWORDS[p.category] || [];
-  if (words.some((w) => catKeywords.some((kw) => kw === w || kw.includes(w) || w.includes(kw)))) return true;
-  if (catKeywords.some((kw) => q.includes(kw))) return true;
+  if (tokens.some((w) => catKeywords.some((kw) => kw === w || kw.includes(w) || w.includes(kw)))) return true;
+  if (catKeywords.some((kw) => q.includes(kw) || kw.includes(q))) return true;
   return false;
 }
 
 export function searchProducts(query: string): Product[] {
   const q = query.trim().toLowerCase();
-  if (!q) return [];
-  return products.filter((p) => productMatchesQuery(p, q)).slice(0, 8);
+  if (!q || q.length < 1) return [];
+  const tokens = q.split(/\s+/).filter(Boolean);
+  const matched = products.filter((p) => productMatchesQuery(p, q));
+  // relevance sort: exact title substring > title word prefix > category/tags > desc
+  const scored = matched
+    .map((p) => {
+      const titleLower = p.title.toLowerCase();
+      const categoryLower = p.category.toLowerCase();
+      const tagsLower = (p.tags || []).join(" ").toLowerCase();
+      const descLower = (p.desc + " " + (p.fullDesc || "")).toLowerCase();
+      let score = 10;
+      if (titleLower.includes(q)) {
+        // exact query substring in title is highest relevance
+        score = 0;
+        // bonus if title starts with query (e.g. "888" -> "888RAT" on top)
+        if (titleLower.startsWith(q)) score = -1;
+        else if (titleLower.split(/[\s\-\/]+/).some((w) => w.startsWith(q))) score = 0.5;
+      } else if (tokens.some((t) => titleLower.includes(t))) {
+        const titleWords = titleLower.split(/[\s\-\/]+/);
+        const isWordSubstring = tokens.some((t) => titleWords.some((w) => w.includes(t)));
+        score = isWordSubstring ? 1 : 2;
+      } else if (categoryLower.includes(q) || tokens.some((t) => categoryLower.includes(t)) || tagsLower.includes(q)) {
+        score = 2;
+      } else if (tagsLower && tokens.some((t) => tagsLower.includes(t))) {
+        score = 3;
+      } else if (descLower.includes(q) || tokens.some((t) => descLower.includes(t))) {
+        score = 4;
+      } else {
+        score = 5;
+      }
+      return { p, score };
+    })
+    .sort((a, b) => a.score - b.score || a.p.title.localeCompare(b.p.title));
+  return scored.map((s) => s.p).slice(0, 8);
 }
 
 export function formatINR(n: number): string {

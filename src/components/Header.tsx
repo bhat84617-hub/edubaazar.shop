@@ -24,7 +24,15 @@ export default function Header() {
   const headerCatsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    setResults(searchProducts(query));
+    const q = query.trim();
+    if (!q || q.length < 1) {
+      setResults([]);
+      return;
+    }
+    const t = setTimeout(() => {
+      setResults(searchProducts(query));
+    }, 150);
+    return () => clearTimeout(t);
   }, [query]);
 
   useEffect(() => {
@@ -126,7 +134,7 @@ export default function Header() {
             <button className="ws-search-bar-btn" onClick={() => doSearch()} aria-label="Search">
               <Search size={16} strokeWidth={2} />
             </button>
-            {query && results.length > 0 && (
+            {query.trim().length >= 1 && results.length > 0 && (
               <div className="ws-search-results-dropdown">
                 {results.slice(0, 6).map((p) => (
                   <div
