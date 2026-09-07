@@ -381,6 +381,14 @@ async function createOrderSupabase(
 }
 
 export async function POST(request: NextRequest) {
+  // Verify Telegram secret token if configured
+  const webhookSecret = process.env.TELEGRAM_WEBHOOK_SECRET || "";
+  if (webhookSecret) {
+    const received = request.headers.get("x-telegram-bot-api-secret-token") || "";
+    if (received !== webhookSecret) {
+      return NextResponse.json({ ok: false, error: "Invalid secret token" }, { status: 401 });
+    }
+  }
   // Avoid logging token
   let update: {
     message?: { chat: { id: number }; from?: { id?: number; first_name?: string; username?: string }; text?: string };
@@ -553,5 +561,5 @@ export async function POST(request: NextRequest) {
 }
 
 export async function GET() {
-  return NextResponse.json({ ok: true, bot: "EduBazar webhook alive", token_present: BOT_TOKEN.length > 10 });
+  return NextResponse.json({ ok: true, bot: "EduBazar webhook alive" });
 }

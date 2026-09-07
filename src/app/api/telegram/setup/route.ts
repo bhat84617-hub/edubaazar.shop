@@ -1,15 +1,30 @@
 import { NextRequest, NextResponse } from "next/server";
 import { BOT_TOKEN } from "@/lib/telegram";
+import { isValidAdminSession } from "@/lib/admin-session";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function GET(request: NextRequest) {
+  const session = request.cookies.get("edubazar_admin_session")?.value;
+  if (!isValidAdminSession(session)) {
+    return NextResponse.json({ error: "Unauthorized - admin login required" }, { status: 401 });
+  }
+  if (!BOT_TOKEN) {
+    return NextResponse.json({ error: "BOT_TOKEN not configured" }, { status: 500 });
+  }
   const webhookUrl = `https://www.edubaazar.shop/api/telegram/webhook`;
-  const url = `https://api.telegram.org/bot${BOT_TOKEN}/setWebhook?url=${encodeURIComponent(webhookUrl)}`;
-
+  const secretToken = process.env.TELEGRAM_WEBHOOK_SECRET || "";
+  // Use POST JSON to avoid token in URL logs
   try {
-    const res = await fetch(url);
+    const res = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/setWebhook`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        url: webhookUrl,
+        ...(secretToken ? { secret_token: secretToken } : {}),
+      }),
+    });
     const data = await res.json().catch(() => ({}));
     return NextResponse.json({
       ok: data.ok ?? false,

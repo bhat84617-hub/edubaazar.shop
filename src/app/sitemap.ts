@@ -3,30 +3,21 @@ import { products, CATEGORIES } from "@/lib/products";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const base = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.edubaazar.shop";
-  const now = new Date().toISOString().split("T")[0];
+  // Stable date - only changes when content changes, not daily
+  const stableDate = "2024-12-24";
 
   const staticPages: MetadataRoute.Sitemap = [
-    { url: base, lastModified: now, changeFrequency: "daily", priority: 1.0 },
-    { url: base + "/shop", lastModified: now, changeFrequency: "daily", priority: 0.9 },
-    { url: base + "/about", lastModified: now, changeFrequency: "monthly", priority: 0.7 },
-    { url: base + "/contact", lastModified: now, changeFrequency: "monthly", priority: 0.7 },
-    { url: base + "/terms", lastModified: now, changeFrequency: "yearly", priority: 0.3 },
-    { url: base + "/privacy", lastModified: now, changeFrequency: "yearly", priority: 0.3 },
-    { url: base + "/refund", lastModified: now, changeFrequency: "yearly", priority: 0.4 },
+    { url: base, lastModified: stableDate, changeFrequency: "daily", priority: 1.0 },
+    { url: base + "/shop", lastModified: stableDate, changeFrequency: "daily", priority: 0.9 },
+    { url: base + "/about", lastModified: stableDate, changeFrequency: "monthly", priority: 0.7 },
+    { url: base + "/contact", lastModified: stableDate, changeFrequency: "monthly", priority: 0.7 },
+    { url: base + "/terms", lastModified: stableDate, changeFrequency: "yearly", priority: 0.3 },
+    { url: base + "/privacy", lastModified: stableDate, changeFrequency: "yearly", priority: 0.3 },
+    { url: base + "/refund", lastModified: stableDate, changeFrequency: "yearly", priority: 0.4 },
   ];
 
-  const categoryPages: MetadataRoute.Sitemap = CATEGORIES.map((c) => ({
-    url: `${base}/shop?cat=${encodeURIComponent(c.key)}`,
-    lastModified: now,
-    changeFrequency: "weekly",
-    priority: 0.75,
-  }));
-
-  const kindPages: MetadataRoute.Sitemap = [
-    { url: base + "/shop?kind=course", lastModified: now, changeFrequency: "weekly", priority: 0.65 },
-    { url: base + "/shop?kind=book", lastModified: now, changeFrequency: "weekly", priority: 0.65 },
-    { url: base + "/shop?kind=tool", lastModified: now, changeFrequency: "weekly", priority: 0.65 },
-  ];
+  // Removed category/kind query URLs from sitemap - they are filtered views, not canonical pages
+  // Google prefers sitemap to contain only canonical URLs. Category filtering is handled via navigation.
 
   const productPages: MetadataRoute.Sitemap = products.map((p) => ({
     url: base + "/product/" + p.slug,
@@ -36,5 +27,5 @@ export default function sitemap(): MetadataRoute.Sitemap {
     images: [`${base}${p.images[0]}`],
   }));
 
-  return [...staticPages, ...categoryPages, ...kindPages, ...productPages];
+  return [...staticPages, ...productPages];
 }

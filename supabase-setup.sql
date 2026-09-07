@@ -21,8 +21,19 @@ CREATE INDEX IF NOT EXISTS idx_orders_date ON public.orders(date DESC);
 -- Step 3: Enable RLS
 ALTER TABLE public.orders ENABLE ROW LEVEL SECURITY;
 
--- Step 4: Create policies one by one (run each separately if needed)
-CREATE POLICY "allow_insert" ON public.orders FOR INSERT WITH CHECK (true);
-CREATE POLICY "allow_select" ON public.orders FOR SELECT USING (true);
-CREATE POLICY "allow_update" ON public.orders FOR UPDATE USING (true);
-CREATE POLICY "allow_delete" ON public.orders FOR DELETE USING (true);
+-- Step 4: SECURE RLS - service_role only (anon cannot read/modify orders)
+-- Drop permissive policies if they exist
+DROP POLICY IF EXISTS "allow_insert" ON public.orders;
+DROP POLICY IF EXISTS "allow_select" ON public.orders;
+DROP POLICY IF EXISTS "allow_update" ON public.orders;
+DROP POLICY IF EXISTS "allow_delete" ON public.orders;
+
+-- Only service_role (server) can access orders. All client access must go via server API with admin session.
+-- Anon users get NO direct access - prevents IDOR and data leaks
+CREATE POLICY "service_role_all" ON public.orders FOR ALL
+  TO service_role
+  USING (true) WITH CHECK (true);
+
+-- Optional: if you need anon insert via server (with anon key), create restrictive insert:
+-- Anon can only insert, not read/update/delete. But prefer service_role via API.
+-- CREATE POLICY "anon_insert_only" ON public.orders FOR INSERT TO anon WITH CHECK (true);

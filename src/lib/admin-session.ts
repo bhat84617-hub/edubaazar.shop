@@ -1,9 +1,14 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 
-const SESSION_SECRET = process.env.ADMIN_SESSION_SECRET || process.env.ADMIN_PASSWORD || "edubazar-admin-secret-2024";
+const SESSION_SECRET = process.env.ADMIN_SESSION_SECRET || "";
+
+if (!SESSION_SECRET) {
+  console.warn("[admin-session] ADMIN_SESSION_SECRET not set - admin auth will fail");
+}
 const SESSION_LIFETIME = 60 * 60 * 8;
 
 export function createAdminSession(): string {
+  if (!SESSION_SECRET) throw new Error("ADMIN_SESSION_SECRET not configured");
   const expires = Math.floor(Date.now() / 1000) + SESSION_LIFETIME;
   const payload = `admin.${expires}`;
   const signature = createHmac("sha256", SESSION_SECRET).update(payload).digest("base64url");
@@ -11,7 +16,7 @@ export function createAdminSession(): string {
 }
 
 export function isValidAdminSession(token: string | undefined): boolean {
-  if (!token) return false;
+  if (!token || !SESSION_SECRET) return false;
   try {
     const parts = token.split(".");
     if (parts.length !== 3) return false;

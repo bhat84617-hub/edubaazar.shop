@@ -1,10 +1,13 @@
 // EduBazar Telegram Bot helpers - fetch based (no extra deps)
 import { CATEGORIES as CAT_LIST, products, getProductById } from "./products";
 
-export const BOT_TOKEN =
-  process.env.TELEGRAM_BOT_TOKEN || "8288491826:AAEdR_ZpzM0P7gmH2KFRJ1Cu6KCyF2Ht7PM";
+export const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || "";
 
-const API_BASE = `https://api.telegram.org/bot${BOT_TOKEN}`;
+if (!BOT_TOKEN) {
+  console.warn("[telegram] TELEGRAM_BOT_TOKEN not set");
+}
+
+const API_BASE = BOT_TOKEN ? `https://api.telegram.org/bot${BOT_TOKEN}` : "";
 
 type InlineKeyboardButton = {
   text: string;
@@ -23,6 +26,10 @@ type SendMessageOptions = {
 };
 
 async function tgFetch(method: string, body: Record<string, unknown>) {
+  if (!API_BASE) {
+    console.error("[telegram] BOT_TOKEN missing - tgFetch aborted");
+    return { ok: false } as const;
+  }
   try {
     const res = await fetch(`${API_BASE}/${method}`, {
       method: "POST",

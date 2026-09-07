@@ -76,7 +76,7 @@ export const metadata: Metadata = {
     url: SITE_URL,
     siteName: SITE_NAME,
     locale: "en_IN",
-    alternateLocale: ["hi_IN", "en_US"],
+    alternateLocale: ["en_US"],
     type: "website",
     images: [
       {
@@ -119,7 +119,6 @@ export const metadata: Metadata = {
     languages: {
       "en-IN": SITE_URL,
       "en": SITE_URL,
-      "hi-IN": `${SITE_URL}/hi`,
       "x-default": SITE_URL,
     },
   },

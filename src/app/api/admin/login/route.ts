@@ -22,7 +22,24 @@ async function getDbPassword(): Promise<string | null> {
   }
 }
 
+// Simple rate limit for login: 5 attempts per minute per IP
+const loginAttempts = new Map<string, { count: number; reset: number }>();
+function checkLoginRate(ip: string): boolean {
+  const now = Date.now();
+  const e = loginAttempts.get(ip);
+  if (!e || now > e.reset) {
+    loginAttempts.set(ip, { count: 1, reset: now + 60_000 });
+    return true;
+  }
+  e.count++;
+  return e.count <= 5;
+}
+
 export async function POST(request: NextRequest) {
+  const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+  if (!checkLoginRate(ip)) {
+    return NextResponse.json({ error: "Too many attempts, try later" }, { status: 429 });
+  }
   const body = await request.json().catch(() => null) as { password?: string } | null;
 
   if (!body?.password) {
