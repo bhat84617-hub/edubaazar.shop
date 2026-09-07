@@ -64,11 +64,11 @@ function getSupabase() {
 
 function welcomeText(name?: string) {
   const n = name ? `, ${name}` : "";
-  return `Namaste${n}! 🙏\n\n<b>Welcome to EduBazar.shop Bot</b> 🎓\n<i>India ka sabse sasta premium courses store</i>\n\nYahan aap koi bhi course ke baare me puch sakte ho, details le sakte ho, aur direct pay karke buy kar sakte ho — bilkul website jaisa flow (UPI + UTR verification) ✅\n\n👇 Neeche se choose karo:`;
+  return `Namaste${n}! 🙏\n\n<b>Welcome to Edubaazar.shop Bot</b> 🎓\n<i>India ka sabse sasta premium courses store</i>\n\nYahan aap koi bhi course ke baare me puch sakte ho, details le sakte ho, aur direct pay karke buy kar sakte ho — bilkul website jaisa flow (UPI + UTR verification) ✅\n\n👇 Neeche se choose karo:`;
 }
 
 function contactText() {
-  return `💬 <b>Contact Support — EduBazar.shop</b>\n\n📱 WhatsApp: <b>+91 ${STORE.phoneRaw}</b> (24x7)\n📧 Email: <b>${STORE.email}</b>\n🌐 Website: <b>https://www.edubaazar.shop</b>\n\nKoi bhi doubt ho to WhatsApp pe message karo, team turant reply karegi!`;
+  return `💬 <b>Contact Support — Edubaazar.shop</b>\n\n📱 WhatsApp: <b>+91 ${STORE.phoneRaw}</b> (24x7)\n📧 Email: <b>${STORE.email}</b>\n🌐 Website: <b>https://www.edubaazar.shop</b>\n\nKoi bhi doubt ho to WhatsApp pe message karo, team turant reply karegi!`;
 }
 
 function upiText(p: { price: number; title: string; id: string; slug: string }) {
