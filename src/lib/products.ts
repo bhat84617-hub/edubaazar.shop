@@ -1759,7 +1759,7 @@ export const products: Product[] = [
     kind: "course",
     price: 249,
     oldPrice: 549,
-    images: ["/images/web application hacking & security.jpeg"],
+    images: ["/images/payment-gateway-bypass-banner.png"],
     desc: "Learn payment gateway security testing including parameter tampering, race conditions and logic flaw detection for bug bounty.",
     fullDesc: "Payment Gateway Bypass Course is an advanced web security course that teaches ethical testing of payment flows for authorized bug bounty and enterprise assessments. You will learn payment gateway architecture including checkout flows, order creation, payment verification and fulfillment logic that attackers abuse. The course covers parameter tampering including price manipulation, currency switching, quantity overflow and coupon logic bypass using Burp Suite interception. You will master client-side validation bypass, API endpoint direct access and hidden parameter discovery with Arjun and param mining. The course teaches race condition exploitation including double spending, duplicate fulfillment and inventory bypass through concurrent request attacks. You will practice time-of-check to time-of-use flaws, webhook forgery and callback manipulation in sandboxed payment labs. The course covers business logic flaws including negative quantity, zero value order and post-payment price alteration. You will learn to write professional reports that demonstrate impact without causing financial loss and recommend fixes including server-side validation, idempotency keys and payment signature verification. Each module uses deliberately vulnerable e-commerce applications for safe practice. This course is strictly for defensive education and authorized testing.",
     level: "Advanced",
