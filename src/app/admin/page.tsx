@@ -185,10 +185,11 @@ export default function AdminDashboard() {
         @keyframes admSlide{from{transform:translateY(18px);opacity:0}to{transform:translateY(0);opacity:1}}
         @keyframes admIn{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:scale(1)}}
         .adm *{margin:0;padding:0;box-sizing:border-box}
-        .adm{display:flex;min-height:100vh;background:#0f1117;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,system-ui,sans-serif;color:#e4e6eb}
+        .adm{display:flex;min-height:100vh;background:#0f1117;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,system-ui,sans-serif;color:#e4e6eb;min-width:0;max-width:100vw;overflow-x:hidden}
+        html,body{overflow-x:hidden;max-width:100vw}
 
         /* sidebar */
-        .adm-aside{width:248px;background:linear-gradient(195deg,#13141a 0%,#1a1c25 100%);position:fixed;top:0;left:0;height:100vh;display:flex;flex-direction:column;z-index:20;border-right:1px solid rgba(255,255,255,.06)}
+        .adm-aside{width:248px;flex-shrink:0;background:linear-gradient(195deg,#13141a 0%,#1a1c25 100%);position:fixed;top:0;left:0;height:100vh;display:flex;flex-direction:column;z-index:20;border-right:1px solid rgba(255,255,255,.06)}
         .adm-brand{padding:22px 20px 18px;border-bottom:1px solid rgba(255,255,255,.06)}
         .adm-brand h2{font-size:18px;font-weight:700;color:#fff;letter-spacing:-.3px}
         .adm-brand p{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,.35);margin-top:2px}
@@ -202,7 +203,7 @@ export default function AdminDashboard() {
         .adm-foot a:hover{color:rgba(255,255,255,.8)}
 
         /* main area */
-        .adm-main{flex:1;margin-left:248px;padding:28px 32px;animation:admSlide .35s ease}
+        .adm-main{flex:1;margin-left:248px;width:calc(100% - 248px);max-width:calc(100vw - 248px);min-width:0;overflow-x:hidden;box-sizing:border-box;padding:28px 32px;animation:admSlide .35s ease}
         .adm-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:12px}
         .adm-top h1{font-size:24px;font-weight:700;color:#f0f1f5;letter-spacing:-.3px}
         .adm-top-actions{display:flex;gap:8px;align-items:center}
@@ -235,8 +236,8 @@ export default function AdminDashboard() {
         .adm-sel option{background:#1a1c25;color:#e4e6eb}
 
         /* table */
-        .adm-table-wrap{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:14px;overflow-x:auto;-webkit-overflow-scrolling:touch}
-        .adm-table{width:100%;border-collapse:collapse;min-width:640px}
+        .adm-table-wrap{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:14px;overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%;display:block}
+        .adm-table{width:100%;border-collapse:collapse;min-width:720px}
         .adm-table th{padding:13px 18px;text-align:left;font-size:10.5px;font-weight:700;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.8px;background:rgba(255,255,255,.02);border-bottom:1px solid rgba(255,255,255,.06)}
         .adm-table td{padding:13px 18px;font-size:13px;border-bottom:1px solid rgba(255,255,255,.04);vertical-align:middle}
         .adm-table tr{transition:background .12s}
@@ -263,8 +264,8 @@ export default function AdminDashboard() {
         .adm-empty{text-align:center;padding:60px 20px;color:rgba(255,255,255,.3)}
 
         /* modal */
-        .adm-modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;z-index:100;animation:admIn .2s ease}
-        .adm-modal{background:#1a1c25;border:1px solid rgba(255,255,255,.08);border-radius:16px;width:94%;max-width:620px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+        .adm-modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;z-index:100;animation:admIn .2s ease;padding:16px;box-sizing:border-box}
+        .adm-modal{background:#1a1c25;border:1px solid rgba(255,255,255,.08);border-radius:16px;width:90vw;max-width:600px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.5);box-sizing:border-box}
         .adm-modal::-webkit-scrollbar{width:6px}
         .adm-modal::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:4px}
         .adm-modal-top{padding:18px 22px;border-bottom:1px solid rgba(255,255,255,.06);display:flex;justify-content:space-between;align-items:center}
@@ -295,6 +296,25 @@ export default function AdminDashboard() {
         .adm-mbtn:hover{filter:brightness(1.1);transform:translateY(-1px)}
         .adm-mbtn:disabled{opacity:.45;cursor:not-allowed;transform:none}
 
+        /* responsive - fix half cut on PC and phone */
+        .admin-layout{ max-width:100vw; overflow-x:hidden; }
+        .admin-main{ min-width:0; max-width:100%; overflow-x:hidden; }
+        .orders-table, .table-wrap{ max-width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch; }
+        .table-head, .table-row{ min-width:720px; }
+        @media (max-width: 1100px){ .stats-grid{ grid-template-columns: repeat(3, 1fr) !important; } }
+        @media (max-width: 768px){
+          .admin-sidebar{ display:none !important; }
+          .admin-main{ margin-left:0 !important; width:100% !important; max-width:100vw !important; padding:16px !important; }
+          .stats-grid{ grid-template-columns: repeat(2, 1fr) !important; gap:10px !important; }
+          .table-head, .table-row{ min-width:640px; }
+          .adm-detail-grid{ grid-template-columns:1fr !important; }
+          .adm-modal{ width:95vw !important; max-width:95vw !important; }
+        }
+        @media (max-width: 480px){
+          .stats-grid{ grid-template-columns: 1fr 1fr !important; gap:8px !important; }
+          .admin-main{ padding:12px !important; }
+        }
+
         /* toast */
         .adm-toasts{position:fixed;top:20px;right:20px;z-index:200;display:flex;flex-direction:column;gap:8px}
         .adm-toast{padding:12px 18px;border-radius:10px;font-size:12.5px;font-weight:600;color:#fff;box-shadow:0 6px 20px rgba(0,0,0,.4);animation:admIn .2s ease;white-space:nowrap}
@@ -302,8 +322,10 @@ export default function AdminDashboard() {
         .adm-toast-err{background:linear-gradient(135deg,#ef4444,#dc2626)}
 
         @media(max-width:1100px){.adm-stats{grid-template-columns:repeat(3,1fr)}.adm-table th:nth-child(6),.adm-table td:nth-child(6){display:none}}
-        @media(max-width:768px){.adm-aside{display:none}.adm-main{margin-left:0;padding:16px}.adm-stats{grid-template-columns:1fr 1fr}.adm-table th:nth-child(5),.adm-table td:nth-child(5),.adm-table th:nth-child(6),.adm-table td:nth-child(6){display:none}.adm-detail-grid{grid-template-columns:1fr}.adm-modal{width:95vw;max-width:95vw}.adm-toolbar{flex-direction:column;align-items:stretch}.adm-search{min-width:100%}}
-        @media(max-width:480px){.adm-stats{grid-template-columns:1fr 1fr;gap:10px}.adm-stat{padding:12px}.adm-stat h3{font-size:18px}.adm-table-wrap{border-radius:10px}.adm-modal-body{padding:16px}.adm-detail-grid{gap:10px}}
+        @media(max-width:900px){.adm-aside{display:none !important}.adm-main{margin-left:0 !important;width:100% !important;max-width:100vw !important;padding:16px;min-width:0}.adm-stats{grid-template-columns:repeat(2,1fr)}.adm-table-wrap{max-width:100vw}}
+        @media(max-width:768px){.adm-aside{display:none !important}.adm-main{margin-left:0 !important;width:100% !important;max-width:100vw !important;padding:16px}.adm-stats{grid-template-columns:1fr 1fr}.adm-table th:nth-child(5),.adm-table td:nth-child(5),.adm-table th:nth-child(6),.adm-table td:nth-child(6){display:none}.adm-detail-grid{grid-template-columns:1fr}.adm-modal{width:95vw;max-width:95vw}.adm-toolbar{flex-direction:column;align-items:stretch}.adm-search{min-width:100%}}
+        @media(max-width:480px){.adm-stats{grid-template-columns:1fr 1fr;gap:10px}.adm-stat{padding:12px}.adm-stat h3{font-size:18px}.adm-table-wrap{border-radius:10px}.adm-modal-body{padding:16px}.adm-detail-grid{gap:10px}.adm-top h1{font-size:20px}}
+        @media(max-width:360px){.adm-stats{grid-template-columns:1fr;gap:10px}.adm-main{padding:12px}}
       `}</style>
 
       {/* ── sidebar ──────────────────────────────────────────────── */}
