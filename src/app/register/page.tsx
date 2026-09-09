@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { User, Mail, Lock, UserPlus, ArrowLeft } from "lucide-react";
-import { supabase } from "@/lib/config";
 import { useStore } from "@/lib/store";
 
 export default function RegisterPage() {
@@ -21,22 +20,23 @@ export default function RegisterPage() {
     setError("");
     setLoading(true);
     try {
-      const { data: existing } = await supabase.from("users").select("id").eq("email", email.trim().toLowerCase()).single();
-      if (existing) {
-        setError("This email is already registered. Please login.");
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: name.trim(), email: email.trim().toLowerCase(), password }),
+      });
+      const data = await res.json().catch(() => null) as { user?: { name: string; email: string }; error?: string } | null;
+      if (!res.ok || !data?.user) {
+        setError(data?.error || "Signup failed");
         setLoading(false);
         return;
       }
-      const { error: insErr } = await supabase
-        .from("users")
-        .insert([{ name: name.trim(), email: email.trim().toLowerCase(), password }]);
-      if (insErr) throw new Error(insErr.message);
-      login({ name: name.trim(), email: email.trim().toLowerCase() });
+      login({ name: data.user.name, email: data.user.email });
       showToast("Account created! Welcome to EduBazar.");
       fetch("/api/send-email", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type: "signup", name: name.trim(), email: email.trim().toLowerCase() }),
+        body: JSON.stringify({ type: "signup", name: data.user.name, email: data.user.email }),
       }).catch(() => {});
       router.push("/account");
     } catch (err) {

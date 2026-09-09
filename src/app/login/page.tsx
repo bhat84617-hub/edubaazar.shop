@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Lock, Mail, LogIn, ArrowLeft } from "lucide-react";
-import { supabase } from "@/lib/config";
 import { useStore } from "@/lib/store";
 
 export default function LoginPage() {
@@ -20,19 +19,19 @@ export default function LoginPage() {
     setError("");
     setLoading(true);
     try {
-      const { data, error: sbErr } = await supabase
-        .from("users")
-        .select("name, email")
-        .eq("email", email.trim().toLowerCase())
-        .eq("password", password)
-        .single();
-      if (sbErr || !data) {
-        setError("Invalid email or password. Please try again.");
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim().toLowerCase(), password }),
+      });
+      const data = await res.json().catch(() => null) as { user?: { name: string; email: string }; error?: string } | null;
+      if (!res.ok || !data?.user) {
+        setError(data?.error || "Invalid email or password. Please try again.");
         setLoading(false);
         return;
       }
-      login({ name: data.name, email: data.email });
-      showToast(`Welcome back, ${data.name}!`);
+      login({ name: data.user.name, email: data.user.email });
+      showToast(`Welcome back, ${data.user.name}!`);
       router.push("/account");
     } catch {
       setError("Something went wrong. Please try again.");
