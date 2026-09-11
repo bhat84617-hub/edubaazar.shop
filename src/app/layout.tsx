@@ -80,14 +80,14 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: "/logo/edulogo.jpeg",
+        url: SITE_URL + "/logo/edulogo.jpeg",
         width: 512,
         height: 512,
         alt: "EduBazar.shop — India's Affordable Learning Platform",
         type: "image/jpeg",
       },
       {
-        url: "/images/complete ethical hacking & penetration testing.jpeg",
+        url: SITE_URL + "/images/complete-ethical-hacking-and-penetration-testing.jpeg",
         width: 800,
         height: 600,
         alt: "EduBazar.shop featured courses",
@@ -117,8 +117,6 @@ export const metadata: Metadata = {
   alternates: {
     canonical: SITE_URL,
     languages: {
-      "en-IN": SITE_URL,
-      "en": SITE_URL,
       "x-default": SITE_URL,
     },
   },

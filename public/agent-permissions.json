@@ -1,0 +1,1 @@
+{"allowed": ["read:catalog", "read:product", "read:llms-txt", "read:sitemap"], "disallowed": ["/api/*", "/admin/*", "/account/*", "/checkout/*"], "rateLimits": {"requestsPerMinute": 30, "burst": 10}, "humanInTheLoop": ["purchase", "payment", "refund", "admin-action"], "contact": "edubazarshop@gmail.com"}

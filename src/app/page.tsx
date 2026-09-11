@@ -119,8 +119,8 @@ const homeFaqLd = {
 export default function HomePage() {
   return (
     <>
-      <h1 className="sr-only" style={{ position: "absolute", left: "-9999px", top: "auto", width: 1, height: 1, overflow: "hidden" }}>
-        EduBazar.shop — Affordable Online Courses in Ethical Hacking, Programming, Trading & More from ₹49
+      <h1 style={{ textAlign: "center", fontSize: "clamp(22px,3vw,30px)", fontWeight: 800, color: "#242424", letterSpacing: "-0.4px", padding: "22px 16px 0" }}>
+        Affordable Online Courses in Ethical Hacking, Programming, Trading & More from ₹49
       </h1>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(homeItemListLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(homeFaqLd) }} />
@@ -273,7 +273,7 @@ export default function HomePage() {
               <p style={{ fontSize: 12, color: "#5a657f", marginBottom: 14 }}>Master ethical hacking & penetration testing</p>
               <Link href="/shop?cat=Hacking" style={{ display: "inline-flex", background: "#2A74ED", color: "#fff", padding: "9px 18px", fontSize: 12, fontWeight: 700, borderRadius: 20 }}>Shop Now</Link>
             </div>
-            <img src="/images/complete ethical hacking & penetration testing.jpeg" alt="Hacking" style={{ position: "absolute", right: 6, top: 6, width: "46%", height: "calc(100% - 12px)", objectFit: "cover", borderRadius: 16, border: "1px solid #E5E5E5" }} />
+            <img src="/images/complete-ethical-hacking-and-penetration-testing.jpeg" alt="Hacking" style={{ position: "absolute", right: 6, top: 6, width: "46%", height: "calc(100% - 12px)", objectFit: "cover", borderRadius: 16, border: "1px solid #E5E5E5" }} />
           </div>
           <div style={{ display: "grid", gap: 14 }}>
             <div style={{ position: "relative", overflow: "hidden", background: "#fef6e8", minHeight: 113, display: "flex", alignItems: "center", padding: "18px 20px", border: "1px solid #E5E5E5", borderRadius: 20 }}>
@@ -290,7 +290,7 @@ export default function HomePage() {
                 <p style={{ fontSize: 11, color: "#5a657f", margin: "4px 0 8px" }}>Stock & Crypto</p>
                 <Link href="/shop?cat=Trading" style={{ fontSize: 11, fontWeight: 700, color: "#2A74ED" }}>Shop Now →</Link>
               </div>
-              <img src="/images/mastring stock trading.jpeg" alt="Trading" style={{ position: "absolute", right: 6, top: 6, width: "42%", height: "calc(100% - 12px)", objectFit: "cover", borderRadius: 14 }} />
+              <img src="/images/mastring-stock-trading.jpeg" alt="Trading" style={{ position: "absolute", right: 6, top: 6, width: "42%", height: "calc(100% - 12px)", objectFit: "cover", borderRadius: 14 }} />
             </div>
           </div>
         </div>

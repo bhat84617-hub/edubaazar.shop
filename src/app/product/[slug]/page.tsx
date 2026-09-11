@@ -5,7 +5,7 @@ import ProductBuy from "@/components/ProductBuy";
 import CopyForAI from "@/components/CopyForAI";
 import ProductTabs from "@/components/ProductTabs";
 import ProductCard from "@/components/ProductCard";
-import { products, getProductBySlug, getRelatedProducts } from "@/lib/products";
+import { products, getProductBySlug, getRelatedProducts, isSensitiveProduct } from "@/lib/products";
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.edubaazar.shop";
 
@@ -64,7 +64,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       description: seoDescription,
       images: [ogImage],
     },
-    robots: { index: true, follow: true },
+    robots: isSensitiveProduct(slug) ? { index: false, follow: false } : { index: true, follow: true },
     other: {
       "product:price:amount": String(product.price),
       "product:price:currency": "INR",
@@ -271,6 +271,11 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
                 {product.desc}
               </p>
               <ProductBuy product={product} />
+              {isSensitiveProduct(slug) && (
+                <p style={{ marginTop: 12, fontSize: 12, color: "#8a5a00", background: "#fff8e6", border: "1px solid #f0d48a", borderRadius: 12, padding: "10px 12px", lineHeight: 1.6 }}>
+                  For authorized security lab training only. Use only on systems you own or have written permission to test.
+                </p>
+              )}
               <CopyForAI
                 title={product.title}
                 price={product.price}

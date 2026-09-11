@@ -22,11 +22,14 @@ const baseMetadata: Metadata = {
   alternates: { canonical: `${SITE}/shop` },
 };
 
-type SearchParams = { cat?: string; q?: string; sort?: string; kind?: string; free?: string };
+type SearchParams = { cat?: string; q?: string; sort?: string; kind?: string; free?: string; page?: string };
+
+const PAGE_SIZE = 24;
 
 export async function generateMetadata({ searchParams }: { searchParams: Promise<SearchParams> }): Promise<Metadata> {
   const params = await searchParams;
-  const hasNonIndexableFilter = Boolean(params.q || params.sort || params.kind || params.free);
+  const page = Math.max(1, parseInt(params.page ?? "1", 10) || 1);
+  const hasNonIndexableFilter = Boolean(params.q || params.sort || params.kind || params.free || page > 1);
   const canonical = params.cat ? `${SITE}/shop?cat=${encodeURIComponent(params.cat)}` : `${SITE}/shop`;
 
   return {
@@ -43,6 +46,11 @@ function buildHref(extra: Partial<SearchParams>, base: SearchParams): string {
     if (v) url.set(k, v);
   });
   return url.toString();
+}
+
+function pageHref(page: number, base: SearchParams): string {
+  const qs = buildHref({ page: page > 1 ? String(page) : "" }, base);
+  return qs ? `/shop?${qs}` : "/shop";
 }
 
 export default async function ShopPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
@@ -233,11 +241,50 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
                   <Link href="/shop" className="btn btn-primary">Reset Filters</Link>
                 </div>
               ) : (
-                <div className="p-grid shop-product-grid">
-                  {list.map((p) => (
-                    <ProductCard key={p.id} product={p} />
-                  ))}
-                </div>
+                <>
+                  <div className="p-grid shop-product-grid">
+                    {(() => {
+                      const page = Math.max(1, parseInt(sp.page ?? "1", 10) || 1);
+                      const totalPages = Math.max(1, Math.ceil(list.length / PAGE_SIZE));
+                      const safePage = Math.min(page, totalPages);
+                      return list.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE).map((p) => (
+                        <ProductCard key={p.id} product={p} />
+                      ));
+                    })()}
+                  </div>
+                  {(() => {
+                    const page = Math.max(1, parseInt(sp.page ?? "1", 10) || 1);
+                    const totalPages = Math.max(1, Math.ceil(list.length / PAGE_SIZE));
+                    const safePage = Math.min(page, totalPages);
+                    if (totalPages <= 1) return null;
+                    const baseParams: SearchParams = { cat, q: sp.q ?? "", kind, sort, free: freeOnly ? "1" : "" };
+                    return (
+                      <nav aria-label="Pagination" style={{ display: "flex", gap: 8, justifyContent: "center", marginTop: 24, flexWrap: "wrap" }}>
+                        {safePage > 1 && (
+                          <Link href={pageHref(safePage - 1, baseParams)} className="btn btn-outline" style={{ borderRadius: 20 }} rel="prev">
+                            ← Prev
+                          </Link>
+                        )}
+                        {Array.from({ length: totalPages }).map((_, i) => (
+                          <Link
+                            key={i + 1}
+                            href={pageHref(i + 1, baseParams)}
+                            aria-current={i + 1 === safePage ? "page" : undefined}
+                            className={i + 1 === safePage ? "btn btn-primary" : "btn btn-outline"}
+                            style={{ borderRadius: 20, minWidth: 42, textAlign: "center" }}
+                          >
+                            {i + 1}
+                          </Link>
+                        ))}
+                        {safePage < totalPages && (
+                          <Link href={pageHref(safePage + 1, baseParams)} className="btn btn-outline" style={{ borderRadius: 20 }} rel="next">
+                            Next →
+                          </Link>
+                        )}
+                      </nav>
+                    );
+                  })()}
+                </>
               )}
             </div>
           </div>

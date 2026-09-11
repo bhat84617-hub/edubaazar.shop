@@ -99,6 +99,7 @@ export default function Footer() {
           <div className="ws-footer-bottom">
             <p>© {new Date().getFullYear()} EduBazar.shop. All rights reserved.</p>
             <div className="ws-footer-links">
+              <Link href="/blog">Blog</Link>
               <Link href="/privacy">Privacy</Link>
               <Link href="/terms">Terms</Link>
               <Link href="/refund">Refunds</Link>

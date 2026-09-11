@@ -302,7 +302,7 @@ export default function Header() {
                     <div className="ws-mega-col">
                       <div className="ws-mega-featured">
                         <h4 className="mega-title">Featured Deal</h4>
-                        <div className="mega-featured-img"><img src="/images/complete ethical hacking & penetration testing.jpeg" alt="Featured" /></div>
+                        <div className="mega-featured-img"><img src="/images/complete-ethical-hacking-and-penetration-testing.jpeg" alt="Featured" /></div>
                         <h5 className="mega-featured-title"><Link href="/product/complete-ethical-hacking-penetration-testing">Complete Ethical Hacking</Link></h5>
                         <div className="mega-featured-price">₹199 <span className="old-price">₹499</span></div>
                         <Link href="/product/complete-ethical-hacking-penetration-testing" className="ws-btn ws-btn-fill ws-btn-sm" style={{ borderRadius: 20 }}>Get Now</Link>
