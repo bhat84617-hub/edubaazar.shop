@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ChevronRight, Tag, ShieldCheck, Truck, Zap } from "lucide-react";
 import ProductBuy from "@/components/ProductBuy";
+import CopyForAI from "@/components/CopyForAI";
 import ProductTabs from "@/components/ProductTabs";
 import ProductCard from "@/components/ProductCard";
 import { products, getProductBySlug, getRelatedProducts } from "@/lib/products";
@@ -270,6 +271,13 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
                 {product.desc}
               </p>
               <ProductBuy product={product} />
+              <CopyForAI
+                title={product.title}
+                price={product.price}
+                category={product.category}
+                url={`${SITE}/product/${slug}`}
+                description={product.desc}
+              />
             </div>
           </div>
 

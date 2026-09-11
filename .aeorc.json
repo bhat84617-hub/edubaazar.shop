@@ -1,0 +1,1 @@
+{"checks": {"token-budget": {"maxTokensPerPage": 25000}, "robots-txt": {"requiredAgents": ["ClaudeBot", "GPTBot", "PerplexityBot", "Google-Extended"]}}, "ignore": ["**/node_modules/**", "**/.next/**", "**/legacy/**"], "outputDir": "public", "threshold": 60}
