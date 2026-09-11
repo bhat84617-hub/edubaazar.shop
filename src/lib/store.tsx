@@ -38,6 +38,9 @@ type StoreCtx = {
   cartSubtotal: number;
   toggleWishlist: (id: string) => void;
   toggleCompare: (id: string) => void;
+  quickViewId: string | null;
+  openQuickView: (id: string) => void;
+  closeQuickView: () => void;
   login: (user: NonNullable<User>) => void;
   logout: () => void;
   showToast: (msg: string, type?: "success" | "error") => void;
@@ -65,7 +68,11 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User>(null);
   const [orders, setOrders] = useState<Order[]>([]);
   const [toasts, setToasts] = useState<Toast[]>([]);
+  const [quickViewId, setQuickViewId] = useState<string | null>(null);
   const toastId = useRef(0);
+
+  const openQuickView = useCallback((id: string) => setQuickViewId(id), []);
+  const closeQuickView = useCallback(() => setQuickViewId(null), []);
 
   useEffect(() => {
     setCart(read<CartItem[]>("edubazar_cart", []));
@@ -263,13 +270,16 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       cartSubtotal,
       toggleWishlist,
       toggleCompare,
+      quickViewId,
+      openQuickView,
+      closeQuickView,
       login,
       logout,
       showToast,
       placeOrder,
       updateOrderStatus,
     }),
-    [mounted, cart, wishlist, compare, user, orders, toasts, addToCart, removeFromCart, setQty, clearCart, cartCount, cartSubtotal, toggleWishlist, toggleCompare, login, logout, showToast, placeOrder, updateOrderStatus]
+    [mounted, cart, wishlist, compare, user, orders, toasts, quickViewId, openQuickView, closeQuickView, addToCart, removeFromCart, setQty, clearCart, cartCount, cartSubtotal, toggleWishlist, toggleCompare, login, logout, showToast, placeOrder, updateOrderStatus]
   );
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;

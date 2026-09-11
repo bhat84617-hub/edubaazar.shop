@@ -5,6 +5,7 @@ import { StoreProvider } from "@/lib/store";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Toaster from "@/components/Toaster";
+import QuickViewModal from "@/components/QuickViewModal";
 import AIChatWidget from "@/components/AIChatWidget";
 import "./globals.css";
 
@@ -307,6 +308,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </main>
           <Footer />
           <Toaster />
+          <QuickViewModal />
           <AIChatWidget />
         </StoreProvider>
       </body>
