@@ -67,7 +67,7 @@ export default function Footer() {
               </div>
               <div className="ws-social-row">
                 <a href="https://instagram.com/edubazarshop" target="_blank" rel="noreferrer" aria-label="Instagram"><Camera size={14} /></a>
-                <a href="https://wa.me/919759131256" target="_blank" rel="noreferrer" aria-label="WhatsApp"><MessageCircle size={14} /></a>
+                <a href="https://wa.me/919582501582" target="_blank" rel="noreferrer" aria-label="WhatsApp"><MessageCircle size={14} /></a>
                 <a href="mailto:edubazarshop@gmail.com" aria-label="Email"><Mail size={14} /></a>
               </div>
             </div>

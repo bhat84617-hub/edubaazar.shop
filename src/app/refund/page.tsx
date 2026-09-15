@@ -57,7 +57,7 @@ export default function RefundPage() {
 
             <h2 style={{ fontSize: 20, marginBottom: 12 }}>3. How to Request a Refund</h2>
             <ol style={{ fontSize: 15, lineHeight: 2, color: "var(--muted)", marginBottom: 20, paddingLeft: 20 }}>
-              <li>WhatsApp us at <a href="https://wa.me/919759131256" style={{ color: "var(--primary)" }}>9759131256</a> with your Order ID</li>
+              <li>WhatsApp us at <a href="https://wa.me/919582501582" style={{ color: "var(--primary)" }}>9582501582</a> with your Order ID</li>
               <li>Or email us at <a href="mailto:edubazarshop@gmail.com" style={{ color: "var(--primary)" }}>edubazarshop@gmail.com</a></li>
               <li>Mention your Order ID and reason for refund</li>
               <li>We will review and respond within 48 hours</li>
@@ -71,7 +71,7 @@ export default function RefundPage() {
 
             <h2 style={{ fontSize: 20, marginBottom: 12 }}>5. Contact for Refunds</h2>
             <p style={{ fontSize: 15, lineHeight: 1.8, color: "var(--muted)" }}>
-              For any refund-related queries, contact us at <a href="mailto:edubazarshop@gmail.com" style={{ color: "var(--primary)" }}>edubazarshop@gmail.com</a> or WhatsApp at <a href="https://wa.me/919759131256" style={{ color: "var(--primary)" }}>9759131256</a>. We aim to resolve all refund requests within 48 hours.
+              For any refund-related queries, contact us at <a href="mailto:edubazarshop@gmail.com" style={{ color: "var(--primary)" }}>edubazarshop@gmail.com</a> or WhatsApp at <a href="https://wa.me/919582501582" style={{ color: "var(--primary)" }}>9582501582</a>. We aim to resolve all refund requests within 48 hours.
             </p>
           </div>
         </div>

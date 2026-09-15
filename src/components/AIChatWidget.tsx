@@ -332,7 +332,7 @@ Apna sawaal poocho! 🚀`,
 
 Ye yaad rahe - agar koi aur sawaal ho toh poochna mat hesitate karein. Main 24/7 available hoon!
 
-Agar aapne abhi course purchase kiya hai, toh download link 1-2 hours mein activate ho jayega. Koi issue ho toh WhatsApp karein: +91-9759131256
+Agar aapne abhi course purchase kiya hai, toh download link 1-2 hours mein activate ho jayega. Koi issue ho toh WhatsApp karein: +91-9582501582
 
 Happy Learning! 📚✨`,
         suggestedActions: ["More courses dekho", "Order track karo", "Contact on WhatsApp"]
@@ -375,7 +375,7 @@ Happy Learning! 📚✨`,
           `• Course ka full naam likhein\n` +
           `• Category bolo: "Trading courses"\n` +
           `• Ya direct product ID dein (jaise: h1, p1)\n\n` +
-          `📞 Still stuck? WhatsApp karein: +91-9759131256`,
+          `📞 Still stuck? WhatsApp karein: +91-9582501582`,
         suggestedActions: ["All courses dekho", "Categories browse karo", "Contact support"]
       };
     }
@@ -587,7 +587,7 @@ Happy Learning! 📚✨`,
           text: `❌ Product ID "${entities.id}" nahi mila.\n\n` +
             `Valid IDs format: h1, h2, p1, p2, t1, b1, d1, m1\n` +
             `Example: "h1 course details"\n\n` +
-            `📞 Help chahiye? WhatsApp: +91-9759131256`,
+            `📞 Help chahiye? WhatsApp: +91-9582501582`,
           suggestedActions: ["All courses dekho", "Search karo", "Contact support"]
         };
       }
@@ -634,7 +634,7 @@ Happy Learning! 📚✨`,
           `→ Course access nahi mila toh refund possible\n\n` +
           `━━━━━━━━━━━━━━━━━━━━\n\n` +
           `📞 *Direct Contact:*\n` +
-          `WhatsApp: +91-9759131256\n` +
+          `WhatsApp: +91-9582501582\n` +
           `Email: support@edubaazar.shop`,
         suggestedActions: ["Track my order", "Report payment issue", "Request refund", "Contact on WhatsApp"]
       };
@@ -649,7 +649,7 @@ Happy Learning! 📚✨`,
           `3️⃣ *Check spam folder* - Email spam mein bhi check karo\n\n` +
           `4️⃣ *WhatsApp pe contact karo* - Apna Order ID share karein\n\n` +
           `━━━━━━━━━━━━━━━━━━━━\n\n` +
-          `📱 WhatsApp: +91-9759131256\n\n` +
+          `📱 WhatsApp: +91-9582501582\n\n` +
           `Format: "Hi, mera Order ID [number] hai, download link nahi mila"\n\n` +
           `⏰ Working hours: 10 AM - 10 PM`,
         suggestedActions: ["Contact on WhatsApp", "Track order status", "Report issue via email"]
@@ -673,7 +673,7 @@ Happy Learning! 📚✨`,
           `3. UPI/bank details provide karein\n` +
           `4. Refund initiate hoga\n\n` +
           `━━━━━━━━━━━━━━━━━━━━\n\n` +
-          `📱 WhatsApp: +91-9759131256\n` +
+          `📱 WhatsApp: +91-9582501582\n` +
           `📧 Email: support@edubaazar.shop`,
         suggestedActions: ["Request refund via WhatsApp", "Check refund status", "Learn about policy"]
       };
@@ -700,7 +700,7 @@ Happy Learning! 📚✨`,
           `• Amount deducted but no confirmation → Wait 24 hours\n` +
           `• UTR not received → Contact your bank\n\n` +
           `━━━━━━━━━━━━━━━━━━━━\n\n` +
-          `📞 WhatsApp: +91-9759131256`,
+          `📞 WhatsApp: +91-9582501582`,
         suggestedActions: ["Send UTR on WhatsApp", "Retry payment", "Contact support"]
       };
 
@@ -729,7 +729,7 @@ Happy Learning! 📚✨`,
           `• Email bhi hoga\n\n` +
           `━━━━━━━━━━━━━━━━━━━━\n\n` +
           `💡 *Pro Tip:* WhatsApp pe order karo - fastest response!\n\n` +
-          `📱 WhatsApp: +91-9759131256`,
+          `📱 WhatsApp: +91-9582501582`,
         suggestedActions: ["Browse courses", "Send order on WhatsApp", "View payment options"]
       };
 
@@ -739,7 +739,7 @@ Happy Learning! 📚✨`,
         text: `📞 *Contact EduBazar Support*\n\n` +
           `━━━━━━━━━━━━━━━━━━━━\n\n` +
           `📱 *WhatsApp (Fastest):*\n` +
-          `+91-9759131256\n` +
+          `+91-9582501582\n` +
           `Timing: 10 AM - 10 PM\n\n` +
           `📧 *Email:*\n` +
           `support@edubaazar.shop\n` +
@@ -781,7 +781,7 @@ Happy Learning! 📚✨`,
           `Instant replies, 24/7 available\n\n` +
           `━━━━━━━━━━━━━━━━━━━━\n\n` +
           `Still have questions? Human support available!\n` +
-          `📱 WhatsApp: +91-9759131256`,
+          `📱 WhatsApp: +91-9582501582`,
         suggestedActions: ["Show me courses", "Help me find course", "Contact human support"]
       };
 
@@ -848,7 +848,7 @@ Happy Learning! 📚✨`,
           `• "Order track karo"\n` +
           `• "Payment kaise karu?"\n` +
           `• "Contact info do"\n\n` +
-          `📞 *WhatsApp:* +91-9759131256`,
+          `📞 *WhatsApp:* +91-9582501582`,
         suggestedActions: ["Saari categories", "Free courses", "How to buy", "Contact support"]
       };
   }
@@ -2115,7 +2115,7 @@ export default function AIChatWidget() {
             </div>
             <div className="edubot-footer">
               <a
-                href="https://wa.me/919759131256"
+                href="https://wa.me/919582501582"
                 target="_blank"
                 rel="noopener noreferrer"
               >

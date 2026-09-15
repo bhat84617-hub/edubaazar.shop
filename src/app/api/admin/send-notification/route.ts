@@ -134,7 +134,7 @@ export async function POST(request: NextRequest) {
             <hr style="border:none;border-top:1px solid #eee;margin:24px 0;" />
             
             <p style="color:#888;font-size:12px;margin:0;">
-              Questions? Contact us on WhatsApp: 9759131256 or email: edubazarshop@gmail.com
+              Questions? Contact us on WhatsApp: 9582501582 or email: edubazarshop@gmail.com
             </p>
           </div>
         </body>
@@ -177,12 +177,12 @@ export async function POST(request: NextRequest) {
           const fallback = dlLines || `🔗 <a href="https://www.edubaazar.shop/account">Open My Downloads</a>`;
           await sendMessage(
             tgChatId,
-            `🎉 <b>Your order ${esc(orderId)} is APPROVED!</b> ✅\n\nPayment verified. Here are your download links:\n\n${fallback}\n\n📧 Also sent to your email: <code>${esc(email)}</code>\nEnjoy! 🚀\n\nNeed help? WhatsApp: 9759131256`,
+            `🎉 <b>Your order ${esc(orderId)} is APPROVED!</b> ✅\n\nPayment verified. Here are your download links:\n\n${fallback}\n\n📧 Also sent to your email: <code>${esc(email)}</code>\nEnjoy! 🚀\n\nNeed help? WhatsApp: 9582501582`,
           );
         } else {
           await sendMessage(
             tgChatId,
-            `❌ <b>Order ${esc(orderId)} — Payment Not Verified</b>\n\nWe couldn't verify your UTR/payment for this order. Please check the amount and UTR, then contact support on WhatsApp: 9759131256 with the correct UTR.\n\nYou can also re-order via the bot or website.`,
+            `❌ <b>Order ${esc(orderId)} — Payment Not Verified</b>\n\nWe couldn't verify your UTR/payment for this order. Please check the amount and UTR, then contact support on WhatsApp: 9582501582 with the correct UTR.\n\nYou can also re-order via the bot or website.`,
           );
         }
       } catch (e) {

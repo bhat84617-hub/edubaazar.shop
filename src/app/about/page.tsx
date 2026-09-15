@@ -21,7 +21,7 @@ const values = [
   { icon: <GraduationCap size={20} />, title: "Quality Education", desc: "Every course is created by industry experts with real-world experience. No fluff — only practical, actionable content." },
   { icon: <Zap size={20} />, title: "Instant Access", desc: "No waiting. Pay via UPI, get verified within hours, and start learning immediately. Lifetime access to everything." },
   { icon: <ShieldCheck size={20} />, title: "Affordable Pricing", desc: "Premium courses starting at just ₹49. We believe quality education shouldn't burn a hole in your pocket." },
-  { icon: <Headset size={20} />, title: "Student Support", desc: "WhatsApp support at 9759131256. We're always here to help with any issues or questions." },
+  { icon: <Headset size={20} />, title: "Student Support", desc: "WhatsApp support at 9582501582. We're always here to help with any issues or questions." },
 ];
 
 export default function AboutPage() {
@@ -102,7 +102,7 @@ export default function AboutPage() {
             <h2 style={{ marginTop: 28, marginBottom: 12, fontSize: 16, fontWeight: 800, color: "#242424" }}>Contact Us</h2>
             <div style={{ background: "#f8f9fb", border: "1px solid #E5E5E5", borderRadius: 16, padding: 16 }}>
               <ul style={{ fontSize: 13, lineHeight: 2, color: "#777", listStyle: "none" }}>
-                <li><strong style={{ color: "#242424" }}>WhatsApp:</strong> <a href="https://wa.me/919759131256" style={{ color: "#2A74ED", fontWeight: 700 }}>9759131256</a></li>
+                <li><strong style={{ color: "#242424" }}>WhatsApp:</strong> <a href="https://wa.me/919582501582" style={{ color: "#2A74ED", fontWeight: 700 }}>9582501582</a></li>
                 <li><strong style={{ color: "#242424" }}>Email:</strong> <a href="mailto:edubazarshop@gmail.com" style={{ color: "#2A74ED" }}>edubazarshop@gmail.com</a></li>
                 <li><strong style={{ color: "#242424" }}>Instagram:</strong> <a href="https://instagram.com/edubazarshop" target="_blank" rel="noreferrer" style={{ color: "#2A74ED" }}>@edubazarshop</a></li>
               </ul>

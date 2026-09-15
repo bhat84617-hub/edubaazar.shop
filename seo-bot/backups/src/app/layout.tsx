@@ -94,8 +94,8 @@ const jsonLdOrg = {
   name: "EduBazar.shop",
   url: SITE,
   logo: SITE + "/logo/edulogo.jpeg",
-  contactPoint: { "@type": "ContactPoint", telephone: "+91-9759131256", contactType: "customer service" },
-  sameAs: ["https://instagram.com/edubazarshop", "https://wa.me/919759131256"],
+  contactPoint: { "@type": "ContactPoint", telephone: "+91-9582501582", contactType: "customer service" },
+  sameAs: ["https://instagram.com/edubazarshop", "https://wa.me/919582501582"],
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

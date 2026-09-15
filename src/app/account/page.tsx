@@ -210,7 +210,7 @@ export default function AccountPage() {
                                     <DownloadCloud size={13} /> Download
                                   </a>
                                 ) : (
-                                  <a key={i.name} href={`https://wa.me/919759131256?text=Hi%20EduBazar%2C%20I%20need%20download%20link%20for%20my%20approved%20order%20${order.orderId}`} target="_blank" rel="noreferrer" className="btn btn-outline btn-sm" style={{ margin: "2px 4px 2px 0", fontSize: 11 }}>
+                                  <a key={i.name} href={`https://wa.me/919582501582?text=Hi%20EduBazar%2C%20I%20need%20download%20link%20for%20my%20approved%20order%20${order.orderId}`} target="_blank" rel="noreferrer" className="btn btn-outline btn-sm" style={{ margin: "2px 4px 2px 0", fontSize: 11 }}>
                                     <MessageCircle size={12} /> Get Download Link
                                   </a>
                                 )
@@ -251,7 +251,7 @@ export default function AccountPage() {
                           i.downloadUrl && /^https?:\/\//i.test(i.downloadUrl) && !/\/account$/.test(i.downloadUrl) && i.downloadUrl !== "#" ? (
                             <a key={i.name} href={i.downloadUrl} target="_blank" rel="noreferrer" className="btn btn-accent" style={{width:"100%", justifyContent:"center"}}><DownloadCloud size={14}/> Download - {i.name.slice(0,22)}</a>
                           ) : (
-                            <a key={i.name} href={`https://wa.me/919759131256?text=Hi%20EduBazar%2C%20I%20need%20download%20link%20for%20my%20approved%20order%20${order.orderId}`} target="_blank" rel="noreferrer" className="btn btn-outline" style={{width:"100%", justifyContent:"center", fontSize:12}}><MessageCircle size={13}/> Get Download Link</a>
+                            <a key={i.name} href={`https://wa.me/919582501582?text=Hi%20EduBazar%2C%20I%20need%20download%20link%20for%20my%20approved%20order%20${order.orderId}`} target="_blank" rel="noreferrer" className="btn btn-outline" style={{width:"100%", justifyContent:"center", fontSize:12}}><MessageCircle size={13}/> Get Download Link</a>
                           )
                         ) : isPending ? (
                           <span style={{ color: "#b57f0a", fontSize: 13, display: "inline-flex", alignItems: "center", gap: 6, background:"#fef6e8", padding:"8px 12px", borderRadius:20, width:"100%", justifyContent:"center" }}><Clock size={14}/> Verification pending</span>
@@ -281,7 +281,7 @@ export default function AccountPage() {
                   <div className="n" style={{ fontSize: 18 }}>{user.email}</div>
                 </div>
               </div>
-              <a href={`https://wa.me/919759131256`} target="_blank" rel="noreferrer" className="btn btn-primary" style={{ marginTop: 18 }}>
+              <a href={`https://wa.me/919582501582`} target="_blank" rel="noreferrer" className="btn btn-primary" style={{ marginTop: 18 }}>
                 <ChevronRight size={16} /> Contact Support on WhatsApp
               </a>
               <button className="btn btn-outline" style={{ marginTop: 18, marginLeft: 10 }} onClick={() => logout()}>

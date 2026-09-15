@@ -489,12 +489,12 @@ export async function POST(request: NextRequest) {
         }
         sess.email = text.trim();
         sess.step = "awaiting_phone";
-        await sendMessage(chatId, `✅ Email saved: <code>${escape(sess.email)}</code>\n\n2️⃣ Ab apna <b>Phone / WhatsApp number</b> bhejo 📱\n<i>(10 digits, jaise 9759131256)</i>`);
+        await sendMessage(chatId, `✅ Email saved: <code>${escape(sess.email)}</code>\n\n2️⃣ Ab apna <b>Phone / WhatsApp number</b> bhejo 📱\n<i>(10 digits, jaise 9582501582)</i>`);
         return NextResponse.json({ ok: true });
       }
       if (sess.step === "awaiting_phone") {
         if (!isPhone(text)) {
-          await sendMessage(chatId, `❌ Phone number galat hai. 10 digits ka number bhejo — jaise <code>9759131256</code>`);
+          await sendMessage(chatId, `❌ Phone number galat hai. 10 digits ka number bhejo — jaise <code>9582501582</code>`);
           return NextResponse.json({ ok: true });
         }
         sess.phone = text.replace(/\D/g, "");

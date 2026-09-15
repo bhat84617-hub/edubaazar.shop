@@ -72,7 +72,7 @@ export default function TermsPage() {
 
             <h2 style={{ fontSize: 20, marginBottom: 12 }}>9. Contact</h2>
             <p style={{ fontSize: 15, lineHeight: 1.8, color: "var(--muted)" }}>
-              For questions about these terms, contact us at <a href="mailto:edubazarshop@gmail.com" style={{ color: "var(--primary)" }}>edubazarshop@gmail.com</a> or WhatsApp at <a href="https://wa.me/919759131256" style={{ color: "var(--primary)" }}>9759131256</a>.
+              For questions about these terms, contact us at <a href="mailto:edubazarshop@gmail.com" style={{ color: "var(--primary)" }}>edubazarshop@gmail.com</a> or WhatsApp at <a href="https://wa.me/919582501582" style={{ color: "var(--primary)" }}>9582501582</a>.
             </p>
           </div>
         </div>

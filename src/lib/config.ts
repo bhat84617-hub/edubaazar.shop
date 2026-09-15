@@ -16,9 +16,9 @@ export const ADMIN_EMAIL = "admin@edubazar.shop";
 
 export const STORE = {
   name: "EduBazar.shop",
-  phone: "+91 9759131256",
-  phoneRaw: "9759131256",
-  whatsapp: "919759131256",
+  phone: "+91 9582501582",
+  phoneRaw: "9582501582",
+  whatsapp: "919582501582",
   email: "edubazarshop@gmail.com",
   upiId: "paytm.s34cntn@pty",
   address: "India",

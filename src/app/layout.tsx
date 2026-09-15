@@ -194,11 +194,11 @@ const jsonLdOrganization = {
   description: SITE_DESCRIPTION,
   foundingDate: "2024-01-01",
   email: "edubazarshop@gmail.com",
-  telephone: "+91-9759131256",
+  telephone: "+91-9582501582",
   contactPoint: [
     {
       "@type": "ContactPoint",
-      telephone: "+91-9759131256",
+      telephone: "+91-9582501582",
       contactType: "customer service",
       availableLanguage: ["en", "hi"],
       areaServed: "IN",
@@ -206,7 +206,7 @@ const jsonLdOrganization = {
     },
     {
       "@type": "ContactPoint",
-      telephone: "+91-9759131256",
+      telephone: "+91-9582501582",
       contactType: "sales",
       availableLanguage: ["en", "hi"],
       areaServed: "IN",
@@ -214,7 +214,7 @@ const jsonLdOrganization = {
   ],
   sameAs: [
     "https://instagram.com/edubazarshop",
-    "https://wa.me/919759131256",
+    "https://wa.me/919582501582",
     "https://www.youtube.com/@edubazarshop",
   ],
   address: {
@@ -245,7 +245,7 @@ const jsonLdLocalBusiness = {
   logo: SITE + "/logo/edulogo.jpeg",
   description: SITE_DESCRIPTION,
   priceRange: "₹49 - ₹999",
-  telephone: "+91-9759131256",
+  telephone: "+91-9582501582",
   email: "edubazarshop@gmail.com",
   address: {
     "@type": "PostalAddress",
@@ -268,7 +268,7 @@ const jsonLdLocalBusiness = {
   paymentAccepted: "UPI, Google Pay, PhonePe, Paytm, Cash",
   currenciesAccepted: "INR",
   hasMap: "https://maps.google.com/?q=India",
-  sameAs: ["https://instagram.com/edubazarshop", "https://wa.me/919759131256"],
+  sameAs: ["https://instagram.com/edubazarshop", "https://wa.me/919582501582"],
 };
 
 const jsonLdBreadcrumb = {

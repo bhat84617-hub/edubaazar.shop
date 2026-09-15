@@ -4,7 +4,7 @@ import { ChevronRight, MessageCircle, Mail, Phone, Camera } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Contact Us — EduBazar.shop Support",
-  description: "Get in touch with EduBazar.shop. WhatsApp 9759131256, email edubazarshop@gmail.com. Course queries, UPI payment issues, support within 24 hours.",
+  description: "Get in touch with EduBazar.shop. WhatsApp 9582501582, email edubazarshop@gmail.com. Course queries, UPI payment issues, support within 24 hours.",
   keywords: ["contact EduBazar", "EduBazar support", "course help India", "UPI payment issue", "edubazar whatsapp"],
   alternates: { canonical: "https://www.edubaazar.shop/contact" },
   openGraph: {
@@ -30,8 +30,8 @@ export default function ContactPage() {
       "@type": "Organization",
       name: "EduBazar.shop",
       email: "edubazarshop@gmail.com",
-      telephone: "+91-9759131256",
-      sameAs: ["https://instagram.com/edubazarshop", "https://wa.me/919759131256"],
+      telephone: "+91-9582501582",
+      sameAs: ["https://instagram.com/edubazarshop", "https://wa.me/919582501582"],
     },
   };
   const breadcrumbLd = {
@@ -63,11 +63,11 @@ export default function ContactPage() {
             </p>
 
             <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-              <a href="https://wa.me/919759131256" target="_blank" rel="noreferrer" style={{ display: "flex", alignItems: "center", gap: 16, padding: 20, background: "var(--soft)", borderRadius: 12, textDecoration: "none", color: "var(--body)", transition: "all 0.2s" }}>
+              <a href="https://wa.me/919582501582" target="_blank" rel="noreferrer" style={{ display: "flex", alignItems: "center", gap: 16, padding: 20, background: "var(--soft)", borderRadius: 12, textDecoration: "none", color: "var(--body)", transition: "all 0.2s" }}>
                 <div style={{ width: 48, height: 48, borderRadius: 12, background: "#25D366", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff" }}><MessageCircle size={24} /></div>
                 <div>
                   <h3 style={{ fontSize: 16, marginBottom: 2 }}>WhatsApp</h3>
-                  <p style={{ fontSize: 14, color: "var(--muted)", margin: 0 }}>9759131256 — Fastest response, usually within minutes</p>
+                  <p style={{ fontSize: 14, color: "var(--muted)", margin: 0 }}>9582501582 — Fastest response, usually within minutes</p>
                 </div>
               </a>
 
@@ -87,11 +87,11 @@ export default function ContactPage() {
                 </div>
               </a>
 
-              <a href="tel:+919759131256" style={{ display: "flex", alignItems: "center", gap: 16, padding: 20, background: "var(--soft)", borderRadius: 12, textDecoration: "none", color: "var(--body)", transition: "all 0.2s" }}>
+              <a href="tel:+919582501582" style={{ display: "flex", alignItems: "center", gap: 16, padding: 20, background: "var(--soft)", borderRadius: 12, textDecoration: "none", color: "var(--body)", transition: "all 0.2s" }}>
                 <div style={{ width: 48, height: 48, borderRadius: 12, background: "var(--accent)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff" }}><Phone size={24} /></div>
                 <div>
                   <h3 style={{ fontSize: 16, marginBottom: 2 }}>Phone / Call</h3>
-                  <p style={{ fontSize: 14, color: "var(--muted)", margin: 0 }}>+91 9759131256 — Mon-Sat, 10 AM to 8 PM</p>
+                  <p style={{ fontSize: 14, color: "var(--muted)", margin: 0 }}>+91 9582501582 — Mon-Sat, 10 AM to 8 PM</p>
                 </div>
               </a>
             </div>
