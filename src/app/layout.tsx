@@ -7,6 +7,7 @@ import Footer from "@/components/Footer";
 import Toaster from "@/components/Toaster";
 import QuickViewModal from "@/components/QuickViewModal";
 import AIChatWidget from "@/components/AIChatWidget";
+import WhatsAppFloat from "@/components/WhatsAppFloat";
 import "./globals.css";
 
 const jost = Jost({
@@ -310,6 +311,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <Toaster />
           <QuickViewModal />
           <AIChatWidget />
+          <WhatsAppFloat />
         </StoreProvider>
       </body>
     </html>
