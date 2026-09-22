@@ -86,43 +86,44 @@ export default function Hero() {
                 gridTemplateColumns: "1fr 1fr",
                 alignItems: "center",
                 opacity: i === idx ? 1 : 0,
-                transform: i === idx ? "translateX(0)" : "translateX(14px)",
-                transition: "all 0.45s linear",
+                transform: i === idx ? "translateX(0)" : "translateX(24px)",
+                transition: "all 0.55s cubic-bezier(0.16,1,0.3,1)",
                 pointerEvents: i === idx ? "auto" : "none",
                 padding: "28px 36px",
                 gap: 20,
               }}
             >
-              <div>
-                <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: 1, textTransform: "uppercase", color: slide.accent, background: "#fff", padding: "4px 10px", borderRadius: 20, border: "1px solid #E5E5E5", display: "inline-flex" }}>{slide.eyebrow}</span>
-                <h2 style={{ fontSize: "clamp(22px, 3.2vw, 34px)", fontWeight: 800, color: "#242424", lineHeight: 1.1, margin: "12px 0 10px", whiteSpace: "pre-line", letterSpacing: "-0.6px" }}>
-                  {slide.title.split("\n")[0]} <span style={{ color: "#2A74ED" }}>{slide.title.split("\n")[1] ?? ""}</span>
+              <div className="hero-slide-inner" key={`${idx}-text`}>
+                <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: 1, textTransform: "uppercase", color: slide.accent, background: "#fff", padding: "4px 10px", borderRadius: 20, border: "1px solid #E5E5E5", display: "inline-flex", animation: "ebPop .45s cubic-bezier(.16,1,.3,1) both" }}>{slide.eyebrow}</span>
+                <h2 style={{ fontSize: "clamp(22px, 3.2vw, 34px)", fontWeight: 800, color: "#242424", lineHeight: 1.1, margin: "12px 0 10px", whiteSpace: "pre-line", letterSpacing: "-0.6px", animation: "ebFadeUp .6s cubic-bezier(.16,1,.3,1) .08s both" }}>
+                  {slide.title.split("\n")[0]} <span style={{ color: "#2A74ED", backgroundImage: "linear-gradient(90deg,#2A74ED,#5a9af0)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>{slide.title.split("\n")[1] ?? ""}</span>
                 </h2>
-                <p style={{ fontSize: 13, color: "#5a657f", lineHeight: 1.6, marginBottom: 14, maxWidth: 400 }}>{slide.desc}</p>
-                <div style={{ display: "flex", alignItems: "baseline", gap: 6, marginBottom: 16 }}>
+                <p style={{ fontSize: 13, color: "#5a657f", lineHeight: 1.6, marginBottom: 14, maxWidth: 400, animation: "ebFadeUp .6s cubic-bezier(.16,1,.3,1) .16s both" }}>{slide.desc}</p>
+                <div style={{ display: "flex", alignItems: "baseline", gap: 6, marginBottom: 16, animation: "ebFadeUp .6s cubic-bezier(.16,1,.3,1) .22s both" }}>
                   <span style={{ fontSize: 13, fontWeight: 600, color: "#777" }}>From</span>
                   <span style={{ fontSize: 22, fontWeight: 800, color: "#2A74ED", letterSpacing: "-0.5px" }}>&#8377;{slide.price.replace(/[^0-9]/g, "")}</span>
                 </div>
                 <Link
                   href={slide.ctaHref}
+                  className="hero-cta"
                   style={{
                     display: "inline-flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    padding: "11px 22px",
-                    background: "#2A74ED",
+                    padding: "12px 26px",
+                    background: "linear-gradient(135deg,#2A74ED,#1a5ed1)",
                     color: "#fff",
                     fontSize: 13,
                     fontWeight: 700,
                     borderRadius: 20,
-                    transition: "all 0.2s linear",
+                    animation: "ebFadeUp .6s cubic-bezier(.16,1,.3,1) .3s both",
                   }}
                 >
-                  {slide.ctaText}
+                  {slide.ctaText} →
                 </Link>
               </div>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%" }}>
-                <div style={{ background: "#fff", border: "1px solid #E5E5E5", borderRadius: 20, padding: 6, boxShadow: "0 8px 28px rgba(0,0,0,0.08)", maxWidth: 380, width: "100%" }}>
+                <div className="hero-img-wrap" key={`${idx}-img`} style={{ background: "#fff", border: "1px solid #E5E5E5", borderRadius: 20, padding: 6, boxShadow: "0 8px 28px rgba(0,0,0,0.08)", maxWidth: 380, width: "100%", animation: "ebZoomIn .65s cubic-bezier(.16,1,.3,1) both" }}>
                   <img
                     src={slide.image}
                     alt={slide.alt}
@@ -134,6 +135,7 @@ export default function Hero() {
           ))}
 
           <button
+            className="hero-arrow"
             onClick={() => setIdx((idx - 1 + SLIDES.length) % SLIDES.length)}
             aria-label="Previous"
             style={{
@@ -141,8 +143,8 @@ export default function Hero() {
               left: 10,
               top: "50%",
               transform: "translateY(-50%)",
-              width: 36,
-              height: 36,
+              width: 38,
+              height: 38,
               borderRadius: "50%",
               background: "#fff",
               border: "1px solid #E5E5E5",
@@ -154,9 +156,10 @@ export default function Hero() {
               color: "#242424",
             }}
           >
-            <ChevronLeft size={15} />
+            <ChevronLeft size={16} />
           </button>
           <button
+            className="hero-arrow"
             onClick={() => setIdx((idx + 1) % SLIDES.length)}
             aria-label="Next"
             style={{
@@ -164,8 +167,8 @@ export default function Hero() {
               right: 10,
               top: "50%",
               transform: "translateY(-50%)",
-              width: 36,
-              height: 36,
+              width: 38,
+              height: 38,
               borderRadius: "50%",
               background: "#fff",
               border: "1px solid #E5E5E5",
@@ -177,22 +180,23 @@ export default function Hero() {
               color: "#242424",
             }}
           >
-            <ChevronRight size={15} />
+            <ChevronRight size={16} />
           </button>
 
           <div style={{ position: "absolute", bottom: 14, left: "50%", transform: "translateX(-50%)", display: "flex", gap: 6, zIndex: 2 }}>
             {SLIDES.map((_, i) => (
               <button
                 key={i}
+                className="hero-dot"
                 onClick={() => setIdx(i)}
                 aria-label={`Slide ${i + 1}`}
                 style={{
-                  width: i === idx ? 20 : 8,
-                  height: 8,
+                  width: i === idx ? 24 : 9,
+                  height: 9,
                   borderRadius: 20,
-                  background: i === idx ? "#2A74ED" : "#fff",
+                  background: i === idx ? "linear-gradient(90deg,#2A74ED,#5a9af0)" : "#fff",
                   border: i === idx ? "1px solid #2A74ED" : "1px solid #E5E5E5",
-                  transition: "all 0.2s linear",
+                  transition: "all 0.3s cubic-bezier(.16,1,.3,1)",
                 }}
               />
             ))}

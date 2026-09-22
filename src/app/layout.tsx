@@ -8,6 +8,7 @@ import Toaster from "@/components/Toaster";
 import QuickViewModal from "@/components/QuickViewModal";
 import AIChatWidget from "@/components/AIChatWidget";
 import WhatsAppFloat from "@/components/WhatsAppFloat";
+import RippleListener from "@/components/RippleListener";
 import "./globals.css";
 
 const jost = Jost({
@@ -312,6 +313,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <QuickViewModal />
           <AIChatWidget />
           <WhatsAppFloat />
+          <RippleListener />
         </StoreProvider>
       </body>
     </html>

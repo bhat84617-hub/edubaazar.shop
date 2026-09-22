@@ -7,6 +7,7 @@ import BestDealSlider from "@/components/BestDealSlider";
 import CountUp from "@/components/CountUp";
 import NewsletterPopup from "@/components/NewsletterPopup";
 import NewsletterBox from "@/components/NewsletterBox";
+import ScrollReveal from "@/components/ScrollReveal";
 import { products, CATEGORIES } from "@/lib/products";
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.edubaazar.shop";
@@ -222,60 +223,64 @@ export default function HomePage() {
       {/* Categories - full width grid (no half blank) */}
       <section className="ws-section-sm" style={{ background: "#fff", padding: "18px 0 8px" }}>
         <div className="container">
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 12 }} className="cat-grid">
+          <ScrollReveal stagger className="cat-grid" as="div" style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 12 }}>
             {CATEGORIES.map((c) => {
               const count = products.filter((p) => p.category === c.key).length;
               return (
-                <Link key={c.key} href={`/shop?cat=${encodeURIComponent(c.key)}`} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8, minWidth: 92, flex: "0 0 auto" }}>
-                  <div style={{ width: 84, height: 84, borderRadius: "50%", overflow: "hidden", background: "#f8f9fb", border: "1px solid #E5E5E5", padding: 3, transition: "all 0.2s linear" }} className="cat-hover">
+                <Link key={c.key} href={`/shop?cat=${encodeURIComponent(c.key)}`} className="cat-link" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8, minWidth: 92, flex: "0 0 auto" }}>
+                  <div className="cat-hover" style={{ width: 84, height: 84, borderRadius: "50%", overflow: "hidden", background: "#f8f9fb", border: "1px solid #E5E5E5", padding: 3 }}>
                     <img src={c.image} alt={c.label} loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "50%" }} />
                   </div>
                   <div style={{ textAlign: "center" }}>
-                    <div style={{ fontSize: 12, fontWeight: 700, color: "#242424" }}>{c.label}</div>
+                    <div className="cat-label" style={{ fontSize: 12, fontWeight: 700, color: "#242424" }}>{c.label}</div>
                     <div style={{ fontSize: 10, color: "#777" }}>{count} products</div>
                   </div>
                 </Link>
               );
             })}
-          </div>
+          </ScrollReveal>
         </div>
       </section>
 
       {/* Featured products with tabs - XStore carousel-area hover scale */}
       <section className="ws-section carousel-area" style={{ background: "#fff", padding: "28px 0" }}>
         <div className="container">
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10, marginBottom: 22 }}>
-            <h2 style={{ fontSize: 22, fontWeight: 800, color: "#242424", letterSpacing: "-0.4px" }}>Featured Products</h2>
-            <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "center" }}>
-              <span style={{ padding: "6px 14px", borderRadius: 20, background: "#2A74ED", color: "#fff", fontSize: 12, fontWeight: 700 }}>Featured</span>
-              <Link href="/shop?sort=bestseller" style={{ padding: "6px 14px", borderRadius: 20, background: "#f8f9fb", border: "1px solid #E5E5E5", fontSize: 12, fontWeight: 600, color: "#242424" }}>Bestseller</Link>
-              <Link href="/shop?sort=newest" style={{ padding: "6px 14px", borderRadius: 20, background: "#f8f9fb", border: "1px solid #E5E5E5", fontSize: 12, fontWeight: 600, color: "#242424" }}>New Arrivals</Link>
+          <ScrollReveal direction="up">
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10, marginBottom: 22 }}>
+              <h2 style={{ fontSize: 22, fontWeight: 800, color: "#242424", letterSpacing: "-0.4px" }}>Featured Products</h2>
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "center" }}>
+                <span style={{ padding: "6px 14px", borderRadius: 20, background: "#2A74ED", color: "#fff", fontSize: 12, fontWeight: 700 }}>Featured</span>
+                <Link href="/shop?sort=bestseller" style={{ padding: "6px 14px", borderRadius: 20, background: "#f8f9fb", border: "1px solid #E5E5E5", fontSize: 12, fontWeight: 600, color: "#242424" }}>Bestseller</Link>
+                <Link href="/shop?sort=newest" style={{ padding: "6px 14px", borderRadius: 20, background: "#f8f9fb", border: "1px solid #E5E5E5", fontSize: 12, fontWeight: 600, color: "#242424" }}>New Arrivals</Link>
+              </div>
             </div>
-          </div>
-          <div className="p-grid">
+          </ScrollReveal>
+          <ScrollReveal stagger className="p-grid" as="div">
             {featured.map((p) => (
               <div key={p.id} className="product-slide"><ProductCard product={p} /></div>
             ))}
-          </div>
-          <div style={{ textAlign: "center", marginTop: 20 }}>
+          </ScrollReveal>
+          <ScrollReveal delay={150} style={{ textAlign: "center", marginTop: 20 }}>
             <Link href="/shop" className="ws-btn ws-btn-outline" style={{ borderRadius: 20 }}>View All Products <ArrowRight size={14} /></Link>
-          </div>
+          </ScrollReveal>
         </div>
       </section>
 
       {/* Banners row XStore */}
       <section style={{ background: "#fff", padding: "0 0 24px" }}>
         <div className="container" style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr", gap: 14 }}>
-          <div style={{ position: "relative", overflow: "hidden", background: "#eef3ff", minHeight: 240, display: "flex", alignItems: "center", padding: "26px 28px", border: "1px solid #E5E5E5", borderRadius: 20 }}>
-            <div style={{ position: "relative", zIndex: 1, maxWidth: 320 }}>
-              <span style={{ fontSize: 10, fontWeight: 800, color: "#2A74ED", background: "#fff", padding: "4px 10px", borderRadius: 20, border: "1px solid #E5E5E5" }}>Limited Time</span>
-              <h3 style={{ fontSize: 22, fontWeight: 800, color: "#242424", margin: "8px 0 8px", lineHeight: 1.15, letterSpacing: "-0.4px" }}>Hacking Courses<br /><span style={{ color: "#2A74ED" }}>Up to 60% OFF</span></h3>
-              <p style={{ fontSize: 12, color: "#5a657f", marginBottom: 14 }}>Master ethical hacking & penetration testing</p>
-              <Link href="/shop?cat=Hacking" style={{ display: "inline-flex", background: "#2A74ED", color: "#fff", padding: "9px 18px", fontSize: 12, fontWeight: 700, borderRadius: 20 }}>Shop Now</Link>
+          <ScrollReveal direction="left">
+            <div style={{ position: "relative", overflow: "hidden", background: "#eef3ff", minHeight: 240, display: "flex", alignItems: "center", padding: "26px 28px", border: "1px solid #E5E5E5", borderRadius: 20, height: "100%", boxSizing: "border-box" }}>
+              <div style={{ position: "relative", zIndex: 1, maxWidth: 320 }}>
+                <span style={{ fontSize: 10, fontWeight: 800, color: "#2A74ED", background: "#fff", padding: "4px 10px", borderRadius: 20, border: "1px solid #E5E5E5" }}>Limited Time</span>
+                <h3 style={{ fontSize: 22, fontWeight: 800, color: "#242424", margin: "8px 0 8px", lineHeight: 1.15, letterSpacing: "-0.4px" }}>Hacking Courses<br /><span style={{ color: "#2A74ED" }}>Up to 60% OFF</span></h3>
+                <p style={{ fontSize: 12, color: "#5a657f", marginBottom: 14 }}>Master ethical hacking & penetration testing</p>
+                <Link href="/shop?cat=Hacking" className="ws-btn ws-btn-fill ws-btn-sm" style={{ borderRadius: 20 }}>Shop Now</Link>
+              </div>
+              <img src="/images/complete-ethical-hacking-and-penetration-testing.jpeg" alt="Hacking" style={{ position: "absolute", right: 6, top: 6, width: "46%", height: "calc(100% - 12px)", objectFit: "cover", borderRadius: 16, border: "1px solid #E5E5E5" }} />
             </div>
-            <img src="/images/complete-ethical-hacking-and-penetration-testing.jpeg" alt="Hacking" style={{ position: "absolute", right: 6, top: 6, width: "46%", height: "calc(100% - 12px)", objectFit: "cover", borderRadius: 16, border: "1px solid #E5E5E5" }} />
-          </div>
-          <div style={{ display: "grid", gap: 14 }}>
+          </ScrollReveal>
+          <ScrollReveal direction="right" style={{ display: "grid", gap: 14 }}>
             <div style={{ position: "relative", overflow: "hidden", background: "#fef6e8", minHeight: 113, display: "flex", alignItems: "center", padding: "18px 20px", border: "1px solid #E5E5E5", borderRadius: 20 }}>
               <div style={{ position: "relative", zIndex: 1 }}>
                 <h4 style={{ fontSize: 14, fontWeight: 800, color: "#242424" }}>Python Mastery</h4>
@@ -292,22 +297,24 @@ export default function HomePage() {
               </div>
               <img src="/images/mastring-stock-trading.jpeg" alt="Trading" style={{ position: "absolute", right: 6, top: 6, width: "42%", height: "calc(100% - 12px)", objectFit: "cover", borderRadius: 14 }} />
             </div>
-          </div>
+          </ScrollReveal>
         </div>
       </section>
 
       {/* Bestsellers */}
       <section className="ws-section" style={{ background: "#f8f9fb", padding: "28px 0", borderTop: "1px solid #E5E5E5", borderBottom: "1px solid #E5E5E5" }}>
         <div className="container">
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18 }}>
-            <h2 style={{ fontSize: 18, fontWeight: 800, color: "#242424", letterSpacing: "-0.3px" }}>Bestsellers</h2>
-            <Link href="/shop?sort=bestseller" style={{ fontSize: 12, fontWeight: 700, color: "#2A74ED", background: "#fff", border: "1px solid #E5E5E5", padding: "6px 12px", borderRadius: 20 }}>View all →</Link>
-          </div>
-          <div className="p-grid">
+          <ScrollReveal direction="up">
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18 }}>
+              <h2 style={{ fontSize: 18, fontWeight: 800, color: "#242424", letterSpacing: "-0.3px" }}>Bestsellers</h2>
+              <Link href="/shop?sort=bestseller" style={{ fontSize: 12, fontWeight: 700, color: "#2A74ED", background: "#fff", border: "1px solid #E5E5E5", padding: "6px 12px", borderRadius: 20 }}>View all →</Link>
+            </div>
+          </ScrollReveal>
+          <ScrollReveal stagger className="p-grid" as="div">
             {bestSellers.map((p) => (
               <div key={p.id} className="product-slide"><ProductCard product={p} /></div>
             ))}
-          </div>
+          </ScrollReveal>
         </div>
       </section>
 
@@ -316,20 +323,20 @@ export default function HomePage() {
       {/* Features 4 cols */}
       <section className="ws-section" style={{ background: "#fff", padding: "28px 0" }}>
         <div className="container">
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, textAlign: "center" }}>
+          <ScrollReveal stagger style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, textAlign: "center" }} as="div">
             {[
               { icon: <GraduationCap size={20} />, title: "Expert Courses", desc: "Learn from professionals" },
               { icon: <Zap size={20} />, title: "Instant Delivery", desc: "Immediate access" },
               { icon: <Headset size={20} />, title: "24/7 Support", desc: "Round-the-clock help" },
               { icon: <ShieldCheck size={20} />, title: "Secure Payment", desc: "100% secure UPI" },
             ].map((f) => (
-              <div key={f.title} style={{ padding: 18, background: "#fff", border: "1px solid #E5E5E5", borderRadius: 20 }}>
-                <span style={{ width: 44, height: 44, display: "inline-flex", alignItems: "center", justifyContent: "center", background: "#eef3ff", color: "#2A74ED", borderRadius: "50%", marginBottom: 10 }}>{f.icon}</span>
+              <div key={f.title} className="feature-box" style={{ padding: 18, background: "#fff", border: "1px solid #E5E5E5", borderRadius: 20, textAlign: "center", alignItems: "center" }}>
+                <span className="feature-icon" style={{ width: 44, height: 44, display: "inline-flex", alignItems: "center", justifyContent: "center", background: "#eef3ff", color: "#2A74ED", borderRadius: "50%", marginBottom: 10 }}>{f.icon}</span>
                 <h4 style={{ fontSize: 11, fontWeight: 800, textTransform: "uppercase", color: "#242424", marginBottom: 4, letterSpacing: 0.5 }}>{f.title}</h4>
                 <p style={{ fontSize: 11, color: "#777", lineHeight: 1.5 }}>{f.desc}</p>
               </div>
             ))}
-          </div>
+          </ScrollReveal>
         </div>
       </section>
 
@@ -348,25 +355,29 @@ export default function HomePage() {
       {/* New arrivals */}
       <section className="ws-section carousel-area" style={{ background: "#fff", padding: "28px 0" }}>
         <div className="container">
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18 }}>
-            <h2 style={{ fontSize: 18, fontWeight: 800, color: "#242424" }}>New Arrivals</h2>
-            <Link href="/shop?sort=newest" style={{ fontSize: 12, fontWeight: 700, color: "#2A74ED", background: "#f8f9fb", border: "1px solid #E5E5E5", padding: "6px 12px", borderRadius: 20 }}>View all →</Link>
-          </div>
-          <div className="p-grid">
+          <ScrollReveal direction="up">
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18 }}>
+              <h2 style={{ fontSize: 18, fontWeight: 800, color: "#242424" }}>New Arrivals</h2>
+              <Link href="/shop?sort=newest" style={{ fontSize: 12, fontWeight: 700, color: "#2A74ED", background: "#f8f9fb", border: "1px solid #E5E5E5", padding: "6px 12px", borderRadius: 20 }}>View all →</Link>
+            </div>
+          </ScrollReveal>
+          <ScrollReveal stagger className="p-grid" as="div">
             {newest.map((p) => (
               <div key={p.id} className="product-slide"><ProductCard product={p} /></div>
             ))}
-          </div>
+          </ScrollReveal>
         </div>
       </section>
 
-      {/* Brands strip XStore */}
+      {/* Brands strip XStore - infinite marquee */}
       <section style={{ background: "#f8f9fb", padding: "18px 0", borderTop: "1px solid #E5E5E5", borderBottom: "1px solid #E5E5E5" }}>
         <div className="container">
-          <div style={{ display: "flex", gap: 10, overflowX: "auto", scrollbarWidth: "none", alignItems: "center", justifyContent: "space-between" }}>
-            {["EduBazar", "LearnPro", "SkillHub", "CodeLab", "TradeMentor", "DesignForge"].map((b) => (
-              <span key={b} style={{ padding: "8px 16px", background: "#fff", border: "1px solid #E5E5E5", borderRadius: 20, fontSize: 11, fontWeight: 800, color: "#242424", letterSpacing: 0.6, whiteSpace: "nowrap" }}>{b}</span>
-            ))}
+          <div className="eb-marquee">
+            <div className="eb-marquee-track">
+              {[...["EduBazar", "LearnPro", "SkillHub", "CodeLab", "TradeMentor", "DesignForge"], ...["EduBazar", "LearnPro", "SkillHub", "CodeLab", "TradeMentor", "DesignForge"]].map((b, i) => (
+                <span key={`${b}-${i}`} style={{ padding: "8px 16px", background: "#fff", border: "1px solid #E5E5E5", borderRadius: 20, fontSize: 11, fontWeight: 800, color: "#242424", letterSpacing: 0.6, whiteSpace: "nowrap", flexShrink: 0 }}>{b}</span>
+              ))}
+            </div>
           </div>
         </div>
       </section>
@@ -391,10 +402,12 @@ export default function HomePage() {
       {/* Testimonials XStore cards rounded */}
       <section className="ws-section" style={{ background: "#f8f9fb", padding: "28px 0", borderTop: "1px solid #E5E5E5", overflow: "visible" }}>
         <div className="container" style={{ maxWidth: "100%", overflow: "visible" }}>
-          <h2 style={{ fontSize: 18, fontWeight: 800, color: "#242424", textAlign: "center", marginBottom: 18 }}>What Our Students Say</h2>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 14, maxWidth: "100%", overflow: "visible" }}>
+          <ScrollReveal direction="up">
+            <h2 style={{ fontSize: 18, fontWeight: 800, color: "#242424", textAlign: "center", marginBottom: 18 }}>What Our Students Say</h2>
+          </ScrollReveal>
+          <ScrollReveal stagger style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 14, maxWidth: "100%", overflow: "visible" }} as="div">
             {TESTIMONIALS.map((t, i) => (
-              <div key={i} style={{ background: "#fff", border: "1px solid #E5E5E5", borderRadius: 20, padding: 18 }}>
+              <div key={i} className="t-card" style={{ background: "#fff", border: "1px solid #E5E5E5", borderRadius: 20, padding: 18 }}>
                 <div style={{ color: "#FFBD3C", display: "flex", gap: 2, marginBottom: 10 }}>
                   {Array.from({ length: 5 }).map((_, s) => (
                     <Star key={s} size={12} fill="currentColor" strokeWidth={0} />
@@ -412,7 +425,7 @@ export default function HomePage() {
                 </div>
               </div>
             ))}
-          </div>
+          </ScrollReveal>
         </div>
       </section>
 
