@@ -1,11 +1,13 @@
 "use client";
 
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import {
   LayoutDashboard, ShoppingCart, CheckCircle, Clock, XCircle,
   IndianRupee, Search, RefreshCw, LogOut, Eye, Check, X,
-  TrendingUp, Package, Download, ExternalLink, Bell, Menu, XIcon,
+  TrendingUp, Package, Download, ExternalLink, Bell, XIcon,
 } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { getProductById } from "@/lib/products";
 
 /* ── types ─────────────────────────────────────────────────────────── */
@@ -41,8 +43,9 @@ interface Stats {
 
 /* ── page ──────────────────────────────────────────────────────────── */
 export default function AdminDashboard() {
+  const router = useRouter();
   const [orders, setOrders] = useState<Order[]>([]);
-  const [filtered, setFiltered] = useState<Order[]>([]);
+  
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
@@ -52,7 +55,6 @@ export default function AdminDashboard() {
   const [processing, setProcessing] = useState<string | null>(null);
   const [downloadUrls, setDownloadUrls] = useState<Record<string, string>>({});
   const [toasts, setToasts] = useState<{ id: number; msg: string; ok: boolean }[]>([]);
-  const [showNav, setShowNav] = useState(false);
   const toastId = useRef(0);
   const [stats, setStats] = useState<Stats>({
     totalOrders: 0, pendingOrders: 0, approvedOrders: 0,
@@ -80,7 +82,7 @@ export default function AdminDashboard() {
     setError(null);
     try {
       const r = await fetch("/api/admin/orders/status", { cache: "no-store" });
-      if (r.status === 401) { window.location.href = "/admin/login"; return; }
+      if (r.status === 401) { router.push("/admin/login"); return; }
       if (!r.ok) throw new Error("Failed to fetch orders");
       const { orders: data } = (await r.json()) as { orders: Order[] };
       setOrders(data);
@@ -89,26 +91,29 @@ export default function AdminDashboard() {
       setError(e instanceof Error ? e.message : "Could not load orders");
     }
     setLoading(false);
-  }, [calcStats]);
+  }, [calcStats, router]);
 
-  useEffect(() => { fetchOrders(); }, [fetchOrders]);
+  useEffect(() => {
+    const t = setTimeout(() => fetchOrders(), 0);
+    return () => clearTimeout(t);
+  }, [fetchOrders]);
   useEffect(() => { const t = setInterval(fetchOrders, 20000); return () => clearInterval(t); }, [fetchOrders]);
 
-  /* ── filter ───────────────────────────────────────────────────────── */
-  useEffect(() => {
+  /* ── filter (derived — no setState in effect) ─────────────────────── */
+  const filtered = useMemo(() => {
     let res = orders;
     if (search) {
-      const s = search.toLowerCase();
+      const q = search.toLowerCase();
       res = res.filter(
         (o) =>
-          o.orderId.toLowerCase().includes(s) ||
-          o.name.toLowerCase().includes(s) ||
-          o.email.toLowerCase().includes(s) ||
-          (o.utr ?? "").toLowerCase().includes(s)
+          o.orderId.toLowerCase().includes(q) ||
+          o.name.toLowerCase().includes(q) ||
+          o.email.toLowerCase().includes(q) ||
+          (o.utr ?? "").toLowerCase().includes(q)
       );
     }
     if (statusFilter !== "all") res = res.filter((o) => o.status === statusFilter);
-    setFiltered(res);
+    return res;
   }, [orders, search, statusFilter]);
 
   /* ── approve / reject (server API with session cookie) ────────────── */
@@ -335,8 +340,8 @@ export default function AdminDashboard() {
           <p>Admin Panel</p>
         </div>
         <nav className="adm-nav">
-          <a href="/admin" className="active"><LayoutDashboard size={17} /> Dashboard</a>
-          <a href="/"><ShoppingCart size={17} /> View Store</a>
+          <Link href="/admin" className="active"><LayoutDashboard size={17} /> Dashboard</Link>
+          <Link href="/"><ShoppingCart size={17} /> View Store</Link>
           <a href="/admin/seo"><TrendingUp size={17} /> SEO Tools</a>
           {pendingCount > 0 && (
             <a href="/admin" style={{ marginTop: 8 }}>

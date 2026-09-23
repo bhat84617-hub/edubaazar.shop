@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState, Suspense } from "react";
 import { CheckCircle2, Copy, ExternalLink, ShieldCheck, Wallet, ArrowRight, ArrowLeft, LayoutDashboard, ShoppingBag, PartyPopper, Lock } from "lucide-react";
@@ -18,8 +19,34 @@ function CheckoutContent() {
   const [utr, setUtr] = useState("");
   const [utrError, setUtrError] = useState("");
   const [placing, setPlacing] = useState(false);
-  const [placed, setPlaced] = useState<{ id: string; total: number } | null>(null);
+  const [placed, setPlacedState] = useState<{ id: string; total: number } | null>(null);
   const buyHandledRef = useRef(false);
+
+  const setPlaced = (p: { id: string; total: number } | null) => {
+    setPlacedState(p);
+    try {
+      if (p) sessionStorage.setItem("edubazar_placed", JSON.stringify(p));
+      else sessionStorage.removeItem("edubazar_placed");
+    } catch {}
+  };
+
+  // Restore placed order after refresh so confirmation isn't lost (cart is already cleared)
+  // Deferred via timeout to avoid sync setState-in-effect (hydration-safe)
+  useEffect(() => {
+    const t = setTimeout(() => {
+      try {
+        const raw = sessionStorage.getItem("edubazar_placed");
+        if (raw) {
+          const p = JSON.parse(raw) as { id?: string; total?: number };
+          if (p && typeof p.id === "string") {
+            setPlacedState({ id: p.id, total: typeof p.total === "number" ? p.total : 0 });
+            setStep(3);
+          }
+        }
+      } catch {}
+    }, 0);
+    return () => clearTimeout(t);
+  }, []);
 
   // Support ?buy=productId to auto-add product to cart (fixes bot checkout empty bug)
   useEffect(() => {
@@ -39,15 +66,17 @@ function CheckoutContent() {
     router.replace("/checkout");
   }, [mounted, searchParams, cart, addToCart, router]);
 
-  // Sync form with user when user loads after mount (fixes stale closure / empty fields)
+  // Sync form with user when user loads after mount (deferred — hydration-safe)
   useEffect(() => {
-    if (user) {
+    if (!user) return;
+    const t = setTimeout(() => {
       setForm((f) => ({
         ...f,
         name: f.name || user.name,
         email: user.email,
       }));
-    }
+    }, 0);
+    return () => clearTimeout(t);
   }, [user]);
 
   const total = cartSubtotal;
@@ -157,7 +186,7 @@ function CheckoutContent() {
                 : "Your free product is ready. Access it right away from your dashboard."}
             </p>
             <p className="oid">Order ID: {placed.id}</p>
-            <p style={{ fontSize: 13, color: "var(--muted)", marginTop: 8 }}>
+            <p style={{ fontSize: 14, color: "var(--muted)", marginTop: 8 }}>
               Total: <strong style={{ color: "var(--primary)" }}>{placed.total > 0 ? formatINR(placed.total) : "FREE"}</strong>
             </p>
             <div style={{ display: "flex", gap: 12, justifyContent: "center", marginTop: 24, flexWrap: "wrap" }}>
@@ -192,7 +221,7 @@ function CheckoutContent() {
             {step === 1 && (
               <>
                 <h3>Your Details <span style={{ fontSize: 12, color: "var(--primary)", fontWeight: 600 }}>· Welcome {user?.name}</span></h3>
-                <p style={{ fontSize: 13, color: "var(--muted)", marginBottom: 18 }}>
+                <p style={{ fontSize: 14, color: "var(--muted)", marginBottom: 18 }}>
                   Completing purchase as <strong>{user?.email}</strong>
                 </p>
                 <form onSubmit={nextFromDetails}>
@@ -213,7 +242,7 @@ function CheckoutContent() {
                       readOnly
                       required
                     />
-                    <small style={{ color: "var(--muted)", fontSize: 11.5, display: "block", marginTop: 4 }}>
+                    <small style={{ color: "var(--muted)", fontSize: 12, display: "block", marginTop: 4 }}>
                       Course access isi registered email par bheja jayega.
                     </small>
                   </div>
@@ -238,12 +267,12 @@ function CheckoutContent() {
             {step === 2 && (
               <>
                 <h3><Wallet size={18} style={{ verticalAlign: "-3px", color: "var(--primary)" }} /> UPI Payment</h3>
-                <p style={{ fontSize: 13.5, color: "var(--muted)", marginBottom: 18 }}>
+                <p style={{ fontSize: 14, color: "var(--muted)", marginBottom: 18 }}>
                   Scan the QR or pay to UPI ID <strong style={{ color: "var(--primary)" }}>{STORE.upiId}</strong>, then enter your transaction ID.
                 </p>
 
                 <div className="upi-panel">
-                  <img src="/images/payment-qr.jpeg" alt="UPI QR Code" />
+                  <Image src="/images/payment-qr.jpeg" alt="UPI QR Code" width={280} height={280} style={{ width: "100%", height: "auto", maxWidth: 280 }} />
                   <div className="upi-app-row">
                     <span>GPay</span><span>PhonePe</span><span>Paytm</span><span>Any UPI app</span>
                   </div>
@@ -259,7 +288,7 @@ function CheckoutContent() {
                   )}
                 </div>
 
-                <div style={{ display: "flex", alignItems: "center", gap: 8, justifyContent: "center", margin: "16px 0 6px", fontSize: 12.5, color: "var(--muted)" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, justifyContent: "center", margin: "16px 0 6px", fontSize: 12, color: "var(--muted)" }}>
                   or send to UPI ID
                 </div>
                 <div className="header-search" style={{ marginBottom: 18 }}>
@@ -291,8 +320,8 @@ function CheckoutContent() {
                       maxLength={14}
                       style={utrError ? { borderColor: "#c0392b" } : undefined}
                     />
-                    {utrError && <div style={{ color: "#c0392b", fontSize: 12, marginTop: 6, fontWeight: 600 }}>{utrError}</div>}
-                    <small style={{ color: "var(--muted)", fontSize: 11.5, display: "block", marginTop: 4 }}>
+                    {utrError && <div style={{ color: "#FF515C", fontSize: 12, marginTop: 6, fontWeight: 600 }}>{utrError}</div>}
+                    <small style={{ color: "var(--muted)", fontSize: 12, display: "block", marginTop: 4 }}>
                       UPI app me transaction ID copy karein aur yahan paste karein. Sirf numbers dalein.
                     </small>
                   </div>
@@ -322,7 +351,7 @@ function CheckoutContent() {
                   if (!p) return null;
                   return (
                     <div key={item.id} className="co-item">
-                      <img src={p.images[0]} alt={p.title} />
+                      <Image src={p.images[0]} alt={p.title} width={64} height={48} style={{ objectFit: "cover", borderRadius: 6 }} />
                       <div style={{ flex: 1 }}>
                         <h5>{p.title}</h5>
                         <p>Qty: {item.qty}</p>

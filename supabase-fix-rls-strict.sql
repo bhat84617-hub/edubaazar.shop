@@ -29,8 +29,10 @@ CREATE OR REPLACE VIEW public.users_safe AS
 SELECT id, name, email, created_at FROM public.users;
 GRANT SELECT ON public.users_safe TO anon, authenticated;
 
--- 4. Orders: keep anon insert/select for checkout (no sensitive password column)
+-- 4. Orders: anon INSERT only (checkout via store.tsx). NO anon SELECT:
+-- order PII + download URLs are only readable via server routes (service_role).
 DROP POLICY IF EXISTS "Allow anon insert orders" ON public.orders;
+DROP POLICY IF EXISTS "Allow anon select orders" ON public.orders;
 DROP POLICY IF EXISTS "Allow anon select own orders" ON public.orders;
 DROP POLICY IF EXISTS "Allow service_role all orders" ON public.orders;
 DROP POLICY IF EXISTS "orders_anon_insert" ON public.orders;
@@ -41,17 +43,11 @@ CREATE POLICY "orders_anon_insert"
 ON public.orders FOR INSERT TO anon, authenticated
 WITH CHECK (true);
 
-CREATE POLICY "orders_anon_select"
-ON public.orders FOR SELECT TO anon, authenticated
-USING (true);
-
 CREATE POLICY "orders_service_all"
 ON public.orders FOR ALL TO service_role
 USING (true) WITH CHECK (true);
 
--- 5. Revoke direct anon access to users table as extra safety (Supabase already respects RLS, but this is defense in depth)
--- Do NOT run REVOKE if you rely on anon INSERT - the policy above already controls INSERT, REVOKE would break it
--- So we keep GRANT but RLS with no anon SELECT ensures no leak
+-- 5. Extra hardening comment: RLS with no anon SELECT blocks PostgREST reads.
 
 -- Verify:
 -- SELECT * FROM pg_policies WHERE tablename IN ('users','orders');

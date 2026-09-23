@@ -83,11 +83,11 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: SITE_URL + "/logo/edulogo.jpeg",
-        width: 512,
-        height: 512,
+        url: SITE_URL + "/images/og-cover.png",
+        width: 1200,
+        height: 630,
         alt: "EduBazar.shop — India's Affordable Learning Platform",
-        type: "image/jpeg",
+        type: "image/png",
       },
       {
         url: SITE_URL + "/images/complete-ethical-hacking-and-penetration-testing.jpeg",
@@ -103,7 +103,7 @@ export const metadata: Metadata = {
     creator: "@edubazarshop",
     title: SITE_TITLE,
     description: "Premium courses in Hacking, Programming, Trading & more. Starting at ₹49. Instant UPI delivery.",
-    images: [SITE_URL + "/logo/edulogo.jpeg"],
+    images: [SITE_URL + "/images/og-cover.png"],
   },
   robots: {
     index: true,
@@ -303,9 +303,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Script id="gtag-init" strategy="afterInteractive">{`window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'G-EMKR761SSQ');`}</Script>
       </head>
       <body className="min-h-screen flex flex-col">
+        <a href="#main-content" className="skip-link">Skip to main content</a>
         <StoreProvider>
           <Header />
-          <main className="flex-1" itemScope itemType="https://schema.org/WebPage">
+          <main id="main-content" className="flex-1" itemScope itemType="https://schema.org/WebPage">
             {children}
           </main>
           <Footer />

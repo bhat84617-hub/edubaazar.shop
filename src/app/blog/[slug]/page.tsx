@@ -53,17 +53,17 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
       <nav aria-label="Breadcrumb" style={{ fontSize: 12, color: "#777", marginBottom: 8 }}>
         <Link href="/">Home</Link> / <Link href="/blog">Blog</Link> / <span>{post.title}</span>
       </nav>
-      <h1 style={{ fontSize: "clamp(22px,3vw,28px)", fontWeight: 800, color: "#242424", lineHeight: 1.3 }}>
+      <h1 style={{ fontSize: "clamp(20px,3vw,28px)", fontWeight: 800, color: "#242424", lineHeight: 1.3 }}>
         {post.title}
       </h1>
-      <p style={{ fontSize: 12, color: "#999", marginTop: 8 }}>
+      <p style={{ fontSize: 12, color: "#777", marginTop: 8 }}>
         {post.date} • {post.readMins} min read • EduBazar.shop
       </p>
       {post.body.map((sec) => (
         <section key={sec.h} style={{ marginTop: 24 }}>
           <h2 style={{ fontSize: 18, fontWeight: 800, color: "#242424" }}>{sec.h}</h2>
           {sec.p.map((para, i) => (
-            <p key={i} style={{ fontSize: 14, color: "#444", lineHeight: 1.8, marginTop: 10 }}>
+            <p key={i} style={{ fontSize: 14, color: "#242424", lineHeight: 1.8, marginTop: 10 }}>
               {para}
             </p>
           ))}

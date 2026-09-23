@@ -15,12 +15,14 @@ export default function WhatsAppFloat() {
 
   useEffect(() => {
     const seen = sessionStorage.getItem("wa_glow_seen");
-    if (!seen) {
-      setGlowed(true);
-      sessionStorage.setItem("wa_glow_seen", "1");
-      const t = setTimeout(() => setGlowed(false), 3000);
-      return () => clearTimeout(t);
-    }
+    if (seen) return;
+    sessionStorage.setItem("wa_glow_seen", "1");
+    const on = setTimeout(() => setGlowed(true), 0);
+    const off = setTimeout(() => setGlowed(false), 3000);
+    return () => {
+      clearTimeout(on);
+      clearTimeout(off);
+    };
   }, []);
 
   useEffect(() => {

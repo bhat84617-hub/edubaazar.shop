@@ -1,19 +1,21 @@
 import type { MetadataRoute } from "next";
 import { products, isSensitiveProduct } from "@/lib/products";
+import { POSTS } from "@/lib/blog";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const base = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.edubaazar.shop";
-  const today = new Date().toISOString().split("T")[0];
 
+  // Stable lastModified for static pages — do NOT use build/today date
+  // (only update when page content actually changes).
   const staticPages: MetadataRoute.Sitemap = [
-    { url: base, lastModified: today, changeFrequency: "daily", priority: 1.0 },
-    { url: base + "/shop", lastModified: today, changeFrequency: "daily", priority: 0.9 },
-    { url: base + "/blog", lastModified: today, changeFrequency: "weekly", priority: 0.7 },
-    { url: base + "/about", lastModified: today, changeFrequency: "monthly", priority: 0.7 },
-    { url: base + "/contact", lastModified: today, changeFrequency: "monthly", priority: 0.7 },
-    { url: base + "/terms", lastModified: today, changeFrequency: "yearly", priority: 0.3 },
-    { url: base + "/privacy", lastModified: today, changeFrequency: "yearly", priority: 0.3 },
-    { url: base + "/refund", lastModified: today, changeFrequency: "yearly", priority: 0.4 },
+    { url: base, lastModified: "2026-08-01", changeFrequency: "daily", priority: 1.0 },
+    { url: base + "/shop", lastModified: "2026-08-01", changeFrequency: "daily", priority: 0.9 },
+    { url: base + "/blog", lastModified: "2026-08-01", changeFrequency: "weekly", priority: 0.7 },
+    { url: base + "/about", lastModified: "2026-08-01", changeFrequency: "monthly", priority: 0.7 },
+    { url: base + "/contact", lastModified: "2026-08-01", changeFrequency: "monthly", priority: 0.7 },
+    { url: base + "/terms", lastModified: "2026-08-01", changeFrequency: "yearly", priority: 0.3 },
+    { url: base + "/privacy", lastModified: "2026-08-01", changeFrequency: "yearly", priority: 0.3 },
+    { url: base + "/refund", lastModified: "2026-08-01", changeFrequency: "yearly", priority: 0.4 },
   ];
 
   // Removed category/kind query URLs from sitemap - they are filtered views, not canonical pages
@@ -30,5 +32,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       images: [encodeURI(`${base}${p.images[0]}`)],
     }));
 
-  return [...staticPages, ...productPages];
+  const blogPages: MetadataRoute.Sitemap = POSTS.map((post) => ({
+    url: base + "/blog/" + post.slug,
+    lastModified: new Date(post.date).toISOString(),
+    changeFrequency: "monthly" as const,
+    priority: 0.6,
+  }));
+
+  return [...staticPages, ...productPages, ...blogPages];
 }

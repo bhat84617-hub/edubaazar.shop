@@ -22,7 +22,7 @@ export default function RefundPage() {
           <div className="breadcrumb" style={{ color: "rgba(255,255,255,0.7)", marginBottom: 10 }}>
             <Link href="/">Home</Link> <ChevronRight size={13} /> <span style={{ color: "var(--accent)" }}>Refund Policy</span>
           </div>
-          <h1 style={{ color: "#fff", fontSize: "clamp(28px,4vw,40px)" }}>Refund Policy</h1>
+          <h1 style={{ color: "#fff", fontSize: "clamp(24px,4vw,34px)" }}>Refund Policy</h1>
         </div>
       </div>
       <section className="section-pad">
@@ -31,14 +31,14 @@ export default function RefundPage() {
             <p style={{ fontSize: 14, color: "var(--muted)", marginBottom: 24 }}>Last updated: August 2026</p>
 
             <div style={{ padding: 16, background: "rgba(17,70,57,0.06)", borderRadius: 8, borderLeft: "3px solid var(--primary)", marginBottom: 24 }}>
-              <p style={{ fontSize: 15, fontWeight: 600, color: "var(--primary)", margin: 0 }}>
+              <p style={{ fontSize: 16, fontWeight: 600, color: "var(--primary)", margin: 0 }}>
                 Since our products are digital, our refund policy has specific conditions. Please read carefully before purchasing.
               </p>
             </div>
 
             <h2 style={{ fontSize: 20, marginBottom: 12 }}>1. Eligible for Refund</h2>
-            <p style={{ fontSize: 15, lineHeight: 1.8, color: "var(--muted)", marginBottom: 12 }}>You are eligible for a full refund if:</p>
-            <ul style={{ fontSize: 15, lineHeight: 2, color: "var(--muted)", marginBottom: 20, paddingLeft: 20 }}>
+            <p style={{ fontSize: 16, lineHeight: 1.8, color: "var(--muted)", marginBottom: 12 }}>You are eligible for a full refund if:</p>
+            <ul style={{ fontSize: 16, lineHeight: 2, color: "var(--muted)", marginBottom: 20, paddingLeft: 20 }}>
               <li>You request a refund within <strong>24 hours</strong> of purchase</li>
               <li>The course content is significantly different from what was described on the product page</li>
               <li>You made a duplicate payment by mistake</li>
@@ -46,8 +46,8 @@ export default function RefundPage() {
             </ul>
 
             <h2 style={{ fontSize: 20, marginBottom: 12 }}>2. Not Eligible for Refund</h2>
-            <p style={{ fontSize: 15, lineHeight: 1.8, color: "var(--muted)", marginBottom: 12 }}>Refunds will NOT be provided if:</p>
-            <ul style={{ fontSize: 15, lineHeight: 2, color: "var(--muted)", marginBottom: 20, paddingLeft: 20 }}>
+            <p style={{ fontSize: 16, lineHeight: 1.8, color: "var(--muted)", marginBottom: 12 }}>Refunds will NOT be provided if:</p>
+            <ul style={{ fontSize: 16, lineHeight: 2, color: "var(--muted)", marginBottom: 20, paddingLeft: 20 }}>
               <li>You have already downloaded the course content</li>
               <li>The request is made after 24 hours of purchase</li>
               <li>You changed your mind about buying the course</li>
@@ -56,7 +56,7 @@ export default function RefundPage() {
             </ul>
 
             <h2 style={{ fontSize: 20, marginBottom: 12 }}>3. How to Request a Refund</h2>
-            <ol style={{ fontSize: 15, lineHeight: 2, color: "var(--muted)", marginBottom: 20, paddingLeft: 20 }}>
+            <ol style={{ fontSize: 16, lineHeight: 2, color: "var(--muted)", marginBottom: 20, paddingLeft: 20 }}>
               <li>WhatsApp us at <a href="https://wa.me/919582501582" style={{ color: "var(--primary)" }}>9582501582</a> with your Order ID</li>
               <li>Or email us at <a href="mailto:edubazarshop@gmail.com" style={{ color: "var(--primary)" }}>edubazarshop@gmail.com</a></li>
               <li>Mention your Order ID and reason for refund</li>
@@ -65,12 +65,12 @@ export default function RefundPage() {
             </ol>
 
             <h2 style={{ fontSize: 20, marginBottom: 12 }}>4. Free Products</h2>
-            <p style={{ fontSize: 15, lineHeight: 1.8, color: "var(--muted)", marginBottom: 20 }}>
+            <p style={{ fontSize: 16, lineHeight: 1.8, color: "var(--muted)", marginBottom: 20 }}>
               Free products are not eligible for refunds as no payment was made. However, if you face issues accessing a free product, please contact us and we will resolve it immediately.
             </p>
 
             <h2 style={{ fontSize: 20, marginBottom: 12 }}>5. Contact for Refunds</h2>
-            <p style={{ fontSize: 15, lineHeight: 1.8, color: "var(--muted)" }}>
+            <p style={{ fontSize: 16, lineHeight: 1.8, color: "var(--muted)" }}>
               For any refund-related queries, contact us at <a href="mailto:edubazarshop@gmail.com" style={{ color: "var(--primary)" }}>edubazarshop@gmail.com</a> or WhatsApp at <a href="https://wa.me/919582501582" style={{ color: "var(--primary)" }}>9582501582</a>. We aim to resolve all refund requests within 48 hours.
             </p>
           </div>

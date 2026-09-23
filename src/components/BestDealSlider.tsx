@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 import { products } from "@/lib/products";
 import { formatINR } from "@/lib/products";
@@ -8,12 +9,12 @@ import { formatINR } from "@/lib/products";
 const DEAL_SLUGS = [
   "ultimate-facebook-ads-course-2025",
   "seo-masterclass-onpage-offpage-technical",
-  "dedsec-antivirus-evasion-course",
-  "complete-windows-password-cracking",
   "kali-linux-for-ethical-hackers",
   "learn-shopify-now-beginners",
   "telegram-bot-course-python",
   "master-website-creation-15-platforms",
+  "complete-ethical-hacking-penetration-testing",
+  "python-complete-course-beginner-to-advanced",
 ];
 
 const dealProducts = DEAL_SLUGS.map((slug) => products.find((p) => p.slug === slug)).filter(Boolean) as typeof products;
@@ -21,12 +22,12 @@ const dealProducts = DEAL_SLUGS.map((slug) => products.find((p) => p.slug === sl
 const OFFERS: Record<string, { badge: string; discount: string }> = {
   "ultimate-facebook-ads-course-2025": { badge: "Hot Deal", discount: "52% OFF" },
   "seo-masterclass-onpage-offpage-technical": { badge: "Bestseller", discount: "49% OFF" },
-  "dedsec-antivirus-evasion-course": { badge: "Limited", discount: "58% OFF" },
-  "complete-windows-password-cracking": { badge: "Trending", discount: "50% OFF" },
   "kali-linux-for-ethical-hackers": { badge: "New", discount: "48% OFF" },
   "learn-shopify-now-beginners": { badge: "Bestseller", discount: "45% OFF" },
   "telegram-bot-course-python": { badge: "Hot", discount: "46% OFF" },
   "master-website-creation-15-platforms": { badge: "Bundle", discount: "62% OFF" },
+  "complete-ethical-hacking-penetration-testing": { badge: "Hot", discount: "60% OFF" },
+  "python-complete-course-beginner-to-advanced": { badge: "Bestseller", discount: "55% OFF" },
 };
 
 export default function BestDealSlider() {
@@ -52,7 +53,7 @@ export default function BestDealSlider() {
             <div key={`${p.id}-${i}`} className="ws-deal-card">
               <div className="ws-deal-img">
                 <Link href={`/product/${p.slug}`}>
-                  <img src={p.images[0]} alt={p.title} loading="lazy" />
+                  <Image src={p.images[0]} alt={p.title} width={320} height={200} loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                 </Link>
                 {offer && <span className="ws-deal-badge">{offer.badge}</span>}
               </div>
@@ -68,7 +69,7 @@ export default function BestDealSlider() {
                   ) : (
                     <span className="ws-deal-new">{formatINR(p.price)}</span>
                   )}
-                  {offer && <span style={{ color: "#e04f4f", fontSize: 12, fontWeight: 600 }}>{offer.discount}</span>}
+                  {offer && <span style={{ color: "#FF515C", fontSize: 12, fontWeight: 600 }}>{offer.discount}</span>}
                 </div>
                 <Link href={`/product/${p.slug}`} className="ws-deal-btn">
                   Shop Now <ArrowRight size={14} strokeWidth={1.5} />

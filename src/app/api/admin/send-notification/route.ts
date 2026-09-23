@@ -3,6 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 import { Resend } from "resend";
 import { SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY } from "@/lib/supabase-config";
 import { sendMessage } from "@/lib/telegram";
+import { isValidAdminSession } from "@/lib/admin-session";
 
 function getDb() {
   return createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, { auth: { autoRefreshToken: false, persistSession: false } });
@@ -14,8 +15,29 @@ function getResend() {
   return new Resend(key);
 }
 
+function esc(s: string): string {
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+
+function escAttr(s: string): string {
+  return esc(s).replace(/'/g, "&#39;");
+}
+
+function safeHttpUrl(u: string): string | null {
+  try {
+    const parsed = new URL(u);
+    return parsed.protocol === "http:" || parsed.protocol === "https:" ? parsed.href : null;
+  } catch {
+    return null;
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
+    if (!isValidAdminSession(request.cookies.get("edubazar_admin_session")?.value)) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const { orderId, name, email, status, items } = await request.json() as {
       orderId: string;
       name: string;
@@ -23,6 +45,25 @@ export async function POST(request: NextRequest) {
       status: "approved" | "rejected";
       items: Array<{ id: string; name?: string; price?: number; downloadUrl?: string }>;
     };
+
+    if (!orderId || typeof orderId !== "string" || orderId.length > 64) {
+      return NextResponse.json({ error: "Invalid orderId" }, { status: 400 });
+    }
+    if (!email || typeof email !== "string" || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 254) {
+      return NextResponse.json({ error: "Invalid email" }, { status: 400 });
+    }
+    if (status !== "approved" && status !== "rejected") {
+      return NextResponse.json({ error: "Invalid status" }, { status: 400 });
+    }
+    const safeName = typeof name === "string" && name ? name.slice(0, 120) : "Customer";
+    const safeItems = Array.isArray(items)
+      ? items.slice(0, 50).map((item) => ({
+          id: String(item?.id ?? "").slice(0, 128),
+          name: item?.name ? String(item.name).slice(0, 200) : undefined,
+          price: typeof item?.price === "number" ? item.price : undefined,
+          downloadUrl: item?.downloadUrl ? safeHttpUrl(String(item.downloadUrl)) ?? undefined : undefined,
+        }))
+      : [];
 
     const db = getDb();
     const resend = getResend();
@@ -44,7 +85,7 @@ export async function POST(request: NextRequest) {
 
     // Update order status in database
     if (status === "approved") {
-      const updatedItems = items.map((item) => ({
+      const updatedItems = safeItems.map((item) => ({
         ...item,
         downloadUrl: item.downloadUrl || `https://www.edubaazar.shop/account`
       }));
@@ -62,15 +103,15 @@ export async function POST(request: NextRequest) {
 
     // Send email notification
     if (resend) {
-      const downloadLinks = status === "approved" 
-        ? items
+      const downloadLinks = status === "approved"
+        ? safeItems
             .filter((item) => item.downloadUrl)
             .map((item) => `
               <p style="margin: 10px 0;">
-                <a href="${item.downloadUrl}" 
+                <a href="${escAttr(item.downloadUrl!)}"
                    style="display:inline-block;background:#687975;color:white;padding:11px 20px;
                           text-decoration:none;font-weight:600;border-radius:6px;">
-                  Download ${item.name} →
+                  Download ${esc(item.name || "Course")} →
                 </a>
               </p>
             `).join("")
@@ -87,36 +128,36 @@ export async function POST(request: NextRequest) {
           <div style="background:#edece9;padding:24px;text-align:center;border-bottom:3px solid #687975;">
             <h1 style="margin:0;color:#181d27;font-size:22px;">EduBazar.shop</h1>
           </div>
-          
+
           <div style="background:white;padding:32px;margin-top:16px;">
             <h2 style="color:#181d27;margin-top:0;">
               ${status === "approved" ? "✅ Order Approved - Download Links" : "❌ Order Rejected"}
             </h2>
-            
+
             <p style="color:#444;line-height:1.7;font-size:15px;">
-              Hi ${name},
+              Hi ${esc(safeName)},
             </p>
-            
+
             ${status === "approved" ? `
               <p style="color:#444;line-height:1.7;font-size:15px;">
-                Great news! Your order <strong>${orderId}</strong> has been approved and payment verified.
+                Great news! Your order <strong>${esc(orderId)}</strong> has been approved and payment verified.
               </p>
               <p style="color:#444;line-height:1.7;font-size:15px;">
                 You can now download your courses from your account dashboard or use the buttons below:
               </p>
-              
+
               ${downloadLinks}
-              
+
               <div style="margin-top:24px;padding:16px;background:#f5f5f5;border-radius:8px;">
                 <p style="color:#666;font-size:13px;margin:0;">
-                  <strong>Alternative:</strong> You can also access all your downloads from your 
+                  <strong>Alternative:</strong> You can also access all your downloads from your
                   <a href="https://www.edubaazar.shop/account" style="color:#687975;">account dashboard</a>
                   at any time.
                 </p>
               </div>
             ` : `
               <p style="color:#444;line-height:1.7;font-size:15px;">
-                Unfortunately, we couldn't verify your payment for order <strong>${orderId}</strong>.
+                Unfortunately, we couldn't verify your payment for order <strong>${esc(orderId)}</strong>.
               </p>
               <p style="color:#666;font-size:14px;">
                 This could be because:
@@ -130,9 +171,9 @@ export async function POST(request: NextRequest) {
                 Please contact us on WhatsApp with your correct UTR number to complete your order.
               </p>
             `}
-            
+
             <hr style="border:none;border-top:1px solid #eee;margin:24px 0;" />
-            
+
             <p style="color:#888;font-size:12px;margin:0;">
               Questions? Contact us on WhatsApp: 9582501582 or email: edubazarshop@gmail.com
             </p>
@@ -156,8 +197,8 @@ export async function POST(request: NextRequest) {
         html: `
           <div style="font-family:Arial;padding:20px;">
             <h2>Order ${status === "approved" ? "Approved" : "Rejected"}</h2>
-            <p><strong>Order ID:</strong> ${orderId}</p>
-            <p><strong>Customer:</strong> ${name} (${email})</p>
+            <p><strong>Order ID:</strong> ${esc(orderId)}</p>
+            <p><strong>Customer:</strong> ${esc(safeName)} (${esc(email)})</p>
             <p><strong>Status:</strong> ${status.toUpperCase()}</p>
             <p><strong>Time:</strong> ${new Date().toLocaleString()}</p>
           </div>
@@ -168,11 +209,10 @@ export async function POST(request: NextRequest) {
     // Notify via Telegram bot if order was placed via bot (chatId stored in utr)
     if (tgChatId) {
       try {
-        const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
         if (status === "approved") {
-          const dlLines = items
+          const dlLines = safeItems
             .filter((it) => it.downloadUrl && it.downloadUrl.startsWith("http"))
-            .map((it) => `🔗 <a href="${it.downloadUrl}">Download: ${esc(it.name || "Course")}</a>`)
+            .map((it) => `🔗 <a href="${escAttr(it.downloadUrl!)}">Download: ${esc(it.name || "Course")}</a>`)
             .join("\n");
           const fallback = dlLines || `🔗 <a href="https://www.edubaazar.shop/account">Open My Downloads</a>`;
           await sendMessage(
@@ -190,8 +230,8 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    return NextResponse.json({ 
-      success: true, 
+    return NextResponse.json({
+      success: true,
       message: status === "approved" ? "Order approved and email sent" : "Order rejected and email sent",
       telegramNotified: Boolean(tgChatId),
     });

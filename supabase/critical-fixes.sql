@@ -14,9 +14,9 @@
 -- FIX 1: Enable RLS + Secure Policies on all public tables
 -- ===========================================================================
 -- Detected tables: public.orders, public.users (and any future tables)
--- Strategy: anon can INSERT + SELECT only (needed by checkout/register/login),
---           NO UPDATE/DELETE for anon (prevents IDOR), service_role has ALL.
---           This matches src/lib/store.tsx (anon insert) & src/app/account (anon select)
+-- Strategy: anon can INSERT only (checkout/register), NO anon SELECT/UPDATE/DELETE,
+--           service_role has ALL. This matches src/lib/store.tsx (anon insert) and
+--           src/app/account which reads orders via GET /api/orders (service_role).
 -- ===========================================================================
 
 -- Ensure tables exist before altering (IF NOT EXISTS handled in setup)
@@ -49,37 +49,29 @@ DROP POLICY IF EXISTS "Allow service_role all users" ON public.users;
 REVOKE ALL ON TABLE public.orders FROM anon, authenticated;
 REVOKE ALL ON TABLE public.users FROM anon, authenticated;
 GRANT USAGE ON SCHEMA public TO anon, authenticated, service_role;
-GRANT SELECT, INSERT ON TABLE public.orders TO anon, authenticated;
-GRANT SELECT, INSERT ON TABLE public.users TO anon, authenticated;
+GRANT INSERT ON TABLE public.orders TO anon, authenticated;
+GRANT INSERT ON TABLE public.users TO anon, authenticated;
 GRANT ALL ON TABLE public.orders TO service_role;
 GRANT ALL ON TABLE public.users TO service_role;
 -- Identity columns: anon needs USAGE on sequences to insert with GENERATED ALWAYS AS IDENTITY
 GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO anon, authenticated, service_role;
 
 -- Recreate secure policies for ORDERS
--- anon can insert orders (guest checkout via store.tsx placeOrder -> supabase insert)
+-- anon can INSERT orders (guest checkout via store.tsx placeOrder -> supabase insert).
+-- NO anon SELECT — order PII + download URLs must only be readable via server routes
+-- that use the service_role key (account/admin/telegram API after session checks).
 CREATE POLICY "Allow anon insert orders"
   ON public.orders FOR INSERT
   TO anon, authenticated
   WITH CHECK (true);
 
--- anon can select own orders by email (account page filters by email). Using (true) is
--- required because app uses custom auth (no auth.uid()), filter is done client-side
--- with eq("email", user.email). Supabase cannot enforce auth.uid() without auth system.
--- If you migrate to Supabase Auth, tighten to: USING (email = auth.email())
-CREATE POLICY "Allow anon select orders"
-  ON public.orders FOR SELECT
-  TO anon, authenticated
-  USING (true);
-
--- Only service_role (server API routes in src/app/api/admin/*) can UPDATE/DELETE orders
 CREATE POLICY "Allow service_role all orders"
   ON public.orders FOR ALL
   TO service_role
   USING (true) WITH CHECK (true);
 
 -- Recreate secure policies for USERS
--- Users table stores custom auth (name,email,password). Needed by src/app/login & register.
+-- Users table stores password hashes. NEVER expose SELECT to anon (prevents dump).
 ALTER TABLE IF EXISTS public.users ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "Allow anon insert users"
@@ -87,15 +79,18 @@ CREATE POLICY "Allow anon insert users"
   TO anon, authenticated
   WITH CHECK (true);
 
-CREATE POLICY "Allow anon select users"
-  ON public.users FOR SELECT
-  TO anon, authenticated
-  USING (true);
-
 CREATE POLICY "Allow service_role all users"
   ON public.users FOR ALL
   TO service_role
   USING (true) WITH CHECK (true);
+
+-- Drop any previously-created permissive anon SELECT policies (idempotent)
+DROP POLICY IF EXISTS "Allow anon select users" ON public.users;
+DROP POLICY IF EXISTS "Allow anon select users for login" ON public.users;
+DROP POLICY IF EXISTS "Allow anon select orders" ON public.orders;
+DROP POLICY IF EXISTS "orders_anon_select" ON public.orders;
+DROP POLICY IF EXISTS "users_anon_select" ON public.users;
+DROP POLICY IF EXISTS "users_anon_insert" ON public.users;
 
 -- ===========================================================================
 -- Catch-all: Enable RLS on ANY other public tables that may exist
@@ -207,8 +202,8 @@ SELECT n.nspname, p.proname, pg_get_function_identity_arguments(p.oid) AS args,
 FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace
 WHERE n.nspname='public' AND p.prokind IN ('f','p');
 
--- 4. Confirm anon Grants (should be SELECT,INSERT only, not DELETE/UPDATE)
-SELECT '=== GRANTS (anon should have SELECT,INSERT only) ===' as check;
+-- 4. Confirm anon Grants (should be INSERT only, not SELECT/UPDATE/DELETE)
+SELECT '=== GRANTS (anon should have INSERT only) ===' as check;
 SELECT grantee, table_name, privilege_type
 FROM information_schema.role_table_grants
 WHERE table_schema='public' AND grantee IN ('anon','authenticated','service_role')

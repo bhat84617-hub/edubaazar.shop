@@ -9,9 +9,13 @@ ALTER TABLE public.orders ENABLE ROW LEVEL SECURITY;
 -- 2. Drop old permissive policies if exist (to avoid duplicates)
 DROP POLICY IF EXISTS "Allow anon insert users" ON public.users;
 DROP POLICY IF EXISTS "Allow anon select users" ON public.users;
+DROP POLICY IF EXISTS "Allow anon select users for login" ON public.users;
 DROP POLICY IF EXISTS "Allow service_role all users" ON public.users;
 DROP POLICY IF EXISTS "Allow anon insert orders" ON public.orders;
 DROP POLICY IF EXISTS "Allow anon select orders" ON public.orders;
+DROP POLICY IF EXISTS "Allow anon select own orders" ON public.orders;
+DROP POLICY IF EXISTS "orders_anon_select" ON public.orders;
+DROP POLICY IF EXISTS "users_anon_select" ON public.users;
 DROP POLICY IF EXISTS "Allow service_role all orders" ON public.orders;
 
 -- 3. Users policies
@@ -20,12 +24,9 @@ CREATE POLICY "Allow anon insert users"
 ON public.users FOR INSERT TO anon, authenticated
 WITH CHECK (true);
 
--- Allow anon/authenticated to select own user for login (SELECT where email matches - but RLS can't filter columns, so allow filtered select)
--- For now allow select with check true, but restrict via API: app always does .eq("email", email).eq("password", password)
--- To prevent password leak, create a safe view (see below) and restrict direct table access to service_role only if you can migrate
-CREATE POLICY "Allow anon select users for login"
-ON public.users FOR SELECT TO anon, authenticated
-USING (true);
+-- NO anon SELECT: passwords (even hashed) must never be readable with the public
+-- anon key. Login/register go through API routes that use SUPABASE_SERVICE_ROLE_KEY.
+-- (If an old "Allow anon select users" policy exists it is dropped above.)
 
 -- Service role full access (used by server via SUPABASE_SERVICE_ROLE_KEY)
 CREATE POLICY "Allow service_role all users"
@@ -37,9 +38,8 @@ CREATE POLICY "Allow anon insert orders"
 ON public.orders FOR INSERT TO anon, authenticated
 WITH CHECK (true);
 
-CREATE POLICY "Allow anon select own orders"
-ON public.orders FOR SELECT TO anon, authenticated
-USING (true);
+-- NO anon SELECT: order PII (name/email/UTR/download URLs) is only readable via
+-- server API routes (/api/orders, admin, telegram) that use the service_role key.
 
 CREATE POLICY "Allow service_role all orders"
 ON public.orders FOR ALL TO service_role

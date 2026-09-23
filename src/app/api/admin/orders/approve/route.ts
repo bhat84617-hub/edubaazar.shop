@@ -19,13 +19,23 @@ function htmlResponse(body: string) {
   return new NextResponse(html, { headers: { "Content-Type": "text/html; charset=utf-8" } });
 }
 
+function safeParseItems(raw: unknown): Array<Record<string, unknown>> {
+  try {
+    const parsed = typeof raw === "string" ? JSON.parse(raw) : raw;
+    if (!Array.isArray(parsed)) return [];
+    return parsed.filter((x) => x && typeof x === "object");
+  } catch {
+    return [];
+  }
+}
+
 async function doApprove(orderId: string) {
   const db = getDb();
   if (!db) return { error: "Database not configured." };
   const { data: order } = await db.from("orders").select("name, email, items").eq("order_id", orderId).single();
   if (!order) return { error: "Order not found." };
-  const items = typeof order.items === "string" ? JSON.parse(order.items) : order.items;
-  const updatedItems = (items as { id: string; name?: string; downloadUrl?: string | null }[]).map((item) => {
+  const items = safeParseItems(order.items);
+  const updatedItems = (items as unknown as { id: string; name?: string; downloadUrl?: string | null }[]).map((item) => {
     const productDefault = getProductById(item.id)?.downloadUrl ?? "";
     const finalUrl = item.downloadUrl || productDefault || "";
     return { ...item, downloadUrl: finalUrl };

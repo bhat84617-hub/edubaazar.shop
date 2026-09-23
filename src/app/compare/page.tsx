@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { Scale, X, ShoppingCart } from "lucide-react";
 import { getProductById, formatINR } from "@/lib/products";
 import { useStore } from "@/lib/store";
@@ -25,7 +26,7 @@ export default function ComparePage() {
       <div className="container">
         <div className="section-head">
           <span className="section-tag">Compare</span>
-          <h1 style={{ fontSize: "clamp(22px, 3vw, 28px)", fontWeight: 800, color: "#242424" }}>Compare Products</h1>
+          <h1 style={{ fontSize: "clamp(20px, 3vw, 28px)", fontWeight: 800, color: "#242424" }}>Compare Products</h1>
           <p>Compare side-by-side and pick your favourite</p>
         </div>
 
@@ -58,7 +59,7 @@ export default function ComparePage() {
                           return (
                             <td key={p.id}>
                               <Link href={`/product/${p.slug}`}>
-                                <img src={p.images[0]} alt={p.title} style={{ width: 90, height: 70, objectFit: "cover", borderRadius: 10 }} />
+                                <Image src={p.images[0]} alt={p.title} width={90} height={70} style={{ objectFit: "cover", borderRadius: 10 }} />
                               </Link>
                             </td>
                           );

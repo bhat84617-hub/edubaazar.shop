@@ -109,6 +109,12 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
     case "rating":
       list.sort((a, b) => b.rating - a.rating);
       break;
+    case "bestseller": {
+      const rank = (p: (typeof products)[number]) =>
+        (p.badge === "Bestseller" ? 2 : p.badge === "Hot" ? 1 : 0);
+      list.sort((a, b) => rank(b) - rank(a) || b.rating - a.rating);
+      break;
+    }
   }
 
   const freeCount = products.filter((p) => p.price <= 0).length;
@@ -148,10 +154,10 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
               </>
             )}
           </div>
-          <h1 style={{ color: "#242424", fontSize: "clamp(22px,3vw,28px)", fontWeight: 800, letterSpacing: "-0.4px" }}>
+          <h1 style={{ color: "#242424", fontSize: "clamp(20px,3vw,28px)", fontWeight: 800, letterSpacing: "-0.4px" }}>
             {q ? `Results for "${sp.q}"` : cat || "All Products"}
           </h1>
-          <p style={{ color: "#777", marginTop: 4, fontSize: 13 }}>
+          <p style={{ color: "#777", marginTop: 4, fontSize: 14 }}>
             {list.length} products • Premium minimal electronics style
           </p>
         </div>
@@ -199,6 +205,7 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
                       href={`/shop?${sidebarLink(kind === k ? { kind: "", free: "" } : { kind: k, free: "" })}`}
                       className="filter-option"
                       style={{ color: active ? "var(--primary)" : "var(--body)", fontWeight: active ? 700 : 400 }}
+                      aria-current={active ? "page" : undefined}
                     >
                       {label}
                       <span style={{ color: "var(--muted)", fontSize: 12, marginLeft: "auto" }}>{count}</span>
@@ -213,20 +220,33 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
                   href={`/shop?${sidebarLink(freeOnly ? { free: "" } : { free: "1" })}`}
                   className="filter-option"
                   style={{ color: freeOnly ? "var(--primary)" : "var(--body)", fontWeight: freeOnly ? 700 : 400 }}
+                  aria-current={freeOnly ? "page" : undefined}
                 >
                   Free Products ({freeCount})
                 </Link>
-                <Link href={`/shop?${sidebarLink({ sort: "price_low", free: "" })}`} className="filter-option">
+                <Link
+                  href={`/shop?${sidebarLink({ sort: "price_low", free: "" })}`}
+                  className="filter-option"
+                  aria-current={sort === "price_low" ? "page" : undefined}
+                >
                   Under ₹200
                 </Link>
-                <Link href={`/shop?${sidebarLink({ sort: "price_high", free: "" })}`} className="filter-option">
+                <Link
+                  href={`/shop?${sidebarLink({ sort: "price_high", free: "" })}`}
+                  className="filter-option"
+                  aria-current={sort === "price_high" ? "page" : undefined}
+                >
                   Premium ₹250+
                 </Link>
               </div>
 
               <div className="filter-group">
                 <h4>Rating</h4>
-                <Link href={`/shop?${sidebarLink({ sort: "rating", free: "" })}`} className="filter-option">
+                <Link
+                  href={`/shop?${sidebarLink({ sort: "rating", free: "" })}`}
+                  className="filter-option"
+                  aria-current={sort === "rating" ? "page" : undefined}
+                >
                   Top Rated (4.5+) <ChevronDown size={14} style={{ marginLeft: "auto" }} />
                 </Link>
               </div>

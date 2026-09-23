@@ -37,7 +37,7 @@ type StoreCtx = {
   cartCount: number;
   cartSubtotal: number;
   toggleWishlist: (id: string) => void;
-  toggleCompare: (id: string) => void;
+  toggleCompare: (id: string) => boolean;
   quickViewId: string | null;
   openQuickView: (id: string) => void;
   closeQuickView: () => void;
@@ -54,10 +54,33 @@ function read<T>(key: string, fallback: T): T {
   if (typeof window === "undefined") return fallback;
   try {
     const raw = window.localStorage.getItem(key);
-    return raw ? (JSON.parse(raw) as T) : fallback;
+    if (!raw) return fallback;
+    const parsed = JSON.parse(raw) as unknown;
+    // Shape validation: prevent wrong-type JSON from crashing render
+    if (Array.isArray(fallback)) {
+      if (!Array.isArray(parsed)) return fallback;
+      if (fallback.length > 0 && typeof fallback[0] === "object" && fallback[0] !== null) {
+        return (parsed.filter((x) => x && typeof x === "object") as T);
+      }
+      return (parsed.filter((x) => typeof x === "string") as T);
+    }
+    if (fallback === null || (typeof fallback === "object" && fallback !== null)) {
+      if (parsed === null || (typeof parsed === "object" && !Array.isArray(parsed))) return parsed as T;
+      return fallback;
+    }
+    return parsed as T;
   } catch {
     return fallback;
   }
+}
+
+// Prune cart entries whose product no longer exists (ghost items → phantom badge / auto-approved junk orders)
+function pruneCart(cart: CartItem[]): CartItem[] {
+  return cart.filter((i) => i && typeof i.id === "string" && getProductById(i.id) && typeof i.qty === "number" && i.qty > 0);
+}
+
+function pruneIds(ids: string[]): string[] {
+  return ids.filter((id) => typeof id === "string" && Boolean(getProductById(id)));
 }
 
 export function StoreProvider({ children }: { children: React.ReactNode }) {
@@ -75,12 +98,30 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const closeQuickView = useCallback(() => setQuickViewId(null), []);
 
   useEffect(() => {
-    setCart(read<CartItem[]>("edubazar_cart", []));
-    setWishlist(read<string[]>("edubazar_wishlist", []));
-    setCompare(read<string[]>("edubazar_compare", []));
-    setUser(read<User>("edubazar_user_auth", null));
-    setOrders(read<Order[]>("edubazar_orders", []));
-    setMounted(true);
+    const t = setTimeout(() => {
+      const rawCart = read<CartItem[]>("edubazar_cart", []);
+      setCart(Array.isArray(rawCart) ? pruneCart(rawCart) : []);
+      setWishlist(pruneIds(read<string[]>("edubazar_wishlist", [])));
+      setCompare(pruneIds(read<string[]>("edubazar_compare", [])));
+      setUser(read<User>("edubazar_user_auth", null));
+      setOrders(read<Order[]>("edubazar_orders", []));
+      setMounted(true);
+    }, 0);
+    return () => clearTimeout(t);
+  }, []);
+
+  // Cross-tab sync: rehydrate when another tab writes the same key
+  useEffect(() => {
+    const onStorage = (e: StorageEvent) => {
+      if (!e.key) return;
+      if (e.key === "edubazar_cart") setCart(pruneCart(read<CartItem[]>("edubazar_cart", [])));
+      else if (e.key === "edubazar_wishlist") setWishlist(pruneIds(read<string[]>("edubazar_wishlist", [])));
+      else if (e.key === "edubazar_compare") setCompare(pruneIds(read<string[]>("edubazar_compare", [])));
+      else if (e.key === "edubazar_user_auth") setUser(read<User>("edubazar_user_auth", null));
+      else if (e.key === "edubazar_orders") setOrders(read<Order[]>("edubazar_orders", []));
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
   }, []);
 
   useEffect(() => {
@@ -101,7 +142,12 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
 
   const showToast = useCallback((msg: string, type: "success" | "error" = "success") => {
     const id = ++toastId.current;
-    setToasts((prev) => [...prev, { id, msg, type }]);
+    setToasts((prev) => {
+      // Cap queue + dedupe identical messages
+      const deduped = prev.filter((t) => !(t.msg === msg && t.type === type));
+      const next = [...deduped, { id, msg, type }];
+      return next.slice(-3);
+    });
     setTimeout(() => setToasts((prev) => prev.filter((t) => t.id !== id)), 3200);
   }, []);
 
@@ -148,16 +194,27 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     setWishlist((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
   }, []);
 
-  const toggleCompare = useCallback((id: string) => {
+  const toggleCompare = useCallback((id: string): boolean => {
+    let changed = false;
+    let capped = false;
     setCompare((prev) => {
-      if (prev.includes(id)) return prev.filter((x) => x !== id);
-      if (prev.length >= 4) return prev; 
+      if (prev.includes(id)) {
+        changed = true;
+        return prev.filter((x) => x !== id);
+      }
+      if (prev.length >= 4) {
+        capped = true;
+        return prev;
+      }
+      changed = true;
       return [...prev, id];
     });
+    // Note: setState updater runs sync in React 18+ for event handlers
+    if (capped) return false;
+    return changed;
   }, []);
 
   const login = useCallback((u: NonNullable<User>) => setUser(u), []);
-  // Keep local orders in storage but dashboard filters by user.email, so new users see empty history
   const logout = useCallback(() => setUser(null), []);
 
   const placeOrder = useCallback(
@@ -166,8 +223,12 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         showToast("Please login to place order", "error");
         return null;
       }
-      const cartSnapshot = [...cart];
-      const items: OrderItem[] = cartSnapshot.map((i) => {
+      const validItems = cart.filter((i) => getProductById(i.id));
+      if (validItems.length === 0) {
+        showToast("Your cart is empty", "error");
+        return null;
+      }
+      const items: OrderItem[] = validItems.map((i) => {
         const p = getProductById(i.id);
         return {
           id: i.id,
@@ -192,9 +253,8 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         date: new Date().toISOString(),
       };
 
-      setOrders((prev) => [order, ...prev]);
-      setCart([]);
-
+      // Insert into DB FIRST — only clear cart + show success after confirmed write.
+      let insertOk = false;
       try {
         const { error } = await supabase.from("orders").insert([
           {
@@ -211,10 +271,18 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
           },
         ]);
         if (error) throw error;
+        insertOk = true;
       } catch {
-        showToast("Order saved locally, but server sync failed. Please contact support.", "error");
+        insertOk = false;
       }
 
+      if (!insertOk) {
+        showToast("Order could not be saved. Please try again or contact support.", "error");
+        return null;
+      }
+
+      setOrders((prev) => [order, ...prev]);
+      setCart([]);
       return order;
     },
     [cart, user, showToast]
@@ -234,18 +302,9 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       return updated;
     });
     setOrders(next);
-    try {
-      const updatePayload: Record<string, unknown> = { status };
-      if (downloadUrls) {
-        const order = next.find((o) => o.orderId === orderId);
-        if (order) updatePayload.items = JSON.stringify(order.items);
-      }
-      const { error } = await supabase.from("orders").update(updatePayload).eq("order_id", orderId);
-      if (error) throw error;
-    } catch {
-      showToast("Order updated locally, but server sync failed.", "error");
-    }
-  }, [showToast]);
+    // Local-only: server status changes must go through admin API routes
+    // (service_role). Anon key has no UPDATE on orders (RLS).
+  }, []);
 
   const cartCount = cart.reduce((s, i) => s + i.qty, 0);
   const cartSubtotal = cart.reduce((s, i) => {

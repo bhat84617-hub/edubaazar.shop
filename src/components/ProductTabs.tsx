@@ -70,7 +70,7 @@ export default function ProductTabs({ product }: { product: Product }) {
 
       {tab === "desc" && (
         <div style={{ maxWidth: 780 }}>
-          <p style={{ fontSize: 15, lineHeight: 1.8, color: "var(--body)", marginBottom: 20 }}>{product.fullDesc || product.desc}</p>
+          <p style={{ fontSize: 16, lineHeight: 1.8, color: "var(--body)", marginBottom: 20 }}>{product.fullDesc || product.desc}</p>
           <h4 style={{ fontSize: 16, marginBottom: 12 }}>What&apos;s Included</h4>
           <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: 8 }}>
             {product.includes.map((inc) => (
@@ -113,7 +113,7 @@ export default function ProductTabs({ product }: { product: Product }) {
                   <strong style={{ fontSize: 14 }}>{r.name}</strong>
                   <div style={{ display: "flex", gap: 2, marginTop: 2 }}>
                     {Array.from({ length: 5 }).map((_, s) => (
-                      <Star key={s} size={13} fill={s < r.rating ? "#f5a623" : "none"} color={s < r.rating ? "#f5a623" : "#ccc"} />
+                      <Star key={s} size={13} fill={s < r.rating ? "#FFBD3C" : "none"} color={s < r.rating ? "#FFBD3C" : "#ccc"} />
                     ))}
                   </div>
                 </div>

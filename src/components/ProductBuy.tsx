@@ -10,7 +10,25 @@ import { useStore } from "@/lib/store";
 export default function ProductBuy({ product }: { product: Product }) {
   const { addToCart, toggleWishlist, toggleCompare, wishlist, compare, showToast } = useStore();
   const [qty, setQty] = useState(1);
-  const [variantIdx, setVariantIdx] = useState(0);
+  const [variantIdx, setVariantIdx] = useState<number>(() => {
+    // Lazy restore of previously selected variant (skipped during SSR)
+    if (typeof window === "undefined") return 0;
+    try {
+      const raw = sessionStorage.getItem(`edubazar_variant_${product.id}`);
+      if (raw) {
+        const idx = parseInt(raw, 10);
+        if (!isNaN(idx) && idx >= 0 && idx < (product.variants?.length ?? 0)) return idx;
+      }
+    } catch {}
+    return 0;
+  });
+
+  const selectVariant = (i: number) => {
+    setVariantIdx(i);
+    try {
+      sessionStorage.setItem(`edubazar_variant_${product.id}`, String(i));
+    } catch {}
+  };
 
   const variant = product.variants?.[variantIdx];
   const price = (variant?.price ?? product.price) * qty;
@@ -24,12 +42,12 @@ export default function ProductBuy({ product }: { product: Product }) {
         <span><Clock size={13} /> {product.duration}</span>
         <span><Signal size={13} /> {product.level}</span>
         <span><Users size={13} /> {product.students} students</span>
-        <span><Star size={13} style={{ color: "#f5a623" }} /> {product.rating} ({product.reviewCount})</span>
+        <span><Star size={13} style={{ color: "#FFBD3C" }} /> {product.rating} ({product.reviewCount})</span>
       </div>
 
       {product.variants && product.variants.length > 0 && (
         <div style={{ marginBottom: 16 }}>
-          <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 8 }}>
+          <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 8 }}>
             {product.variants[0].name}
           </div>
           <div className="variant-row">
@@ -38,7 +56,7 @@ export default function ProductBuy({ product }: { product: Product }) {
                 key={v.value}
                 className={`variant-btn ${i === variantIdx ? "active" : ""}`}
                 disabled={v.stock <= 0}
-                onClick={() => setVariantIdx(i)}
+                onClick={() => selectVariant(i)}
               >
                 {v.value}
               </button>
@@ -97,11 +115,9 @@ export default function ProductBuy({ product }: { product: Product }) {
         </button>
       </div>
 
-      {product.downloadUrl && (
-        <div style={{ marginTop: 14, display: "flex", alignItems: "center", gap: 8, fontSize: 11, color: "#2A74ED", fontWeight: 700, background: "#eef3ff", padding: "8px 12px", borderRadius: 20, border: "1px solid #d6e3ff" }}>
-          <Download size={13} /> Accessible via dashboard download after approval
-        </div>
-      )}
+      <div style={{ marginTop: 14, display: "flex", alignItems: "center", gap: 8, fontSize: 12, color: "#2A74ED", fontWeight: 700, background: "#eef3ff", padding: "8px 12px", borderRadius: 20, border: "1px solid #d6e3ff" }}>
+        <Download size={13} /> Accessible via dashboard download after approval
+      </div>
 
       <div className="trust-row" style={{ marginTop: 18 }}>
         <div className="trust-chip"><ShieldCheck size={14} /> 100% Secure UPI</div>
@@ -110,7 +126,7 @@ export default function ProductBuy({ product }: { product: Product }) {
         <div className="trust-chip"><ShieldCheck size={14} /> 24/7 Support</div>
       </div>
 
-      <div style={{ marginTop: 22, fontSize: 12.5, color: "var(--muted)", lineHeight: 1.7 }}>
+      <div style={{ marginTop: 22, fontSize: 12, color: "var(--muted)", lineHeight: 1.7 }}>
         <ShieldCheck size={13} style={{ verticalAlign: "-2px" }} /> Payment verify hone ke baad aapko course
         access / download link mil jayega — <Link href="/checkout">checkout page</Link> par karein.
       </div>

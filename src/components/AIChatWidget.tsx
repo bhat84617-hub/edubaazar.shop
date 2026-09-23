@@ -1,16 +1,9 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import {
-  MessageSquare, X, Send, Bot, User, Loader2,
-  ChevronDown, ChevronUp, Star, Tag, IndianRupee,
-  CheckCircle, AlertCircle, Zap, BookOpen, Code, Shield, Search,
-  GraduationCap, Sparkles, HeadphonesIcon, ShieldCheck, Clock,
-  CreditCard, Package, FileText, RefreshCw, Phone, Mail,
-  ShoppingCart, Gift, TrendingUp, ArrowRight, Info, MapPin,
-  Award, Users, Globe, Lock, ExternalLink, Copy, Check
-} from "lucide-react";
-import { products, getProductById, CATEGORIES } from "@/lib/products";
+import { MessageSquare, X, Send, Bot, User, Loader2, BookOpen, Sparkles, ArrowRight } from "lucide-react";
+import Image from "next/image";
+import { products, getProductById, CATEGORIES, type Product } from "@/lib/products";
 
 // ============ TYPES ============
 interface Message {
@@ -18,38 +11,9 @@ interface Message {
   role: "user" | "assistant";
   content: string;
   timestamp: Date;
-  products?: any[];
+  products?: Product[];
   suggestedActions?: string[];
 }
-
-// ============ DESIGN TOKENS ============
-const DESIGN = {
-  colors: {
-    bg: "#F4F1EA",
-    surface: "#F9F6F0",
-    surfaceElevated: "#F5F2EB",
-    surfaceHover: "#EFECE3",
-    border: "#DDD8CE",
-    borderHover: "#C4BBAA",
-    primary: "#2C5F7A",
-    primaryGlow: "rgba(44, 95, 122, 0.25)",
-    primaryLight: "#3A7A9A",
-    accent: "#C4953A",
-    accentGlow: "rgba(196, 149, 58, 0.3)",
-    success: "#2A7A4E",
-    error: "#A83D3D",
-    warning: "#C4953A",
-    text: "#1E1E1E",
-    textSecondary: "#5A5350",
-    textMuted: "#8A827A",
-  },
-  gradients: {
-    primary: "linear-gradient(135deg, #3b82f6 0%, #2563eb 50%, #1d4ed8 100%)",
-    accent: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
-    glow: "radial-gradient(circle, rgba(44, 95, 122, 0.25) 0%, transparent 70%)",
-    surface: "linear-gradient(180deg, rgba(26, 34, 53, 0.8) 0%, rgba(17, 24, 39, 0.95) 100%)",
-  }
-};
 
 // ============ RULE ENGINE ============
 function formatPrice(price: number): string {
@@ -57,7 +21,7 @@ function formatPrice(price: number): string {
   return `₹${price.toLocaleString("en-IN")}`;
 }
 
-function findProducts(query: string): any[] {
+function findProducts(query: string): Product[] {
   const q = query.toLowerCase();
   const results = products.filter(p =>
     p.title.toLowerCase().includes(q) ||
@@ -71,35 +35,31 @@ function findProducts(query: string): any[] {
   return results.slice(0, 10);
 }
 
-function findByCategory(category: string): any[] {
+function findByCategory(category: string): Product[] {
   return products.filter(p => p.category.toLowerCase() === category.toLowerCase());
 }
 
-function findByKind(kind: string): any[] {
-  return products.filter(p => p.kind === kind).slice(0, 6);
-}
-
-function getFeatured(): any[] {
+function getFeatured(): Product[] {
   return products.filter(p => p.featured).slice(0, 6);
 }
 
-function getBestsellers(): any[] {
+function getBestsellers(): Product[] {
   return products.filter(p => p.badge === "Bestseller").slice(0, 6);
 }
 
-function getNewCourses(): any[] {
+function getNewCourses(): Product[] {
   return products.filter(p => p.badge === "New").slice(0, 6);
 }
 
-function getHotDeals(): any[] {
+function getHotDeals(): Product[] {
   return products.filter(p => p.badge === "Hot" || (p.oldPrice > p.price && p.price > 0)).slice(0, 6);
 }
 
-function getFreeCourses(): any[] {
+function getFreeCourses(): Product[] {
   return products.filter(p => p.price === 0).slice(0, 6);
 }
 
-function getProductDetail(id: string): any {
+function getProductDetail(id: string): Product | undefined {
   return getProductById(id);
 }
 
@@ -115,7 +75,7 @@ function getCourseStats() {
 }
 
 // ============ ENHANCED INTENT MATCHING ============
-function matchIntent(message: string): { intent: string; entities: any } {
+function matchIntent(message: string): { intent: string; entities: Record<string, string> } {
   const msg = message.toLowerCase().trim();
 
   // === GREETINGS ===
@@ -272,7 +232,7 @@ function matchIntent(message: string): { intent: string; entities: any } {
 }
 
 // ============ COMPREHENSIVE RESPONSE GENERATOR ============
-function generateResponse(message: string): { text: string; products?: any[]; suggestedActions?: string[] } {
+function generateResponse(message: string): { text: string; products?: Product[]; suggestedActions?: string[] } {
   const { intent, entities } = matchIntent(message);
   const stats = getCourseStats();
 
@@ -855,7 +815,7 @@ Happy Learning! 📚✨`,
 }
 
 // ============ PRODUCT CARD COMPONENT ============
-const ProductCard = ({ product, onBuy }: { product: any; onBuy?: () => void }) => {
+const ProductCard = ({ product }: { product: Product; onBuy?: () => void }) => {
   const discount = product.oldPrice > product.price ? Math.round((1 - product.price/product.oldPrice) * 100) : 0;
 
   return (
@@ -863,7 +823,7 @@ const ProductCard = ({ product, onBuy }: { product: any; onBuy?: () => void }) =
       <div className="product-header">
         <div className="product-image">
           {product.images?.[0] ? (
-            <img src={product.images[0]} alt={product.title} />
+            <Image src={product.images[0]} alt={product.title} width={72} height={72} style={{ width: 72, height: 72, objectFit: "cover", borderRadius: 8 }} />
           ) : (
             <div className="product-image-placeholder">
               <BookOpen size={20} />
@@ -918,11 +878,9 @@ export default function AIChatWidget() {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [hasUnread, setHasUnread] = useState(false);
-  const [copiedId, setCopiedId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
-  const [showQuickReplies, setShowQuickReplies] = useState(true);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
@@ -933,20 +891,23 @@ export default function AIChatWidget() {
   }, [messages]);
 
   useEffect(() => {
-    if (isOpen) {
+    if (!isOpen) return;
+    const t = setTimeout(() => {
       setHasUnread(false);
-      setTimeout(() => inputRef.current?.focus(), 300);
-    }
+      inputRef.current?.focus();
+    }, 0);
+    return () => clearTimeout(t);
   }, [isOpen]);
 
-  const generateId = () => Math.random().toString(36).substring(2, 9);
+  const idCounter = useRef(0);
+  const generateId = () => `msg-${++idCounter.current}`;
 
-  const sendMessage = () => {
-    if (!input.trim() || isLoading) return;
+  const sendMessage = (overrideText?: string) => {
+    const raw = typeof overrideText === "string" ? overrideText : input;
+    if (!raw.trim() || isLoading) return;
 
-    const userMessageText = input.trim();
+    const userMessageText = raw.trim();
     setInput("");
-    setShowQuickReplies(false);
 
     const userMsg: Message = {
       id: generateId(),
@@ -959,7 +920,7 @@ export default function AIChatWidget() {
     setIsLoading(true);
 
     // Simulate thinking with realistic delay
-    const thinkingTime = 500 + Math.random() * 800;
+    const thinkingTime = 600 + (userMessageText.length % 400);
     setTimeout(() => {
       const response = generateResponse(userMessageText);
       const assistantMsg: Message = {
@@ -977,25 +938,14 @@ export default function AIChatWidget() {
   };
 
   const handleQuickReply = (text: string) => {
-    setInput(text);
-    sendMessage();
+    sendMessage(text);
   };
 
   const handleSuggestedAction = (action: string) => {
-    setInput(action);
-    sendMessage();
+    sendMessage(action);
   };
 
-  const copyToClipboard = async (text: string, id: string) => {
-    try {
-      await navigator.clipboard.writeText(text);
-      setCopiedId(id);
-      setTimeout(() => setCopiedId(null), 2000);
-    } catch (err) {
-      console.error('Failed to copy');
-    }
-  };
-
+  
   const QUICK_REPLIES = [
     { icon: "📚", text: "All courses dekho" },
     { icon: "💰", text: "Free courses dikhao" },
@@ -1073,7 +1023,7 @@ export default function AIChatWidget() {
           display: flex;
           align-items: center;
           justify-content: center;
-          color: #F4F1EA;
+          color: #777;
           box-shadow: 0 4px 20px rgba(44, 95, 122, 0.4);
           transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
           animation: edubot-glow-pulse 3s ease-in-out infinite;
@@ -1259,7 +1209,7 @@ export default function AIChatWidget() {
         .edubot-header-info h3 {
           font-size: 16px;
           font-weight: 600;
-          color: #1E1E1E;
+          color: #242424;
           margin: 0 0 4px 0;
           letter-spacing: -0.02em;
         }
@@ -1269,7 +1219,7 @@ export default function AIChatWidget() {
           align-items: center;
           gap: 6px;
           font-size: 12px;
-          color: #5A5350;
+          color: #777;
         }
 
         .edubot-status-dot {
@@ -1287,7 +1237,7 @@ export default function AIChatWidget() {
           border-radius: 10px;
           background: #F9F6F0;
           border: 1px solid #DDD8CE;
-          color: #5A5350;
+          color: #777;
           cursor: pointer;
           display: flex;
           align-items: center;
@@ -1297,7 +1247,7 @@ export default function AIChatWidget() {
 
         .edubot-close:hover {
           background: #EFECE3;
-          color: #1E1E1E;
+          color: #242424;
           border-color: #C4BBAA;
         }
 
@@ -1349,7 +1299,7 @@ export default function AIChatWidget() {
           display: flex;
           align-items: center;
           justify-content: center;
-          color: #F4F1EA;
+          color: #777;
           flex-shrink: 0;
         }
 
@@ -1363,7 +1313,7 @@ export default function AIChatWidget() {
         }
 
         .edubot-welcome-bubble p {
-          color: #1E1E1E;
+          color: #242424;
           font-size: 14px;
           line-height: 1.6;
           margin: 0 0 12px 0;
@@ -1386,7 +1336,7 @@ export default function AIChatWidget() {
           border-radius: 20px;
           background: #F9F6F0;
           border: 1px solid #DDD8CE;
-          color: #5A5350;
+          color: #777;
           font-size: 12px;
           cursor: pointer;
           transition: all 0.2s ease;
@@ -1397,8 +1347,8 @@ export default function AIChatWidget() {
 
         .edubot-quick-btn:hover {
           background: #EFECE3;
-          border-color: #2C5F7A;
-          color: #3A7A9A;
+          border-color: #5a657f;
+          color: #5a657f;
           transform: translateY(-1px);
         }
 
@@ -1421,7 +1371,7 @@ export default function AIChatWidget() {
           display: flex;
           align-items: center;
           justify-content: center;
-          color: #F4F1EA;
+          color: #777;
           flex-shrink: 0;
         }
 
@@ -1441,7 +1391,7 @@ export default function AIChatWidget() {
           border-radius: 16px;
           font-size: 14px;
           line-height: 1.6;
-          color: #1E1E1E;
+          color: #242424;
           white-space: pre-wrap;
           word-break: break-word;
         }
@@ -1454,13 +1404,13 @@ export default function AIChatWidget() {
 
         .edubot-message.user .edubot-message-bubble {
           background: linear-gradient(135deg, #2C5F7A 0%, #1E4058 100%);
-          color: #F4F1EA;
+          color: #777;
           border-radius: 16px 16px 4px 16px;
         }
 
         .edubot-message-time {
           font-size: 10px;
-          color: #8A827A;
+          color: #777;
           padding: 0 4px;
         }
 
@@ -1483,7 +1433,7 @@ export default function AIChatWidget() {
           display: flex;
           align-items: center;
           justify-content: center;
-          color: #F4F1EA;
+          color: #777;
           flex-shrink: 0;
         }
 
@@ -1517,7 +1467,7 @@ export default function AIChatWidget() {
 
         .edubot-products-title {
           font-size: 12px;
-          color: #5A5350;
+          color: #777;
           font-weight: 500;
           text-transform: uppercase;
           letter-spacing: 0.05em;
@@ -1566,7 +1516,7 @@ export default function AIChatWidget() {
           display: flex;
           align-items: center;
           justify-content: center;
-          color: #8A827A;
+          color: #777;
         }
 
         .product-badge {
@@ -1575,24 +1525,24 @@ export default function AIChatWidget() {
           left: 4px;
           padding: 2px 6px;
           border-radius: 4px;
-          font-size: 9px;
+          font-size: 10px;
           font-weight: 600;
           text-transform: uppercase;
         }
 
         .product-badge.hot {
           background: linear-gradient(135deg, #A83D3D 0%, #7A2B2B 100%);
-          color: #F4F1EA;
+          color: #777;
         }
 
         .product-badge.bestseller {
           background: linear-gradient(135deg, #C4953A 0%, #95752C 100%);
-          color: #F4F1EA;
+          color: #777;
         }
 
         .product-badge.new {
           background: linear-gradient(135deg, #2A7A4E 0%, #1E5E3A 100%);
-          color: #F4F1EA;
+          color: #777;
         }
 
         .product-info {
@@ -1601,9 +1551,9 @@ export default function AIChatWidget() {
         }
 
         .product-title {
-          font-size: 13px;
+          font-size: 14px;
           font-weight: 600;
-          color: #1E1E1E;
+          color: #242424;
           margin: 0 0 4px 0;
           white-space: nowrap;
           overflow: hidden;
@@ -1622,12 +1572,12 @@ export default function AIChatWidget() {
           padding: 2px 6px;
           border-radius: 4px;
           background: var(--edubot-surface);
-          color: #5A5350;
+          color: #777;
         }
 
         .product-desc {
-          font-size: 11px;
-          color: #8A827A;
+          font-size: 12px;
+          color: #777;
           margin: 0 0 6px 0;
           line-height: 1.4;
           display: -webkit-box;
@@ -1640,7 +1590,7 @@ export default function AIChatWidget() {
           display: flex;
           gap: 10px;
           font-size: 10px;
-          color: #5A5350;
+          color: #777;
         }
 
         .product-footer {
@@ -1659,21 +1609,21 @@ export default function AIChatWidget() {
         }
 
         .price-current {
-          font-size: 15px;
+          font-size: 16px;
           font-weight: 700;
-          color: #C4953A;
+          color: #FFBD3C;
         }
 
         .price-old {
-          font-size: 11px;
-          color: #8A827A;
+          font-size: 12px;
+          color: #777;
           text-decoration: line-through;
         }
 
         .price-discount {
           font-size: 10px;
           font-weight: 600;
-          color: #2A7A4E;
+          color: #459647;
           background: rgba(42, 122, 78, 0.15);
           padding: 2px 6px;
           border-radius: 4px;
@@ -1685,13 +1635,13 @@ export default function AIChatWidget() {
           gap: 4px;
           font-size: 12px;
           font-weight: 500;
-          color: #3A7A9A;
+          color: #5a657f;
           text-decoration: none;
           transition: all 0.2s ease;
         }
 
         .product-action:hover {
-          color: #2C5F7A;
+          color: #5a657f;
         }
 
         /* === SUGGESTED ACTIONS === */
@@ -1707,8 +1657,8 @@ export default function AIChatWidget() {
           border-radius: 8px;
           background: rgba(44, 95, 122, 0.1);
           border: 1px solid rgba(44, 95, 122, 0.25);
-          color: #3A7A9A;
-          font-size: 11px;
+          color: #5a657f;
+          font-size: 12px;
           cursor: pointer;
           transition: all 0.2s ease;
           display: flex;
@@ -1718,7 +1668,7 @@ export default function AIChatWidget() {
 
         .edubot-suggestion-btn:hover {
           background: rgba(44, 95, 122, 0.2);
-          border-color: #2C5F7A;
+          border-color: #5a657f;
           transform: translateY(-1px);
         }
 
@@ -1747,7 +1697,7 @@ export default function AIChatWidget() {
           background: #F9F6F0;
           border: 1px solid #DDD8CE;
           border-radius: 12px;
-          color: #1E1E1E;
+          color: #242424;
           font-size: 14px;
           font-family: inherit;
           resize: none;
@@ -1758,11 +1708,11 @@ export default function AIChatWidget() {
         }
 
         .edubot-input::placeholder {
-          color: #8A827A;
+          color: #777;
         }
 
         .edubot-input:focus {
-          border-color: #2C5F7A;
+          border-color: #5a657f;
           box-shadow: 0 0 0 3px rgba(44, 95, 122, 0.2);
         }
 
@@ -1771,7 +1721,7 @@ export default function AIChatWidget() {
           right: 12px;
           bottom: 12px;
           font-size: 10px;
-          color: #8A827A;
+          color: #777;
         }
 
         .edubot-send-btn {
@@ -1806,17 +1756,17 @@ export default function AIChatWidget() {
           gap: 12px;
           margin-top: 10px;
           font-size: 10px;
-          color: #8A827A;
+          color: #777;
         }
 
         .edubot-footer a {
-          color: #3A7A9A;
+          color: #5a657f;
           text-decoration: none;
           transition: color 0.2s ease;
         }
 
         .edubot-footer a:hover {
-          color: #2C5F7A;
+          color: #5a657f;
         }
 
         .edubot-footer-divider {
@@ -1943,11 +1893,11 @@ export default function AIChatWidget() {
                     gap: '8px',
                     marginBottom: '12px'
                   }}>
-                    <Sparkles size={16} style={{ color: '#C4953A' }} />
+                    <Sparkles size={16} style={{ color: '#FFBD3C' }} />
                     <span style={{
                       fontSize: '12px',
                       fontWeight: '600',
-                      color: '#1E1E1E'
+                      color: '#242424'
                     }}>EduBazar Statistics</span>
                   </div>
                   <div style={{
@@ -1959,25 +1909,25 @@ export default function AIChatWidget() {
                       <div style={{
                         fontSize: '20px',
                         fontWeight: '700',
-                        color: '#3A7A9A'
+                        color: '#5a657f'
                       }}>{getCourseStats().courses}+</div>
-                      <div style={{ fontSize: '10px', color: '#8A827A' }}>Courses</div>
+                      <div style={{ fontSize: '10px', color: '#777' }}>Courses</div>
                     </div>
                     <div style={{ textAlign: 'center' }}>
                       <div style={{
                         fontSize: '20px',
                         fontWeight: '700',
-                        color: '#C4953A'
+                        color: '#FFBD3C'
                       }}>{getCourseStats().categories}</div>
-                      <div style={{ fontSize: '10px', color: '#8A827A' }}>Categories</div>
+                      <div style={{ fontSize: '10px', color: '#777' }}>Categories</div>
                     </div>
                     <div style={{ textAlign: 'center' }}>
                       <div style={{
                         fontSize: '20px',
                         fontWeight: '700',
-                        color: '#2A7A4E'
+                        color: '#459647'
                       }}>2.5L+</div>
-                      <div style={{ fontSize: '10px', color: '#8A827A' }}>Students</div>
+                      <div style={{ fontSize: '10px', color: '#777' }}>Students</div>
                     </div>
                   </div>
                 </div>
@@ -2018,14 +1968,14 @@ export default function AIChatWidget() {
                             background: '#F9F6F0',
                             border: '1px solid #DDD8CE',
                             borderRadius: '10px',
-                            color: '#3A7A9A',
+                            color: '#5a657f',
                             fontSize: '12px',
                             fontWeight: '500',
                             textDecoration: 'none',
                             transition: 'all 0.2s ease'
                           }}
                           onMouseEnter={(e) => {
-                            e.currentTarget.style.borderColor = '#2C5F7A';
+                            e.currentTarget.style.borderColor = '#5a657f';
                             e.currentTarget.style.background = '#EFECE3';
                           }}
                           onMouseLeave={(e) => {
@@ -2101,7 +2051,7 @@ export default function AIChatWidget() {
                 />
               </div>
               <button
-                onClick={sendMessage}
+                onClick={() => sendMessage()}
                 disabled={!input.trim() || isLoading}
                 className="edubot-send-btn"
                 aria-label="Send message"

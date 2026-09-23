@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import {
-  BOT_TOKEN,
   sendMessage,
   sendPhoto,
   answerCallbackQuery,
@@ -213,22 +212,32 @@ async function fetchAndShowOrders(chatId: string, email: string) {
     );
     return;
   }
-  const { data, error } = await db.from("orders").select("*").eq("email", email.trim().toLowerCase()).order("date", { ascending: false }).limit(10);
+  // Ownership check: only reveal orders if this chat previously placed them
+  // (order.utr stores "|tg:CHATID" when order was placed from this bot/chat).
+  const cleanEmail = email.trim().toLowerCase();
+  const { data, error } = await db.from("orders").select("*").eq("email", cleanEmail).order("date", { ascending: false }).limit(20);
   if (error) {
     console.error("[telegram] fetch orders error", error.message);
     await sendMessage(chatId, `❌ Orders fetch karne me error aaya. Thodi der baad try karo ya WhatsApp karo: ${STORE.phoneRaw}`);
     return;
   }
-  if (!data || data.length === 0) {
+  const owned = (data || []).filter((o) => {
+    const utr = String(o.utr || "");
+    const m = utr.match(/\|tg:(\d+)/);
+    return m && m[1] === chatId;
+  });
+  if (owned.length === 0) {
     await sendMessage(
       chatId,
-      `📭 <b>${escape(email)}</b> pe koi order nahi mila.\n\nPehle koi course kharido — <b>Browse Categories</b> dabao!`,
-      { reply_markup: categoriesKeyboard() },
+      `📭 Is email (<b>${escape(cleanEmail)}</b>) ke orders is chat se link nahi hain.\n\nAgar aapne website se order kiya hai, website ke <b>Account</b> page pe dekho. Bot se order karne par yahi chat link hoti hai.`,
     );
     return;
   }
-  for (const o of data.slice(0, 5)) {
-    const items = typeof o.items === "string" ? JSON.parse(o.items) : o.items;
+  for (const o of owned.slice(0, 5)) {
+    let items: unknown = o.items;
+    try {
+      if (typeof items === "string") items = JSON.parse(items);
+    } catch { items = []; }
     const arr = Array.isArray(items) ? items : [];
     const statusEmoji = o.status === "approved" ? "✅ Approved" : o.status === "rejected" ? "❌ Rejected" : "⏳ Pending (verification me)";
     const lines = arr.map((it: { name: string; price: number; downloadUrl?: string }) => `• ${escape(it.name)} — ₹${it.price}`).join("\n");
@@ -252,8 +261,8 @@ async function fetchAndShowOrders(chatId: string, email: string) {
       (o.status === "rejected" ? `\n<i>UTR galat/fake tha? Sahi UTR ke saath dobara order karo ya WhatsApp: ${STORE.phoneRaw}</i>` : "");
     await sendMessage(chatId, txt);
   }
-  if (data.length > 5) {
-    await sendMessage(chatId, `...aur ${data.length - 5} orders bhi hain. Website pe https://www.edubaazar.shop/account pe full history dekho.`);
+  if (owned.length > 5) {
+    await sendMessage(chatId, `...aur ${owned.length - 5} orders bhi hain. Website pe https://www.edubaazar.shop/account pe full history dekho.`);
   }
 }
 
@@ -381,13 +390,14 @@ async function createOrderSupabase(
 }
 
 export async function POST(request: NextRequest) {
-  // Verify Telegram secret token if configured
+  // Fail closed: require TELEGRAM_WEBHOOK_SECRET so forged updates are rejected.
   const webhookSecret = process.env.TELEGRAM_WEBHOOK_SECRET || "";
-  if (webhookSecret) {
-    const received = request.headers.get("x-telegram-bot-api-secret-token") || "";
-    if (received !== webhookSecret) {
-      return NextResponse.json({ ok: false, error: "Invalid secret token" }, { status: 401 });
-    }
+  if (!webhookSecret) {
+    return NextResponse.json({ ok: false, error: "Webhook secret not configured" }, { status: 503 });
+  }
+  const received = request.headers.get("x-telegram-bot-api-secret-token") || "";
+  if (received !== webhookSecret) {
+    return NextResponse.json({ ok: false, error: "Invalid secret token" }, { status: 401 });
   }
   // Avoid logging token
   let update: {

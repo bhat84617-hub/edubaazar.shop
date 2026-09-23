@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "check:assets": "node scripts/check-assets.mjs"
+    "check:assets": "node scripts/check-assets.mjs",
+    "check:crawl": "node --experimental-strip-types scripts/check-crawl.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.112.3",

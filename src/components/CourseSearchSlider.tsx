@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState, useRef } from "react";
 import { Search, ChevronLeft, ChevronRight, Clock, Signal, Star } from "lucide-react";
 import { products, formatINR, productMatchesQuery } from "@/lib/products";
@@ -72,7 +73,7 @@ export default function CourseSearchSlider() {
               return (
                 <Link key={p.id} href={`/product/${p.slug}`} className="ws-search-slide">
                   <div className="ws-search-slide-img">
-                    <img src={p.images[0]} alt={p.title} loading="lazy" />
+                    <Image src={p.images[0]} alt={p.title} width={240} height={160} loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                     {p.badge && <span className={`ws-search-slide-badge ${p.badge.toLowerCase()}`}>{p.badge}</span>}
                   </div>
                   <div className="ws-search-slide-body">
@@ -90,7 +91,7 @@ export default function CourseSearchSlider() {
                         </span>
                       </div>
                       <div className="ws-search-slide-stars">
-                        <Star size={12} style={{ color: "#f5a623", fill: "#f5a623" }} />
+                        <Star size={12} style={{ color: "#FFBD3C", fill: "#FFBD3C" }} />
                         <span>{p.rating}</span>
                       </div>
                     </div>

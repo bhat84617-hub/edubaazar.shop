@@ -28,9 +28,24 @@ CREATE TABLE IF NOT EXISTS orders (
 
 ALTER TABLE orders ADD COLUMN IF NOT EXISTS utr TEXT;
 
--- Enable RLS but allow all (simple setup)
+-- Enable RLS with least privilege (service_role bypasses RLS for admin ops)
 ALTER TABLE users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE orders ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "Allow all on users" ON users FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY "Allow all on orders" ON orders FOR ALL USING (true) WITH CHECK (true);
+DROP POLICY IF EXISTS "Allow all on users" ON users;
+DROP POLICY IF EXISTS "Allow all on orders" ON orders;
+
+-- Anon: INSERT only (registration + order placement); no SELECT/UPDATE/DELETE
+CREATE POLICY "anon_insert_users" ON users FOR INSERT TO anon WITH CHECK (true);
+CREATE POLICY "anon_insert_orders" ON orders FOR INSERT TO anon WITH CHECK (true);
+
+-- Authenticated users: read/update own rows only
+CREATE POLICY "user_select_own" ON users FOR SELECT TO authenticated USING (email = (auth.jwt() ->> 'email'));
+CREATE POLICY "user_update_own" ON users FOR UPDATE TO authenticated USING (email = (auth.jwt() ->> 'email'));
+CREATE POLICY "user_select_orders" ON orders FOR SELECT TO authenticated USING (email = (auth.jwt() ->> 'email'));
+CREATE POLICY "user_insert_orders" ON orders FOR INSERT TO authenticated WITH CHECK (email = (auth.jwt() ->> 'email'));
+
+REVOKE ALL ON users FROM anon;
+REVOKE ALL ON orders FROM anon;
+GRANT INSERT ON users TO anon;
+GRANT INSERT ON orders TO anon;

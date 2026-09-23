@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { GraduationCap, Zap, Headset, ShieldCheck, Star, ArrowRight, Camera } from "lucide-react";
 import Hero from "@/components/Hero";
 import ProductCard from "@/components/ProductCard";
 import BestDealSlider from "@/components/BestDealSlider";
 import CountUp from "@/components/CountUp";
 import NewsletterPopup from "@/components/NewsletterPopup";
-import NewsletterBox from "@/components/NewsletterBox";
 import ScrollReveal from "@/components/ScrollReveal";
 import { products, CATEGORIES } from "@/lib/products";
 
@@ -86,119 +86,40 @@ const homeItemListLd = {
     })),
 };
 
+const homeFaqs = [
+  {
+    q: "What is EduBazar.shop?",
+    a: "EduBazar.shop is India's affordable online learning platform offering 30+ courses in Ethical Hacking, Programming, Python, JavaScript, Trading, Design and Marketing starting at ₹49 with lifetime access and UPI payment.",
+  },
+  {
+    q: "How do I get access after payment?",
+    a: "Pay via UPI (Google Pay, PhonePe, Paytm), enter your transaction ID, admin verifies within 24 hours and grants lifetime access in your Dashboard.",
+  },
+  {
+    q: "Are the courses beginner friendly?",
+    a: "Yes, we have Beginner, Intermediate and Advanced levels across all categories with hands-on labs and projects.",
+  },
+];
+
 const homeFaqLd = {
   "@context": "https://schema.org",
   "@type": "FAQPage",
-  mainEntity: [
-    {
-      "@type": "Question",
-      name: "What is EduBazar.shop?",
-      acceptedAnswer: {
-        "@type": "Answer",
-        text: "EduBazar.shop is India's affordable online learning platform offering 30+ courses in Ethical Hacking, Programming, Python, JavaScript, Trading, Design and Marketing starting at ₹49 with lifetime access and UPI payment.",
-      },
-    },
-    {
-      "@type": "Question",
-      name: "How do I get access after payment?",
-      acceptedAnswer: {
-        "@type": "Answer",
-        text: "Pay via UPI (Google Pay, PhonePe, Paytm), enter your transaction ID, admin verifies within 24 hours and grants lifetime access in your Dashboard.",
-      },
-    },
-    {
-      "@type": "Question",
-      name: "Are the courses beginner friendly?",
-      acceptedAnswer: {
-        "@type": "Answer",
-        text: "Yes, we have Beginner, Intermediate and Advanced levels across all categories with hands-on labs and projects.",
-      },
-    },
-  ],
+  mainEntity: homeFaqs.map((f) => ({
+    "@type": "Question",
+    name: f.q,
+    acceptedAnswer: { "@type": "Answer", text: f.a },
+  })),
 };
 
 export default function HomePage() {
   return (
     <>
-      <h1 style={{ textAlign: "center", fontSize: "clamp(22px,3vw,30px)", fontWeight: 800, color: "#242424", letterSpacing: "-0.4px", padding: "22px 16px 0" }}>
+      <h1 style={{ textAlign: "center", fontSize: "clamp(20px,3vw,28px)", fontWeight: 800, color: "#242424", letterSpacing: "-0.4px", padding: "22px 16px 0" }}>
         Affordable Online Courses in Ethical Hacking, Programming, Trading & More from ₹49
       </h1>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(homeItemListLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(homeFaqLd) }} />
       <Hero />
-
-      {/* Telegram promo banner - premium minimal XStore style */}
-      <section style={{ background: "#fff", padding: "14px 0 0" }}>
-        <div className="container">
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              gap: 16,
-              flexWrap: "wrap",
-              background: "#fff",
-              border: "1px solid #E5E5E5",
-              borderRadius: 20,
-              padding: "16px 20px",
-              boxShadow: "0 4px 16px rgba(42,116,237,0.06)",
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", gap: 14, minWidth: 0, flex: 1 }}>
-              <span
-                style={{
-                  width: 44,
-                  height: 44,
-                  borderRadius: "50%",
-                  background: "#2AABEE",
-                  color: "#fff",
-                  display: "inline-flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  flexShrink: 0,
-                  border: "1px solid #2AABEE",
-                }}
-                aria-hidden
-              >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="white" aria-hidden>
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.16 2.71-2.49 2.76-2.7a.2.2 0 00-.05-.18c-.06-.05-.15-.03-.21-.02-.09.02-1.49.95-4.22 2.79a.57.57 0 01-.32.11.6.6 0 01-.46-.22c-.33-.35-.5-.52-.5-.52s-.13-.13-.29-.02c-.16.1-.01.21-.01.21s2.14 1.38 2.88 1.88c.34.23.66.35.94.35.27 0 .54-.12.88-.35 1.02-.7 2.07-1.42 2.68-1.84.3-.21.58-.46.47-.8-.05-.16-.37-.33-1.02-.7z" />
-                </svg>
-              </span>
-              <div style={{ minWidth: 0 }}>
-                <div style={{ fontSize: 14, fontWeight: 800, color: "#242424", letterSpacing: "-0.2px", lineHeight: 1.2 }}>
-                  Shop on Telegram
-                </div>
-                <div style={{ fontSize: 12, color: "#5a657f", lineHeight: 1.4, marginTop: 2 }}>
-                  Chat, browse, pay & get instant download
-                </div>
-              </div>
-            </div>
-            <a
-              href="https://t.me/Edubaazar_bot"
-              target="_blank"
-              rel="noreferrer"
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: 8,
-                background: "#2A74ED",
-                color: "#fff",
-                padding: "10px 20px",
-                borderRadius: 20,
-                fontSize: 13,
-                fontWeight: 700,
-                textDecoration: "none",
-                border: "1px solid #2A74ED",
-                whiteSpace: "nowrap",
-                flexShrink: 0,
-              }}
-            >
-              Open @Edubaazar_bot
-            </a>
-          </div>
-        </div>
-      </section>
 
       {/* 2 benefits minimal icons - Free Shipping removed as per request */}
       <section style={{ background: "#fff", padding: "16px 0" }}>
@@ -211,8 +132,8 @@ export default function HomePage() {
               <div key={b.title} style={{ display: "flex", alignItems: "center", gap: 12, padding: "14px 16px", background: "#f8f9fb", border: "1px solid #E5E5E5", borderRadius: 20 }}>
                 <span style={{ width: 38, height: 38, display: "flex", alignItems: "center", justifyContent: "center", background: "#fff", border: "1px solid #E5E5E5", borderRadius: "50%", color: "#2A74ED", flexShrink: 0 }}>{b.icon}</span>
                 <div>
-                  <div style={{ fontSize: 12, fontWeight: 800, color: "#242424", textTransform: "uppercase", letterSpacing: 0.4 }}>{b.title}</div>
-                  <div style={{ fontSize: 11, color: "#777" }}>{b.desc}</div>
+                  <div style={{ fontSize: 12, fontWeight: 800, color: "#242424", letterSpacing: 0.2 }}>{b.title}</div>
+                  <div style={{ fontSize: 12, color: "#777" }}>{b.desc}</div>
                 </div>
               </div>
             ))}
@@ -229,11 +150,11 @@ export default function HomePage() {
               return (
                 <Link key={c.key} href={`/shop?cat=${encodeURIComponent(c.key)}`} className="cat-link" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8, minWidth: 92, flex: "0 0 auto" }}>
                   <div className="cat-hover" style={{ width: 84, height: 84, borderRadius: "50%", overflow: "hidden", background: "#f8f9fb", border: "1px solid #E5E5E5", padding: 3 }}>
-                    <img src={c.image} alt={c.label} loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "50%" }} />
+                    <Image src={c.image} alt={c.label} width={84} height={84} loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "50%" }} />
                   </div>
-                  <div style={{ textAlign: "center" }}>
-                    <div className="cat-label" style={{ fontSize: 12, fontWeight: 700, color: "#242424" }}>{c.label}</div>
-                    <div style={{ fontSize: 10, color: "#777" }}>{count} products</div>
+                  <div style={{ textAlign: "center", marginTop: 2 }}>
+                    <div className="cat-label" style={{ fontSize: 14, fontWeight: 700, color: "#242424", lineHeight: 1.3 }}>{c.label}</div>
+                    <div style={{ fontSize: 12, color: "#777", marginTop: 4, fontWeight: 500 }}>{count} products</div>
                   </div>
                 </Link>
               );
@@ -242,16 +163,74 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Telegram promo banner - compact, placed after categories so it doesn't compete with hero CTA */}
+      <section style={{ background: "#fff", padding: "4px 0 10px" }}>
+        <div className="container">
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: 12,
+              flexWrap: "wrap",
+              background: "#f8f9fb",
+              border: "1px solid #E5E5E5",
+              borderRadius: 20,
+              padding: "10px 16px",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0, flex: 1 }}>
+              <span
+                style={{
+                  width: 34,
+                  height: 34,
+                  borderRadius: "50%",
+                  background: "#2AABEE",
+                  color: "#fff",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexShrink: 0,
+                  border: "1px solid #2AABEE",
+                }}
+                aria-hidden
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="white" aria-hidden>
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.16 2.71-2.49 2.76-2.7a.2.2 0 00-.05-.18c-.06-.05-.15-.03-.21-.02-.09.02-1.49.95-4.22 2.79a.57.57 0 01-.32.11.6.6 0 01-.46-.22c-.33-.35-.5-.52-.5-.52s-.13-.13-.29-.02c-.16.1-.01.21-.01.21s2.14 1.38 2.88 1.88c.34.23.66.35.94.35.27 0 .54-.12.88-.35 1.02-.7 2.07-1.42 2.68-1.84.3-.21.58-.46.47-.8-.05-.16-.37-.33-1.02-.7z" />
+                </svg>
+              </span>
+              <div style={{ minWidth: 0 }}>
+                <div style={{ fontSize: 14, fontWeight: 800, color: "#242424", letterSpacing: "-0.2px", lineHeight: 1.2 }}>
+                  Shop on Telegram
+                </div>
+                <div style={{ fontSize: 12, color: "#777", lineHeight: 1.4, marginTop: 1 }}>
+                  Chat, browse, pay & get instant download
+                </div>
+              </div>
+            </div>
+            <a
+              href="https://t.me/Edubaazar_bot"
+              target="_blank"
+              rel="noreferrer"
+              className="ws-btn ws-btn-outline ws-btn-sm"
+              style={{ textDecoration: "none", flexShrink: 0 }}
+            >
+              Open @Edubaazar_bot
+            </a>
+          </div>
+        </div>
+      </section>
+
       {/* Featured products with tabs - XStore carousel-area hover scale */}
       <section className="ws-section carousel-area" style={{ background: "#fff", padding: "28px 0" }}>
         <div className="container">
           <ScrollReveal direction="up">
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10, marginBottom: 22 }}>
-              <h2 style={{ fontSize: 22, fontWeight: 800, color: "#242424", letterSpacing: "-0.4px" }}>Featured Products</h2>
+              <h2 style={{ fontSize: 24, fontWeight: 800, color: "#242424", letterSpacing: "-0.4px" }}>Featured Products</h2>
               <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "center" }}>
-                <span style={{ padding: "6px 14px", borderRadius: 20, background: "#2A74ED", color: "#fff", fontSize: 12, fontWeight: 700 }}>Featured</span>
-                <Link href="/shop?sort=bestseller" style={{ padding: "6px 14px", borderRadius: 20, background: "#f8f9fb", border: "1px solid #E5E5E5", fontSize: 12, fontWeight: 600, color: "#242424" }}>Bestseller</Link>
-                <Link href="/shop?sort=newest" style={{ padding: "6px 14px", borderRadius: 20, background: "#f8f9fb", border: "1px solid #E5E5E5", fontSize: 12, fontWeight: 600, color: "#242424" }}>New Arrivals</Link>
+                <span className="ws-btn ws-btn-fill ws-btn-sm" style={{ padding: "6px 14px" }}>Featured</span>
+                <Link href="/shop?sort=bestseller" className="ws-btn ws-btn-outline ws-btn-sm" style={{ padding: "6px 14px" }}>Bestseller</Link>
+                <Link href="/shop?sort=newest" className="ws-btn ws-btn-outline ws-btn-sm" style={{ padding: "6px 14px" }}>New Arrivals</Link>
               </div>
             </div>
           </ScrollReveal>
@@ -273,29 +252,29 @@ export default function HomePage() {
             <div style={{ position: "relative", overflow: "hidden", background: "#eef3ff", minHeight: 240, display: "flex", alignItems: "center", padding: "26px 28px", border: "1px solid #E5E5E5", borderRadius: 20, height: "100%", boxSizing: "border-box" }}>
               <div style={{ position: "relative", zIndex: 1, maxWidth: 320 }}>
                 <span style={{ fontSize: 10, fontWeight: 800, color: "#2A74ED", background: "#fff", padding: "4px 10px", borderRadius: 20, border: "1px solid #E5E5E5" }}>Limited Time</span>
-                <h3 style={{ fontSize: 22, fontWeight: 800, color: "#242424", margin: "8px 0 8px", lineHeight: 1.15, letterSpacing: "-0.4px" }}>Hacking Courses<br /><span style={{ color: "#2A74ED" }}>Up to 60% OFF</span></h3>
+                <h3 style={{ fontSize: 24, fontWeight: 800, color: "#242424", margin: "8px 0 8px", lineHeight: 1.15, letterSpacing: "-0.4px" }}>Hacking Courses<br /><span style={{ color: "#2A74ED" }}>Up to 60% OFF</span></h3>
                 <p style={{ fontSize: 12, color: "#5a657f", marginBottom: 14 }}>Master ethical hacking & penetration testing</p>
                 <Link href="/shop?cat=Hacking" className="ws-btn ws-btn-fill ws-btn-sm" style={{ borderRadius: 20 }}>Shop Now</Link>
               </div>
-              <img src="/images/complete-ethical-hacking-and-penetration-testing.jpeg" alt="Hacking" style={{ position: "absolute", right: 6, top: 6, width: "46%", height: "calc(100% - 12px)", objectFit: "cover", borderRadius: 16, border: "1px solid #E5E5E5" }} />
+              <Image src="/images/complete-ethical-hacking-and-penetration-testing.jpeg" alt="Hacking" width={400} height={600} style={{ position: "absolute", right: 6, top: 6, width: "46%", height: "calc(100% - 12px)", objectFit: "cover", borderRadius: 16, border: "1px solid #E5E5E5" }} />
             </div>
           </ScrollReveal>
           <ScrollReveal direction="right" style={{ display: "grid", gap: 14 }}>
             <div style={{ position: "relative", overflow: "hidden", background: "#fef6e8", minHeight: 113, display: "flex", alignItems: "center", padding: "18px 20px", border: "1px solid #E5E5E5", borderRadius: 20 }}>
               <div style={{ position: "relative", zIndex: 1 }}>
                 <h4 style={{ fontSize: 14, fontWeight: 800, color: "#242424" }}>Python Mastery</h4>
-                <p style={{ fontSize: 11, color: "#5a657f", margin: "4px 0 8px" }}>From ₹199 only</p>
-                <Link href="/shop?cat=Programming" style={{ fontSize: 11, fontWeight: 700, color: "#2A74ED" }}>Shop Now →</Link>
+                <p style={{ fontSize: 12, color: "#5a657f", margin: "4px 0 8px" }}>From ₹199 only</p>
+                <Link href="/shop?cat=Programming" className="ws-btn ws-btn-ghost ws-btn-sm" style={{ padding: "4px 0", fontSize: 12 }}>Shop Now →</Link>
               </div>
-              <img src="/images/python-complete.jpeg" alt="Python" style={{ position: "absolute", right: 6, top: 6, width: "42%", height: "calc(100% - 12px)", objectFit: "cover", borderRadius: 14 }} />
+              <Image src="/images/python-complete.jpeg" alt="Python" width={400} height={300} style={{ position: "absolute", right: 6, top: 6, width: "42%", height: "calc(100% - 12px)", objectFit: "cover", borderRadius: 14 }} />
             </div>
             <div style={{ position: "relative", overflow: "hidden", background: "#e6f4ea", minHeight: 113, display: "flex", alignItems: "center", padding: "18px 20px", border: "1px solid #E5E5E5", borderRadius: 20 }}>
               <div style={{ position: "relative", zIndex: 1 }}>
                 <h4 style={{ fontSize: 14, fontWeight: 800, color: "#242424" }}>Trading Pro</h4>
-                <p style={{ fontSize: 11, color: "#5a657f", margin: "4px 0 8px" }}>Stock & Crypto</p>
-                <Link href="/shop?cat=Trading" style={{ fontSize: 11, fontWeight: 700, color: "#2A74ED" }}>Shop Now →</Link>
+                <p style={{ fontSize: 12, color: "#5a657f", margin: "4px 0 8px" }}>Stock & Crypto</p>
+                <Link href="/shop?cat=Trading" className="ws-btn ws-btn-ghost ws-btn-sm" style={{ padding: "4px 0", fontSize: 12 }}>Shop Now →</Link>
               </div>
-              <img src="/images/mastring-stock-trading.jpeg" alt="Trading" style={{ position: "absolute", right: 6, top: 6, width: "42%", height: "calc(100% - 12px)", objectFit: "cover", borderRadius: 14 }} />
+              <Image src="/images/mastring-stock-trading.jpeg" alt="Trading" width={400} height={300} style={{ position: "absolute", right: 6, top: 6, width: "42%", height: "calc(100% - 12px)", objectFit: "cover", borderRadius: 14 }} />
             </div>
           </ScrollReveal>
         </div>
@@ -307,7 +286,7 @@ export default function HomePage() {
           <ScrollReveal direction="up">
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18 }}>
               <h2 style={{ fontSize: 18, fontWeight: 800, color: "#242424", letterSpacing: "-0.3px" }}>Bestsellers</h2>
-              <Link href="/shop?sort=bestseller" style={{ fontSize: 12, fontWeight: 700, color: "#2A74ED", background: "#fff", border: "1px solid #E5E5E5", padding: "6px 12px", borderRadius: 20 }}>View all →</Link>
+              <Link href="/shop?sort=bestseller" className="ws-btn ws-btn-outline ws-btn-sm" style={{ padding: "6px 12px" }}>View all →</Link>
             </div>
           </ScrollReveal>
           <ScrollReveal stagger className="p-grid" as="div">
@@ -332,8 +311,8 @@ export default function HomePage() {
             ].map((f) => (
               <div key={f.title} className="feature-box" style={{ padding: 18, background: "#fff", border: "1px solid #E5E5E5", borderRadius: 20, textAlign: "center", alignItems: "center" }}>
                 <span className="feature-icon" style={{ width: 44, height: 44, display: "inline-flex", alignItems: "center", justifyContent: "center", background: "#eef3ff", color: "#2A74ED", borderRadius: "50%", marginBottom: 10 }}>{f.icon}</span>
-                <h4 style={{ fontSize: 11, fontWeight: 800, textTransform: "uppercase", color: "#242424", marginBottom: 4, letterSpacing: 0.5 }}>{f.title}</h4>
-                <p style={{ fontSize: 11, color: "#777", lineHeight: 1.5 }}>{f.desc}</p>
+                <h3 style={{ fontSize: 14, fontWeight: 800, color: "#242424", marginBottom: 4, letterSpacing: 0.2 }}>{f.title}</h3>
+                <p style={{ fontSize: 12, color: "#777", lineHeight: 1.5 }}>{f.desc}</p>
               </div>
             ))}
           </ScrollReveal>
@@ -345,7 +324,7 @@ export default function HomePage() {
         <div className="container stats-strip" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16, textAlign: "center" }}>
           {STATS.map((s) => (
             <div key={s.label} style={{ minWidth: 0, overflow: "visible" }}>
-              <div style={{ fontSize: "clamp(22px, 5vw, 28px)", fontWeight: 800, lineHeight: 1, color: "#fff", whiteSpace: "nowrap" }}><CountUp value={s.value} suffix={s.suffix} /></div>
+              <div style={{ fontSize: "clamp(20px, 5vw, 28px)", fontWeight: 800, lineHeight: 1, color: "#fff", whiteSpace: "nowrap" }}><CountUp value={s.value} suffix={s.suffix} /></div>
               <div style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: 0.8, opacity: 0.7, marginTop: 6, color: "#fff", wordBreak: "break-word" }}>{s.label}</div>
             </div>
           ))}
@@ -358,7 +337,7 @@ export default function HomePage() {
           <ScrollReveal direction="up">
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18 }}>
               <h2 style={{ fontSize: 18, fontWeight: 800, color: "#242424" }}>New Arrivals</h2>
-              <Link href="/shop?sort=newest" style={{ fontSize: 12, fontWeight: 700, color: "#2A74ED", background: "#f8f9fb", border: "1px solid #E5E5E5", padding: "6px 12px", borderRadius: 20 }}>View all →</Link>
+              <Link href="/shop?sort=newest" className="ws-btn ws-btn-outline ws-btn-sm" style={{ padding: "6px 12px" }}>View all →</Link>
             </div>
           </ScrollReveal>
           <ScrollReveal stagger className="p-grid" as="div">
@@ -375,7 +354,7 @@ export default function HomePage() {
           <div className="eb-marquee">
             <div className="eb-marquee-track">
               {[...["EduBazar", "LearnPro", "SkillHub", "CodeLab", "TradeMentor", "DesignForge"], ...["EduBazar", "LearnPro", "SkillHub", "CodeLab", "TradeMentor", "DesignForge"]].map((b, i) => (
-                <span key={`${b}-${i}`} style={{ padding: "8px 16px", background: "#fff", border: "1px solid #E5E5E5", borderRadius: 20, fontSize: 11, fontWeight: 800, color: "#242424", letterSpacing: 0.6, whiteSpace: "nowrap", flexShrink: 0 }}>{b}</span>
+                <span key={`${b}-${i}`} style={{ padding: "8px 16px", background: "#fff", border: "1px solid #E5E5E5", borderRadius: 20, fontSize: 12, fontWeight: 800, color: "#242424", letterSpacing: 0.6, whiteSpace: "nowrap", flexShrink: 0 }}>{b}</span>
               ))}
             </div>
           </div>
@@ -388,7 +367,7 @@ export default function HomePage() {
           <div className="container">
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18 }}>
               <h2 style={{ fontSize: 18, fontWeight: 800, color: "#242424" }}>Free Software & Tools</h2>
-              <Link href="/shop?q=free" style={{ fontSize: 12, fontWeight: 700, color: "#2A74ED" }}>View all →</Link>
+              <Link href="/shop?free=1" className="ws-btn ws-btn-ghost ws-btn-sm" style={{ padding: "6px 12px" }}>View all →</Link>
             </div>
             <div className="p-grid">
               {freeStuff.map((p) => (
@@ -415,7 +394,7 @@ export default function HomePage() {
                 </div>
                 <p style={{ fontSize: 12, lineHeight: 1.6, color: "#242424", fontStyle: "italic", marginBottom: 12 }}>&ldquo;{t.text}&rdquo;</p>
                 <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                  <div style={{ width: 36, height: 36, borderRadius: "50%", background: "#eef3ff", color: "#2A74ED", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: 11, border: "1px solid #E5E5E5" }}>
+                  <div style={{ width: 36, height: 36, borderRadius: "50%", background: "#eef3ff", color: "#2A74ED", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: 12, border: "1px solid #E5E5E5" }}>
                     {t.name.split(" ").map(w => w[0]).slice(0,2).join("").toUpperCase()}
                   </div>
                   <div>
@@ -429,14 +408,31 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* FAQ — matches homeFaqLd JSON-LD */}
+      <section style={{ background: "#f8f9fb", padding: "28px 0" }}>
+        <div className="container" style={{ maxWidth: 800 }}>
+          <h2 style={{ fontSize: 18, fontWeight: 800, color: "#242424", textAlign: "center", marginBottom: 16 }}>
+            Frequently Asked Questions
+          </h2>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {homeFaqs.map((f, i) => (
+              <details key={i} style={{ background: "#fff", border: "1px solid #E5E5E5", borderRadius: 16, padding: "14px 16px", cursor: "pointer" }}>
+                <summary style={{ fontWeight: 700, fontSize: 14, color: "#242424", listStyle: "none" }}>{f.q}</summary>
+                <p style={{ marginTop: 10, fontSize: 14, color: "#777", lineHeight: 1.7 }}>{f.a}</p>
+              </details>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Instagram rounded */}
       <section className="ws-section-sm" style={{ background: "#fff", padding: "20px 0" }}>
         <div className="container">
-          <h2 style={{ fontSize: 14, fontWeight: 800, color: "#242424", textAlign: "center", marginBottom: 14 }}>Follow @edubazarshop</h2>
+          <h2 style={{ fontSize: 16, fontWeight: 800, color: "#242424", textAlign: "center", marginBottom: 14 }}>Follow @edubazarshop</h2>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: 8 }}>
             {IG.map((src, i) => (
               <a key={i} href="https://instagram.com/edubazarshop" target="_blank" rel="noreferrer" style={{ position: "relative", aspectRatio: "1", overflow: "hidden", background: "#f8f9fb", display: "block", borderRadius: 16, border: "1px solid #E5E5E5", padding: 3 }}>
-                <img src={src} alt="Instagram" loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: 12 }} />
+                <Image src={src} alt="Instagram" width={200} height={200} loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: 12 }} />
                 <span style={{ position: "absolute", inset: 3, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(42,116,237,0.65)", opacity: 0, transition: "opacity 0.2s", color: "#fff", borderRadius: 12 }} className="ig-hover"><Camera size={18} /></span>
               </a>
             ))}

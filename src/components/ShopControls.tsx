@@ -7,7 +7,14 @@ import { useState } from "react";
 export function ShopControls({ count }: { count: number }) {
   const router = useRouter();
   const params = useSearchParams();
-  const [q, setQ] = useState(() => params.get("q") ?? "");
+  const urlQ = params.get("q") ?? "";
+  const [q, setQ] = useState(urlQ);
+  // Sync local box when URL q changes (back/forward, sidebar links) — render-time adjustment
+  const [syncedQ, setSyncedQ] = useState(urlQ);
+  if (urlQ !== syncedQ) {
+    setSyncedQ(urlQ);
+    setQ(urlQ);
+  }
   const sort = params.get("sort") ?? "";
 
   const setParam = (key: string, value: string) => {
@@ -42,8 +49,9 @@ export function ShopControls({ count }: { count: number }) {
           <option value="price_high">Price: High to Low</option>
           <option value="newest">Newest</option>
           <option value="rating">Top Rated</option>
+          <option value="bestseller">Bestseller</option>
         </select>
-        <span style={{ fontSize: 13, color: "var(--muted)", fontWeight: 600 }}>
+        <span style={{ fontSize: 14, color: "var(--muted)", fontWeight: 600 }}>
           <SlidersHorizontal size={14} style={{ verticalAlign: "-2px" }} /> {count} products
         </span>
       </div>

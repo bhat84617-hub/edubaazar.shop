@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { Trash2, Minus, Plus, ShoppingBag, ArrowRight, ShieldCheck } from "lucide-react";
 import { getProductById, formatINR } from "@/lib/products";
 import { useStore } from "@/lib/store";
@@ -13,7 +14,7 @@ export default function CartPage() {
       <div className="container">
         <div className="section-head">
           <span className="section-tag">Cart</span>
-          <h1 style={{ fontSize: "clamp(22px, 3vw, 28px)", fontWeight: 800, color: "#242424" }}>Shopping Cart</h1>
+          <h1 style={{ fontSize: "clamp(20px, 3vw, 28px)", fontWeight: 800, color: "#242424" }}>Shopping Cart</h1>
         </div>
 
         {mounted && cart.length === 0 ? (
@@ -33,14 +34,14 @@ export default function CartPage() {
                   return (
                     <div key={item.id} style={{ display: "flex", gap: 16, alignItems: "center", padding: "14px 0", borderBottom: "1px solid var(--line)" }}>
                       <Link href={`/product/${p.slug}`}>
-                        <img src={p.images[0]} alt={p.title} style={{ width: 80, height: 64, objectFit: "cover", borderRadius: 10 }} />
+                        <Image src={p.images[0]} alt={p.title} width={80} height={64} style={{ objectFit: "cover", borderRadius: 10 }} />
                       </Link>
                       <div style={{ flex: 1 }}>
                         <Link href={`/product/${p.slug}`}>
                           <h5 style={{ fontSize: 14, marginBottom: 2 }}>{p.title}</h5>
                         </Link>
                         <p style={{ fontSize: 12, color: "var(--muted)" }}>{p.category}</p>
-                        <strong style={{ color: "var(--primary)", fontSize: 15 }}>{p.price <= 0 ? "FREE" : formatINR(p.price)}</strong>
+                        <strong style={{ color: "var(--primary)", fontSize: 16 }}>{p.price <= 0 ? "FREE" : formatINR(p.price)}</strong>
                       </div>
                       <div className="qty-stepper">
                         <button onClick={() => setQty(item.id, item.qty - 1)} aria-label="Decrease"><Minus size={13} /></button>
@@ -50,7 +51,7 @@ export default function CartPage() {
                       <strong style={{ minWidth: 70, textAlign: "right", fontFamily: "var(--font-heading)", fontSize: 16 }}>
                         {p.price <= 0 ? "FREE" : formatINR(p.price * item.qty)}
                       </strong>
-                      <button onClick={() => removeFromCart(item.id)} aria-label="Remove" style={{ background: "none", border: "none", color: "#c0392b" }}>
+                      <button onClick={() => removeFromCart(item.id)} aria-label="Remove" style={{ background: "none", border: "none", color: "#FF515C" }}>
                         <Trash2 size={18} />
                       </button>
                     </div>
@@ -71,7 +72,7 @@ export default function CartPage() {
                     if (!p) return null;
                     return (
                       <div key={item.id} className="co-item">
-                        <img src={p.images[0]} alt={p.title} />
+                        <Image src={p.images[0]} alt={p.title} width={80} height={64} style={{ objectFit: "cover", borderRadius: 8 }} />
                         <div style={{ flex: 1 }}>
                           <h5>{p.title}</h5>
                           <p>Qty: {item.qty}</p>

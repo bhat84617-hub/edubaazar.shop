@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Lock, Mail, LogIn, ArrowLeft } from "lucide-react";
@@ -43,7 +44,7 @@ export default function LoginPage() {
     <div className="auth-wrap">
       <div className="auth-card">
         <div className="auth-logo">
-          <img src="/logo/edulogo.jpeg" alt="EduBazar" />
+          <Image src="/logo/edulogo.jpeg" alt="EduBazar" width={72} height={72} priority style={{ width: 72, height: 72 }} />
           <h1>Welcome Back</h1>
           <p>Login to access your courses & dashboard</p>
         </div>
@@ -61,11 +62,11 @@ export default function LoginPage() {
             <LogIn size={16} /> {loading ? "Logging in..." : "Login"}
           </button>
         </form>
-        <p style={{ textAlign: "center", marginTop: 20, fontSize: 13.5, color: "var(--muted)" }}>
-          Don't have an account? <Link href="/register" style={{ color: "var(--primary)", fontWeight: 700 }}>Sign Up</Link>
+        <p style={{ textAlign: "center", marginTop: 20, fontSize: 14, color: "var(--muted)" }}>
+          Don&apos;t have an account? <Link href="/register" style={{ color: "var(--primary)", fontWeight: 700 }}>Sign Up</Link>
         </p>
         <p style={{ textAlign: "center", marginTop: 8 }}>
-          <Link href="/" style={{ fontSize: 12.5, color: "var(--muted)", display: "inline-flex", alignItems: "center", gap: 5 }}>
+          <Link href="/" style={{ fontSize: 12, color: "var(--muted)", display: "inline-flex", alignItems: "center", gap: 5 }}>
             <ArrowLeft size={13} /> Back to Home
           </Link>
         </p>

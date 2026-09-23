@@ -51,7 +51,7 @@ export default function ContactPage() {
           <nav aria-label="Breadcrumb" className="breadcrumb" style={{ color: "rgba(255,255,255,0.7)", marginBottom: 10 }}>
             <Link href="/">Home</Link> <ChevronRight size={13} aria-hidden="true" /> <span style={{ color: "var(--accent)" }} aria-current="page">Contact Us</span>
           </nav>
-          <h1 style={{ color: "#fff", fontSize: "clamp(28px,4vw,40px)" }}>Contact Us</h1>
+          <h1 style={{ color: "#fff", fontSize: "clamp(24px,4vw,34px)" }}>Contact Us</h1>
         </div>
       </div>
 

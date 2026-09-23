@@ -11,13 +11,23 @@ function getDb() {
   return createClient(url, key, { auth: { autoRefreshToken: false, persistSession: false } });
 }
 
+function safeParseItems(raw: unknown): Array<Record<string, unknown>> {
+  try {
+    const parsed = typeof raw === "string" ? JSON.parse(raw) : raw;
+    if (!Array.isArray(parsed)) return [];
+    return parsed.filter((x) => x && typeof x === "object");
+  } catch {
+    return [];
+  }
+}
+
 function toOrder(o: Record<string, unknown>) {
   return {
     orderId: o.order_id,
     name: o.name,
     email: o.email,
     phone: o.phone,
-    items: typeof o.items === "string" ? JSON.parse(o.items) : o.items,
+    items: safeParseItems(o.items),
     total: o.total,
     status: o.status,
     paymentMethod: o.payment_method,
@@ -73,7 +83,7 @@ export async function PATCH(request: NextRequest) {
   }
 
   const update: Record<string, unknown> = { status: body.status };
-  const items = (typeof order.items === "string" ? JSON.parse(order.items) : order.items) as Array<{ id: string; name?: string; downloadUrl?: string | null }>;
+  const items = safeParseItems(order.items) as Array<{ id: string; name?: string; downloadUrl?: string | null }>;
   let updatedItems = items;
 
   if (body.status === "approved") {

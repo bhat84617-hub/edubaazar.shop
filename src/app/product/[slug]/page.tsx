@@ -2,12 +2,14 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ChevronRight, Tag, ShieldCheck, Truck, Zap } from "lucide-react";
 import ProductBuy from "@/components/ProductBuy";
+import ProductGallery from "@/components/ProductGallery";
 import CopyForAI from "@/components/CopyForAI";
 import ProductTabs from "@/components/ProductTabs";
 import ProductCard from "@/components/ProductCard";
 import { products, getProductBySlug, getRelatedProducts, isSensitiveProduct } from "@/lib/products";
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.edubaazar.shop";
+const priceValidUntilIso = new Date(Date.UTC(new Date().getUTCFullYear() + 1, 0, 1)).toISOString().split("T")[0];
 
 export const dynamicParams = false;
 
@@ -81,9 +83,10 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
 
   const related = getRelatedProducts(product, 4);
 
-  const reviewCountNum = parseInt((product.reviewCount || "0").replace(/[^0-9]/g, ""), 10) || 100;
+  const reviewCountRaw = parseInt((product.reviewCount || "0").replace(/[^0-9]/g, ""), 10);
+  const hasReviewCount = Number.isFinite(reviewCountRaw) && reviewCountRaw > 0;
   const imagesAbsolute = product.images.map((img) => `${SITE}${img}`);
-  const jsonLd = {
+  const jsonLd: Record<string, unknown> = {
     "@context": "https://schema.org",
     "@type": "Product",
     "@id": `${SITE}/product/${slug}#product`,
@@ -95,19 +98,27 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
     brand: { "@type": "Brand", name: "EduBazar.shop" },
     sku: product.slug,
     mpn: product.id,
-    aggregateRating: {
-      "@type": "AggregateRating",
-      ratingValue: String(product.rating),
-      reviewCount: String(reviewCountNum),
-      bestRating: "5",
-      worstRating: "1",
-    },
-    review: {
-      "@type": "Review",
-      reviewRating: { "@type": "Rating", ratingValue: String(product.rating), bestRating: "5" },
-      author: { "@type": "Person", name: "EduBazar Student" },
-      reviewBody: product.desc,
-    },
+    ...(hasReviewCount
+      ? {
+          aggregateRating: {
+            "@type": "AggregateRating",
+            ratingValue: String(product.rating),
+            reviewCount: String(reviewCountRaw),
+            bestRating: "5",
+            worstRating: "1",
+          },
+        }
+      : {}),
+    ...(hasReviewCount
+      ? {
+          review: {
+            "@type": "Review",
+            reviewRating: { "@type": "Rating", ratingValue: String(product.rating), bestRating: "5" },
+            author: { "@type": "Person", name: "EduBazar Student" },
+            reviewBody: product.desc,
+          },
+        }
+      : {}),
     offers: {
       "@type": "Offer",
       price: product.price,
@@ -115,7 +126,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
       availability: product.price <= 0 ? "https://schema.org/InStock" : "https://schema.org/InStock",
       url: `${SITE}/product/${slug}`,
       itemCondition: "https://schema.org/NewCondition",
-      priceValidUntil: new Date(Date.now() + 1000 * 60 * 60 * 24 * 365).toISOString().split("T")[0],
+      priceValidUntil: priceValidUntilIso,
       seller: { "@type": "Organization", name: "EduBazar.shop", url: SITE },
       hasMerchantReturnPolicy: {
         "@type": "MerchantReturnPolicy",
@@ -179,26 +190,21 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
     ...(product.instructor ? { instructor: { "@type": "Person", name: product.instructor } } : {}),
   } : null;
 
+  const productFaqs = [
+    { q: `What is included in ${product.title}?`, a: product.includes?.join(". ") || `This course includes comprehensive content on ${product.category}.` },
+    { q: "How long does access last?", a: "You get lifetime access. Once purchased, you can study anytime, anywhere on any device." },
+    { q: "How do I pay?", a: "We accept UPI payments via Google Pay, PhonePe, Paytm, or any UPI app. After payment, enter your transaction ID and our team will verify it within 24 hours." },
+    { q: "Will I get a certificate?", a: "Yes! You receive a certificate of completion after finishing the course content." },
+  ];
+
   const faqLd = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
-    mainEntity: [
-      {
-        "@type": "Question",
-        name: `What is included in ${product.title}?`,
-        acceptedAnswer: { "@type": "Answer", text: product.includes?.join(". ") || `This course includes comprehensive content on ${product.category}.` },
-      },
-      {
-        "@type": "Question",
-        name: `How long does access last for ${product.title}?`,
-        acceptedAnswer: { "@type": "Answer", text: "You get lifetime access. Once purchased, you can study anytime, anywhere." },
-      },
-      {
-        "@type": "Question",
-        name: "How do I pay for this course?",
-        acceptedAnswer: { "@type": "Answer", text: "We accept UPI payments via Google Pay, PhonePe, Paytm, or any UPI app. After payment, enter your transaction ID and admin will verify it." },
-      },
-    ],
+    mainEntity: productFaqs.map((f) => ({
+      "@type": "Question",
+      name: f.q,
+      acceptedAnswer: { "@type": "Answer", text: f.a },
+    })),
   };
 
   return (
@@ -228,20 +234,9 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
           <div className="psingle-grid">
             {/* Gallery XSTORE - border radius 20px */}
             <div>
-              <div className="psingle-gallery-main woocommerce-product-gallery images-wrapper">
-                <img src={product.images[0]} alt={`${product.title} — ${product.category} ${product.kind} at EduBazar.shop`} width={800} height={600} loading="eager" fetchPriority="high" />
-              </div>
-              {product.images.length > 1 && (
-                <div className="thumb-row thumbnails-list" role="list">
-                  {product.images.map((img, i) => (
-                    <button key={i} className={i === 0 ? "active" : ""} aria-label={`View ${product.title} image ${i + 1}`}>
-                      <img src={img} alt={`${product.title} thumbnail ${i + 1} — ${product.category}`} width={120} height={90} loading="lazy" />
-                    </button>
-                  ))}
-                </div>
-              )}
+              <ProductGallery images={product.images} title={product.title} category={product.category} kind={product.kind} />
               {product.badge && (
-                <div style={{ marginTop: 12, display: "inline-flex", alignItems: "center", gap: 6, background: "#eef3ff", color: "#2A74ED", padding: "6px 12px", borderRadius: 20, fontSize: 11, fontWeight: 700, border: "1px solid #d6e3ff" }}>
+                <div style={{ marginTop: 12, display: "inline-flex", alignItems: "center", gap: 6, background: "#eef3ff", color: "#2A74ED", padding: "6px 12px", borderRadius: 20, fontSize: 12, fontWeight: 700, border: "1px solid #d6e3ff" }}>
                   <Tag size={12} /> {product.badge} product
                 </div>
               )}
@@ -264,15 +259,15 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
             {/* Info */}
             <div style={{ background: "#fff", border: "1px solid #E5E5E5", borderRadius: 20, padding: 20 }}>
               <span className="qv-cat">{product.category}</span>
-              <h1 style={{ fontSize: "clamp(20px,2.6vw,26px)", lineHeight: 1.2, margin: "10px 0 8px", color: "#242424", fontWeight: 800, letterSpacing: "-0.4px" }}>
+              <h1 style={{ fontSize: "clamp(20px,2.6vw,24px)", lineHeight: 1.2, margin: "10px 0 8px", color: "#242424", fontWeight: 800, letterSpacing: "-0.4px" }}>
                 {product.title}
               </h1>
-              <p style={{ fontSize: 13, color: "#777", lineHeight: 1.7, marginBottom: 16 }}>
+              <p style={{ fontSize: 14, color: "#777", lineHeight: 1.7, marginBottom: 16 }}>
                 {product.desc}
               </p>
               <ProductBuy product={product} />
               {isSensitiveProduct(slug) && (
-                <p style={{ marginTop: 12, fontSize: 12, color: "#8a5a00", background: "#fff8e6", border: "1px solid #f0d48a", borderRadius: 12, padding: "10px 12px", lineHeight: 1.6 }}>
+                <p style={{ marginTop: 12, fontSize: 12, color: "#FFBD3C", background: "#fff8e6", border: "1px solid #f0d48a", borderRadius: 12, padding: "10px 12px", lineHeight: 1.6 }}>
                   For authorized security lab training only. Use only on systems you own or have written permission to test.
                 </p>
               )}
@@ -295,12 +290,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
           <div style={{ marginTop: 20, background: "#fff", border: "1px solid #E5E5E5", borderRadius: 20, padding: 20 }}>
             <h2 style={{ fontSize: 16, marginBottom: 14, fontWeight: 800, color: "#242424" }}>Frequently Asked Questions</h2>
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-              {[
-                { q: `What is included in ${product.title}?`, a: product.includes?.join(". ") || `This course includes comprehensive content on ${product.category}.` },
-                { q: "How long does access last?", a: "You get lifetime access. Once purchased, you can study anytime, anywhere on any device." },
-                { q: "How do I pay?", a: "We accept UPI payments via Google Pay, PhonePe, Paytm, or any UPI app. After payment, enter your transaction ID and our team will verify it within 24 hours." },
-                { q: "Will I get a certificate?", a: "Yes! You receive a certificate of completion after finishing the course content." },
-              ].map((faq, i) => (
+              {productFaqs.map((faq, i) => (
                 <details key={i} style={{ background: "#f8f9fb", border: "1px solid #E5E5E5", borderRadius: 14, padding: "12px 14px", cursor: "pointer" }}>
                   <summary style={{ fontWeight: 700, fontSize: 12, color: "#242424", listStyle: "none" }}>{faq.q}</summary>
                   <p style={{ marginTop: 8, fontSize: 12, color: "#777", lineHeight: 1.7 }}>{faq.a}</p>

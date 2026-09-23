@@ -1,10 +1,12 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { ShieldCheck, Lock, ArrowLeft } from "lucide-react";
 
 export default function AdminLoginPage() {
+  const router = useRouter();
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
@@ -22,7 +24,7 @@ export default function AdminLoginPage() {
       });
       const data = await r.json().catch(() => null);
       if (r.ok) {
-        window.location.href = "/admin";
+        router.push("/admin");
         return;
       }
       setError(data?.error || "Login failed");

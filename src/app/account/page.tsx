@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
-import { ShoppingBag, Download, IndianRupee, BookOpen, LayoutDashboard, Store, Heart, LogOut, Settings, DownloadCloud, Clock, XCircle, ChevronRight, ExternalLink, MessageCircle } from "lucide-react";
-import { supabase } from "@/lib/config";
+import { ShoppingBag, Download, IndianRupee, BookOpen, LayoutDashboard, Store, Heart, LogOut, Settings, DownloadCloud, Clock, XCircle, ChevronRight, MessageCircle } from "lucide-react";
 import { useStore } from "@/lib/store";
 import type { Order } from "@/lib/store";
 
@@ -23,17 +23,20 @@ export default function AccountPage() {
   const [q, setQ] = useState("");
   const [refreshing, setRefreshing] = useState(false);
 
-  const fetchOrders = async () => {
+  const fetchOrders = async (manual = false) => {
     if (!user) return;
-    setRefreshing(true);
+    if (manual) setRefreshing(true);
     try {
-      const { data } = await supabase.from("orders").select("*").eq("email", user.email.trim().toLowerCase()).order("date", { ascending: false });
-      if (data && data.length > 0) {
+      const res = await fetch(`/api/orders?email=${encodeURIComponent(user.email.trim().toLowerCase())}`, { cache: "no-store" });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const payload = (await res.json()) as { orders?: PublicOrder[] };
+      const data = payload.orders ?? [];
+      if (data.length > 0) {
         setRemoteOrders(
           data.map((o) => ({
-            orderId: o.order_id,
+            orderId: o.orderId,
             email: o.email,
-            items: typeof o.items === "string" ? JSON.parse(o.items) : o.items,
+            items: Array.isArray(o.items) ? o.items : [],
             total: o.total,
             status: o.status,
             date: o.date,
@@ -43,20 +46,21 @@ export default function AccountPage() {
         setRemoteOrders([]);
       }
     } catch {
-      // fallback to local orders - keep remote as is but local filtering will handle
+      // keep previous remote orders; local fallback still shows in merged list
     }
-    setRefreshing(false);
+    if (manual) setRefreshing(false);
   };
 
   useEffect(() => {
-    if (!user) {
-      setRemoteOrders([]);
-      return;
-    }
-    fetchOrders();
-    // Auto-refresh every 12s so approved courses & links appear instantly
-    const t = setInterval(fetchOrders, 12000);
-    return () => clearInterval(t);
+    if (!user) return;
+    const boot = setTimeout(() => fetchOrders(), 0);
+    // Auto-refresh every 12s so approved courses & links appear instantly (silent)
+    const t = setInterval(() => fetchOrders(), 12000);
+    return () => {
+      clearTimeout(boot);
+      clearInterval(t);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.email]);
 
   const merged: (PublicOrder | Order)[] = useMemo(() => {
@@ -64,7 +68,7 @@ export default function AccountPage() {
     const remote = remoteOrders.filter((o) => user && o.email.trim().toLowerCase() === user.email.trim().toLowerCase());
     if (remote.length > 0) return remote as PublicOrder[];
     return local;
-  }, [localOrders, remoteOrders, user?.email]);
+  }, [localOrders, remoteOrders, user]);
 
   const filtered = merged.filter((o) =>
     (o.orderId || "").toLowerCase().includes(q.toLowerCase()) ||
@@ -100,7 +104,7 @@ export default function AccountPage() {
     <div className="dash-shell">
       <aside className="dash-side">
         <div className="brand">
-          <img src="/logo/edulogo.jpeg" alt="EduBazar" />
+          <Image src="/logo/edulogo.jpeg" alt="EduBazar" width={72} height={72} priority style={{ width: 72, height: 72 }} />
           <span>EduBazar</span>
         </div>
         <a className="active" onClick={() => setTab("orders")} style={{ cursor: "pointer" }}>
@@ -120,8 +124,8 @@ export default function AccountPage() {
         <div className="dash-top">
           <h1>Welcome, {user.name.split(" ")[0]} 👋</h1>
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <span style={{ color: "var(--muted)", fontSize: 13}}>{user.email}</span>
-            <button className="btn btn-outline btn-sm" onClick={fetchOrders} disabled={refreshing} style={{ fontSize: 12 }}>
+            <span style={{ color: "var(--muted)", fontSize: 14}}>{user.email}</span>
+            <button className="btn btn-outline btn-sm" onClick={() => fetchOrders(true)} disabled={refreshing} style={{ fontSize: 12 }}>
               <Download size={13} /> {refreshing ? "Refreshing..." : "Refresh"}
             </button>
           </div>
@@ -168,7 +172,7 @@ export default function AccountPage() {
             (filtered.length === 0 ? (
               <div style={{ textAlign: "center", padding: "50px 20px", color: "var(--muted)" }}>
                 <BookOpen size={42} style={{ color: "var(--line)", marginBottom: 10 }} />
-                <p style={{ marginBottom: 16 }}>You haven't placed any orders yet.</p>
+                <p style={{ marginBottom: 16 }}>You haven&apos;t placed any orders yet.</p>
                 <Link href="/shop" className="btn btn-primary">Browse Courses</Link>
               </div>
             ) : (
@@ -210,17 +214,17 @@ export default function AccountPage() {
                                     <DownloadCloud size={13} /> Download
                                   </a>
                                 ) : (
-                                  <a key={i.name} href={`https://wa.me/919582501582?text=Hi%20EduBazar%2C%20I%20need%20download%20link%20for%20my%20approved%20order%20${order.orderId}`} target="_blank" rel="noreferrer" className="btn btn-outline btn-sm" style={{ margin: "2px 4px 2px 0", fontSize: 11 }}>
+                                  <a key={i.name} href={`https://wa.me/919582501582?text=Hi%20EduBazar%2C%20I%20need%20download%20link%20for%20my%20approved%20order%20${order.orderId}`} target="_blank" rel="noreferrer" className="btn btn-outline btn-sm" style={{ margin: "2px 4px 2px 0", fontSize: 12 }}>
                                     <MessageCircle size={12} /> Get Download Link
                                   </a>
                                 )
                               )
                             ) : isPending ? (
-                              <span style={{ color: "#b57f0a", fontSize: 12, display: "inline-flex", alignItems: "center", gap: 5 }}>
+                              <span style={{ color: "#FFBD3C", fontSize: 12, display: "inline-flex", alignItems: "center", gap: 5 }}>
                                 <Clock size={13} /> Verify ho raha hai
                               </span>
                             ) : (
-                              <span style={{ color: "#c0392b", fontSize: 12, display: "inline-flex", alignItems: "center", gap: 5 }}>
+                              <span style={{ color: "#FF515C", fontSize: 12, display: "inline-flex", alignItems: "center", gap: 5 }}>
                                 <XCircle size={13} /> Payment rejected
                               </span>
                             )}
@@ -254,9 +258,9 @@ export default function AccountPage() {
                             <a key={i.name} href={`https://wa.me/919582501582?text=Hi%20EduBazar%2C%20I%20need%20download%20link%20for%20my%20approved%20order%20${order.orderId}`} target="_blank" rel="noreferrer" className="btn btn-outline" style={{width:"100%", justifyContent:"center", fontSize:12}}><MessageCircle size={13}/> Get Download Link</a>
                           )
                         ) : isPending ? (
-                          <span style={{ color: "#b57f0a", fontSize: 13, display: "inline-flex", alignItems: "center", gap: 6, background:"#fef6e8", padding:"8px 12px", borderRadius:20, width:"100%", justifyContent:"center" }}><Clock size={14}/> Verification pending</span>
+                          <span style={{ color: "#FFBD3C", fontSize: 14, display: "inline-flex", alignItems: "center", gap: 6, background:"#fef6e8", padding:"8px 12px", borderRadius:20, width:"100%", justifyContent:"center" }}><Clock size={14}/> Verification pending</span>
                         ) : (
-                          <span style={{ color: "#c0392b", fontSize: 13, display: "inline-flex", alignItems: "center", gap: 6, background:"#feecee", padding:"8px 12px", borderRadius:20, width:"100%", justifyContent:"center" }}><XCircle size={14}/> Payment rejected</span>
+                          <span style={{ color: "#FF515C", fontSize: 14, display: "inline-flex", alignItems: "center", gap: 6, background:"#feecee", padding:"8px 12px", borderRadius:20, width:"100%", justifyContent:"center" }}><XCircle size={14}/> Payment rejected</span>
                         )}
                       </div>
                     </div>
@@ -268,7 +272,7 @@ export default function AccountPage() {
 
           {tab === "settings" && (
             <div>
-              <p style={{ fontSize: 14.5, color: "var(--body)", marginBottom: 18 }}>
+              <p style={{ fontSize: 14, color: "var(--body)", marginBottom: 18 }}>
                 Your account details below. For password changes or support, contact us on WhatsApp.
               </p>
               <div style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>

@@ -50,26 +50,34 @@ DROP POLICY IF EXISTS "service_role_all" ON public.orders;
 DROP POLICY IF EXISTS "Allow service_role all orders" ON public.orders;
 DROP POLICY IF EXISTS "Allow service_role all users" ON public.users;
 
--- Tighten grants: anon only gets SELECT+INSERT, not UPDATE/DELETE (linter flags overly permissive)
+-- Tighten grants: anon only gets INSERT, not SELECT/UPDATE/DELETE (linter flags overly permissive).
+-- Account page reads orders via GET /api/orders (service_role), not anon key.
 REVOKE ALL ON TABLE public.orders FROM anon, authenticated;
 REVOKE ALL ON TABLE public.users FROM anon, authenticated;
 GRANT USAGE ON SCHEMA public TO anon, authenticated, service_role;
-GRANT SELECT, INSERT ON TABLE public.orders TO anon, authenticated;
-GRANT SELECT, INSERT ON TABLE public.users TO anon, authenticated;
+GRANT INSERT ON TABLE public.orders TO anon, authenticated;
+GRANT INSERT ON TABLE public.users TO anon, authenticated;
 GRANT ALL ON TABLE public.orders TO service_role;
 GRANT ALL ON TABLE public.users TO service_role;
 GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO anon, authenticated, service_role;
 
--- Orders: anon INSERT (guest checkout via src/lib/store.tsx placeOrder) + SELECT (account page)
+-- Orders: anon INSERT (guest checkout via src/lib/store.tsx placeOrder).
+-- NO anon SELECT: order PII (name/email/UTR/download URLs) must only be read
+-- via server API routes that use the service_role key after session checks.
 CREATE POLICY "Allow anon insert orders" ON public.orders FOR INSERT TO anon, authenticated WITH CHECK (true);
-CREATE POLICY "Allow anon select orders" ON public.orders FOR SELECT TO anon, authenticated USING (true);
--- service_role handles UPDATE/DELETE via admin API (isValidAdminSession)
 CREATE POLICY "Allow service_role all orders" ON public.orders FOR ALL TO service_role USING (true) WITH CHECK (true);
 
--- Users: anon INSERT (register) + SELECT (login where email+password)
+-- Users: anon INSERT only (register goes through API routes with service_role anyway).
+-- NO anon SELECT: prevents password hash/plaintext dump via PostgREST with the public anon key.
 CREATE POLICY "Allow anon insert users" ON public.users FOR INSERT TO anon, authenticated WITH CHECK (true);
-CREATE POLICY "Allow anon select users" ON public.users FOR SELECT TO anon, authenticated USING (true);
 CREATE POLICY "Allow service_role all users" ON public.users FOR ALL TO service_role USING (true) WITH CHECK (true);
+
+-- Extra hardening: drop any previously-created permissive anon SELECT policies (idempotent)
+DROP POLICY IF EXISTS "Allow anon select users" ON public.users;
+DROP POLICY IF EXISTS "Allow anon select users for login" ON public.users;
+DROP POLICY IF EXISTS "Allow anon select orders" ON public.orders;
+DROP POLICY IF EXISTS "orders_anon_select" ON public.orders;
+DROP POLICY IF EXISTS "users_anon_select" ON public.users;
 
 -- CRITICAL FIX 2: function_search_path_mutable - fix any functions without SET search_path
 -- (If you create functions later, always use SECURITY DEFINER SET search_path = '')

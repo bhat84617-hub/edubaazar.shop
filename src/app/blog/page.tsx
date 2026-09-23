@@ -34,21 +34,21 @@ export default function BlogIndex() {
       <nav aria-label="Breadcrumb" style={{ fontSize: 12, color: "#777", marginBottom: 8 }}>
         <Link href="/">Home</Link> / <span>Blog</span>
       </nav>
-      <h1 style={{ fontSize: "clamp(22px,3vw,28px)", fontWeight: 800, color: "#242424" }}>EduBazar Blog</h1>
+      <h1 style={{ fontSize: "clamp(20px,3vw,28px)", fontWeight: 800, color: "#242424" }}>EduBazar Blog</h1>
       <p style={{ color: "#777", marginTop: 6, fontSize: 14 }}>
         Practical buying guides for hacking, programming, and trading courses in India.
       </p>
       <div style={{ display: "flex", flexDirection: "column", gap: 14, marginTop: 22 }}>
         {POSTS.map((p) => (
           <article key={p.slug} style={{ background: "#fff", border: "1px solid #E5E5E5", borderRadius: 20, padding: 20 }}>
-            <Link href={`/blog/${p.slug}`} style={{ fontSize: 17, fontWeight: 800, color: "#242424", textDecoration: "none" }}>
+            <Link href={`/blog/${p.slug}`} style={{ fontSize: 16, fontWeight: 800, color: "#242424", textDecoration: "none" }}>
               {p.title}
             </Link>
-            <p style={{ fontSize: 13, color: "#777", marginTop: 8, lineHeight: 1.7 }}>{p.description}</p>
-            <div style={{ fontSize: 12, color: "#999", marginTop: 8 }}>
+            <p style={{ fontSize: 14, color: "#777", marginTop: 8, lineHeight: 1.7 }}>{p.description}</p>
+            <div style={{ fontSize: 12, color: "#777", marginTop: 8 }}>
               {p.date} • {p.readMins} min read
             </div>
-            <Link href={`/blog/${p.slug}`} style={{ display: "inline-block", marginTop: 10, fontSize: 13, fontWeight: 700, color: "#2A74ED" }}>
+            <Link href={`/blog/${p.slug}`} style={{ display: "inline-block", marginTop: 10, fontSize: 14, fontWeight: 700, color: "#2A74ED" }}>
               Read guide →
             </Link>
           </article>

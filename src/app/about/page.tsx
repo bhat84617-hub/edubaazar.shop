@@ -55,7 +55,7 @@ export default function AboutPage() {
           <nav aria-label="Breadcrumb" className="breadcrumb" style={{ marginBottom: 10 }}>
             <Link href="/">Home</Link> <ChevronRight size={12} aria-hidden="true" /> <span style={{ color: "#2A74ED", fontWeight: 700 }} aria-current="page">About Us</span>
           </nav>
-          <h1 style={{ color: "#242424", fontSize: "clamp(24px,3vw,32px)", fontWeight: 800, letterSpacing: "-0.4px" }}>About <span style={{ color: "#2A74ED" }}>EduBazar.shop</span></h1>
+          <h1 style={{ color: "#242424", fontSize: "clamp(20px,3vw,28px)", fontWeight: 800, letterSpacing: "-0.4px" }}>About <span style={{ color: "#2A74ED" }}>EduBazar.shop</span></h1>
         </div>
       </div>
 
@@ -63,13 +63,13 @@ export default function AboutPage() {
         <div className="container" style={{ maxWidth: 820 }}>
           <div className="dash-panel" style={{ padding: 28, borderRadius: 20 }}>
             <h2 style={{ marginBottom: 14, fontSize: 18, fontWeight: 800, color: "#242424" }}>Our Mission</h2>
-            <p style={{ fontSize: 13, lineHeight: 1.8, color: "#777", marginBottom: 14 }}>
+            <p style={{ fontSize: 14, lineHeight: 1.8, color: "#777", marginBottom: 14 }}>
               EduBazar.shop was founded with one simple mission: <strong style={{ color: "#242424" }}>make quality education accessible to every student in India</strong>. We noticed that premium courses on platforms like Udemy and Coursera cost ₹3,000-₹10,000, putting them out of reach for many students. We decided to change that.
             </p>
-            <p style={{ fontSize: 13, lineHeight: 1.8, color: "#777", marginBottom: 14 }}>
+            <p style={{ fontSize: 14, lineHeight: 1.8, color: "#777", marginBottom: 14 }}>
               Today, EduBazar offers <strong style={{ color: "#242424" }}>30+ premium courses</strong> in Ethical Hacking, Programming, Python, JavaScript, Stock Market Trading, Digital Marketing, UI/UX Design, and more — starting at just <strong style={{ color: "#242424" }}>₹49</strong>. Every course comes with lifetime access, downloadable resources, and a certificate of completion.
             </p>
-            <p style={{ fontSize: 13, lineHeight: 1.8, color: "#777", marginBottom: 24 }}>
+            <p style={{ fontSize: 14, lineHeight: 1.8, color: "#777", marginBottom: 24 }}>
               We use <strong style={{ color: "#242424" }}>UPI payments</strong> (Google Pay, PhonePe, Paytm) so that anyone can pay easily. Once you complete the payment and share your transaction ID, our team verifies it and grants you instant access.
             </p>
 
@@ -93,15 +93,15 @@ export default function AboutPage() {
                 { n: "24/7", l: "Support" },
               ].map((s, i) => (
                 <div key={i} style={{ textAlign: "center", padding: 16, background: "#fff", border: "1px solid #E5E5E5", borderRadius: 16 }}>
-                  <div style={{ fontSize: 22, fontWeight: 800, color: "#2A74ED" }}>{s.n}</div>
-                  <div style={{ fontSize: 11, color: "#777", marginTop: 4, fontWeight: 600, textTransform: "uppercase", letterSpacing: 0.5 }}>{s.l}</div>
+                  <div style={{ fontSize: 24, fontWeight: 800, color: "#2A74ED" }}>{s.n}</div>
+                  <div style={{ fontSize: 12, color: "#777", marginTop: 4, fontWeight: 600, textTransform: "uppercase", letterSpacing: 0.5 }}>{s.l}</div>
                 </div>
               ))}
             </div>
 
             <h2 style={{ marginTop: 28, marginBottom: 12, fontSize: 16, fontWeight: 800, color: "#242424" }}>Contact Us</h2>
             <div style={{ background: "#f8f9fb", border: "1px solid #E5E5E5", borderRadius: 16, padding: 16 }}>
-              <ul style={{ fontSize: 13, lineHeight: 2, color: "#777", listStyle: "none" }}>
+              <ul style={{ fontSize: 14, lineHeight: 2, color: "#777", listStyle: "none" }}>
                 <li><strong style={{ color: "#242424" }}>WhatsApp:</strong> <a href="https://wa.me/919582501582" style={{ color: "#2A74ED", fontWeight: 700 }}>9582501582</a></li>
                 <li><strong style={{ color: "#242424" }}>Email:</strong> <a href="mailto:edubazarshop@gmail.com" style={{ color: "#2A74ED" }}>edubazarshop@gmail.com</a></li>
                 <li><strong style={{ color: "#242424" }}>Instagram:</strong> <a href="https://instagram.com/edubazarshop" target="_blank" rel="noreferrer" style={{ color: "#2A74ED" }}>@edubazarshop</a></li>

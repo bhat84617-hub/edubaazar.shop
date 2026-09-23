@@ -75,8 +75,6 @@ export const CATEGORIES = [
   { key: "Marketing", label: "Marketing", icon: "megaphone", image: "/images/python-complete.jpeg" },
 ] as const;
 
-const img = "?w=800&auto=format&fit=crop";
-
 export const products: Product[] = [
   {
     id: "h1",
@@ -103,7 +101,7 @@ export const products: Product[] = [
     createdAt: "2024-01-05",
     instructor: "EduBazar Security Team",
     language: "English",
-    lastUpdated: "2024-12-01",
+    lastUpdated: "2026-07-10",
   },
   {
     id: "h2",
@@ -128,7 +126,7 @@ export const products: Product[] = [
     createdAt: "2024-01-10",
     instructor: "EduBazar Security Team",
     language: "English",
-    lastUpdated: "2024-11-15",
+    lastUpdated: "2026-07-01",
   },
   {
     id: "h3",
@@ -151,7 +149,7 @@ export const products: Product[] = [
     createdAt: "2024-02-02",
     instructor: "EduBazar Security Team",
     language: "English",
-    lastUpdated: "2024-10-20",
+    lastUpdated: "2026-06-20",
   },
   {
     id: "h4",
@@ -174,7 +172,7 @@ export const products: Product[] = [
     createdAt: "2024-02-14",
     instructor: "EduBazar Security Team",
     language: "English",
-    lastUpdated: "2024-11-01",
+    lastUpdated: "2026-06-25",
   },
   {
     id: "h5",
@@ -198,7 +196,7 @@ export const products: Product[] = [
     createdAt: "2024-01-15",
     instructor: "EduBazar Security Team",
     language: "English",
-    lastUpdated: "2024-12-10",
+    lastUpdated: "2026-07-18",
   },
   {
     id: "h6",
@@ -221,7 +219,7 @@ export const products: Product[] = [
     createdAt: "2024-03-01",
     instructor: "EduBazar Security Team",
     language: "English",
-    lastUpdated: "2024-11-20",
+    lastUpdated: "2026-07-05",
   },
   {
     id: "h7",
@@ -244,7 +242,7 @@ export const products: Product[] = [
     createdAt: "2024-03-10",
     instructor: "EduBazar Security Team",
     language: "English",
-    lastUpdated: "2024-10-05",
+    lastUpdated: "2026-06-15",
   },
   {
     id: "h8",
@@ -268,7 +266,7 @@ export const products: Product[] = [
     createdAt: "2024-03-20",
     instructor: "EduBazar Security Team",
     language: "English",
-    lastUpdated: "2024-11-10",
+    lastUpdated: "2026-06-28",
   },
   {
     id: "h34",
@@ -291,7 +289,7 @@ export const products: Product[] = [
     createdAt: "2024-04-05",
     instructor: "EduBazar Security Team",
     language: "English",
-    lastUpdated: "2024-12-05",
+    lastUpdated: "2026-07-12",
   },
   {
     id: "p1",
@@ -315,7 +313,7 @@ export const products: Product[] = [
     createdAt: "2024-01-08",
     instructor: "EduBazar Academy",
     language: "English",
-    lastUpdated: "2024-12-15",
+    lastUpdated: "2026-07-20",
   },
   {
     id: "p2",
@@ -338,7 +336,7 @@ export const products: Product[] = [
     createdAt: "2024-02-01",
     instructor: "EduBazar Academy",
     language: "English",
-    lastUpdated: "2024-12-01",
+    lastUpdated: "2026-07-10",
   },
   {
     id: "p3",
@@ -360,7 +358,7 @@ export const products: Product[] = [
     createdAt: "2024-02-20",
     instructor: "EduBazar Academy",
     language: "English",
-    lastUpdated: "2024-12-10",
+    lastUpdated: "2026-07-18",
   },
   {
     id: "p4",
@@ -384,7 +382,7 @@ export const products: Product[] = [
     createdAt: "2024-03-15",
     instructor: "EduBazar Academy",
     language: "English",
-    lastUpdated: "2024-11-25",
+    lastUpdated: "2026-07-08",
   },
   {
     id: "t1",
@@ -409,7 +407,7 @@ export const products: Product[] = [
     createdAt: "2024-01-20",
     instructor: "EduBazar Trading Academy",
     language: "English",
-    lastUpdated: "2024-12-08",
+    lastUpdated: "2026-07-15",
   },
   {
     id: "t2",
@@ -431,7 +429,7 @@ export const products: Product[] = [
     createdAt: "2024-02-11",
     instructor: "EduBazar Trading Academy",
     language: "English",
-    lastUpdated: "2024-12-01",
+    lastUpdated: "2026-07-10",
   },
   {
     id: "t3",
@@ -453,7 +451,7 @@ export const products: Product[] = [
     createdAt: "2024-03-05",
     instructor: "EduBazar Trading Academy",
     language: "English",
-    lastUpdated: "2024-11-15",
+    lastUpdated: "2026-07-01",
   },
   {
     id: "t4",
@@ -476,7 +474,7 @@ export const products: Product[] = [
     createdAt: "2024-04-01",
     instructor: "EduBazar Trading Academy",
     language: "English",
-    lastUpdated: "2024-12-05",
+    lastUpdated: "2026-07-12",
   },
   {
     id: "t5",
@@ -500,7 +498,7 @@ export const products: Product[] = [
     createdAt: "2024-04-10",
     instructor: "EduBazar Publishing",
     language: "English",
-    lastUpdated: "2024-10-15",
+    lastUpdated: "2026-06-18",
   },
   {
     id: "b1",
@@ -524,7 +522,7 @@ export const products: Product[] = [
     createdAt: "2024-01-25",
     instructor: "EduBazar Publishing",
     language: "English",
-    lastUpdated: "2024-12-01",
+    lastUpdated: "2026-07-10",
   },
   {
     id: "b2",
@@ -546,7 +544,7 @@ export const products: Product[] = [
     createdAt: "2024-02-05",
     instructor: "EduBazar Publishing",
     language: "English",
-    lastUpdated: "2024-10-20",
+    lastUpdated: "2026-06-20",
   },
   {
     id: "b3",
@@ -569,7 +567,7 @@ export const products: Product[] = [
     createdAt: "2024-02-08",
     instructor: "EduBazar Publishing",
     language: "English",
-    lastUpdated: "2024-11-10",
+    lastUpdated: "2026-06-28",
   },
   {
     id: "b10",
@@ -593,7 +591,7 @@ export const products: Product[] = [
     createdAt: "2024-05-01",
     instructor: "EduBazar Publishing",
     language: "Hindi",
-    lastUpdated: "2024-11-01",
+    lastUpdated: "2026-06-25",
   },
   {
     id: "d1",
@@ -617,7 +615,7 @@ export const products: Product[] = [
     createdAt: "2024-02-15",
     instructor: "EduBazar Design Studio",
     language: "English",
-    lastUpdated: "2024-12-10",
+    lastUpdated: "2026-07-18",
   },
   {
     id: "d2",
@@ -640,7 +638,7 @@ export const products: Product[] = [
     createdAt: "2024-05-10",
     instructor: "EduBazar Design Studio",
     language: "English",
-    lastUpdated: "2024-11-20",
+    lastUpdated: "2026-07-05",
   },
   {
     id: "m1",
@@ -663,7 +661,7 @@ export const products: Product[] = [
     createdAt: "2024-03-12",
     instructor: "EduBazar Marketing Academy",
     language: "English",
-    lastUpdated: "2024-12-05",
+    lastUpdated: "2026-07-12",
   },
   {
     id: "m3",
@@ -687,7 +685,7 @@ export const products: Product[] = [
     createdAt: "2024-04-20",
     instructor: "EduBazar Marketing Academy",
     language: "English",
-    lastUpdated: "2024-11-25",
+    lastUpdated: "2026-07-08",
   },
   {
     id: "h24",
@@ -867,7 +865,7 @@ export const products: Product[] = [
     createdAt: "2024-06-01",
     instructor: "EduBazar Security Team",
     language: "English",
-    lastUpdated: "2024-12-15",
+    lastUpdated: "2026-07-20",
   },
   {
     id: "h36",
@@ -891,7 +889,7 @@ export const products: Product[] = [
     createdAt: "2024-06-10",
     instructor: "EduBazar Security Team",
     language: "English",
-    lastUpdated: "2024-12-20",
+    lastUpdated: "2026-08-01",
   },
   {
     id: "h37",
@@ -915,7 +913,7 @@ export const products: Product[] = [
     createdAt: "2024-06-15",
     instructor: "EduBazar Security Team",
     language: "English",
-    lastUpdated: "2024-12-15",
+    lastUpdated: "2026-07-20",
   },
   {
     id: "p5",
@@ -939,7 +937,7 @@ export const products: Product[] = [
     createdAt: "2024-06-20",
     instructor: "EduBazar Academy",
     language: "English",
-    lastUpdated: "2024-12-20",
+    lastUpdated: "2026-08-01",
   },
   {
     id: "m4",
@@ -963,7 +961,7 @@ export const products: Product[] = [
     createdAt: "2024-06-25",
     instructor: "EduBazar Marketing Academy",
     language: "English",
-    lastUpdated: "2024-12-18",
+    lastUpdated: "2026-07-22",
   },
   {
     id: "t6",
@@ -987,7 +985,7 @@ export const products: Product[] = [
     createdAt: "2024-07-01",
     instructor: "EduBazar Trading Academy",
     language: "English",
-    lastUpdated: "2024-12-22",
+    lastUpdated: "2026-08-05",
   },
   {
     id: "p6",
@@ -1011,7 +1009,7 @@ export const products: Product[] = [
     createdAt: "2024-07-05",
     instructor: "EduBazar Academy",
     language: "English",
-    lastUpdated: "2024-12-20",
+    lastUpdated: "2026-08-01",
   },
   {
     id: "h38",
@@ -1035,7 +1033,7 @@ export const products: Product[] = [
     createdAt: "2024-07-10",
     instructor: "EduBazar Academy",
     language: "English",
-    lastUpdated: "2024-12-22",
+    lastUpdated: "2026-08-05",
   },
   {
     id: "t7",
@@ -1059,7 +1057,7 @@ export const products: Product[] = [
     createdAt: "2024-07-12",
     instructor: "EduBazar Trading Academy",
     language: "English",
-    lastUpdated: "2024-12-18",
+    lastUpdated: "2026-07-22",
   },
   {
     id: "t8",
@@ -1083,7 +1081,7 @@ export const products: Product[] = [
     createdAt: "2024-07-15",
     instructor: "EduBazar Trading Academy",
     language: "English",
-    lastUpdated: "2024-12-20",
+    lastUpdated: "2026-08-01",
   },
   {
     id: "d3",
@@ -1107,7 +1105,7 @@ export const products: Product[] = [
     createdAt: "2024-07-18",
     instructor: "EduBazar Design Studio",
     language: "English",
-    lastUpdated: "2024-12-22",
+    lastUpdated: "2026-08-05",
   },
   {
     id: "d4",
@@ -1132,7 +1130,7 @@ export const products: Product[] = [
     createdAt: "2024-07-22",
     instructor: "EduBazar Design Studio",
     language: "English",
-    lastUpdated: "2024-12-24",
+    lastUpdated: "2026-08-08",
   },
   {
     id: "d5",
@@ -1157,7 +1155,7 @@ export const products: Product[] = [
     createdAt: "2024-07-25",
     instructor: "EduBazar Design Studio",
     language: "English",
-    lastUpdated: "2024-12-24",
+    lastUpdated: "2026-08-08",
   },
   {
     id: "d6",
@@ -1182,7 +1180,7 @@ export const products: Product[] = [
     createdAt: "2024-07-28",
     instructor: "EduBazar Design Studio",
     language: "English",
-    lastUpdated: "2024-12-24",
+    lastUpdated: "2026-08-08",
   },
   {
     id: "d7",
@@ -1207,7 +1205,7 @@ export const products: Product[] = [
     createdAt: "2024-07-30",
     instructor: "EduBazar Design Studio",
     language: "English",
-    lastUpdated: "2024-12-24",
+    lastUpdated: "2026-08-08",
   },
   {
     id: "m5",
@@ -1231,7 +1229,7 @@ export const products: Product[] = [
     createdAt: "2024-07-20",
     instructor: "EduBazar Marketing Academy",
     language: "English",
-    lastUpdated: "2024-12-22",
+    lastUpdated: "2026-08-05",
   },
 
   {
@@ -1255,7 +1253,7 @@ export const products: Product[] = [
     createdAt: "2024-12-10",
     instructor: "EduBazar Security Team",
     language: "English",
-    lastUpdated: "2024-12-20",
+    lastUpdated: "2026-08-01",
   },
   {
     id: "h40",
@@ -1278,7 +1276,7 @@ export const products: Product[] = [
     createdAt: "2024-12-10",
     instructor: "EduBazar Security Team",
     language: "English",
-    lastUpdated: "2024-12-20",
+    lastUpdated: "2026-08-01",
   },
   {
     id: "h41",
@@ -1301,7 +1299,7 @@ export const products: Product[] = [
     createdAt: "2024-12-11",
     instructor: "EduBazar Security Team",
     language: "English",
-    lastUpdated: "2024-12-20",
+    lastUpdated: "2026-08-01",
   },
   {
     id: "h42",
@@ -1324,7 +1322,7 @@ export const products: Product[] = [
     createdAt: "2024-12-11",
     instructor: "EduBazar Security Team",
     language: "English",
-    lastUpdated: "2024-12-20",
+    lastUpdated: "2026-08-01",
   },
   {
     id: "m6",
@@ -1347,7 +1345,7 @@ export const products: Product[] = [
     createdAt: "2024-12-10",
     instructor: "EduBazar Marketing Academy",
     language: "English",
-    lastUpdated: "2024-12-20",
+    lastUpdated: "2026-08-01",
   },
   {
     id: "b11",
@@ -1370,7 +1368,7 @@ export const products: Product[] = [
     createdAt: "2024-12-12",
     instructor: "EduBazar Publishing",
     language: "English",
-    lastUpdated: "2024-12-20",
+    lastUpdated: "2026-08-01",
   },
   {
     id: "b12",
@@ -1393,7 +1391,7 @@ export const products: Product[] = [
     createdAt: "2024-12-12",
     instructor: "EduBazar Publishing",
     language: "English",
-    lastUpdated: "2024-12-20",
+    lastUpdated: "2026-08-01",
   },
   {
     id: "m7",
@@ -1416,7 +1414,7 @@ export const products: Product[] = [
     createdAt: "2024-12-12",
     instructor: "EduBazar Marketing Academy",
     language: "English",
-    lastUpdated: "2024-12-20",
+    lastUpdated: "2026-08-01",
   },
   {
     id: "h43",
@@ -1439,7 +1437,7 @@ export const products: Product[] = [
     createdAt: "2024-12-12",
     instructor: "EduBazar Security Team",
     language: "English",
-    lastUpdated: "2024-12-20",
+    lastUpdated: "2026-08-01",
   },
   {
     id: "b13",
@@ -1462,7 +1460,7 @@ export const products: Product[] = [
     createdAt: "2024-12-13",
     instructor: "EduBazar Publishing",
     language: "English",
-    lastUpdated: "2024-12-20",
+    lastUpdated: "2026-08-01",
   },
   {
     id: "b14",
@@ -1485,7 +1483,7 @@ export const products: Product[] = [
     createdAt: "2024-12-13",
     instructor: "EduBazar Publishing",
     language: "English",
-    lastUpdated: "2024-12-20",
+    lastUpdated: "2026-08-01",
   },
   {
     id: "h44",
@@ -1508,7 +1506,7 @@ export const products: Product[] = [
     createdAt: "2024-12-14",
     instructor: "EduBazar Security Team",
     language: "English",
-    lastUpdated: "2024-12-20",
+    lastUpdated: "2026-08-01",
   },
   {
     id: "t9",
@@ -1531,7 +1529,7 @@ export const products: Product[] = [
     createdAt: "2024-12-14",
     instructor: "EduBazar Trading Academy",
     language: "English",
-    lastUpdated: "2024-12-20",
+    lastUpdated: "2026-08-01",
   },
   {
     id: "m8",
@@ -1554,7 +1552,7 @@ export const products: Product[] = [
     createdAt: "2024-12-14",
     instructor: "EduBazar Marketing Academy",
     language: "English",
-    lastUpdated: "2024-12-20",
+    lastUpdated: "2026-08-01",
   },
   {
     id: "b15",
@@ -1577,7 +1575,7 @@ export const products: Product[] = [
     createdAt: "2024-12-15",
     instructor: "EduBazar Publishing",
     language: "English",
-    lastUpdated: "2024-12-20",
+    lastUpdated: "2026-08-01",
   },
   {
     id: "b16",
@@ -1600,7 +1598,7 @@ export const products: Product[] = [
     createdAt: "2024-12-15",
     instructor: "EduBazar Publishing",
     language: "English",
-    lastUpdated: "2024-12-20",
+    lastUpdated: "2026-08-01",
   },
   {
     id: "h45",
@@ -1623,7 +1621,7 @@ export const products: Product[] = [
     createdAt: "2024-12-15",
     instructor: "EduBazar Security Team",
     language: "English",
-    lastUpdated: "2024-12-20",
+    lastUpdated: "2026-08-01",
   },
   {
     id: "h46",
@@ -1646,7 +1644,7 @@ export const products: Product[] = [
     createdAt: "2024-12-15",
     instructor: "EduBazar Security Team",
     language: "English",
-    lastUpdated: "2024-12-20",
+    lastUpdated: "2026-08-01",
   },
   {
     id: "b17",
@@ -1669,7 +1667,7 @@ export const products: Product[] = [
     createdAt: "2024-12-16",
     instructor: "EduBazar Publishing",
     language: "English",
-    lastUpdated: "2024-12-20",
+    lastUpdated: "2026-08-01",
   },
   {
     id: "h47",
@@ -1714,7 +1712,7 @@ export const products: Product[] = [
     createdAt: "2024-12-16",
     instructor: "EduBazar Academy",
     language: "English",
-    lastUpdated: "2024-12-20",
+    lastUpdated: "2026-08-01",
   },
   {
     id: "h48",
@@ -1781,7 +1779,7 @@ export const products: Product[] = [
     createdAt: "2024-12-17",
     instructor: "EduBazar Marketing Academy",
     language: "English",
-    lastUpdated: "2024-12-20",
+    lastUpdated: "2026-08-01",
   },
   {
     id: "h50",
@@ -1804,7 +1802,7 @@ export const products: Product[] = [
     createdAt: "2024-12-17",
     instructor: "EduBazar Security Team",
     language: "English",
-    lastUpdated: "2024-12-20",
+    lastUpdated: "2026-08-01",
   },
   {
     id: "h51",
@@ -1937,7 +1935,7 @@ export const products: Product[] = [
     createdAt: "2024-12-19",
     instructor: "EduBazar Security Team",
     language: "English",
-    lastUpdated: "2024-12-20",
+    lastUpdated: "2026-08-01",
   },
 
 ];
@@ -1952,9 +1950,33 @@ const fallbackImages: Record<string, string> = {
   Marketing: "/images/digital-markiting-analytics.jpeg",
 };
 
-const restrictedProductIds = new Set(["h3", "h4", "h7", "h24", "h25", "h26", "h27", "h28", "h29", "h30", "h35"]);
+// Public catalog exclusion: dual-use malware tools, RATs, cracking, phishing,
+// credential theft, and evasion listings are not sold on the public storefront.
+const restrictedProductIds = new Set([
+  "h3", "h4", "h7", "h24", "h25", "h26", "h27", "h28", "h29", "h30", "h35",
+  // BUG-003 remainder: high-risk downloadable / dual-use security listings
+  "h8",   // antivirus evasion
+  "h34",  // practical phishing
+  "h37",  // windows password cracking
+  "h42",  // reverse engineering / cracking
+  "h44",  // blackhat cracking
+  "b15",  // malware development
+  "h47",  // 888RAT advanced
+  "h49",  // NanoCore cracked
+  "h50",  // payment gateway bypass
+  "h51",  // ransomware tool pack
+  "m10",  // traffic bot cracked
+  "h52",  // Spy4 RAT
+  "h53",  // SpyNote cracked
+  "h54",  // SpyNote cracked
+  "h55",  // SS7 attack
+]);
 for (let index = products.length - 1; index >= 0; index -= 1) {
   if (restrictedProductIds.has(products[index].id)) products.splice(index, 1);
+}
+// Defense-in-depth: any remaining sensitive slug is also removed from public catalog
+for (let index = products.length - 1; index >= 0; index -= 1) {
+  if (SENSITIVE_SLUGS.has(products[index].slug)) products.splice(index, 1);
 }
 
 const availableImages = new Set([

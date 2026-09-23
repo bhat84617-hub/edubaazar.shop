@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { Phone, Mail, MapPin, Camera, MessageCircle, Send } from "lucide-react";
@@ -49,8 +50,8 @@ export default function Footer() {
           ].map((b) => (
             <div key={b.t} style={{ display: "flex", alignItems: "center", gap: 10, padding: "6px 10px", background: "#f8f9fb", border: "1px solid #E5E5E5", borderRadius: 20, flex: "1 1 160px", justifyContent: "center" }}>
               <span style={{ width: 8, height: 8, background: "#2A74ED", borderRadius: "50%", display: "inline-block" }} />
-              <span style={{ fontSize: 11, fontWeight: 800, color: "#242424", textTransform: "uppercase", letterSpacing: 0.4 }}>{b.t}</span>
-              <span style={{ fontSize: 11, color: "#777" }}>{b.d}</span>
+              <span style={{ fontSize: 12, fontWeight: 800, color: "#242424", letterSpacing: 0.2 }}>{b.t}</span>
+              <span style={{ fontSize: 12, color: "#777" }}>{b.d}</span>
             </div>
           ))}
         </div>
@@ -62,7 +63,7 @@ export default function Footer() {
           <div className="ws-footer-top" style={{ gridTemplateColumns: "1.6fr 1fr" }}>
             <div className="ws-footer-col ws-footer-about">
               <div className="ws-footer-logo">
-                <img src="/logo/edulogo.jpeg" alt="EduBazar Logo" />
+                <Image src="/logo/edulogo.jpeg" alt="EduBazar Logo" width={40} height={40} style={{ width: 40, height: 40, borderRadius: 8 }} />
                 <span>EduBazar<span style={{ color: "#2A74ED" }}>.shop</span></span>
               </div>
               <div className="ws-social-row">
@@ -92,7 +93,7 @@ export default function Footer() {
           </div>
 
           {/* Full-width tagline - India's affordable learning platform */}
-          <div style={{ textAlign: "center", padding: "14px 16px", borderTop: "1px solid #E5E5E5", borderBottom: "1px solid #E5E5E5", fontSize: 13, color: "#777", lineHeight: 1.6, width: "100%" }}>
+          <div style={{ textAlign: "center", padding: "14px 16px", borderTop: "1px solid #E5E5E5", borderBottom: "1px solid #E5E5E5", fontSize: 14, color: "#777", lineHeight: 1.6, width: "100%" }}>
             India&apos;s affordable learning platform. Premium courses in Hacking, Programming, Trading & more — instant access after payment.
           </div>
 

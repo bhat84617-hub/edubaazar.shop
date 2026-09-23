@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { Menu, X, Search, Heart, ShoppingBag, User, ChevronDown, Trash2, LayoutGrid, Send } from "lucide-react";
@@ -19,21 +20,25 @@ export default function Header() {
   const [drawerTab, setDrawerTab] = useState<"menu" | "categories">("menu");
   const [scrolled, setScrolled] = useState(false);
   const [catsOpen, setCatsOpen] = useState(false);
-  const [headerCatsOpen, setHeaderCatsOpen] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
-  const headerCatsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const q = query.trim();
     if (!q || q.length < 1) {
-      setResults([]);
-      return;
+      // deferred empty — avoid sync setState in effect body
+      const t0 = setTimeout(() => setResults([]), 0);
+      return () => clearTimeout(t0);
     }
     const t = setTimeout(() => {
-      setResults(searchProducts(query));
+      let r = searchProducts(query);
+      // Respect selected category in live dropdown results
+      if (searchCat !== "All categories") {
+        r = r.filter((p) => p.category === searchCat);
+      }
+      setResults(r);
     }, 150);
     return () => clearTimeout(t);
-  }, [query]);
+  }, [query, searchCat]);
 
   useEffect(() => {
     function onScroll() { setScrolled(window.scrollY > 10); }
@@ -47,14 +52,6 @@ export default function Header() {
     }
     document.addEventListener("click", onDoc);
     return () => document.removeEventListener("click", onDoc);
-  }, []);
-
-  useEffect(() => {
-    function onDocClick(e: MouseEvent) {
-      if (headerCatsRef.current && !headerCatsRef.current.contains(e.target as Node)) setHeaderCatsOpen(false);
-    }
-    document.addEventListener("click", onDocClick);
-    return () => document.removeEventListener("click", onDocClick);
   }, []);
 
   const doSearch = (q?: string) => {
@@ -75,45 +72,27 @@ export default function Header() {
     <>
       {/* XStore Minimal Electronics - minimal white sticky header */}
       <header className={`ws-header etheme-elementor-header-sticky ${scrolled ? "ws-header-scrolled" : ""}`}>
-        <div className="ws-header-inner container">
-          <button className="ws-hamburger" onClick={() => setDrawerOpen(true)} aria-label="Menu">
-            <Menu size={20} strokeWidth={1.7} />
-          </button>
+          {/* Promo ribbon - announcement bar (moved out of secondary nav) */}
+          <div className="ws-promo-ribbon hide-mobile" role="region" aria-label="Promotions">
+            <span className="ws-promo-free">
+              <span className="ws-promo-dot" aria-hidden /> Free delivery over ₹500
+            </span>
+            <span className="ws-promo-off">FLAT 50% OFF</span>
+          </div>
 
-          {/* Logo left 238x46 */}
-          <Link href="/" className="ws-logo">
-            <img src="/logo/edulogo.jpeg" alt="EduBazar" />
-            <span className="ws-logo-text">EduBazar<span>.shop</span></span>
-          </Link>
+          {/* Row 1: logo left + search + utility icons (nav moved to secondary bar) */}
+          <div className="ws-header-inner container">
+            <button className="ws-hamburger" onClick={() => setDrawerOpen(true)} aria-label="Menu">
+              <Menu size={20} strokeWidth={1.7} />
+            </button>
 
-          {/* Nav center (desktop) - Home, Categories dropdown, Shop, About, Contact */}
-          <nav className="ws-header-nav-center" aria-label="Primary">
-            <Link href="/" className={isActive("/") ? "active" : ""}>Home</Link>
-            <div className="ws-header-cats" ref={headerCatsRef} onMouseEnter={() => setHeaderCatsOpen(true)} onMouseLeave={() => setHeaderCatsOpen(false)}>
-              <button className={`ws-cats-trigger ${headerCatsOpen ? "active" : ""}`} onClick={() => setHeaderCatsOpen((v) => !v)} aria-expanded={headerCatsOpen} aria-haspopup="true">
-                Categories <ChevronDown size={12} style={{ transition: "transform 0.2s", transform: headerCatsOpen ? "rotate(180deg)" : "none", marginLeft: 4 }} />
-              </button>
-              <div className={`ws-header-cats-dropdown ${headerCatsOpen ? "open" : ""}`}>
-                {CATEGORIES.map((cat) => (
-                  <div key={cat.key} className={cat.key === "Books" ? "ws-cat-item has-sub" : "ws-cat-item"}>
-                    <Link href={`/shop?cat=${encodeURIComponent(cat.key)}`} onClick={() => setHeaderCatsOpen(false)}>{cat.label}</Link>
-                    {cat.key === "Books" && (
-                      <div className="ws-cat-sub">
-                        <Link href="/shop?cat=Books&q=hacking" onClick={() => setHeaderCatsOpen(false)}>Hacking Books</Link>
-                        <Link href="/shop?cat=Books&q=trading" onClick={() => setHeaderCatsOpen(false)}>Trading Books</Link>
-                        <Link href="/shop?cat=Books&q=programming" onClick={() => setHeaderCatsOpen(false)}>Programming Books</Link>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-            <Link href="/shop" className={pathname.startsWith("/shop") ? "active" : ""}>Shop</Link>
-            <Link href="/about" className={isActive("/about") ? "active" : ""}>About</Link>
-            <Link href="/contact" className={isActive("/contact") ? "active" : ""}>Contact</Link>
-          </nav>
+            {/* Logo left 238x46 */}
+            <Link href="/" className="ws-logo">
+              <Image src="/logo/edulogo.jpeg" alt="EduBazar" width={46} height={46} priority style={{ width: 46, height: 46, borderRadius: 8 }} />
+              <span className="ws-logo-text">EduBazar<span>.shop</span></span>
+            </Link>
 
-          {/* Search center pill */}
+            {/* Search center pill */}
           <div className="ws-search-bar" ref={searchRef} style={{ margin: "0 12px" }}>
             <div className="ws-search-bar-cat">
               <select value={searchCat} onChange={(e) => setSearchCat(e.target.value)} aria-label="Category">
@@ -146,7 +125,7 @@ export default function Header() {
                       setResults([]);
                     }}
                   >
-                    <img src={p.images[0]} alt={p.title} />
+                    <Image src={p.images[0]} alt={p.title} width={48} height={48} style={{ width: 48, height: 48, objectFit: "cover", borderRadius: 6 }} />
                     <div className="ws-search-content">
                       <h4>{p.title}</h4>
                       <p>{p.category} • {formatINR(p.price)}</p>
@@ -168,23 +147,8 @@ export default function Header() {
               target="_blank"
               rel="noreferrer"
               aria-label="Chat on Telegram"
-              className="ws-telegram-header-btn"
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 6,
-                background: "#2AABEE",
-                color: "#fff",
-                padding: "7px 14px",
-                borderRadius: 20,
-                fontSize: 12,
-                fontWeight: 700,
-                letterSpacing: 0.2,
-                textDecoration: "none",
-                border: "1px solid #2AABEE",
-                whiteSpace: "nowrap",
-                lineHeight: 1,
-              }}
+              className="ws-telegram-header-btn ws-btn ws-btn-outline ws-btn-sm"
+              style={{ padding: "7px 14px", whiteSpace: "nowrap" }}
             >
               <Send size={14} strokeWidth={2} />
               <span className="ws-telegram-header-text">Chat on Telegram</span>
@@ -215,7 +179,7 @@ export default function Header() {
                       if (!p) return null;
                       return (
                         <div key={item.id} className="ws-mini-cart-item">
-                          <img src={p.images[0]} alt={p.title} />
+                          <Image src={p.images[0]} alt={p.title} width={48} height={48} style={{ width: 48, height: 48, objectFit: "cover", borderRadius: 6 }} />
                           <div className="ws-mini-cart-info">
                             <h5>{p.title}</h5>
                             <p>{formatINR(p.price)} × {item.qty}</p>
@@ -240,8 +204,8 @@ export default function Header() {
         </div>
       </header>
 
-      {/* Bottom nav - Browse categories + shop links - XStore minimal */}
-      <nav className="ws-nav" aria-label="Secondary navigation">
+      {/* Bottom nav - sole primary navigation (header row no longer duplicates these links) */}
+      <nav className="ws-nav" aria-label="Primary">
         <div className="container">
           <div className="ws-nav-inner">
             <div className="ws-nav-cats">
@@ -255,7 +219,7 @@ export default function Header() {
                   {CATEGORIES.map((c) => (
                     <Link key={c.key} href={`/shop?cat=${encodeURIComponent(c.key)}`} onClick={() => setCatsOpen(false)}>
                       <span style={{ width: 30, height: 30, borderRadius: "50%", overflow: "hidden", display: "inline-flex", background: "#f3f5f9", border: "1px solid #E5E5E5" }}>
-                        <img src={c.image} alt={c.label} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                        <Image src={c.image} alt={c.label} width={64} height={64} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                       </span>
                       {c.label}
                     </Link>
@@ -287,7 +251,7 @@ export default function Header() {
                         <li><Link href="/shop?kind=course">Courses</Link></li>
                         <li><Link href="/shop?kind=book">Digital Books</Link></li>
                         <li><Link href="/shop?kind=tool">Software & Tools</Link></li>
-                        <li><Link href="/shop?q=free">Free Courses</Link></li>
+                        <li><Link href="/shop?free=1">Free Courses</Link></li>
                       </ul>
                     </div>
                     <div className="ws-mega-col">
@@ -302,7 +266,7 @@ export default function Header() {
                     <div className="ws-mega-col">
                       <div className="ws-mega-featured">
                         <h4 className="mega-title">Featured Deal</h4>
-                        <div className="mega-featured-img"><img src="/images/complete-ethical-hacking-and-penetration-testing.jpeg" alt="Featured" /></div>
+                        <div className="mega-featured-img"><Image src="/images/complete-ethical-hacking-and-penetration-testing.jpeg" alt="Featured" width={280} height={180} style={{ width: "100%", height: "100%", objectFit: "cover" }} /></div>
                         <h5 className="mega-featured-title"><Link href="/product/complete-ethical-hacking-penetration-testing">Complete Ethical Hacking</Link></h5>
                         <div className="mega-featured-price">₹199 <span className="old-price">₹499</span></div>
                         <Link href="/product/complete-ethical-hacking-penetration-testing" className="ws-btn ws-btn-fill ws-btn-sm" style={{ borderRadius: 20 }}>Get Now</Link>
@@ -314,13 +278,6 @@ export default function Header() {
               <li><Link href="/about" className={isActive("/about") ? "active" : ""}>About</Link></li>
               <li><Link href="/contact" className={isActive("/contact") ? "active" : ""}>Contact</Link></li>
             </ul>
-
-            <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 12, fontSize: 12, whiteSpace: "nowrap" }} className="hide-mobile">
-              <span style={{ background: "#eef3ff", color: "#2A74ED", padding: "4px 10px", borderRadius: 20, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 6 }}>
-                <span style={{ width: 6, height: 6, background: "#2A74ED", borderRadius: "50%", display: "inline-block" }} /> Free delivery over ₹500
-              </span>
-              <span style={{ color: "#FF515C", fontWeight: 800, fontSize: 11, letterSpacing: 0.5 }}>FLAT 50% OFF</span>
-            </div>
           </div>
         </div>
       </nav>
@@ -330,7 +287,7 @@ export default function Header() {
         <div className="ws-drawer-overlay" onClick={() => setDrawerOpen(false)} />
         <div className="ws-drawer-panel">
           <div className="ws-drawer-head">
-            <img src="/logo/edulogo.jpeg" alt="EduBazar" />
+            <Image src="/logo/edulogo.jpeg" alt="EduBazar" width={46} height={46} priority style={{ width: 46, height: 46, borderRadius: 8 }} />
             <span>EduBazar.shop</span>
             <button className="ws-drawer-close" onClick={() => setDrawerOpen(false)} aria-label="Close"><X size={16} /></button>
           </div>
@@ -348,7 +305,7 @@ export default function Header() {
                 onChange={(e) => setQuery(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && doSearch()}
                 placeholder="Search products..."
-                style={{ flex: 1, padding: "10px 14px", border: "none", outline: "none", fontSize: 13, background: "transparent" }}
+                style={{ flex: 1, padding: "10px 14px", border: "none", outline: "none", fontSize: 14, background: "transparent" }}
               />
               <button onClick={() => doSearch()} style={{ background: "#2A74ED", color: "#fff", padding: "0 16px", border: "none", display: "flex", alignItems: "center", justifyContent: "center" }}>
                 <Search size={16} />
@@ -387,15 +344,15 @@ export default function Header() {
                   <div key={c.key}>
                     <Link href={`/shop?cat=${encodeURIComponent(c.key)}`} onClick={() => setDrawerOpen(false)} style={{ display: "flex", alignItems: "center", gap: 10 }}>
                       <span style={{ width: 28, height: 28, borderRadius: "50%", overflow: "hidden", display: "inline-flex", background: "#f8f9fb", border: "1px solid #E5E5E5" }}>
-                        <img src={c.image} alt={c.label} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                        <Image src={c.image} alt={c.label} width={64} height={64} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                       </span>
                       {c.label}
                     </Link>
                     {c.key === "Books" && (
                       <div style={{ paddingLeft: 38, display: "flex", flexDirection: "column", gap: 4, marginTop: 4, marginBottom: 6 }}>
-                        <Link href="/shop?cat=Books&q=hacking" onClick={() => setDrawerOpen(false)} style={{ fontSize: 12, color: "#555", padding: "6px 12px", background: "#f8f9fb", borderRadius: 10, border: "1px solid #eee", display: "block" }}>Hacking Books</Link>
-                        <Link href="/shop?cat=Books&q=trading" onClick={() => setDrawerOpen(false)} style={{ fontSize: 12, color: "#555", padding: "6px 12px", background: "#f8f9fb", borderRadius: 10, border: "1px solid #eee", display: "block" }}>Trading Books</Link>
-                        <Link href="/shop?cat=Books&q=programming" onClick={() => setDrawerOpen(false)} style={{ fontSize: 12, color: "#555", padding: "6px 12px", background: "#f8f9fb", borderRadius: 10, border: "1px solid #eee", display: "block" }}>Programming Books</Link>
+                        <Link href="/shop?cat=Books&q=hacking" onClick={() => setDrawerOpen(false)} style={{ fontSize: 12, color: "#777", padding: "6px 12px", background: "#f8f9fb", borderRadius: 10, border: "1px solid #eee", display: "block" }}>Hacking Books</Link>
+                        <Link href="/shop?cat=Books&q=trading" onClick={() => setDrawerOpen(false)} style={{ fontSize: 12, color: "#777", padding: "6px 12px", background: "#f8f9fb", borderRadius: 10, border: "1px solid #eee", display: "block" }}>Trading Books</Link>
+                        <Link href="/shop?cat=Books&q=programming" onClick={() => setDrawerOpen(false)} style={{ fontSize: 12, color: "#777", padding: "6px 12px", background: "#f8f9fb", borderRadius: 10, border: "1px solid #eee", display: "block" }}>Programming Books</Link>
                       </div>
                     )}
                   </div>
@@ -413,6 +370,14 @@ export default function Header() {
       </div>
 
       <style>{`
+        .ws-promo-ribbon{
+          display:flex; align-items:center; justify-content:center; gap:18px;
+          background:#f8f9fb; border-bottom:1px solid #E5E5E5;
+          padding:7px 16px; font-size:12px; font-weight:700; white-space:nowrap; flex-wrap:wrap;
+        }
+        .ws-promo-free{ display:inline-flex; align-items:center; gap:6px; background:#eef3ff; color:#2A74ED; padding:4px 10px; border-radius:20px; }
+        .ws-promo-dot{ width:6px; height:6px; background:#2A74ED; border-radius:50%; display:inline-block; }
+        .ws-promo-off{ color:#FF515C; font-weight:800; letter-spacing:0.5px; }
         @media (max-width: 1024px){
           .hide-mobile{ display:none !important; }
           .ws-search-bar{ display:none !important; }

@@ -1,10 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
-import { AlertTriangle, ArrowLeft, CheckCircle2, Download, ExternalLink, Gauge, Globe2, Search, ShieldAlert, Play, Wrench } from "lucide-react";
-
-type SeoSeverity = "critical" | "high" | "medium" | "low";
+import { useState } from "react";
+import { ArrowLeft, Download, Gauge, Play, Wrench } from "lucide-react";
 
 interface ScanResult {
   score: number;
@@ -24,7 +22,6 @@ export default function SeoDashboardPage() {
   const [fixing, setFixing] = useState(false);
   const [scanResult, setScanResult] = useState<ScanResult | null>(null);
   const [fixResult, setFixResult] = useState<FixResult | null>(null);
-  const [query, setQuery] = useState("");
 
   const runScan = async () => {
     setScanning(true);
@@ -155,7 +152,7 @@ export default function SeoDashboardPage() {
           <div className="empty-state" style={{ background: "white", borderRadius: 12, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
             <Gauge size={48} style={{ color: "#d5d7da", marginBottom: 16 }} />
             <h3>SEO Scanner Ready</h3>
-            <p>Click "Run SEO Scan" to analyze your site for SEO issues.</p>
+            <p>Click &quot;Run SEO Scan&quot; to analyze your site for SEO issues.</p>
           </div>
         )}
 

@@ -27,7 +27,7 @@ export default function NewsletterPopup() {
       // ignore
     }
     setOpen(false);
-    if (saved) showToast("You have unlocked 10% extra off!");
+    if (saved) showToast("Thanks for subscribing! Exclusive deals coming your way.");
   };
 
   const submit = (e: React.FormEvent) => {
@@ -45,9 +45,9 @@ export default function NewsletterPopup() {
           <TicketPercent size={72} />
         </div>
         <div className="news-pop-body">
-          <h3>Get 10% Extra Off!</h3>
+          <h3>Subscribe &amp; Save</h3>
           <p>
-            Subscribe to our newsletter and unlock exclusive deals on courses,
+            Subscribe to our newsletter and get exclusive deals on courses,
             books &amp; tools. No spam, ever.
           </p>
           <form onSubmit={submit}>
@@ -61,11 +61,11 @@ export default function NewsletterPopup() {
               />
             </div>
             <button className="btn btn-primary btn-block" type="submit">
-              Claim My Discount
+              Subscribe
             </button>
           </form>
-          <p style={{ fontSize: 11, textAlign: "center", marginTop: 12, marginBottom: 0 }}>
-            Use code <strong>EDU50</strong> at checkout
+          <p style={{ fontSize: 12, textAlign: "center", marginTop: 12, marginBottom: 0 }}>
+            No spam. Unsubscribe anytime.
           </p>
         </div>
       </div>

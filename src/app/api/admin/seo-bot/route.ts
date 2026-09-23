@@ -37,7 +37,8 @@ async function scanSite(): Promise<{ score: number; issues: string[]; pages: { u
       pageIssues.push("Shop page - verify product listing SEO");
     }
 
-    pages.push({ url: `https://edubaazar.shop${page.url}`, status: "ok", issues: pageIssues });
+    const base = process.env.NEXT_PUBLIC_SITE_URL || "https://www.edubaazar.shop";
+    pages.push({ url: `${base}${page.url}`, status: "ok", issues: pageIssues });
   }
 
   try {
@@ -56,7 +57,6 @@ async function scanSite(): Promise<{ score: number; issues: string[]; pages: { u
     score -= 5;
   }
 
-  const siteUrl = "https://edubaazar.shop";
   issues.push("Check: meta descriptions on all pages");
   issues.push("Check: Open Graph tags for social sharing");
   issues.push("Check: robots.txt allows crawling");

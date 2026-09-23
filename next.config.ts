@@ -6,6 +6,17 @@ const nextConfig: NextConfig = {
   trailingSlash: false,
   generateEtags: true,
   reactStrictMode: true,
+  async redirects() {
+    return [
+      // Canonical host: force apex → www (SITE_URL default is https://www.edubaazar.shop)
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "edubaazar.shop" }],
+        destination: "https://www.edubaazar.shop/:path*",
+        permanent: true,
+      },
+    ];
+  },
   images: {
     formats: ["image/avif", "image/webp"],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048],

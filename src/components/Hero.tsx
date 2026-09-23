@@ -1,6 +1,7 @@
 ﻿"use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
@@ -95,27 +96,19 @@ export default function Hero() {
             >
               <div className="hero-slide-inner" key={`${idx}-text`}>
                 <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: 1, textTransform: "uppercase", color: slide.accent, background: "#fff", padding: "4px 10px", borderRadius: 20, border: "1px solid #E5E5E5", display: "inline-flex", animation: "ebPop .45s cubic-bezier(.16,1,.3,1) both" }}>{slide.eyebrow}</span>
-                <h2 style={{ fontSize: "clamp(22px, 3.2vw, 34px)", fontWeight: 800, color: "#242424", lineHeight: 1.1, margin: "12px 0 10px", whiteSpace: "pre-line", letterSpacing: "-0.6px", animation: "ebFadeUp .6s cubic-bezier(.16,1,.3,1) .08s both" }}>
+                <h2 style={{ fontSize: "clamp(20px, 3.2vw, 34px)", fontWeight: 800, color: "#242424", lineHeight: 1.1, margin: "12px 0 10px", whiteSpace: "pre-line", letterSpacing: "-0.6px", animation: "ebFadeUp .6s cubic-bezier(.16,1,.3,1) .08s both" }}>
                   {slide.title.split("\n")[0]} <span style={{ color: "#2A74ED", backgroundImage: "linear-gradient(90deg,#2A74ED,#5a9af0)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>{slide.title.split("\n")[1] ?? ""}</span>
                 </h2>
-                <p style={{ fontSize: 13, color: "#5a657f", lineHeight: 1.6, marginBottom: 14, maxWidth: 400, animation: "ebFadeUp .6s cubic-bezier(.16,1,.3,1) .16s both" }}>{slide.desc}</p>
+                <p style={{ fontSize: 14, color: "#5a657f", lineHeight: 1.6, marginBottom: 14, maxWidth: 400, animation: "ebFadeUp .6s cubic-bezier(.16,1,.3,1) .16s both" }}>{slide.desc}</p>
                 <div style={{ display: "flex", alignItems: "baseline", gap: 6, marginBottom: 16, animation: "ebFadeUp .6s cubic-bezier(.16,1,.3,1) .22s both" }}>
-                  <span style={{ fontSize: 13, fontWeight: 600, color: "#777" }}>From</span>
-                  <span style={{ fontSize: 22, fontWeight: 800, color: "#2A74ED", letterSpacing: "-0.5px" }}>&#8377;{slide.price.replace(/[^0-9]/g, "")}</span>
+                  <span style={{ fontSize: 14, fontWeight: 600, color: "#777" }}>From</span>
+                  <span style={{ fontSize: 24, fontWeight: 800, color: "#2A74ED", letterSpacing: "-0.5px" }}>&#8377;{slide.price.replace(/[^0-9]/g, "")}</span>
                 </div>
                 <Link
                   href={slide.ctaHref}
-                  className="hero-cta"
+                  className="hero-cta ws-btn ws-btn-fill"
                   style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    justifyContent: "center",
                     padding: "12px 26px",
-                    background: "linear-gradient(135deg,#2A74ED,#1a5ed1)",
-                    color: "#fff",
-                    fontSize: 13,
-                    fontWeight: 700,
-                    borderRadius: 20,
                     animation: "ebFadeUp .6s cubic-bezier(.16,1,.3,1) .3s both",
                   }}
                 >
@@ -124,10 +117,13 @@ export default function Hero() {
               </div>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%" }}>
                 <div className="hero-img-wrap" key={`${idx}-img`} style={{ background: "#fff", border: "1px solid #E5E5E5", borderRadius: 20, padding: 6, boxShadow: "0 8px 28px rgba(0,0,0,0.08)", maxWidth: 380, width: "100%", animation: "ebZoomIn .65s cubic-bezier(.16,1,.3,1) both" }}>
-                  <img
+                  <Image
                     src={slide.image}
                     alt={slide.alt}
-                    style={{ width: "100%", maxHeight: 300, objectFit: "contain", borderRadius: 16, display: "block" }}
+                    width={1536}
+                    height={1024}
+                    priority={idx === 0}
+                    style={{ width: "100%", height: "auto", maxHeight: 300, objectFit: "contain", borderRadius: 16, display: "block" }}
                   />
                 </div>
               </div>
@@ -227,10 +223,10 @@ export default function Hero() {
                 width: "100%",
               }}
             >
-              <img src={m.image} alt={m.alt} style={{ width: "100%", height: "auto", display: "block", borderRadius: 20 }} />
+              <Image src={m.image} alt={m.alt} width={1080} height={1920} style={{ width: "100%", height: "auto", display: "block", borderRadius: 20 }} />
               <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", background: "linear-gradient(to bottom, rgba(0,0,0,0.15), rgba(0,0,0,0.45))", borderRadius: 20, textAlign: "center", padding: 16 }}>
-                <h2 style={{ color: "#fff", fontSize: "clamp(28px, 8vw, 38px)", fontWeight: 800, letterSpacing: "-0.5px", margin: "0 0 14px", textShadow: "0 2px 12px rgba(0,0,0,0.35)", textTransform: "capitalize" }}>{m.title}</h2>
-                <Link href={m.href} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", padding: "10px 22px", background: "#2A74ED", color: "#fff", fontSize: 13, fontWeight: 700, borderRadius: 20, textDecoration: "none" }}>Explore Now</Link>
+                <h2 style={{ color: "#fff", fontSize: "clamp(28px, 8vw, 34px)", fontWeight: 800, letterSpacing: "-0.5px", margin: "0 0 14px", textShadow: "0 2px 12px rgba(0,0,0,0.35)", textTransform: "capitalize" }}>{m.title}</h2>
+                <Link href={m.href} className="ws-btn ws-btn-fill" style={{ padding: "10px 22px" }}>Explore Now</Link>
               </div>
             </div>
           ))}
