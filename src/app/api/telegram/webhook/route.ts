@@ -155,7 +155,7 @@ async function handleDetails(chatId: string, productId: string) {
     `📖 <b>${escape(p.title)}</b> — Details\n\n` +
     `${full}${p.fullDesc && p.fullDesc.length > 3600 ? "…" : ""}\n\n` +
     `📦 ${escape(p.category)} • Level: ${escape(p.level)} • ${escape(p.duration)}\n` +
-    `👥 ${escape(p.students)} students • ⭐ ${p.rating} (${escape(p.reviewCount)} reviews)\n` +
+    `👥 ${escape(p.students)} students • ⭐ ${p.rating}\n` +
     `💰 <b>₹${p.price}</b> (MRP ₹${p.oldPrice})\n\n` +
     `✨ Includes:\n` +
     (p.includes?.map((x) => `• ${escape(x)}`).join("\n") ?? "• Lifetime access") +

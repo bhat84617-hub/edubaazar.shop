@@ -41,7 +41,7 @@ export default function QuickViewModal() {
                   <span><Clock size={10} /> {product.duration}</span>
                   <span><Signal size={10} /> {product.level}</span>
                   <span><Users size={10} /> {product.students}</span>
-                  <span><Star size={10} style={{ color: "#FFBD3C" }} /> {product.rating} ({product.reviewCount})</span>
+                  <span><Star size={10} style={{ color: "#FFBD3C" }} /> {product.rating}</span>
                 </div>
                 <div className="qv-price-row" style={{ marginTop: 12 }}>
                   {!free && product.oldPrice > 0 && <span className="old">{formatINR(product.oldPrice)}</span>}

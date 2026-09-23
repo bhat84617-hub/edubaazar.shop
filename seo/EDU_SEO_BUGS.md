@@ -78,20 +78,20 @@ The counts above are triage counts, not a ranking count. No ranking total can be
 - **Location:** project tooling; no SEO test suite found.
 - **Impact:** Broken URLs/assets and metadata regress silently after content changes.
 - **Fix:** Add a CI crawler/static scanner covering sitemap URLs, internal links, status codes, canonical targets, metadata, image references, JSON-LD, and robots rules.
-- **Status:** Partially fixed — `npm run check:assets` + `scripts/check-assets.mjs` cover public asset refs; `npm run check:crawl` validates internal links, sensitive-product exclusion, robots, JSON-LD sanity, and OG presence. Live HTTP crawl still needs a running deploy.
+- **Status:** Fixed — `npm run check:assets` + `scripts/check-assets.mjs` cover public asset refs; `npm run check:crawl` validates internal links, sensitive-product exclusion, robots, JSON-LD sanity, and OG presence; `npm run check:crawl:live` fetches production URLs (sitemap, robots, sample products) and verifies apex→www redirect. Run live mode after every deploy.
 
 ### BUG-010: No Search Console/GA4/rank data integration
 - **Location:** current app; no SEO data model or sync job found.
 - **Impact:** The requested ranking/indexing details cannot be measured. Any dashboard number would be fabricated or incomplete.
 - **Fix:** Implement server-side integrations, snapshots, source/date labels, quotas, consent/privacy handling, and clear `data unavailable` states.
-- **Status:** Acknowledged — GA4 (`G-EMKR761SSQ`) is live in root layout; Search Console property verification still required (out of code scope).
+- **Status:** Acknowledged (code ready) — GA4 (`G-EMKR761SSQ`) is live; set `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` (HTML-tag token from Search Console) and redeploy to inject the verification meta tag, then complete property verification in Search Console.
 
 ### BUG-011: Product structured data uses fallback review counts and unverified ratings
 - **Location:** `src/app/product/[slug]/page.tsx`
 - **Evidence:** `reviewCount` falls back to `10` when parsing fails, and ratings/review values are catalog constants.
 - **Impact:** Rich-result eligibility and trust risk if visible reviews do not substantiate schema values; fallback can create inaccurate markup.
 - **Fix:** Emit aggregate ratings only from verifiable review records that match visible page content. Omit the property when unavailable; never use a made-up fallback.
-- **Status:** Fixed — fake `|| 100` removed; `aggregateRating`/`review` omitted when parse yields no count.
+- **Status:** Fixed — fake `|| 100` fallback removed; `aggregateRating`/`review` JSON-LD fully omitted (no unverified schema); fabricated ProductTabs reviews replaced with honest "No reviews yet" state; `check:crawl` fails if aggregateRating reappears. Re-add schema only when real verified reviews exist.
 
 ## Medium
 
@@ -160,9 +160,9 @@ The counts above are triage counts, not a ranking count. No ranking total can be
 
 ## Verification checklist
 
-- [ ] Confirm canonical host and HTTP redirects for apex and `www`.
-- [ ] Run a production crawler against every sitemap URL and all internal links.
-- [ ] Inspect Search Console indexing report, sitemap status, manual actions, and security issues.
+- [ ] Confirm canonical host and HTTP redirects for apex and `www`. (`npm run check:crawl:live`)
+- [ ] Run a production crawler against every sitemap URL and all internal links. (`npm run check:crawl:live`)
+- [ ] Inspect Search Console indexing report, sitemap status, manual actions, and security issues. (set `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` first)
 - [ ] Run PageSpeed Insights/CrUX for homepage, shop, category, and representative product pages on mobile and desktop.
 - [ ] Validate every JSON-LD block against visible page content.
 - [ ] Check all public image URLs return `200` and have correct content type.

@@ -42,7 +42,7 @@ export default function ProductBuy({ product }: { product: Product }) {
         <span><Clock size={13} /> {product.duration}</span>
         <span><Signal size={13} /> {product.level}</span>
         <span><Users size={13} /> {product.students} students</span>
-        <span><Star size={13} style={{ color: "#FFBD3C" }} /> {product.rating} ({product.reviewCount})</span>
+        <span><Star size={13} style={{ color: "#FFBD3C" }} /> {product.rating}</span>
       </div>
 
       {product.variants && product.variants.length > 0 && (

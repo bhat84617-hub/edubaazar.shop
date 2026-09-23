@@ -83,9 +83,10 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
 
   const related = getRelatedProducts(product, 4);
 
-  const reviewCountRaw = parseInt((product.reviewCount || "0").replace(/[^0-9]/g, ""), 10);
-  const hasReviewCount = Number.isFinite(reviewCountRaw) && reviewCountRaw > 0;
   const imagesAbsolute = product.images.map((img) => `${SITE}${img}`);
+  // BUG-011: No aggregateRating/review JSON-LD — catalog rating/reviewCount are
+  // unverified marketing constants, not verifiable review records. Omit until a real
+  // review system exists (never emit made-up fallbacks).
   const jsonLd: Record<string, unknown> = {
     "@context": "https://schema.org",
     "@type": "Product",
@@ -98,27 +99,6 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
     brand: { "@type": "Brand", name: "EduBazar.shop" },
     sku: product.slug,
     mpn: product.id,
-    ...(hasReviewCount
-      ? {
-          aggregateRating: {
-            "@type": "AggregateRating",
-            ratingValue: String(product.rating),
-            reviewCount: String(reviewCountRaw),
-            bestRating: "5",
-            worstRating: "1",
-          },
-        }
-      : {}),
-    ...(hasReviewCount
-      ? {
-          review: {
-            "@type": "Review",
-            reviewRating: { "@type": "Rating", ratingValue: String(product.rating), bestRating: "5" },
-            author: { "@type": "Person", name: "EduBazar Student" },
-            reviewBody: product.desc,
-          },
-        }
-      : {}),
     offers: {
       "@type": "Offer",
       price: product.price,

@@ -68,7 +68,6 @@ export default function ProductCard({ product }: { product: Product }) {
                 <Star key={i} size={10} fill={i < Math.round(product.rating) ? "#FFBD3C" : "none"} color={i < Math.round(product.rating) ? "#FFBD3C" : "#E5E5E5"} />
               ))}
             </span>
-            <span style={{ color: "#777", fontSize: 10 }}>({product.reviewCount})</span>
           </div>
           <div className="p-footer">
             <div className="p-prices">

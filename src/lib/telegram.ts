@@ -118,7 +118,7 @@ export function formatProduct(
   const price = formatINR(p.price);
   const old = p.oldPrice > p.price ? ` <s>${formatINR(p.oldPrice)}</s>` : "";
   const badge = p.badge ? ` <b>[${p.badge}]</b>` : "";
-  const rating = `⭐ ${p.rating} (${p.reviewCount})`;
+  const rating = `⭐ ${p.rating}`;
   const cat = `📦 ${p.category} • ${p.kind} • ${p.level}`;
   const students = `👥 ${p.students} students • ${p.duration}`;
   if (opts.short) {

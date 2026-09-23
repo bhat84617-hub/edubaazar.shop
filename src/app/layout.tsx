@@ -135,6 +135,11 @@ export const metadata: Metadata = {
   archives: [SITE_URL + "/shop"],
   assets: [SITE_URL + "/logo/edulogo.jpeg"],
   bookmarks: [SITE_URL + "/shop"],
+  // BUG-010: set NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION in env after creating the
+  // Search Console property (HTML-tag method) — renders <meta name="google-site-verification">.
+  verification: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION
+    ? { google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION }
+    : undefined,
   other: {
     "ai:purpose": "education e-commerce online courses",
     "ai:content-type": "educational marketplace",

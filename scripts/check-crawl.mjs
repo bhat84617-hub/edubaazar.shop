@@ -111,6 +111,19 @@ if (!productPage.includes('"@type": "Product"')) errors.push("Product page missi
 if (productPage.includes("|| 100") || productPage.includes('reviewCount || "10"')) {
   errors.push("Product page still has fake reviewCount fallback");
 }
+// BUG-011: no unverified aggregateRating/review in product JSON-LD (code patterns only, not comments)
+if (/aggregateRating\s*:/.test(productPage) || /"@type":\s*"Review"/.test(productPage)) {
+  errors.push("Product page emits unverified aggregateRating/review JSON-LD (BUG-011)");
+}
+
+// ── 5b. Products missing downloadUrl (tracked — admin supplies link at approve) ──
+const missingDownload = products.filter((p) => !p.downloadUrl);
+if (missingDownload.length) {
+  warnings.push(
+    `${missingDownload.length} product(s) without downloadUrl (admin pastes link on approve): ` +
+      missingDownload.map((p) => p.id).join(", ")
+  );
+}
 
 // ── 6. robots disallows private paths ──
 const robotsSrc = fs.readFileSync(path.join(root, "src/app/robots.ts"), "utf8");
@@ -127,6 +140,50 @@ if (!sitemapSrc.includes("isSensitiveProduct")) {
 // ── 8. OG image exists ──
 if (!fs.existsSync(path.join(root, "public/images/og-cover.png"))) {
   errors.push("Missing public/images/og-cover.png");
+}
+
+// ── 9. Live HTTP crawl (BUG-009): node check-crawl.mjs --live [baseUrl] ──
+const liveIdx = process.argv.indexOf("--live");
+if (liveIdx !== -1) {
+  const base = (process.argv[liveIdx + 1] || process.env.NEXT_PUBLIC_SITE_URL || "https://www.edubaazar.shop").replace(/\/$/, "");
+  const urls = [
+    `${base}/`,
+    `${base}/shop`,
+    `${base}/sitemap.xml`,
+    `${base}/robots.txt`,
+    ...[...productSlugs].slice(0, 10).map((s) => `${base}/product/${s}`),
+  ];
+  console.log(`\nLive crawl: ${urls.length} URLs against ${base}`);
+  let liveFail = 0;
+  for (const url of urls) {
+    try {
+      const res = await fetch(url, { redirect: "follow", signal: AbortSignal.timeout(15000) });
+      const ok = res.status >= 200 && res.status < 400;
+      if (!ok) {
+        liveFail++;
+        errors.push(`Live ${res.status} ${url}`);
+      }
+      // apex must redirect to www
+      if (url.startsWith("https://edubaazar.shop") && !url.includes("www.")) {
+        if (res.url && !res.url.includes("www.edubaazar.shop")) {
+          errors.push(`Apex did not redirect to www: ${url} → ${res.url}`);
+        }
+      }
+      // sample HTML pages for canonical www host
+      if (ok && url.endsWith("/") === false && !url.endsWith(".xml") && !url.endsWith(".txt")) {
+        const html = await res.text();
+        if (html.includes('rel="canonical"') && html.includes("https://edubaazar.shop/") && !html.includes("https://www.edubaazar.shop/")) {
+          warnings.push(`Canonical missing www on ${url}`);
+        }
+      }
+      console.log(`  ${ok ? "✓" : "x"} ${res.status} ${url}`);
+    } catch (e) {
+      liveFail++;
+      errors.push(`Live fetch failed ${url}: ${e.message}`);
+      console.log(`  x FAIL ${url}`);
+    }
+  }
+  if (liveFail) console.log(`Live crawl: ${liveFail} failure(s)`);
 }
 
 // ── Report ──

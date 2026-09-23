@@ -311,7 +311,7 @@ Happy Learning! 📚✨`,
             `📊 Level: ${p.level}\n` +
             `⏱️ Duration: ${p.duration}\n` +
             `🎓 Students: ${p.students}\n` +
-            `⭐ Rating: ${p.rating}/5 (${p.reviewCount} reviews)\n` +
+            `⭐ Rating: ${p.rating}/5\n` +
             `━━━━━━━━━━━━━━━━━━━━\n` +
             `💵 *Price:* **${formatPrice(p.price)}**` +
             (discount > 0 ? ` ~~₹${p.oldPrice}~~ (${discount}% OFF!)` : "") + "\n" +
@@ -560,7 +560,7 @@ Happy Learning! 📚✨`,
           `👨‍🏫 Instructor: ${product.instructor}\n` +
           `🌐 Language: ${product.language}\n` +
           `👨‍🎓 ${product.students} students enrolled\n` +
-          `⭐ Rating: ${product.rating}/5 (${product.reviewCount} reviews)\n` +
+          `⭐ Rating: ${product.rating}/5\n` +
           `━━━━━━━━━━━━━━━━━━━━\n\n` +
           `💰 *Price:* **${formatPrice(product.price)}**` +
           (discount > 0 ? `\n~~₹${product.oldPrice}~~ → Save ${discount}%!` : "") + "\n\n" +
