@@ -154,7 +154,7 @@ export default function Header() {
               <span className="ws-telegram-header-text">Chat on Telegram</span>
             </a>
 
-            <Link href="/wishlist" className="ws-icon-btn" aria-label="Wishlist">
+            <Link href="/wishlist" className="ws-icon-btn ws-hide-mobile" aria-label="Wishlist">
               <Heart size={17} strokeWidth={1.7} />
               {mounted && wishlist.length > 0 && <span className="ws-badge">{wishlist.length}</span>}
             </Link>
@@ -323,7 +323,6 @@ export default function Header() {
                 <a href="https://t.me/Edubaazar_bot" target="_blank" rel="noreferrer" onClick={() => setDrawerOpen(false)} style={{ display: "flex", alignItems: "center", gap: 8, color: "#2AABEE", fontWeight: 700 }}>
                   <Send size={14} /> Telegram: @Edubaazar_bot
                 </a>
-                <Link href="/wishlist" onClick={() => setDrawerOpen(false)}>Wishlist {mounted && wishlist.length > 0 ? `(${wishlist.length})` : ""}</Link>
                 <Link href="/cart" onClick={() => setDrawerOpen(false)}>Cart {mounted && cartCount > 0 ? `(${cartCount})` : ""}</Link>
                 <div className="ws-drawer-label">Account</div>
                 {mounted && user ? (
@@ -363,8 +362,9 @@ export default function Header() {
           </div>
 
           <div style={{ padding: 12, borderTop: "1px solid #E5E5E5", display: "flex", gap: 8 }}>
-            <Link href="/wishlist" onClick={() => setDrawerOpen(false)} className="ws-icon-btn" style={{ flex: 1, borderRadius: 20, width: "auto", height: 42 }}><Heart size={16} /> Wishlist</Link>
-            <Link href="/cart" onClick={() => setDrawerOpen(false)} className="ws-icon-btn ws-tools-cart" style={{ flex: 1, borderRadius: 20, width: "auto", height: 42 }}><ShoppingBag size={16} /> Cart</Link>
+            <Link href="/cart" onClick={() => setDrawerOpen(false)} className="ws-icon-btn ws-tools-cart" style={{ flex: 1, borderRadius: 20, width: "auto", height: 44, background: "#2A74ED", color: "#fff", borderColor: "#2A74ED", fontWeight: 700 }}>
+              <ShoppingBag size={16} /> {mounted && cartCount > 0 ? `Add to Cart (${cartCount})` : "Add to Cart"}
+            </Link>
           </div>
         </div>
       </div>
@@ -388,6 +388,7 @@ export default function Header() {
         @media (max-width: 640px){
           .ws-telegram-header-text{ display:none !important; }
           .ws-telegram-header-btn{ padding: 7px 10px !important; }
+          .ws-hide-mobile{ display:none !important; }
         }
       `}</style>
     </>
