@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { isValidAdminSession } from "@/lib/admin-session";
 import { SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY } from "@/lib/supabase-config";
+import { isSameOriginRequest } from "@/lib/security";
 
 function getDb() {
   return createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, { auth: { autoRefreshToken: false, persistSession: false } });
@@ -42,6 +43,9 @@ export async function POST(request: NextRequest) {
   const session = request.cookies.get("edubazar_admin_session")?.value;
   if (!isValidAdminSession(session)) {
     return htmlResponse("Session expired. Please <a href='/admin/login'>login again</a>.");
+  }
+  if (!isSameOriginRequest(request)) {
+    return htmlResponse("Forbidden. <a href='/admin'>Back to Admin</a>");
   }
   let orderId: string | null = null;
   const contentType = request.headers.get("content-type") || "";

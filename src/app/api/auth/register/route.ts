@@ -2,29 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { scryptSync, randomBytes } from "node:crypto";
 import { SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY } from "@/lib/supabase-config";
-
-const rateMap = new Map<string, { count: number; reset: number }>();
-function rateLimited(ip: string): boolean {
-  const now = Date.now();
-  const entry = rateMap.get(ip);
-  if (!entry || now > entry.reset) {
-    rateMap.set(ip, { count: 1, reset: now + 60_000 });
-    return false;
-  }
-  entry.count++;
-  return entry.count > 5;
-}
-
-function getClientIp(req: NextRequest): string {
-  const fwd = req.headers.get("x-forwarded-for");
-  if (fwd) return fwd.split(",")[0].trim();
-  return req.headers.get("x-real-ip") || "unknown";
-}
+import { getClientIp, isRateLimited } from "@/lib/security";
 
 export async function POST(req: NextRequest) {
   try {
     const ip = getClientIp(req);
-    if (rateLimited(ip)) {
+    if (await isRateLimited(`auth:register:${ip}`, 5)) {
       return NextResponse.json({ error: "Too many attempts. Please try again in a minute." }, { status: 429 });
     }
 
@@ -46,7 +29,9 @@ export async function POST(req: NextRequest) {
     const cleanEmail = email.trim().toLowerCase();
 
     const { data: existing } = await supabase.from("users").select("id").eq("email", cleanEmail).single();
-    if (existing) return NextResponse.json({ error: "This email is already registered. Please login." }, { status: 409 });
+    // No 409 oracle: existing emails get the same 200 shape so accounts can't
+    // be enumerated by status code. Frontend redirects to login instead.
+    if (existing) return NextResponse.json({ ok: true, alreadyRegistered: true });
 
     // Strong password hashing: scrypt (CPU+memory hard). Format: scrypt:<salt>:<hash>
     const salt = randomBytes(16).toString("hex");

@@ -18,6 +18,7 @@ import {
   products,
 } from "@/lib/products";
 import { STORE } from "@/lib/config";
+import { isRateLimited } from "@/lib/security";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -399,6 +400,10 @@ export async function POST(request: NextRequest) {
   if (received !== webhookSecret) {
     return NextResponse.json({ ok: false, error: "Invalid secret token" }, { status: 401 });
   }
+  // Throttle: max 120 updates/min globally (stops DB/order spam + email bombs)
+  if (await isRateLimited("tg:webhook:global", 120)) {
+    return NextResponse.json({ ok: true });
+  }
   // Avoid logging token
   let update: {
     message?: { chat: { id: number }; from?: { id?: number; first_name?: string; username?: string }; text?: string };
@@ -408,6 +413,15 @@ export async function POST(request: NextRequest) {
     update = await request.json();
   } catch {
     return NextResponse.json({ ok: true });
+  }
+  // Per-chat throttle: 30 updates/min per sender (a single abusive chat
+  // can't eat the global budget and DoS everyone else)
+  const senderId =
+    update.message?.chat.id ?? update.callback_query?.from.id ?? update.callback_query?.message?.chat.id ?? null;
+  if (senderId !== null && senderId !== undefined) {
+    if (await isRateLimited(`tg:webhook:chat:${String(senderId)}`, 30)) {
+      return NextResponse.json({ ok: true });
+    }
   }
 
   try {

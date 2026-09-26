@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { timingSafeEqual } from "node:crypto";
 import { createAdminSession } from "@/lib/admin-session";
+import { getClientIp, isRateLimited } from "@/lib/security";
 
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "bhat84617@gmail.com";
 
@@ -29,22 +30,10 @@ async function getDbPassword(): Promise<string | null> {
   }
 }
 
-// Simple rate limit for login: 5 attempts per minute per IP
-const loginAttempts = new Map<string, { count: number; reset: number }>();
-function checkLoginRate(ip: string): boolean {
-  const now = Date.now();
-  const e = loginAttempts.get(ip);
-  if (!e || now > e.reset) {
-    loginAttempts.set(ip, { count: 1, reset: now + 60_000 });
-    return true;
-  }
-  e.count++;
-  return e.count <= 5;
-}
-
+// Rate limit for login: 5 attempts per minute per IP (shared helper)
 export async function POST(request: NextRequest) {
-  const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
-  if (!checkLoginRate(ip)) {
+  const ip = getClientIp(request);
+  if (await isRateLimited(`admin:login:${ip}`, 5)) {
     return NextResponse.json({ error: "Too many attempts, try later" }, { status: 429 });
   }
   const body = await request.json().catch(() => null) as { password?: string } | null;

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { sendToChannel, CHANNEL_ID } from "@/lib/telegram";
 import { isValidAdminSession } from "@/lib/admin-session";
+import { isSameOriginRequest } from "@/lib/security";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -11,6 +12,9 @@ export async function POST(request: NextRequest) {
   try {
     if (!isValidAdminSession(request.cookies.get("edubazar_admin_session")?.value)) {
       return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
+    }
+    if (!isSameOriginRequest(request)) {
+      return NextResponse.json({ ok: false, error: "Forbidden" }, { status: 403 });
     }
     const body = await request.json().catch(() => ({})) as { text?: string; parse_mode?: "HTML" | "Markdown" };
     const text = body.text?.trim();

@@ -26,18 +26,29 @@ export default function RegisterPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: name.trim(), email: email.trim().toLowerCase(), password }),
       });
-      const data = await res.json().catch(() => null) as { user?: { name: string; email: string }; error?: string } | null;
-      if (!res.ok || !data?.user) {
+      const data = await res.json().catch(() => null) as { user?: { name: string; email: string }; alreadyRegistered?: boolean; error?: string } | null;
+      if (!res.ok || !data || (!data.user && !data.alreadyRegistered)) {
         setError(data?.error || "Signup failed");
         setLoading(false);
         return;
       }
-      login({ name: data.user.name, email: data.user.email });
+      if (data.alreadyRegistered) {
+        showToast("This email already has an account — please login.");
+        router.push("/login");
+        return;
+      }
+      const newUser = data.user;
+      if (!newUser) {
+        setError(data.error || "Signup failed");
+        setLoading(false);
+        return;
+      }
+      login({ name: newUser.name, email: newUser.email });
       showToast("Account created! Welcome to EduBazar.");
       fetch("/api/send-email", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type: "signup", name: data.user.name, email: data.user.email }),
+        body: JSON.stringify({ type: "signup", name: newUser.name, email: newUser.email }),
       }).catch(() => {});
       router.push("/account");
     } catch (err) {
@@ -66,7 +77,7 @@ export default function RegisterPage() {
           </div>
           <div className="field">
             <label><Lock size={13} style={{ verticalAlign: "-2px" }} /> Password</label>
-            <input type="password" placeholder="Create a password" value={password} onChange={(e) => setPassword(e.target.value)} minLength={4} required />
+            <input type="password" placeholder="Create a password (min 8 characters)" value={password} onChange={(e) => setPassword(e.target.value)} minLength={8} required />
           </div>
           {error && <div className="auth-alert error show">{error}</div>}
           <button className="btn btn-primary btn-block" disabled={loading}>

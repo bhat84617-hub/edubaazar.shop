@@ -2,7 +2,6 @@
 
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { getProductById, products } from "./products";
-import { supabase } from "./config";
 
 export type CartItem = { id: string; qty: number; variant?: string };
 export type User = { name: string; email: string } | null;
@@ -235,62 +234,34 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         showToast("Your cart is empty", "error");
         return null;
       }
-      const items: OrderItem[] = validItems.map((i) => {
-        const p = getProductById(i.id);
-        return {
-          id: i.id,
-          name: p?.title ?? i.id,
-          price: p?.price ?? 0,
-          img: p?.images?.[0] ?? "",
-          qty: i.qty,
-          downloadUrl: p?.downloadUrl ?? null,
-        };
-      });
-      const total = items.reduce((s, i) => s + i.price * i.qty, 0);
-      const order: Order = {
-        orderId: "EDU-" + Date.now().toString(36).toUpperCase() + Math.random().toString(36).substr(2, 4).toUpperCase(),
-        name: data.name,
-        email: data.email,
-        phone: data.phone,
-        items,
-        total,
-        status: total <= 0 ? "approved" : "pending",
-        paymentMethod: "upi_qr",
-        utr: data.utr ?? "",
-        date: new Date().toISOString(),
-      };
 
-      // Insert into DB FIRST — only clear cart + show success after confirmed write.
-      let insertOk = false;
+      // Server-side order creation: price/total/status/UTR-dedup all enforced
+      // by POST /api/orders (client values are never trusted).
       try {
-        const { error } = await supabase.from("orders").insert([
-          {
-            order_id: order.orderId,
-            name: order.name,
-            email: order.email,
-            phone: order.phone,
-            items: JSON.stringify(order.items),
-            total: order.total,
-            status: order.status,
-            payment_method: order.paymentMethod,
-            utr: order.utr,
-            date: order.date,
-          },
-        ]);
-        if (error) throw error;
-        insertOk = true;
+        const res = await fetch("/api/orders", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: data.name,
+            email: data.email,
+            phone: data.phone,
+            utr: data.utr ?? "",
+            items: validItems.map((i) => ({ id: i.id, qty: i.qty })),
+          }),
+        });
+        const payload = (await res.json().catch(() => null)) as { order?: Order; error?: string } | null;
+        if (!res.ok || !payload?.order) {
+          showToast(payload?.error || "Order could not be saved. Please try again or contact support.", "error");
+          return null;
+        }
+        const order = payload.order;
+        setOrders((prev) => [order, ...prev]);
+        setCart([]);
+        return order;
       } catch {
-        insertOk = false;
-      }
-
-      if (!insertOk) {
         showToast("Order could not be saved. Please try again or contact support.", "error");
         return null;
       }
-
-      setOrders((prev) => [order, ...prev]);
-      setCart([]);
-      return order;
     },
     [cart, user, showToast]
   );

@@ -2,18 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { createHash, timingSafeEqual, scryptSync, randomBytes } from "node:crypto";
 import { SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY } from "@/lib/supabase-config";
-
-const rateMap = new Map<string, { count: number; reset: number }>();
-function rateLimited(ip: string): boolean {
-  const now = Date.now();
-  const entry = rateMap.get(ip);
-  if (!entry || now > entry.reset) {
-    rateMap.set(ip, { count: 1, reset: now + 60_000 });
-    return false;
-  }
-  entry.count++;
-  return entry.count > 10;
-}
+import { getClientIp, isRateLimited } from "@/lib/security";
 
 function hashLegacy(password: string, salt: string): string {
   return createHash("sha256").update(`${salt}:${password}`).digest("hex");
@@ -58,16 +47,10 @@ function needsUpgrade(stored: string): boolean {
   return !stored.startsWith("scrypt:");
 }
 
-function getClientIp(req: NextRequest): string {
-  const fwd = req.headers.get("x-forwarded-for");
-  if (fwd) return fwd.split(",")[0].trim();
-  return req.headers.get("x-real-ip") || "unknown";
-}
-
 export async function POST(req: NextRequest) {
   try {
     const ip = getClientIp(req);
-    if (rateLimited(ip)) {
+    if (await isRateLimited(`auth:login:${ip}`, 10)) {
       return NextResponse.json({ error: "Too many attempts. Please try again in a minute." }, { status: 429 });
     }
 

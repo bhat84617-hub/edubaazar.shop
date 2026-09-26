@@ -4,6 +4,7 @@ import { Resend } from "resend";
 import { SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY } from "@/lib/supabase-config";
 import { sendMessage } from "@/lib/telegram";
 import { isValidAdminSession } from "@/lib/admin-session";
+import { isSameOriginRequest } from "@/lib/security";
 
 function getDb() {
   return createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, { auth: { autoRefreshToken: false, persistSession: false } });
@@ -37,6 +38,9 @@ export async function POST(request: NextRequest) {
     if (!isValidAdminSession(request.cookies.get("edubazar_admin_session")?.value)) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+    if (!isSameOriginRequest(request)) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
 
     const { orderId, name, email, status, items } = await request.json() as {
       orderId: string;
@@ -47,6 +51,11 @@ export async function POST(request: NextRequest) {
     };
 
     if (!orderId || typeof orderId !== "string" || orderId.length > 64) {
+      return NextResponse.json({ error: "Invalid orderId" }, { status: 400 });
+    }
+    // Strip CRLF so orderId can never inject email headers (used in Subject)
+    const cleanOrderId = orderId.replace(/[\r\n]/g, "").trim().slice(0, 64);
+    if (!cleanOrderId) {
       return NextResponse.json({ error: "Invalid orderId" }, { status: 400 });
     }
     if (!email || typeof email !== "string" || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 254) {
@@ -73,17 +82,27 @@ export async function POST(request: NextRequest) {
     }
 
     // Fetch existing order to extract Telegram chatId stored in utr as "|tg:CHATID"
+    // + current status (workflow guard: only pending orders may change state)
     let tgChatId: string | null = null;
+    let alreadyFinal = false;
     try {
-      const { data: existing } = await db.from("orders").select("utr").eq("order_id", orderId).maybeSingle();
+      const { data: existing } = await db.from("orders").select("utr, status").eq("order_id", cleanOrderId).maybeSingle();
       const rawUtr: string = (existing as { utr?: string } | null)?.utr || "";
       const m = rawUtr.match(/\|tg:(\d+)/);
       if (m) tgChatId = m[1];
+      const cur = (existing as { status?: string } | null)?.status;
+      if (existing && cur === status) {
+        // Same state → resend notifications only, don't rewrite the row
+        alreadyFinal = true;
+      } else if (existing && cur !== "pending") {
+        return NextResponse.json({ error: "Only pending requests can be changed" }, { status: 409 });
+      }
     } catch {
       // ignore fetch error — still proceed with email
     }
 
-    // Update order status in database
+    // Update order status in database (skipped on pure resend)
+    if (!alreadyFinal) {
     if (status === "approved") {
       const updatedItems = safeItems.map((item) => ({
         ...item,
@@ -93,12 +112,15 @@ export async function POST(request: NextRequest) {
       await db
         .from("orders")
         .update({ status: "approved", items: JSON.stringify(updatedItems) })
-        .eq("order_id", orderId);
+        .eq("order_id", cleanOrderId)
+        .eq("status", "pending");
     } else {
       await db
         .from("orders")
         .update({ status: "rejected" })
-        .eq("order_id", orderId);
+        .eq("order_id", cleanOrderId)
+        .eq("status", "pending");
+    }
     }
 
     // Send email notification
@@ -185,7 +207,7 @@ export async function POST(request: NextRequest) {
       await resend.emails.send({
         from: "EduBazar <noreply@edubaazar.shop>",
         to: email,
-        subject: `Order ${orderId} — ${status === "approved" ? "Approved - Download Now" : "Payment Not Verified"}`,
+        subject: `Order ${cleanOrderId} — ${status === "approved" ? "Approved - Download Now" : "Payment Not Verified"}`,
         html: emailHtml,
       });
 
@@ -193,7 +215,7 @@ export async function POST(request: NextRequest) {
       await resend.emails.send({
         from: "EduBazar <noreply@edubaazar.shop>",
         to: "edubazarshop@gmail.com",
-        subject: `Order ${orderId} ${status.toUpperCase()} by Admin`,
+        subject: `Order ${cleanOrderId} ${status.toUpperCase()} by Admin`,
         html: `
           <div style="font-family:Arial;padding:20px;">
             <h2>Order ${status === "approved" ? "Approved" : "Rejected"}</h2>

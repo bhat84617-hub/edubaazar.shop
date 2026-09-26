@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { isValidAdminSession } from "@/lib/admin-session";
 import { getProductById } from "@/lib/products";
+import { isSameOriginRequest } from "@/lib/security";
 
 function getDb() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -71,6 +72,9 @@ export async function POST(request: NextRequest) {
   const session = request.cookies.get("edubazar_admin_session")?.value;
   if (!isValidAdminSession(session)) {
     return htmlResponse("Session expired. Please <a href='/admin/login'>login again</a>.");
+  }
+  if (!isSameOriginRequest(request)) {
+    return htmlResponse("Forbidden. <a href='/admin'>Back to Admin</a>");
   }
   let orderId: string | null = null;
   const contentType = request.headers.get("content-type") || "";

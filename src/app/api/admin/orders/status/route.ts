@@ -3,6 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 import { isValidAdminSession } from "@/lib/admin-session";
 import { sendOrderStatusUpdate } from "@/lib/email";
 import { getProductById } from "@/lib/products";
+import { isSameOriginRequest } from "@/lib/security";
 
 function getDb() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -62,6 +63,9 @@ export async function PATCH(request: NextRequest) {
   const session = request.cookies.get("edubazar_admin_session")?.value;
   if (!isValidAdminSession(session)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  if (!isSameOriginRequest(request)) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
   const body = await request.json().catch(() => null) as {

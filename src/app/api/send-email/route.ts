@@ -3,22 +3,12 @@ import { sendSignupEmail, sendOrderConfirmation, sendOrderStatusUpdate } from "@
 import { isValidAdminSession } from "@/lib/admin-session";
 import { createClient } from "@supabase/supabase-js";
 import { SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY } from "@/lib/supabase-config";
+import { getClientIp, isRateLimited, isSameOriginRequest } from "@/lib/security";
 
-// Simple in-memory rate limit: 10 requests per minute per IP
-// + per-target cooldowns to stop inbox-flooding / Resend-budget burn
-const rateMap = new Map<string, { count: number; reset: number }>();
+// Per-target cooldowns to stop inbox-flooding / Resend-budget burn
+// (IP rate limiting comes from the shared helper — Upstash-backed when configured)
 const emailCooldown = new Map<string, number>(); // target email -> timestamp
 const orderCooldown = new Map<string, number>(); // orderId -> timestamp
-function isRateLimited(ip: string): boolean {
-  const now = Date.now();
-  const entry = rateMap.get(ip);
-  if (!entry || now > entry.reset) {
-    rateMap.set(ip, { count: 1, reset: now + 60_000 });
-    return false;
-  }
-  entry.count++;
-  return entry.count > 10;
-}
 function isCoolingDown(map: Map<string, number>, key: string, ms: number): boolean {
   const now = Date.now();
   const last = map.get(key) || 0;
@@ -27,16 +17,13 @@ function isCoolingDown(map: Map<string, number>, key: string, ms: number): boole
   return false;
 }
 
-function getClientIp(req: NextRequest): string {
-  const fwd = req.headers.get("x-forwarded-for");
-  if (fwd) return fwd.split(",")[0].trim();
-  return req.headers.get("x-real-ip") || "unknown";
-}
-
 export async function POST(req: NextRequest) {
   const ip = getClientIp(req);
-  if (isRateLimited(ip)) {
+  if (await isRateLimited(`send-email:${ip}`, 10)) {
     return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+  }
+  if (!isSameOriginRequest(req)) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
   const bodyPreview = await req.json().catch(() => null);
   const typePreview = (bodyPreview as { type?: string } | null)?.type;
