@@ -34,7 +34,11 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  // Channel ID is sensitive (aids phishing) — only admins may view it
+  if (!isValidAdminSession(request.cookies.get("edubazar_admin_session")?.value)) {
+    return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
+  }
   return NextResponse.json({
     ok: true,
     channelConfigured: Boolean(CHANNEL_ID),

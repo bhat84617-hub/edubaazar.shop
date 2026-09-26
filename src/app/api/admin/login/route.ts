@@ -1,8 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { timingSafeEqual } from "node:crypto";
 import { createAdminSession } from "@/lib/admin-session";
 
-const ADMIN_EMAIL = "bhat84617@gmail.com";
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "bhat84617@gmail.com";
+
+function safeEqual(a: string, b: string): boolean {
+  const ba = Buffer.from(a, "utf8");
+  const bb = Buffer.from(b, "utf8");
+  return ba.length === bb.length && timingSafeEqual(ba, bb);
+}
 
 async function getDbPassword(): Promise<string | null> {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -42,7 +49,7 @@ export async function POST(request: NextRequest) {
   }
   const body = await request.json().catch(() => null) as { password?: string } | null;
 
-  if (!body?.password) {
+  if (!body || typeof body.password !== "string" || body.password.length === 0 || body.password.length > 200) {
     return NextResponse.json({ error: "Password required" }, { status: 400 });
   }
 
@@ -53,7 +60,10 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Admin password not configured" }, { status: 503 });
   }
 
-  if (body.password !== envPassword && body.password !== dbPassword) {
+  const ok =
+    (envPassword ? safeEqual(body.password, envPassword) : false) ||
+    (dbPassword ? safeEqual(body.password, dbPassword) : false);
+  if (!ok) {
     return NextResponse.json({ error: "Galat password" }, { status: 401 });
   }
 

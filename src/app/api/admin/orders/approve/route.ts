@@ -19,6 +19,10 @@ function htmlResponse(body: string) {
   return new NextResponse(html, { headers: { "Content-Type": "text/html; charset=utf-8" } });
 }
 
+function escHtml(s: string): string {
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+}
+
 function safeParseItems(raw: unknown): Array<Record<string, unknown>> {
   try {
     const parsed = typeof raw === "string" ? JSON.parse(raw) : raw;
@@ -52,7 +56,7 @@ export async function GET(request: NextRequest) {
   const orderId = request.nextUrl.searchParams.get("orderId");
   if (!orderId) return htmlResponse("No order ID provided. <a href='/admin'>Back to Admin</a>");
   // Show confirmation form - state change requires POST (CSRF protection)
-  const esc = orderId.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  const esc = escHtml(orderId.slice(0, 64));
   return htmlResponse(
     `<p>Approve order <strong>${esc}</strong>?</p>
      <form method="POST" action="/api/admin/orders/approve">
@@ -80,7 +84,7 @@ export async function POST(request: NextRequest) {
   if (!orderId) return htmlResponse("No order ID provided. <a href='/admin'>Back to Admin</a>");
   const result = await doApprove(orderId);
   if ((result as { error?: string }).error) return htmlResponse(`${(result as { error: string }).error} <a href='/admin'>Back to Admin</a>`);
-  const esc = orderId.replace(/&/g, "&amp;").replace(/</g, "&lt;");
+  const esc = escHtml(orderId.slice(0, 64));
   return htmlResponse(
     `<div style="color:#28a745;font-weight:700;margin-bottom:16px;">✓ Order ${esc} APPROVED!</div>
      <a href='/admin' style="display:inline-block;padding:12px 28px;background:#181d27;color:#fff;text-decoration:none;border-radius:6px;font-weight:600;">← Back to Admin</a>`

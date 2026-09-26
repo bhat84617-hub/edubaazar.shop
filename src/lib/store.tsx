@@ -124,6 +124,13 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     return () => window.removeEventListener("storage", onStorage);
   }, []);
 
+  // PII hygiene: never persist UTR / full phone to localStorage.
+  // Any XSS could otherwise exfiltrate payment references. Order details
+  // remain fetchable from the server via /api/orders?email=.
+  function sanitizeOrderForStorage(o: Order): Order {
+    return { ...o, phone: "", utr: "" };
+  }
+
   useEffect(() => {
     if (mounted) localStorage.setItem("edubazar_cart", JSON.stringify(cart));
   }, [cart, mounted]);
@@ -137,7 +144,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     if (mounted) localStorage.setItem("edubazar_user_auth", JSON.stringify(user));
   }, [user, mounted]);
   useEffect(() => {
-    if (mounted) localStorage.setItem("edubazar_orders", JSON.stringify(orders));
+    if (mounted) localStorage.setItem("edubazar_orders", JSON.stringify(orders.map(sanitizeOrderForStorage)));
   }, [orders, mounted]);
 
   const showToast = useCallback((msg: string, type: "success" | "error" = "success") => {

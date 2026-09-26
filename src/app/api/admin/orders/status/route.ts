@@ -21,6 +21,15 @@ function safeParseItems(raw: unknown): Array<Record<string, unknown>> {
   }
 }
 
+function safeHttpUrl(u: string): string | null {
+  try {
+    const parsed = new URL(u);
+    return parsed.protocol === "http:" || parsed.protocol === "https:" ? parsed.href : null;
+  } catch {
+    return null;
+  }
+}
+
 function toOrder(o: Record<string, unknown>) {
   return {
     orderId: o.order_id,
@@ -45,7 +54,7 @@ export async function GET(request: NextRequest) {
   if (!db) return NextResponse.json({ error: "Database not configured" }, { status: 503 });
 
   const { data, error } = await db.from("orders").select("*").order("date", { ascending: false });
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return NextResponse.json({ error: "Failed to load orders" }, { status: 500 });
   return NextResponse.json({ orders: (data || []).map(toOrder) });
 }
 
@@ -90,10 +99,10 @@ export async function PATCH(request: NextRequest) {
       const urls = body.downloadUrls || {};
       updatedItems = items.map((item) => {
         // Priority: 1. Admin provided URL, 2. Existing item downloadUrl, 3. Product's downloadUrl, 4. Empty string
+        // All URLs validated to http(s) only — blocks javascript:/data: persistence (stored-XSS)
         const adminUrl = urls[item.id]?.trim() || (item.name ? (urls[item.name]?.trim() ?? "") : "");
         const productDefault = getProductById(item.id)?.downloadUrl ?? "";
-        // Use admin URL if provided, otherwise keep existing, otherwise use product default
-        const finalUrl = adminUrl || item.downloadUrl || productDefault || "";
+        const finalUrl = safeHttpUrl(adminUrl) ?? safeHttpUrl(item.downloadUrl || "") ?? safeHttpUrl(productDefault) ?? "";
         return { ...item, downloadUrl: finalUrl };
       });
       update.items = JSON.stringify(updatedItems);
@@ -106,7 +115,7 @@ export async function PATCH(request: NextRequest) {
     .eq("status", "pending");
 
   if (updateErr) {
-    return NextResponse.json({ error: updateErr.message }, { status: 500 });
+    return NextResponse.json({ error: "Failed to update order" }, { status: 500 });
   }
 
   // Build download map for email - only include valid URLs

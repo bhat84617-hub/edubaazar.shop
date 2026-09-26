@@ -55,7 +55,8 @@ function pageHref(page: number, base: SearchParams): string {
 
 export default async function ShopPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
   const sp = await searchParams;
-  const cat = sp.cat ?? "";
+  // Sanitize user-controlled query values before reflecting into HTML/JSON-LD
+  const cat = (sp.cat ?? "").replace(/[<>&"']/g, "").slice(0, 100);
   const q = (sp.q ?? "").toLowerCase().trim();
   const kind = sp.kind ?? "";
   const sort = sp.sort ?? "";
@@ -138,9 +139,15 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
     },
   };
 
+  // Escape JSON-LD so a crafted ?cat= can never break out of the <script> block
+  const collectionLdJson = JSON.stringify(collectionLd)
+    .replace(/</g, "\\u003c")
+    .replace(/>/g, "\\u003e")
+    .replace(/&/g, "\\u0026");
+
   return (
     <div>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: collectionLdJson }} />
       <div style={{ background: "#f8f9fb", borderBottom: "1px solid #E5E5E5", padding: "22px 0 18px" }}>
         <div className="container">
           <div className="breadcrumb" style={{ marginBottom: 8 }}>

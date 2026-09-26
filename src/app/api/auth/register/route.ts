@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { createHash, randomBytes } from "node:crypto";
+import { scryptSync, randomBytes } from "node:crypto";
 import { SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY } from "@/lib/supabase-config";
 
 const rateMap = new Map<string, { count: number; reset: number }>();
@@ -38,8 +38,8 @@ export async function POST(req: NextRequest) {
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 254) {
       return NextResponse.json({ error: "Please enter a valid email address." }, { status: 400 });
     }
-    if (password.length < 4 || password.length > 200) {
-      return NextResponse.json({ error: "Password must be 4-200 characters." }, { status: 400 });
+    if (password.length < 8 || password.length > 200) {
+      return NextResponse.json({ error: "Password must be 8-200 characters." }, { status: 400 });
     }
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false } });
@@ -48,10 +48,12 @@ export async function POST(req: NextRequest) {
     const { data: existing } = await supabase.from("users").select("id").eq("email", cleanEmail).single();
     if (existing) return NextResponse.json({ error: "This email is already registered. Please login." }, { status: 409 });
 
+    // Strong password hashing: scrypt (CPU+memory hard). Format: scrypt:<salt>:<hash>
     const salt = randomBytes(16).toString("hex");
-    const hashed = createHash("sha256").update(`${salt}:${password}`).digest("hex");
+    const derived = scryptSync(password, salt, 64).toString("hex");
+    const stored = `scrypt:${salt}:${derived}`;
 
-    const { error: insErr } = await supabase.from("users").insert([{ name: name.trim(), email: cleanEmail, password: `${salt}:${hashed}` }]);
+    const { error: insErr } = await supabase.from("users").insert([{ name: name.trim(), email: cleanEmail, password: stored }]);
     if (insErr) {
       return NextResponse.json({ error: "Could not create account. Please try again." }, { status: 500 });
     }

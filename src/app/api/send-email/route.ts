@@ -5,7 +5,10 @@ import { createClient } from "@supabase/supabase-js";
 import { SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY } from "@/lib/supabase-config";
 
 // Simple in-memory rate limit: 10 requests per minute per IP
+// + per-target cooldowns to stop inbox-flooding / Resend-budget burn
 const rateMap = new Map<string, { count: number; reset: number }>();
+const emailCooldown = new Map<string, number>(); // target email -> timestamp
+const orderCooldown = new Map<string, number>(); // orderId -> timestamp
 function isRateLimited(ip: string): boolean {
   const now = Date.now();
   const entry = rateMap.get(ip);
@@ -15,6 +18,13 @@ function isRateLimited(ip: string): boolean {
   }
   entry.count++;
   return entry.count > 10;
+}
+function isCoolingDown(map: Map<string, number>, key: string, ms: number): boolean {
+  const now = Date.now();
+  const last = map.get(key) || 0;
+  if (now - last < ms) return true;
+  map.set(key, now);
+  return false;
 }
 
 function getClientIp(req: NextRequest): string {
@@ -45,18 +55,28 @@ export async function POST(req: NextRequest) {
       if (!name || !email || typeof name !== "string" || typeof email !== "string") {
         return NextResponse.json({ error: "Missing fields" }, { status: 400 });
       }
-      if (name.length > 120 || email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      const cleanName = name.replace(/[\r\n<>]/g, "").trim().slice(0, 120);
+      const cleanEmail = email.trim().toLowerCase();
+      if (!cleanName || cleanEmail.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) {
         return NextResponse.json({ error: "Invalid fields" }, { status: 400 });
       }
-      await sendSignupEmail(name, email);
+      // One welcome mail per address per 10 min — stops spam/budget burn
+      if (isCoolingDown(emailCooldown, `signup:${cleanEmail}`, 10 * 60_000)) {
+        return NextResponse.json({ ok: true });
+      }
+      await sendSignupEmail(cleanName, cleanEmail);
       return NextResponse.json({ ok: true });
     }
 
     if (type === "order") {
       // Look up the order server-side — never trust client-supplied name/email/items/total/downloadUrls.
       const { orderId } = body as { orderId?: string };
-      if (!orderId || typeof orderId !== "string" || orderId.length > 64) {
+      if (!orderId || typeof orderId !== "string" || orderId.length > 64 || !/^EDU-[A-Z0-9-]+$/i.test(orderId.trim())) {
         return NextResponse.json({ error: "Invalid orderId" }, { status: 400 });
+      }
+      // One confirmation burst per order per 10 min — stops email-bombing via guessed IDs
+      if (isCoolingDown(orderCooldown, `order:${orderId.trim().toUpperCase()}`, 10 * 60_000)) {
+        return NextResponse.json({ ok: true });
       }
       const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false } });
       const { data: order, error } = await supabase
@@ -93,7 +113,27 @@ export async function POST(req: NextRequest) {
     if (type === "order-status") {
       const { orderId, name, email, status, downloadUrls } = body;
       if (!orderId || !name || !email || !status) return NextResponse.json({ error: "Missing fields" }, { status: 400 });
-      await sendOrderStatusUpdate({ orderId, name, email, status, downloadUrls: downloadUrls || {} });
+      if (typeof orderId !== "string" || typeof name !== "string" || typeof email !== "string" || typeof status !== "string") {
+        return NextResponse.json({ error: "Invalid fields" }, { status: 400 });
+      }
+      const cleanOrderId = orderId.replace(/[\r\n]/g, "").trim().slice(0, 64);
+      const cleanName = name.replace(/[\r\n<>]/g, "").trim().slice(0, 120);
+      const cleanEmail = email.trim().toLowerCase();
+      if (!cleanOrderId || !cleanName || cleanEmail.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) {
+        return NextResponse.json({ error: "Invalid fields" }, { status: 400 });
+      }
+      if (status !== "approved" && status !== "rejected") {
+        return NextResponse.json({ error: "Invalid status" }, { status: 400 });
+      }
+      const cleanUrls: Record<string, string> = {};
+      if (downloadUrls && typeof downloadUrls === "object") {
+        for (const [k, v] of Object.entries(downloadUrls as Record<string, unknown>)) {
+          if (typeof v === "string" && /^https?:\/\//.test(v) && k.length <= 200 && v.length <= 2000) {
+            cleanUrls[String(k).slice(0, 200)] = v.slice(0, 2000);
+          }
+        }
+      }
+      await sendOrderStatusUpdate({ orderId: cleanOrderId, name: cleanName, email: cleanEmail, status, downloadUrls: cleanUrls });
       return NextResponse.json({ ok: true });
     }
 
