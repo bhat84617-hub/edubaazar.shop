@@ -3,6 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 import { timingSafeEqual } from "node:crypto";
 import { createAdminSession } from "@/lib/admin-session";
 import { getClientIp, isRateLimited } from "@/lib/security";
+import { verifyPassword } from "@/lib/password";
 
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "bhat84617@gmail.com";
 
@@ -49,14 +50,24 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Admin password not configured" }, { status: 503 });
   }
 
+  // envPassword is plaintext (compared directly); dbPassword is a scrypt/sha256
+  // hash and MUST be verified with verifyPassword — a direct string compare
+  // against the hash would never match (this was a real bug: DB fallback login
+  // always failed).
   const ok =
     (envPassword ? safeEqual(body.password, envPassword) : false) ||
-    (dbPassword ? safeEqual(body.password, dbPassword) : false);
+    (dbPassword ? verifyPassword(dbPassword, body.password) : false);
   if (!ok) {
     return NextResponse.json({ error: "Galat password" }, { status: 401 });
   }
 
-  const token = createAdminSession();
+  let token: string;
+  try {
+    token = createAdminSession();
+  } catch {
+    // ADMIN_SESSION_SECRET not configured — fail with a clear message instead of 500
+    return NextResponse.json({ error: "Admin session not configured (ADMIN_SESSION_SECRET missing)" }, { status: 503 });
+  }
 
   const res = NextResponse.json({ ok: true });
   res.cookies.set("edubazar_admin_session", token, {
