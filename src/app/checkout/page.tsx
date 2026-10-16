@@ -12,12 +12,13 @@ import { STORE, upiLink } from "@/lib/config";
 function CheckoutContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { cart, cartSubtotal, user, mounted, placeOrder, showToast, addToCart } = useStore();
+  const { cart, cartSubtotal, coupon, cartDiscount, cartTotal, applyCoupon, removeCoupon, user, mounted, placeOrder, showToast, addToCart } = useStore();
   const [step, setStep] = useState(1);
   const [form, setForm] = useState({ name: user?.name ?? "", email: user?.email ?? "", phone: "" });
   const [err, setErr] = useState("");
   const [utr, setUtr] = useState("");
   const [utrError, setUtrError] = useState("");
+  const [couponInput, setCouponInput] = useState("");
   const [placing, setPlacing] = useState(false);
   const [placed, setPlacedState] = useState<{ id: string; total: number } | null>(null);
   const buyHandledRef = useRef(false);
@@ -79,7 +80,7 @@ function CheckoutContent() {
     return () => clearTimeout(t);
   }, [user]);
 
-  const total = cartSubtotal;
+  const total = cartTotal;
 
   const nextFromDetails = (e: React.FormEvent) => {
     e.preventDefault();
@@ -128,6 +129,7 @@ function CheckoutContent() {
           items: order.items.map((i) => ({ name: i.name, price: i.price, qty: i.qty })),
           total: order.total,
           utr,
+          coupon: coupon ? `${coupon.code} (${coupon.percent}% off, saved ${formatINR(cartDiscount)})` : "",
           downloadUrls: Object.fromEntries(
             order.items
               .filter((item) => item.downloadUrl)
@@ -362,6 +364,31 @@ function CheckoutContent() {
                 })}
             </div>
             <div className="sum-row"><span>Subtotal</span><span>{formatINR(cartSubtotal)}</span></div>
+            {coupon ? (
+              <div className="sum-row" style={{ color: "var(--primary)" }}>
+                <span>Coupon {coupon.code} ({coupon.percent}% off) <button onClick={removeCoupon} aria-label="Remove coupon" style={{ background: "none", border: "none", color: "var(--muted)", cursor: "pointer", fontSize: 12, textDecoration: "underline", padding: 0, marginLeft: 4 }}>remove</button></span>
+                <span>− {formatINR(cartDiscount)}</span>
+              </div>
+            ) : (
+              <div className="field" style={{ margin: "10px 0 0" }}>
+                <div style={{ display: "flex", gap: 8 }}>
+                  <input
+                    placeholder="Coupon code (e.g. DIWALI50)"
+                    value={couponInput}
+                    onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
+                    style={{ textTransform: "uppercase" }}
+                  />
+                  <button
+                    type="button"
+                    className="btn btn-outline btn-sm"
+                    onClick={() => { if (applyCoupon(couponInput)) setCouponInput(""); }}
+                    style={{ whiteSpace: "nowrap" }}
+                  >
+                    Apply
+                  </button>
+                </div>
+              </div>
+            )}
             <div className="sum-row"><span>Delivery</span><span>Instant (Digital)</span></div>
             <div className="sum-row total"><span>Total</span><span>{total <= 0 ? "FREE" : formatINR(total)}</span></div>
             <p style={{ display: "flex", alignItems: "center", gap: 7, fontSize: 12, color: "var(--muted)", justifyContent: "center", marginTop: 14 }}>

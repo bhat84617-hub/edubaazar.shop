@@ -11,6 +11,16 @@ import { products, getProductBySlug, getRelatedProducts, isSensitiveProduct } fr
 const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.edubaazar.shop";
 const priceValidUntilIso = new Date(Date.UTC(new Date().getUTCFullYear() + 1, 0, 1)).toISOString().split("T")[0];
 
+// Category long-tail keywords from Google Trends India research (Oct 2026) —
+// high-intent modifiers: "in hindi", "for beginners", "with certificate".
+const CATEGORY_LONGTAILS: Record<string, string[]> = {
+  Hacking: ["ethical hacking course in hindi", "ethical hacking course for beginners", "ethical hacking course with certificate"],
+  Programming: ["python course for beginners", "programming course in hindi", "coding course with certificate"],
+  Trading: ["stock market course for beginners", "online trading course india", "share market course in hindi"],
+  Marketing: ["digital marketing course for beginners", "seo course in hindi", "digital marketing course with certificate"],
+  Design: ["ui ux design course for beginners", "graphic design course in hindi"],
+};
+
 export const dynamicParams = false;
 
 export function generateStaticParams() {
@@ -24,13 +34,16 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const seoDescription =
     product.desc.length <= 160 ? product.desc : `${product.desc.slice(0, 157).trimEnd()}...`;
   const priceLabel = product.price <= 0 ? "FREE" : `₹${product.price}`;
-  const titleWithPrice = `${product.title} — ${priceLabel} | EduBazar.shop`;
+  // Note: layout template appends "| EduBazar.shop", so don't include it here
+  // (previously this produced a duplicated "... | EduBazar.shop | EduBazar.shop" suffix).
+  const titleWithPrice = `${product.title} — ${priceLabel} | ${product.category} Course Online`;
   const seoKeywords = [
     product.title,
     `${product.category} course`,
     `${product.category} ${product.kind} India`,
     `${product.level} ${product.category}`,
     `${product.title} price ₹${product.price}`,
+    ...(CATEGORY_LONGTAILS[product.category] ?? []),
     ...(product.tags ?? []),
     product.instructor ?? "",
     "EduBazar",

@@ -3,6 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { GraduationCap, Zap, Headset, ShieldCheck, Star, ArrowRight, Camera } from "lucide-react";
 import Hero from "@/components/Hero";
+import DiwaliBanner from "@/components/DiwaliBanner";
 import ProductCard from "@/components/ProductCard";
 import BestDealSlider from "@/components/BestDealSlider";
 import CountUp from "@/components/CountUp";
@@ -13,19 +14,20 @@ import { products, CATEGORIES } from "@/lib/products";
 const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.edubaazar.shop";
 
 export const metadata: Metadata = {
-  title: "EduBazar.shop — Premium Online Courses from ₹49 | Hacking, Programming, Trading",
+  title: "Online Courses from ₹49 — Ethical Hacking, Python, Digital Marketing & Trading | EduBazar.shop",
   description:
-    "India's affordable learning platform. 30+ premium courses in Ethical Hacking, Python, JavaScript, Stock Market & more. Start from ₹49. Lifetime access, certificate, UPI payment, instant delivery.",
+    "India's affordable learning platform: 30+ premium courses in Ethical Hacking, Python, Digital Marketing, Stock Market & more. Beginner-friendly, Hindi & English, certificate included. Start from ₹49 — lifetime access, UPI payment, instant delivery.",
   keywords: [
-    "online courses India",
-    "ethical hacking course",
-    "python course",
-    "javascript course",
-    "stock market course",
-    "programming courses cheap",
-    "hacking tools",
-    "digital marketing course",
-    "UI UX design course",
+    "online courses india",
+    "ethical hacking course in hindi",
+    "python course for beginners",
+    "digital marketing course for beginners",
+    "stock market course for beginners",
+    "full stack web development course",
+    "online course with certificate india",
+    "cheap programming courses india",
+    "trading course for beginners",
+    "diwali offer online course",
   ],
   alternates: { canonical: SITE },
   openGraph: {
@@ -33,13 +35,13 @@ export const metadata: Metadata = {
     description: "30+ courses in Hacking, Programming, Trading & more. Starting at ₹49. Lifetime access.",
     url: SITE,
     type: "website",
-    images: [{ url: SITE + "/logo/edulogo.jpeg", width: 512, height: 512, alt: "EduBazar.shop" }],
+    images: [{ url: SITE + "/images/og-cover.png", width: 1200, height: 630, alt: "EduBazar.shop — India's Affordable Learning Platform" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "EduBazar.shop — Premium Online Courses from ₹49",
     description: "30+ courses in Hacking, Programming, Trading & more.",
-    images: [SITE + "/logo/edulogo.jpeg"],
+    images: [SITE + "/images/og-cover.png"],
   },
 };
 
@@ -99,6 +101,26 @@ const homeFaqs = [
     q: "Are the courses beginner friendly?",
     a: "Yes, we have Beginner, Intermediate and Advanced levels across all categories with hands-on labs and projects.",
   },
+  {
+    q: "Are EduBazar courses available in Hindi?",
+    a: "Yes. Many of our bestselling courses — including Ethical Hacking, Python and Digital Marketing — are available in Hindi as well as English, and all are beginner-friendly with step-by-step lessons.",
+  },
+  {
+    q: "What are the course fees on EduBazar.shop?",
+    a: "Courses start at just ₹49 and go up to ₹999. Every course includes lifetime access, and you pay securely via UPI (Google Pay, PhonePe, Paytm).",
+  },
+  {
+    q: "Will I get a certificate after completing a course?",
+    a: "Yes. You receive a certificate of completion for every course, which you can add to your resume and LinkedIn profile.",
+  },
+  {
+    q: "Which is the best course for beginners?",
+    a: "For complete beginners we recommend starting with the Python Complete Course, Digital Marketing course, or Ethical Hacking for Beginners — all are designed step-by-step with no prior experience needed.",
+  },
+  {
+    q: "Is there a Diwali sale on EduBazar.shop?",
+    a: "Yes! During the Diwali Dhamaka Sale (till 10 November 2026) you get flat 50% off on all courses with coupon code DIWALI50 at checkout. Courses start at just ₹49 with lifetime access.",
+  },
 ];
 
 const homeFaqLd = {
@@ -119,6 +141,7 @@ export default function HomePage() {
       </h1>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(homeItemListLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(homeFaqLd) }} />
+      <DiwaliBanner />
       <Hero />
 
       {/* 2 benefits minimal icons - Free Shipping removed as per request */}

@@ -2,6 +2,7 @@
 
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { getProductById, products } from "./products";
+import { getValidCoupon, couponDiscount, type Coupon } from "./config";
 
 export type CartItem = { id: string; qty: number; variant?: string };
 export type User = { name: string; email: string } | null;
@@ -35,6 +36,11 @@ type StoreCtx = {
   clearCart: () => void;
   cartCount: number;
   cartSubtotal: number;
+  coupon: Coupon | null;
+  cartDiscount: number;
+  cartTotal: number;
+  applyCoupon: (code: string) => boolean;
+  removeCoupon: () => void;
   toggleWishlist: (id: string) => void;
   toggleCompare: (id: string) => boolean;
   quickViewId: string | null;
@@ -91,6 +97,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [orders, setOrders] = useState<Order[]>([]);
   const [toasts, setToasts] = useState<Toast[]>([]);
   const [quickViewId, setQuickViewId] = useState<string | null>(null);
+  const [couponCode, setCouponCode] = useState<string | null>(null);
   const toastId = useRef(0);
 
   const openQuickView = useCallback((id: string) => setQuickViewId(id), []);
@@ -104,6 +111,9 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       setCompare(pruneIds(read<string[]>("edubazar_compare", [])));
       setUser(read<User>("edubazar_user_auth", null));
       setOrders(read<Order[]>("edubazar_orders", []));
+      // Re-validate stored coupon on load (codes can expire)
+      const savedCoupon = read<string | null>("edubazar_coupon", null);
+      setCouponCode(savedCoupon && getValidCoupon(savedCoupon) ? savedCoupon.toUpperCase() : null);
       setMounted(true);
     }, 0);
     return () => clearTimeout(t);
@@ -145,6 +155,12 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (mounted) localStorage.setItem("edubazar_orders", JSON.stringify(orders.map(sanitizeOrderForStorage)));
   }, [orders, mounted]);
+  useEffect(() => {
+    if (mounted) {
+      if (couponCode) localStorage.setItem("edubazar_coupon", JSON.stringify(couponCode));
+      else localStorage.removeItem("edubazar_coupon");
+    }
+  }, [couponCode, mounted]);
 
   const showToast = useCallback((msg: string, type: "success" | "error" = "success") => {
     const id = ++toastId.current;
@@ -196,6 +212,22 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
 
   const clearCart = useCallback(() => setCart([]), []);
 
+  const applyCoupon = useCallback(
+    (code: string): boolean => {
+      const valid = getValidCoupon(code);
+      if (!valid) {
+        showToast("Invalid ya expired coupon code.", "error");
+        return false;
+      }
+      setCouponCode(valid.code);
+      showToast(`${valid.label} applied! 🎉`);
+      return true;
+    },
+    [showToast]
+  );
+
+  const removeCoupon = useCallback(() => setCouponCode(null), []);
+
   const toggleWishlist = useCallback((id: string) => {
     setWishlist((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
   }, []);
@@ -246,6 +278,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
             email: data.email,
             phone: data.phone,
             utr: data.utr ?? "",
+            coupon: couponCode,
             items: validItems.map((i) => ({ id: i.id, qty: i.qty })),
           }),
         });
@@ -257,13 +290,14 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         const order = payload.order;
         setOrders((prev) => [order, ...prev]);
         setCart([]);
+        setCouponCode(null);
         return order;
       } catch {
         showToast("Order could not be saved. Please try again or contact support.", "error");
         return null;
       }
     },
-    [cart, user, showToast]
+    [cart, user, showToast, couponCode]
   );
 
   const updateOrderStatus = useCallback(async (orderId: string, status: string, downloadUrls?: Record<string, string>) => {
@@ -290,6 +324,12 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     return s + (p?.price ?? 0) * i.qty;
   }, 0);
 
+  // Coupon (Diwali Dhamaka Sale): validated on every render so expired codes
+  // automatically stop applying a discount.
+  const coupon = couponCode ? getValidCoupon(couponCode) : null;
+  const cartDiscount = couponDiscount(cartSubtotal, coupon);
+  const cartTotal = Math.max(0, cartSubtotal - cartDiscount);
+
   const value = useMemo<StoreCtx>(
     () => ({
       mounted,
@@ -305,6 +345,11 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       clearCart,
       cartCount,
       cartSubtotal,
+      coupon,
+      cartDiscount,
+      cartTotal,
+      applyCoupon,
+      removeCoupon,
       toggleWishlist,
       toggleCompare,
       quickViewId,
@@ -316,7 +361,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       placeOrder,
       updateOrderStatus,
     }),
-    [mounted, cart, wishlist, compare, user, orders, toasts, quickViewId, openQuickView, closeQuickView, addToCart, removeFromCart, setQty, clearCart, cartCount, cartSubtotal, toggleWishlist, toggleCompare, login, logout, showToast, placeOrder, updateOrderStatus]
+    [mounted, cart, wishlist, compare, user, orders, toasts, quickViewId, openQuickView, closeQuickView, addToCart, removeFromCart, setQty, clearCart, cartCount, cartSubtotal, coupon, cartDiscount, cartTotal, applyCoupon, removeCoupon, login, logout, showToast, placeOrder, updateOrderStatus]
   );
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
