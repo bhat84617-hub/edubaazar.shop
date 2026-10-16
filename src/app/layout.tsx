@@ -20,9 +20,9 @@ const jost = Jost({
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.edubaazar.shop";
 const SITE_NAME = "EduBazar.shop";
-const SITE_TITLE = "EduBazar.shop — Online Courses, Digital Books & Hacking Tools";
+const SITE_TITLE = "EduBazar.shop — Online Courses from ₹49 | Ethical Hacking, Python, Digital Marketing & Trading";
 const SITE_DESCRIPTION =
-  "Buy premium online courses in Ethical Hacking, Programming, Python, JavaScript, Stock Market Trading, Digital Marketing & more. Instant delivery, secure UPI payment. Starting at just ₹49 with lifetime access.";
+  "India's affordable online learning platform — 30+ courses in Ethical Hacking, Python, Digital Marketing, Stock Market Trading & more. Beginner-friendly courses in Hindi & English, with certificate, lifetime access & UPI payment. Starting at just ₹49.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -33,33 +33,43 @@ export const metadata: Metadata = {
   },
   description: SITE_DESCRIPTION,
   keywords: [
-    "online courses",
-    "hacking courses",
-    "ethical hacking course",
-    "programming courses",
-    "python course",
-    "javascript course",
-    "stock market course",
-    "trading course",
-    "digital marketing course",
-    "cyber security course",
-    "penetration testing",
-    "web development course",
-    "UI UX design course",
-    "digital books",
-    "hacking tools",
-    "free courses",
-    "cheap courses India",
+    // Brand
     "EduBazar",
-    "buy courses online",
-    "learn hacking online",
-    "learn programming online",
-    "UPI payment courses",
-    "instant download courses",
-    "Kali Linux course",
-    "React Next.js course",
-    "forex trading course",
-    "crypto trading course",
+    "edubazar.shop",
+    "edubazar shop",
+    // Category keywords (Google Trends India — high demand, Oct 2026)
+    "ethical hacking course",
+    "ethical hacking course in hindi",
+    "ethical hacking course for beginners",
+    "python course",
+    "python course for beginners",
+    "python course with certificate",
+    "digital marketing course",
+    "digital marketing course for beginners",
+    "stock market course",
+    "stock market course for beginners",
+    "indian stock market course",
+    "web development course",
+    "full stack web development course",
+    "cyber security course",
+    "trading course",
+    "online trading course",
+    "ui ux design course",
+    "javascript course",
+    "seo course",
+    // Intent modifiers people actually search (Trends: free/fees/beginners/certificate/hindi)
+    "online courses india",
+    "cheap online courses india",
+    "affordable online courses",
+    "online course with certificate india",
+    "hindi me online course",
+    "programming courses for beginners",
+    "stock market course fees",
+    "ethical hacking course fees",
+    "digital marketing course fees",
+    "buy online course india",
+    "upi payment courses",
+    "diwali offer online course",
   ],
   authors: [{ name: SITE_NAME, url: SITE_URL }],
   creator: SITE_NAME,
@@ -75,7 +85,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: SITE_TITLE,
     description:
-      "Premium courses in Hacking, Programming, Trading & more. 30+ courses starting at ₹49. Instant access after UPI payment — lifetime validity.",
+      "30+ affordable courses in Ethical Hacking, Python, Digital Marketing, Trading & more. Beginner-friendly, Hindi & English, with certificate. Starting at ₹49 — lifetime access, UPI payment.",
     url: SITE_URL,
     siteName: SITE_NAME,
     locale: "en_IN",

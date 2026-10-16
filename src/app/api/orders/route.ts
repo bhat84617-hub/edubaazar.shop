@@ -3,6 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 import { SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY } from "@/lib/supabase-config";
 import { getProductById } from "@/lib/products";
 import { getClientIp, isRateLimited } from "@/lib/security";
+import { getValidCoupon, couponDiscount } from "@/lib/config";
 
 export const runtime = "nodejs";
 
@@ -85,6 +86,7 @@ export async function POST(req: NextRequest) {
       email?: unknown;
       phone?: unknown;
       utr?: unknown;
+      coupon?: unknown;
       items?: unknown;
     } | null;
     if (!body) return NextResponse.json({ error: "Invalid request" }, { status: 400 });
@@ -124,9 +126,17 @@ export async function POST(req: NextRequest) {
     }
     const total = items.reduce((s, i) => s + i.price * i.qty, 0);
 
+    // Coupon (e.g. DIWALI50): validated server-side — client values are never
+    // trusted for pricing. Invalid/expired codes are silently ignored (no
+    // discount) rather than rejecting the order.
+    const couponCode = typeof body.coupon === "string" ? body.coupon.trim().toUpperCase().slice(0, 32) : "";
+    const coupon = getValidCoupon(couponCode);
+    const discount = couponDiscount(total, coupon);
+    const finalTotal = Math.max(0, total - discount);
+
     // UTR: required for paid orders (10–14 digits, same rule as checkout page)
     let utr = "";
-    if (total > 0) {
+    if (finalTotal > 0) {
       const digits = utrRaw.replace(/\D/g, "");
       if (digits.length < 10 || digits.length > 14) {
         return NextResponse.json({ error: "Please enter a valid UPI Transaction ID (10-14 digits)." }, { status: 400 });
@@ -149,7 +159,7 @@ export async function POST(req: NextRequest) {
     }
 
     const orderId = "EDU-" + Date.now().toString(36).toUpperCase() + Math.random().toString(36).slice(2, 6).toUpperCase();
-    const status = total <= 0 ? "approved" : "pending";
+    const status = finalTotal <= 0 ? "approved" : "pending";
     const date = new Date().toISOString();
 
     const { error: insErr } = await supabase.from("orders").insert([
@@ -159,7 +169,7 @@ export async function POST(req: NextRequest) {
         email,
         phone: phoneDigits,
         items: JSON.stringify(items),
-        total,
+        total: finalTotal,
         status,
         payment_method: "upi_qr",
         utr,
@@ -172,7 +182,7 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json({
-      order: { orderId, name, email, phone: phoneDigits, items, total, status, paymentMethod: "upi_qr", utr, date },
+      order: { orderId, name, email, phone: phoneDigits, items, total: finalTotal, status, paymentMethod: "upi_qr", utr, date },
     });
   } catch {
     return NextResponse.json({ error: "Order could not be saved. Please try again." }, { status: 500 });

@@ -7,7 +7,7 @@ import { getProductById, formatINR } from "@/lib/products";
 import { useStore } from "@/lib/store";
 
 export default function CartPage() {
-  const { cart, removeFromCart, setQty, cartSubtotal, mounted } = useStore();
+  const { cart, removeFromCart, setQty, cartSubtotal, coupon, cartDiscount, cartTotal, mounted } = useStore();
 
   return (
     <section className="section-pad">
@@ -83,8 +83,14 @@ export default function CartPage() {
                   })}
               </div>
               <div className="sum-row"><span>Subtotal</span><span>{formatINR(cartSubtotal)}</span></div>
+              {coupon && cartDiscount > 0 && (
+                <div className="sum-row" style={{ color: "var(--primary)" }}>
+                  <span>Coupon {coupon.code} ({coupon.percent}% off)</span>
+                  <span>− {formatINR(cartDiscount)}</span>
+                </div>
+              )}
               <div className="sum-row"><span>Delivery</span><span>Instant (Digital)</span></div>
-              <div className="sum-row total"><span>Total</span><span>{formatINR(cartSubtotal)}</span></div>
+              <div className="sum-row total"><span>Total</span><span>{formatINR(cartTotal)}</span></div>
               <Link href="/checkout" className="btn btn-primary btn-block" style={{ marginTop: 16 }}>
                 Proceed to Checkout <ArrowRight size={16} />
               </Link>
