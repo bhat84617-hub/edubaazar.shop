@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { scryptSync, randomBytes } from "node:crypto";
 import { SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY } from "@/lib/supabase-config";
 import { getClientIp, isRateLimited } from "@/lib/security";
+import { hashPassword } from "@/lib/password";
 
 export async function POST(req: NextRequest) {
   try {
@@ -34,9 +34,7 @@ export async function POST(req: NextRequest) {
     if (existing) return NextResponse.json({ ok: true, alreadyRegistered: true });
 
     // Strong password hashing: scrypt (CPU+memory hard). Format: scrypt:<salt>:<hash>
-    const salt = randomBytes(16).toString("hex");
-    const derived = scryptSync(password, salt, 64).toString("hex");
-    const stored = `scrypt:${salt}:${derived}`;
+    const stored = hashPassword(password);
 
     const { error: insErr } = await supabase.from("users").insert([{ name: name.trim(), email: cleanEmail, password: stored }]);
     if (insErr) {

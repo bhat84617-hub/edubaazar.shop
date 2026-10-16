@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Lock, Mail, LogIn, ArrowLeft } from "lucide-react";
 import { useStore } from "@/lib/store";
+import GoogleLoginButton from "@/components/GoogleLoginButton";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -62,6 +63,12 @@ export default function LoginPage() {
             <LogIn size={16} /> {loading ? "Logging in..." : "Login"}
           </button>
         </form>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, margin: "18px 0 4px" }}>
+          <span style={{ flex: 1, height: 1, background: "var(--line)" }} />
+          <span style={{ fontSize: 12, color: "var(--muted)" }}>ya</span>
+          <span style={{ flex: 1, height: 1, background: "var(--line)" }} />
+        </div>
+        <GoogleLoginButton onError={setError} />
         <p style={{ textAlign: "center", marginTop: 20, fontSize: 14, color: "var(--muted)" }}>
           Don&apos;t have an account? <Link href="/register" style={{ color: "var(--primary)", fontWeight: 700 }}>Sign Up</Link>
         </p>
